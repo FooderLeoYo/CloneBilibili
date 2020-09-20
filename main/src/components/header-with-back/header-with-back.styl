@@ -1,0 +1,36 @@
+@import "../../assets/stylus/px2rem.styl"
+
+* 
+  box-sizing: border-box
+.header
+  display: flex
+  height: px2rem(45)
+  padding: px2rem(8) 
+  background-color: #ffffff
+  .back-btn
+    width: px2rem(80)
+    height: px2rem(18)
+    padding-left: px2rem(7)
+    img
+      width: px2rem(20)
+      height: px2rem(30)
+  .logo-wrapper
+    flex: 1
+    .logo
+      width: px2rem(62)
+      margin: 0 auto
+  .tools
+    width: px2rem(80)
+    .avatar
+      float: right
+      width: px2rem(28)
+      height: @width
+      margin-top: px2rem(-1)
+      margin-right: px2rem(12)
+      svg
+        border-radius: 50%
+    .search-icon
+      float: right
+      font-size: px2rem(28)
+      margin-top: px2rem(-3)
+      margin-right: px2rem(10)
