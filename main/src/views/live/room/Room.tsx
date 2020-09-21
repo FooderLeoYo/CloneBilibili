@@ -6,7 +6,7 @@ import { match } from "react-router-dom";
 import getRoomData from "../../../redux/async-action-creators/live/room";
 import { setShouldLoad } from "../../../redux/action-creators";
 import { getUserInfo } from "../../../api/up-user";
-import { getDanMuConfig, getRoomInfo, getPlayUrl } from "../../../api/live";
+import { getDanMuConfig } from "../../../api/live";
 
 import Context from "../../../context";
 import { Live, UpUser } from "../../../class-object-creators";
@@ -19,9 +19,6 @@ import BottomArea, { sendMsg } from "./BottomArea";
 import ChatWebSocket, { Events } from "./ChatWS";
 
 import style from "./stylus/room.styl?css-modules";
-
-// import store from "../../../entry-client"
-
 
 interface RoomProps {
   shouldLoad: boolean,
@@ -45,10 +42,11 @@ const {
   useRef
 } = React;
 
-
 function Room(props: RoomProps) {
   const { shouldLoad, dispatch, roomData } = props;
   const { live } = roomData;
+  let chatWebSocket: ChatWebSocket;
+  let test;
 
   const [preRoomData, setPreRoomData] = useState(roomData);
   const [isDataOk, setIsDataOk] = useState(false);
@@ -83,7 +81,8 @@ function Room(props: RoomProps) {
     getDanMuConfig(roomData.live.roomId).then(result => {
       if (result.code === "1") {
         const url = `wss://${result.data.host}/sub`;
-        const chatWebSocket = new ChatWebSocket(url, roomData.live.roomId);
+        chatWebSocket = new ChatWebSocket(url, roomData.live.roomId);
+        test = 1;
 
         // HEARTBEAT_REPLY的res.body就是res发送时的人气数据
         chatWebSocket.on(Events.HEARTBEAT_REPLY, ({ onlineNum }) => {
@@ -110,23 +109,27 @@ function Room(props: RoomProps) {
     });
   }
 
-  const setInitData = async () => {
+  const setInitData = () => {
     setIsDataOk(true);
     setDanmu();
     setUpInfo();
-
   }
 
   useEffect(() => {
-    if (shouldLoad) {
-      // 这个数据非常慢，dispatch后props中仍然没有roomData
-      // 到了下面的仿getDerivedStateFromProps时才有数据
-      // 因此setInitData放到那里执行
-      dispatch(getRoomData(props.match.params.roomId))
-    } else {
-      setInitData();
-      dispatch(setShouldLoad(true));
-    }
+    // if (shouldLoad) {
+    // 这个数据非常慢，dispatch后props中仍然没有roomData
+    // 到了下面的仿getDerivedStateFromProps时才有数据
+    // 因此setInitData放到那里执行
+    //   dispatch(getRoomData(props.match.params.roomId))
+    // } else {
+    setInitData();
+    //   dispatch(setShouldLoad(true));
+    // }
+
+    // 这里相当于componentWillUnmount
+    // return () => {
+    // chatWebSocket.webSocket.close();
+    // }
   }, []);
 
   // 相当于getDerivedStateFromProps
@@ -142,7 +145,7 @@ function Room(props: RoomProps) {
       </Helmet>
       {
         !isDataOk ? <LoadingCutscene /> :
-          <div>
+          <div className={style.roomWrapper}>
             <header className={style.header}>
               <HeaderWithBack />
             </header>
@@ -171,13 +174,13 @@ function Room(props: RoomProps) {
                     <div className={style.upContainer}>
                       {/* up主头像 */}
                       <div className={style.face}>
-                        <a href={"/space/" + roomData.uId}>
+                        <Link to={"/space/" + roomData.uId}>
                           {
                             anchor.face ? (
                               <img src={context.picURL + "?pic=" + anchor.face} alt={anchor.name} />
                             ) : null
                           }
-                        </a>
+                        </Link>
                       </div>
                       {/* up主名字、人气、粉丝数 */}
                       <div className={style.infoWrapper}>

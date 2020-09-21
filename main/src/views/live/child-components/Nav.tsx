@@ -42,8 +42,8 @@ function Nav(props: NavProps) {
   const handleSecondClick = tab => {
     setLvTwoTabIndex(tab.id);
     if (tab.id === 0) {
-      // window.location.href = "/live";
-      props.history.push({ pathname: "/live" });
+      window.location.href = "/live";
+      // props.history.push({ pathname: "/live" });
     } else if (tab.id === 9) {
       window.location.href = `/live/list` +
         `?parent_area_id=0` +

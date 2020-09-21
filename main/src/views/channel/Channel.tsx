@@ -240,10 +240,10 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     if (tab.id !== this.curLvOneTabIndex) {
       // 当前分类为直播
       if (tab.id === -1) {
-        // window.location.href = "/live";
-        this.props.history.push({
-          pathname: "/live"
-        });
+        window.location.href = "/live";
+        // this.props.history.push({
+        //   pathname: "/live"
+        // });
         return;
       }
       if (tab.id === 0) {

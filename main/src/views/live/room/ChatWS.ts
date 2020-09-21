@@ -81,9 +81,10 @@ export enum Events {
 }
 
 export default class ChatWebSocket {
-  private webSocket: WebSocket;
+  public webSocket: WebSocket;
   private heartBeatInterval: number;
   private eventHandle: Map<Events, (body: any) => void>;
+
   public constructor(url: string, public roomId: number) {
     // new执行以后，客户端就会与服务器进行连接，不需要手动send任何信息
     this.webSocket = new WebSocket(url);
@@ -117,12 +118,11 @@ export default class ChatWebSocket {
       );
       // send是客户端发给服务端
       this.webSocket.send(arrayBuffer);
-
     });
 
     // 根据从服务端收到的数据类型采取相应的行动
     // message在客户端接收服务端数据时被触发
-    this.webSocket.addEventListener("message", (event) => {
+    this.webSocket.addEventListener("message", event => {
       const res = this.convertToObject(event.data);
       let callback: (body: any) => void;
 

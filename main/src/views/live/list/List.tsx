@@ -113,22 +113,20 @@ function List(props: ListProps) {
         // } else {
         // setLives(list);
         // }
-
         setIsLoadMore(false);
         setIsDataOk(true);
-
       }
     });
   };
 
   useEffect(() => {
-    if (shouldLoad) {
-      livePage.pageNumber = 1;
-      getLives();
-    } else {
-      setIsDataOk(true);
-      dispatch(setShouldLoad(true));
-    }
+    // if (shouldLoad) {
+    // livePage.pageNumber = 1;
+    // getLives();
+    // } else {
+    setIsDataOk(true);
+    // dispatch(setShouldLoad(true));
+    // }
   }, []);
 
   return (

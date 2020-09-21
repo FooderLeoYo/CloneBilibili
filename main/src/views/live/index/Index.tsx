@@ -72,12 +72,12 @@ function Index(props: IndexProps) {
     // 此时有服务端的预取数据，页面使用预取数据即可而无需调用getLives
     // 但是预取数据仅仅是当前页面，因此要setShouldLoad(true)
     // 因为路由跳转切换下一个页面时，下一个页面将没有对应的预取数据，需要自己获取
-    if (shouldLoad) {
-      dispatch(getLiveData()).then(() => { setIsDataOk(true); });
-    } else {
-      setIsDataOk(true);
-      dispatch(setShouldLoad(true));
-    }
+    // if (shouldLoad) {
+    //   dispatch(getLiveData()).then(() => { setIsDataOk(true); });
+    // } else {
+    setIsDataOk(true);
+    // dispatch(setShouldLoad(true));
+    // }
   }, []);  // 传入空数组，组件第一次挂载后调用，组件更新不回调
 
   /* 以下为渲染部分 */
@@ -133,18 +133,18 @@ function Index(props: IndexProps) {
                           <h4 className={style.title}>
                             {item.areaName ? item.areaName : item.parentAreaName}
                             <span className={style.more} onClick={() => {
-                              // window.location.href = `/live/list` +
-                              //   `?parent_area_id=${item.parentAreaId}` +
-                              //   `&parent_area_name=${item.parentAreaName}` +
-                              //   `&area_id=${item.areaId}` +
-                              //   `&area_name=${item.areaName}`;
-                              props.history.push({
-                                pathname: "/live/list",
-                                search: `?parent_area_id=${item.parentAreaId}` +
-                                  `&parent_area_name=${item.parentAreaName}` +
-                                  `&area_id=${item.areaId}` +
-                                  `&area_name=${item.areaName}`
-                              });
+                              window.location.href = `/live/list` +
+                                `?parent_area_id=${item.parentAreaId}` +
+                                `&parent_area_name=${item.parentAreaName}` +
+                                `&area_id=${item.areaId}` +
+                                `&area_name=${item.areaName}`;
+                              // props.history.push({
+                              //   pathname: "/live/list",
+                              //   search: `?parent_area_id=${item.parentAreaId}` +
+                              //     `&parent_area_name=${item.parentAreaName}` +
+                              //     `&area_id=${item.areaId}` +
+                              //     `&area_name=${item.areaName}`
+                              // });
                             }}>进去看看</span>
                           </h4>
                           {/* 分区下的4个直播间 */}
@@ -155,20 +155,20 @@ function Index(props: IndexProps) {
                                   data.cover = `${context.picURL}?pic=${data.cover}`;
                                 }
                                 return (
-                                  // <a
-                                  //   className={style.roomWrapper}
-                                  //   key={data.roomId}
-                                  //   href={`/live/${data.roomId}`}
-                                  // >
-                                  //   <LiveInfo data={data} />
-                                  // </a>
-                                  <Link
+                                  <a
                                     className={style.roomWrapper}
                                     key={data.roomId}
-                                    to={`/live/${data.roomId}`}
+                                    href={`/live/${data.roomId}`}
                                   >
                                     <LiveInfo data={data} />
-                                  </Link>
+                                  </a>
+                                  // <Link
+                                  //   className={style.roomWrapper}
+                                  //   key={data.roomId}
+                                  //   to={`/live/${data.roomId}`}
+                                  // >
+                                  //   <LiveInfo data={data} />
+                                  // </Link>
                                 )
                               })
                             }

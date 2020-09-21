@@ -67,7 +67,6 @@ const sendMsg = msg => {
       needScroll = true;
     }
     chatDOM.appendChild(div);
-    console.log(chatDOM.children);
     // 如果聊天区域添加了新消息div，则滚动chatDOM使得新消息处于最底部
     if (needScroll) {
       chatDOM.scrollTop = chatDOM.scrollHeight - chatDOM.clientHeight;
