@@ -47,9 +47,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private currentTimeRef: React.RefObject<HTMLSpanElement>;
   private progressRef: React.RefObject<HTMLDivElement>;
   private liveDurationRef: React.RefObject<HTMLDivElement>;
-  private initBarrages: any = [];
-  private barrages: any = [];
-  private timer: number; // 鼠标静止一段时间后隐藏控制条
+  private initBarrages: Array<any>; // 拿到数据时的初始格式，供slice后生成barrages
+  private barrages: Array<any>; // 真正发送到播放器中的弹幕
+  private timer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
   public static defaultProps = {
     live: false, // 该视频是否是直播
     isLive: false, // 主播是否正在直播
@@ -65,6 +65,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.currentTimeRef = React.createRef();
     this.progressRef = React.createRef();
     this.liveDurationRef = React.createRef();
+    this.initBarrages = [];
+    this.barrages = [];
+    this.timer = 0;
     this.state = {
       duration: 0,
       paused: true,
@@ -79,72 +82,15 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     };
   }
 
-  /* 以下为生命周期函数 */
-  public componentDidMount() {
-    const videoDOM = this.videoRef.current;
-    const videoAreaDOM = this.videoAreaRef.current;
-    const controlBarDOM = this.controlBarRef.current;
-    const play = () => {
-      this.setState({
-        isShowCover: false,
-        paused: false,
-        waiting: false
-      });
-    }
-    // "play"是HTML DOM 事件onplay的事件类型，而不是一个自定义名称
-    videoDOM.addEventListener("play", play);
-    videoDOM.addEventListener("playing", play);
-    videoDOM.addEventListener("waiting", () => {
-      this.setState({ waiting: true });
-    });
-    // click事件不能正常显示/隐藏控制器，且会影响其他控制器子组件的点击
-    // videoAreaDOM.addEventListener("click", (e) => {
-    //   e.stopPropagation();
-    //   e.preventDefault();
-    //   clearTimeout(this.timer);
-    //   if (!this.state.isShowControlBar) {
-    //     this.showControlsTemporally();
-    //   } else {
-    //     this.hideControls();
-    //   }
-    // });
-    // 鼠标移入视频区则显示控制器，2秒后隐藏
-    videoAreaDOM.addEventListener("mouseover", (e) => {
-      e.stopPropagation();
-      this.showControlsTemporally();
-    });
-    // 鼠标移动过程中一直显示控制器
-    videoAreaDOM.addEventListener("mousemove", (e) => {
-      e.stopPropagation();
-      clearTimeout(this.timer);
-      this.showControlsTemporally();
-    });
-    // 鼠标移出视频区立即隐藏控制器
-    videoAreaDOM.addEventListener("mouseout", (e) => {
-      e.stopPropagation();
-      clearTimeout(this.timer);
-      this.hideControls();
-    });
-    // 鼠标停留在控制器上时，一直显示控制器
-    // 这里不绑定mouseover事件，是因为：
-    //   触发mouseover后马上又触发videoAreaDOM的mousemove，进而调用showControlsTemporally
-    //   这样控制器就会2秒后隐藏，而不是一直显示
-    controlBarDOM.addEventListener("mousemove", (e) => {
-      e.stopPropagation();
-      clearTimeout(this.timer);
-      this.showControls();
-    });
-
-    this.initVideo();
-  }
-
   /* 以下为自定义方法 */
+
   private initVideo() {
     const { live, video } = this.props;
     const videoDOM = this.videoRef.current;
     const barrageComponent = this.barrageRef.current;
     const currentTimeDOM = this.currentTimeRef.current;
     const progressDOM = this.progressRef.current;
+
     // 非直播时处理
     if (!live) {
       this.getBarrages();
@@ -166,6 +112,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           });
         }
       });
+
       // 视频结束时重置进度条和state
       videoDOM.addEventListener("ended", () => {
         currentTimeDOM.innerHTML = "00:00";
@@ -257,7 +204,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   }
 
   public sendBarrage(data: { color: string, content: string }) {
-    if (this.state.barrageSwitch === true) {
+    if (this.state.barrageSwitch) {
       this.barrageRef.current.send({
         type: BarrageType.RANDOM,
         color: data.color,
@@ -267,23 +214,23 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   }
 
   private getBarrages() {
-    getBarrages(this.props.video.cId)
-      .then((result) => {
-        const barrages = [];
-        if (result.code === "1") {
-          result.data.forEach((data) => {
-            barrages.push({
-              type: data.type === "1" ? BarrageType.RANDOM : BarrageType.FIXED,
-              color: "#" + Number(data.decimalColor).toString(16),
-              content: data.content,
-              time: Number(data.time)
-            });
+    getBarrages(this.props.video.cId).then(result => {
+      const barrages = [];
+      if (result.code === "1") {
+        result.data.forEach(data => {
+          barrages.push({
+            type: data.type === "1" ? BarrageType.RANDOM : BarrageType.FIXED,
+            color: "#" + Number(data.decimalColor).toString(16),
+            content: data.content,
+            time: Number(data.time)
           });
-        }
-        // 初始化弹幕列表
-        this.initBarrages = barrages;
-        this.barrages = this.initBarrages.slice();
-      });
+        });
+      }
+
+      // 初始化弹幕列表
+      this.initBarrages = barrages;
+      this.barrages = this.initBarrages.slice();
+    });
   }
 
   //  根据时间查找弹幕
@@ -311,6 +258,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
 
   private playOrPause() {
     const videoDOM = this.videoRef.current;
+
     if (this.state.paused) {
       videoDOM.play();
       this.setState({
@@ -366,13 +314,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private onOrOff() {
     if (this.state.barrageSwitch) {
       this.barrageRef.current.clear();
-      this.setState({
-        barrageSwitch: false
-      });
+      this.setState({ barrageSwitch: false });
     } else {
-      this.setState({
-        barrageSwitch: true
-      });
+      this.setState({ barrageSwitch: true });
     }
   }
 
@@ -415,6 +359,78 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     return `${videoURL}?video=${url}`;
   }
 
+  private setPlayingState = () => {
+    const videoDOM = this.videoRef.current;
+    const setPlayState = () => {
+      this.setState({
+        isShowCover: false,
+        paused: false,
+        waiting: false
+      });
+    }
+
+    // "play"是HTML DOM 事件onplay的事件类型，而不是一个自定义名称
+    videoDOM.addEventListener("play", setPlayState);
+    videoDOM.addEventListener("playing", setPlayState);
+    videoDOM.addEventListener("waiting", () => {
+      this.setState({ waiting: true });
+    });
+  }
+
+  private setMouseListener = () => {
+    const videoAreaDOM = this.videoAreaRef.current;
+    const controlBarDOM = this.controlBarRef.current;
+    // click事件不能正常显示/隐藏控制器，且会影响其他控制器子组件的点击
+    // videoAreaDOM.addEventListener("click", (e) => {
+    //   e.stopPropagation();
+    //   e.preventDefault();
+    //   clearTimeout(this.timer);
+    //   if (!this.state.isShowControlBar) {
+    //     this.showControlsTemporally();
+    //   } else {
+    //     this.hideControls();
+    //   }
+    // });
+
+    // 鼠标移入视频区则显示控制器，2秒后隐藏
+    videoAreaDOM.addEventListener("mouseover", e => {
+      console.log("mouseover");
+      e.stopPropagation();
+      this.showControlsTemporally();
+    });
+    // 鼠标移动过程中一直显示控制器
+    videoAreaDOM.addEventListener("mousemove", e => {
+      console.log("videoAreaDOM mousemove");
+      e.stopPropagation();
+      clearTimeout(this.timer);
+      this.showControlsTemporally();
+    });
+    // 鼠标移出视频区立即隐藏控制器
+    videoAreaDOM.addEventListener("mouseout", e => {
+      console.log("mouseout");
+      e.stopPropagation();
+      clearTimeout(this.timer);
+      this.hideControls();
+    });
+    // 鼠标停留在控制器上时，一直显示控制器
+    // 这里不绑定mouseover事件，是因为：
+    //   触发mouseover后马上又触发videoAreaDOM的mousemove，进而调用showControlsTemporally
+    //   这样控制器就会2秒后隐藏，而不是一直显示
+    controlBarDOM.addEventListener("mousemove", e => {
+      console.log("controlBarDOM mousemove");
+      e.stopPropagation();
+      clearTimeout(this.timer);
+      this.showControls();
+    });
+  }
+
+  /* 以下为生命周期函数 */
+  public componentDidMount() {
+    this.setPlayingState();
+    this.setMouseListener();
+    this.initVideo();
+  }
+
   /* 以下为渲染部分 */
   public render() {
     const { live, video } = this.props;
@@ -449,7 +465,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           <div
             className={style.playButton + " " + playBtnClass}
             style={playBtnStyle}
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation(); // 阻止点击冒泡到controls
               this.playOrPause();
             }}
@@ -461,7 +477,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           >
             <div
               className={style.controlBarPlayBtn + " " + playBtnClass}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 this.playOrPause();
               }}
@@ -482,7 +498,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                   <div className={style.center}>
                     <div
                       className={style.progressWrapper}
-                      onClick={(e) => { this.changePlayPosition(e); }}
+                      onClick={e => { this.changePlayPosition(e); }}
                     >
                       <div className={style.progress} ref={this.progressRef} />
                     </div>
@@ -495,11 +511,11 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
             <div className={style.right}>
               <div
                 className={switchClass}
-                onClick={(e) => { e.stopPropagation(); this.onOrOff(); }}
+                onClick={e => { e.stopPropagation(); this.onOrOff(); }}
               />
               <div
                 className={style.fullscreen}
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   this.entryOrExitFullscreen();
                 }}

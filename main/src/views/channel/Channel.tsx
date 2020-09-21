@@ -232,8 +232,10 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     await this.setTabIndexAndLvOnePar();
     await this.setLvTwoTabDataAndPar();
     await this.setVideoData();
-    this.setParOrLatest();
-    this.setState({ isDataOk: true });
+    await this.setParOrLatest();
+    setTimeout(() => {
+      this.setState({ isDataOk: true });
+    }, 1);
   }
 
   private handleClick = tab => {

@@ -27,11 +27,11 @@ function Nav(props: NavProps) {
     if (tab.id === -1) {
       return;
     } else if (tab.id === 0) {
-      // window.location.href = "/index";
-      props.history.push({ pathname: "/index" });
+      window.location.href = "/index";
+      // props.history.push({ pathname: "/index" });
     } else {
-      // window.location.href = "/channel/" + tab.id;
-      props.history.push({ pathname: "/channel/" + tab.id });
+      window.location.href = "/channel/" + tab.id;
+      // props.history.push({ pathname: "/channel/" + tab.id });
     }
   }
 
