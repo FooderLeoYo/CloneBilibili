@@ -1,5 +1,4 @@
 import * as React from "react";
-import { withRouter } from "react-router-dom";
 
 import VideoItem from "../../../components/video-item/VideoItem";
 

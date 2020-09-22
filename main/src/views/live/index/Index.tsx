@@ -39,7 +39,7 @@ const { useEffect, useState } = React;
 function Index(props: IndexProps) {
   /* 以下为初始化 */
   const [isDataOk, setIsDataOk] = useState(false);
-  const { shouldLoad, dispatch } = props;
+  // const { shouldLoad, dispatch } = props;
   // 轮播图和直播类型数据
   const { bannerList, itemList } = props.liveData;
   // 导航栏数据

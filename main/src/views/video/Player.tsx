@@ -49,7 +49,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private liveDurationRef: React.RefObject<HTMLDivElement>;
   private initBarrages: Array<any>; // 拿到数据时的初始格式，供slice后生成barrages
   private barrages: Array<any>; // 真正发送到播放器中的弹幕
-  private timer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
+  private ctrBarTimer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
+  private playBtnTimer: number;
+  private isPC: boolean;
   public static defaultProps = {
     live: false, // 该视频是否是直播
     isLive: false, // 主播是否正在直播
@@ -65,9 +67,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.currentTimeRef = React.createRef();
     this.progressRef = React.createRef();
     this.liveDurationRef = React.createRef();
-    this.initBarrages = [];
-    this.barrages = [];
-    this.timer = 0;
+    this.isPC = !(navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i) !== null);
     this.state = {
       duration: 0,
       paused: true,
@@ -83,123 +83,157 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   }
 
   /* 以下为自定义方法 */
-
-  private initVideo() {
-    const { live, video } = this.props;
+  private setTimeupdateLis = () => {
     const videoDOM = this.videoRef.current;
     const barrageComponent = this.barrageRef.current;
     const currentTimeDOM = this.currentTimeRef.current;
     const progressDOM = this.progressRef.current;
 
-    // 非直播时处理
-    if (!live) {
-      this.getBarrages();
-      // 当播放时间发生变动时，更新进度条并加载当前时点的弹幕
-      videoDOM.addEventListener("timeupdate", () => {
-        if (this.state.duration === 0) {
-          this.setState({ duration: videoDOM.duration });
-        }
-        // 更新进度条
-        currentTimeDOM.innerHTML = formatDuration(videoDOM.currentTime, "0#:##");
-        const progress = videoDOM.currentTime / videoDOM.duration * 100;
-        progressDOM.style.width = `${progress}%`;
-        // 加载当前时点的弹幕
-        if (this.state.barrageSwitch === true) {
-          const barrages = this.findBarrages(videoDOM.currentTime);
-          // 发送弹幕
-          barrages.forEach((barrage) => {
-            barrageComponent.send(barrage);
-          });
-        }
-      });
+    // 初始化时设置duration
+    if (this.state.duration === 0) {
+      this.setState({ duration: videoDOM.duration });
+    }
 
-      // 视频结束时重置进度条和state
-      videoDOM.addEventListener("ended", () => {
-        currentTimeDOM.innerHTML = "00:00";
-        progressDOM.style.width = "0";
+    // 更新进度条
+    currentTimeDOM.innerHTML = formatDuration(videoDOM.currentTime, "0#:##");
+    const progress = videoDOM.currentTime / videoDOM.duration * 100;
+    progressDOM.style.width = `${progress}%`;
+
+    // 加载当前时点的弹幕
+    if (this.state.barrageSwitch) {
+      const barrages = this.findBarrages(videoDOM.currentTime);
+      // 发送弹幕
+      barrages.forEach(barrage => {
+        barrageComponent.send(barrage);
+      });
+    }
+  }
+
+  private setVideoDOMListner = () => {
+    const videoDOM = this.videoRef.current;
+    const barrageComponent = this.barrageRef.current;
+    const currentTimeDOM = this.currentTimeRef.current;
+    const progressDOM = this.progressRef.current;
+
+    // 当播放时间发生变动时，更新进度条并加载当前时点的弹幕
+    videoDOM.addEventListener("timeupdate", this.setTimeupdateLis);
+
+    // 视频结束时重置进度条和state
+    videoDOM.addEventListener("ended", () => {
+      currentTimeDOM.innerHTML = "00:00";
+      progressDOM.style.width = "0";
+      this.setState({
+        paused: true,
+        finish: true
+      });
+      // 重新赋值弹幕列表
+      this.barrages = this.initBarrages.slice();
+      // 清除弹幕
+      barrageComponent.clear();
+    });
+  }
+
+  private setProgressDOM = () => {
+    const videoDOM = this.videoRef.current;
+    const currentTimeDOM = this.currentTimeRef.current;
+    const progressDOM = this.progressRef.current;
+
+    let width = 0; // 进度条总宽度
+    let left = 0; // 进度条框距离视口左边距离
+    let rate = 0; // 拖拽进度比例
+
+    // 触碰进度条时，设置width和left
+    progressDOM.addEventListener("touchstart", e => {
+      e.stopPropagation();
+      clearTimeout(this.ctrBarTimer);
+      videoDOM.removeEventListener("timeupdate", this.setTimeupdateLis);
+
+      const progressWrapperDOM = progressDOM.parentElement;
+      width = progressWrapperDOM.offsetWidth;
+      left = progressWrapperDOM.getBoundingClientRect().left;
+    });
+
+    progressDOM.addEventListener("touchmove", e => {
+      e.preventDefault(); // 阻止屏幕被拖动
+      const touch = e.touches[0];
+
+      // 计算拖拽进度比例
+      rate = (touch.clientX - left) / width;
+      // 手指点在进度条以外
+      if (rate > 1) {
+        rate = 1;
+      } else if (rate < 0) {
+        rate = 0;
+      }
+
+      const currentTime = videoDOM.duration * rate;
+      progressDOM.style.width = `${rate * 100}%`;
+      currentTimeDOM.innerHTML = formatDuration(currentTime, "0#:##");
+    });
+
+    progressDOM.addEventListener("touchend", () => {
+      videoDOM.currentTime = videoDOM.duration * rate;
+      this.showControlsTemporally();
+    });
+  }
+
+  private setLiveDurationDOM = () => {
+    const liveDurationDOM = this.liveDurationRef.current;
+    let liveDuration = (new Date().getTime() - this.props.liveTime) / 1000;
+    liveDurationDOM.innerHTML = formatDuration(liveDuration, "0#:##:##");
+    setInterval(() => {
+      liveDuration += 1;
+      liveDurationDOM.innerHTML = formatDuration(liveDuration, "0#:##:##");
+    }, 1000);
+  }
+
+  private setLiveVideoDOM = () => {
+    const videoDOM = this.videoRef.current;
+    const { video } = this.props;
+
+    // 支持m3u8，直接使用video播放
+    if (videoDOM.canPlayType("application/vnd.apple.mpegurl")) {
+      videoDOM.src = video.url;
+      videoDOM.addEventListener("canplay", () => {
+        videoDOM.play();
+      });
+      videoDOM.addEventListener("error", () => {
         this.setState({
-          paused: true,
-          finish: true
+          isLive: false
         });
-
-        // 重新赋值弹幕列表
-        this.barrages = this.initBarrages.slice();
-        // 清除弹幕
-        barrageComponent.clear();
       });
-
-      /*  进度条事件 */
-      let width = 0; // 进度条总宽度
-      let left = 0; // 进度条框距离视口左边距离
-      let rate = 0; // 拖拽进度比例
-
-      progressDOM.addEventListener("touchstart", (e) => {
-        e.stopPropagation(); // 阻止事件冒泡到父元素
-
-        const progressWrapperDOM = progressDOM.parentElement;
-        width = progressWrapperDOM.offsetWidth;
-        left = progressWrapperDOM.getBoundingClientRect().left;
+    } else if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(video.url);
+      hls.attachMedia(videoDOM);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        videoDOM.play();
       });
-      progressDOM.addEventListener("touchmove", (e) => {
-        e.preventDefault(); // 阻止屏幕被拖动
-
-        const touch = e.touches[0];
-        // 计算拖拽进度比例
-        rate = (touch.clientX - left) / width;
-        // 手指点在进度条以外
-        if (rate > 1) {
-          rate = 1;
-        } else if (rate < 0) {
-          rate = 0;
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR ||
+            data.response.code === 404) {
+            this.setState({
+              isLive: false
+            });
+          }
         }
-        const currentTime = videoDOM.duration * rate;
-        progressDOM.style.width = `${rate * 100}%`;
-        currentTimeDOM.innerHTML = formatDuration(currentTime, "0#:##");
       });
-      progressDOM.addEventListener("touchend", () => {
-        videoDOM.currentTime = videoDOM.duration * rate;
-        this.playOrPause();
-      });
+    }
+  }
+
+  private initVideo() {
+    const { live } = this.props;
+
+    if (!live) { // 非直播时处理
+      this.getBarrages();
+      this.setVideoDOMListner();
+      this.setProgressDOM();
     } else { // 直播时处理
       if (this.props.liveTime) {
-        const liveDurationDOM = this.liveDurationRef.current;
-        let liveDuration = (new Date().getTime() - this.props.liveTime) / 1000;
-        liveDurationDOM.innerHTML = formatDuration(liveDuration, "0#:##:##");
-        setInterval(() => {
-          liveDuration += 1;
-          liveDurationDOM.innerHTML = formatDuration(liveDuration, "0#:##:##");
-        }, 1000);
+        this.setLiveDurationDOM();
       }
-
-      // 支持m3u8，直接使用video播放
-      if (videoDOM.canPlayType("application/vnd.apple.mpegurl")) {
-        videoDOM.src = video.url;
-        videoDOM.addEventListener("canplay", () => {
-          videoDOM.play();
-        });
-        videoDOM.addEventListener("error", () => {
-          this.setState({
-            isLive: false
-          });
-        });
-      } else if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(video.url);
-        hls.attachMedia(videoDOM);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          videoDOM.play();
-        });
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            if (data.type === Hls.ErrorTypes.NETWORK_ERROR ||
-              data.response.code === 404) {
-              this.setState({
-                isLive: false
-              });
-            }
-          }
-        });
-      }
+      this.setLiveVideoDOM();
     }
   }
 
@@ -261,15 +295,18 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
 
     if (this.state.paused) {
       videoDOM.play();
+      this.showControlsTemporally();
+      this.playBtnTimer = setTimeout(() => {
+        this.setState({ isShowPlayBtn: false })
+      }, 800);
       this.setState({
         paused: false,
         finish: false,
       });
-      setTimeout(() => {
-        this.setState({ isShowPlayBtn: false })
-      }, 800);
     } else {
       videoDOM.pause();
+      clearTimeout(this.ctrBarTimer);
+      clearTimeout(this.playBtnTimer);
       this.setState({
         paused: true,
         isShowPlayBtn: true
@@ -278,12 +315,14 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   }
 
   private showControlsTemporally() {
+    clearTimeout(this.ctrBarTimer);
+
     if (!this.state.isShowControlBar) {
       this.setState({ isShowControlBar: true });
     }
-    this.timer = setTimeout(() => {
+    this.ctrBarTimer = setTimeout(() => {
       this.hideControls();
-    }, 2000);
+    }, 3000);
   }
 
   private showControls() {
@@ -402,14 +441,14 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     videoAreaDOM.addEventListener("mousemove", e => {
       console.log("videoAreaDOM mousemove");
       e.stopPropagation();
-      clearTimeout(this.timer);
+      clearTimeout(this.ctrBarTimer);
       this.showControlsTemporally();
     });
     // 鼠标移出视频区立即隐藏控制器
     videoAreaDOM.addEventListener("mouseout", e => {
       console.log("mouseout");
       e.stopPropagation();
-      clearTimeout(this.timer);
+      clearTimeout(this.ctrBarTimer);
       this.hideControls();
     });
     // 鼠标停留在控制器上时，一直显示控制器
@@ -419,15 +458,28 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     controlBarDOM.addEventListener("mousemove", e => {
       console.log("controlBarDOM mousemove");
       e.stopPropagation();
-      clearTimeout(this.timer);
+      clearTimeout(this.ctrBarTimer);
       this.showControls();
+    });
+  }
+
+  private setFingerListener = () => {
+    const videoAreaDOM = this.videoAreaRef.current;
+    // 这里的事件不能用click，只能touchstart，否则playOrPause方法失效
+    videoAreaDOM.addEventListener("touchstart", e => {
+      e.stopPropagation();
+      this.showControlsTemporally();
     });
   }
 
   /* 以下为生命周期函数 */
   public componentDidMount() {
+    if (this.isPC) {
+      this.setMouseListener();
+    } else {
+      this.setFingerListener();
+    }
     this.setPlayingState();
-    this.setMouseListener();
     this.initVideo();
   }
 

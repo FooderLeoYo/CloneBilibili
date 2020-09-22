@@ -3,12 +3,12 @@ import { Location } from "history";
 import { Helmet } from "react-helmet";
 import { parse } from "query-string";
 import { History } from "history";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 import Context from "../../../context";
 import { getLiveListData } from "../../../api/live";
-import { setShouldLoad } from "../../../redux/action-creators";
-import getLiveListInfo from "../../../redux/async-action-creators/live/list";
+// import { setShouldLoad } from "../../../redux/action-creators";
+// import getLiveListInfo from "../../../redux/async-action-creators/live/list";
 
 import { Live, UpUser, PartitionType, LiveSecQueryParType } from "../../../class-object-creators";
 import LoadingCutscene from "../../../components/loading-cutscene/LoadingCutscene";

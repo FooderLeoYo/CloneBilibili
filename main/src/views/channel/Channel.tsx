@@ -59,7 +59,6 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
   constructor(props) {
     super(props);
     this.drawerRef = React.createRef();
-    this.rankingPartitions = [];
 
     this.state = {
       isDataOk: false,
