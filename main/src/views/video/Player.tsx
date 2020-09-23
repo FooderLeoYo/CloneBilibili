@@ -35,6 +35,7 @@ interface PlayerState {
   isShowControlBar: boolean;
   isShowPlayBtn: boolean;
   isLive: boolean;
+  isShowSpeedBar: boolean;
 }
 
 class Player extends React.PureComponent<PlayerProps, PlayerState> {
@@ -47,6 +48,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private currentTimeRef: React.RefObject<HTMLSpanElement>;
   private progressRef: React.RefObject<HTMLDivElement>;
   private liveDurationRef: React.RefObject<HTMLDivElement>;
+  private progressBtnRef: React.RefObject<HTMLDivElement>;
   private initBarrages: Array<any>; // 拿到数据时的初始格式，供slice后生成barrages
   private barrages: Array<any>; // 真正发送到播放器中的弹幕
   private ctrBarTimer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
@@ -67,6 +69,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.currentTimeRef = React.createRef();
     this.progressRef = React.createRef();
     this.liveDurationRef = React.createRef();
+    this.progressBtnRef = React.createRef();
     this.isPC = !(navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i) !== null);
     this.state = {
       duration: 0,
@@ -78,7 +81,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       isShowCover: true,
       isShowControlBar: true,
       isShowPlayBtn: true,
-      isLive: props.isLive
+      isLive: props.isLive,
+      isShowSpeedBar: false
     };
   }
 
@@ -135,25 +139,24 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
 
   private setProgressDOM = () => {
     const videoDOM = this.videoRef.current;
-    const currentTimeDOM = this.currentTimeRef.current;
     const progressDOM = this.progressRef.current;
+    const progressWrapperDOM = progressDOM.parentElement;
+    const progressBtnDOM = this.progressBtnRef.current;
+    const currentTimeDOM = this.currentTimeRef.current;
 
-    let width = 0; // 进度条总宽度
-    let left = 0; // 进度条框距离视口左边距离
-    let rate = 0; // 拖拽进度比例
+
+    let width = progressWrapperDOM.offsetWidth; // 进度条总宽度
+    let left = progressWrapperDOM.getBoundingClientRect().left; // 进度条框距离视口左边距离
+    let rate = -1; // 拖拽进度比例
 
     // 触碰进度条时，设置width和left
-    progressDOM.addEventListener("touchstart", e => {
-      e.stopPropagation();
+    progressBtnDOM.addEventListener("touchstart", e => {
+      // e.stopPropagation();
       clearTimeout(this.ctrBarTimer);
       videoDOM.removeEventListener("timeupdate", this.setTimeupdateLis);
-
-      const progressWrapperDOM = progressDOM.parentElement;
-      width = progressWrapperDOM.offsetWidth;
-      left = progressWrapperDOM.getBoundingClientRect().left;
     });
 
-    progressDOM.addEventListener("touchmove", e => {
+    progressBtnDOM.addEventListener("touchmove", e => {
       e.preventDefault(); // 阻止屏幕被拖动
       const touch = e.touches[0];
 
@@ -171,9 +174,20 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       currentTimeDOM.innerHTML = formatDuration(currentTime, "0#:##");
     });
 
-    progressDOM.addEventListener("touchend", () => {
+    progressBtnDOM.addEventListener("touchend", e => {
+      const touch = e.changedTouches[0];
+      // if (rate < 0) { // 如果没触发过touchmove
+      //   rate = (touch.clientX - left) / width;
+      //   if (rate > 1) {
+      //     rate = 1;
+      //   } else if (rate < 0) {
+      //     rate = 0;
+      //   }
+      // }
       videoDOM.currentTime = videoDOM.duration * rate;
+      videoDOM.addEventListener("timeupdate", this.setTimeupdateLis);
       this.showControlsTemporally();
+      // rate = -1;
     });
   }
 
@@ -336,13 +350,12 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   }
 
   private changePlayPosition(e) {
-    e.stopPropagation(); // 阻止点击冒泡到controls
     const progressWrapperDOM = e.currentTarget;
     const left = progressWrapperDOM.getBoundingClientRect().left;
     const progress = (e.clientX - left) / progressWrapperDOM.offsetWidth;
     const videoDOM = this.videoRef.current;
+
     videoDOM.currentTime = videoDOM.duration * progress;
-    videoDOM.play();
     // 重新赋值弹幕列表
     this.barrages = this.initBarrages.slice();
     // 清除跳转前的弹幕
@@ -433,20 +446,17 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
 
     // 鼠标移入视频区则显示控制器，2秒后隐藏
     videoAreaDOM.addEventListener("mouseover", e => {
-      console.log("mouseover");
       e.stopPropagation();
       this.showControlsTemporally();
     });
     // 鼠标移动过程中一直显示控制器
     videoAreaDOM.addEventListener("mousemove", e => {
-      console.log("videoAreaDOM mousemove");
       e.stopPropagation();
       clearTimeout(this.ctrBarTimer);
       this.showControlsTemporally();
     });
     // 鼠标移出视频区立即隐藏控制器
     videoAreaDOM.addEventListener("mouseout", e => {
-      console.log("mouseout");
       e.stopPropagation();
       clearTimeout(this.ctrBarTimer);
       this.hideControls();
@@ -456,7 +466,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     //   触发mouseover后马上又触发videoAreaDOM的mousemove，进而调用showControlsTemporally
     //   这样控制器就会2秒后隐藏，而不是一直显示
     controlBarDOM.addEventListener("mousemove", e => {
-      console.log("controlBarDOM mousemove");
       e.stopPropagation();
       clearTimeout(this.ctrBarTimer);
       this.showControls();
@@ -470,6 +479,18 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       e.stopPropagation();
       this.showControlsTemporally();
     });
+  }
+
+  private showOrHideSpeedBar = () => {
+    if (this.state.isShowSpeedBar) {
+      this.setState({ isShowSpeedBar: false });
+    } else {
+      this.setState({ isShowSpeedBar: true });
+    }
+  }
+
+  private setPlaySpeed = () => {
+    // .playbackRate = 
   }
 
   /* 以下为生命周期函数 */
@@ -490,11 +511,13 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const coverStyle = { display: this.state.isShowCover ? "block" : "none" };
     const controlBarStyle = { display: this.state.isShowControlBar ? "block" : "none" };
     const playBtnStyle = { display: this.state.isShowPlayBtn ? "block" : "none" };
+    const speedBarStyle = { display: this.state.isShowSpeedBar ? "block" : "none" };
     const playBtnClass = this.state.paused ? style.play : style.pause;
     const switchClass = this.state.barrageSwitch ? style.barrageOn : style.barrageOff;
 
     return (
       <div className={style.videoPlayer} ref={this.wrapperRef}>
+        {/* 视频区域 */}
         <video
           height="100%"
           width="100%"
@@ -507,6 +530,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           style={videoStyle}
           ref={this.videoRef}
         />
+        {/* 弹幕 */}
         {/* 不把Barrage放进videoArea中是因为： */}
         {/*   如果Barrage成为videoArea的子元素，那么Barrage的事件会冒泡到videoArea */}
         {/*   这样就还要阻止Barrage的事件冒泡，所以不如将其放在外面 */}
@@ -514,6 +538,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           <Barrage opacity={live ? 1 : 0.75} ref={this.barrageRef} />
         </div>
         <div className={style.videoArea} ref={this.videoAreaRef}>
+          {/* 右边的白色播放暂停按钮 */}
           <div
             className={style.playButton + " " + playBtnClass}
             style={playBtnStyle}
@@ -522,11 +547,13 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
               this.playOrPause();
             }}
           />
+          {/* 控制栏 */}
           <div
             className={style.controlBar + (live ? " " + style.liveControl : "")}
             style={controlBarStyle}
             ref={this.controlBarRef}
           >
+            {/* 控制栏播放按钮 */}
             <div
               className={style.controlBarPlayBtn + " " + playBtnClass}
               onClick={e => {
@@ -540,6 +567,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                 // React.Fragment和空的div类似，都是在最外层起到包裹的作用
                 // 区别是React.Fragment不会真实的html元素，这样就减轻了浏览器渲染压力
                 <React.Fragment>
+                  {/* 当前时间、视频总时长 */}
                   <div className={style.left}>
                     <span className={style.time} ref={this.currentTimeRef}>00:00</span>
                     <span className={style.split}>/</span>
@@ -547,24 +575,60 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                       {formatDuration(this.state.duration, "0#:##")}
                     </span>
                   </div>
+                  {/* 进度条 */}
                   <div className={style.center}>
                     <div
                       className={style.progressWrapper}
                       onClick={e => { this.changePlayPosition(e); }}
                     >
-                      <div className={style.progress} ref={this.progressRef} />
+                      <div className={style.progress} ref={this.progressRef} >
+                        <span className={style.progressBtn} ref={this.progressBtnRef} />
+                      </div>
                     </div>
                   </div>
                 </React.Fragment>
-              ) : (
+              ) : ( // 直播时为直播时长
                   <div className={style.left} ref={this.liveDurationRef}></div>
                 )
             }
             <div className={style.right}>
               <div
-                className={switchClass}
-                onClick={e => { e.stopPropagation(); this.onOrOff(); }}
+                className={style.speedBtn}
+                onClick={e => {
+                  e.stopPropagation();
+                  this.showOrHideSpeedBar();
+                }}
               />
+              <div
+                className={style.speedBar}
+                style={speedBarStyle}
+                onClick={e => {
+                  e.stopPropagation();
+                  this.setPlaySpeed();
+                }}
+              >
+                <ul>
+                  {
+                    for(let i = 0; i < 5; i++) {
+
+                  }
+                  }
+                  <li>2</li>
+                  <li>1.5</li>
+                  <li>1</li>
+                  <li>0.75</li>
+                  <li>0.5</li>
+                </ul>
+              </div >
+              {/* 弹幕开关 */}
+              <div
+                className={switchClass}
+                onClick={e => {
+                  e.stopPropagation();
+                  this.onOrOff();
+                }}
+              />
+              {/* 全屏开关 */}
               <div
                 className={style.fullscreen}
                 onClick={e => {
@@ -607,7 +671,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
               )
           }
         </div>
-        {
+        {  // 正在缓冲
           this.state.waiting ? (
             <div className={style.loading}>
               <div className={style.wrapper}>
@@ -619,7 +683,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
             </div>
           ) : null
         }
-        {
+        { // 重新播放
           this.state.finish ? (
             <div className={style.finishCover}>
               <img className={style.coverPic} src={video.cover} alt={video.title} />
@@ -635,7 +699,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
             </div>
           ) : null
         }
-        {
+        { // 直播时，主播不在
           live && !this.state.isLive ? (
             <div className={style.noticeCover}>
               <div className={style.noticeWrapper}>

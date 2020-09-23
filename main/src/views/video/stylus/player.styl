@@ -37,7 +37,7 @@
       bottom: 0
       width: 100%
       height: px2rem(44)
-      background-color: rgba(0, 0, 0, .5)
+      background: linear-gradient(rgba(0,0,0,0),rgba(0,0,0,1))
       .control-bar-play-btn
         display: inline-block
         position: absolute
@@ -94,20 +94,38 @@
             left: 0
             height: 100%
             background-color: #de698c
-            &:after
-              content: ""
-              display: block
+            .progress-btn
               position: absolute
               top: px2rem(-6.6)
               right: px2rem(-14)
               width: px2rem(14)
               height: px2rem(14)
-              background-color: #ffffff
-              box-shadow: px2rem(0.5) px2rem(0.5) px2rem(3) #000000
               border-radius: 50%
+              background-image: url("../../../assets/images/progress-btn.svg")
+              background-repeat: no-repeat
+              background-position: center;
+              background-size: 100%
       .right
         float: right
         margin-right: px2rem(12)
+        .speed-btn
+          display: inline-block
+          width: px2rem(24)
+          height: @width
+          position: fixed
+          top: px2rem(50)
+          right: px2rem(50)
+          background-image: url("../../../assets/images/speed0.5.svg")
+          background-size: 100%
+          background-position: center;
+        .speed-bar
+          display: inline-block
+          width: 20vw
+          height: 20vh
+          position: fixed
+          top: px2rem(80)
+          right: px2rem(0)
+          background-color: orange
         .barrage-on, .barrage-off
           display: inline-block
           width: px2rem(24)
@@ -124,7 +142,7 @@
           height: @width
           margin-top: px2rem(10)
           margin-left: px2rem(16)
-          background-image: url("../../../assets/images/fullscreen.png")
+          background-image: url("../../../assets/images/fullscreen.svg")
           background-size: 100% auto
   .cover
     position: absolute
