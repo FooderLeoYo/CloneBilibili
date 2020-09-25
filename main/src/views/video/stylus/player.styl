@@ -15,11 +15,30 @@
     user-select: none
   .video-area
     position: absolute
+    text-align: center
     top: 0
     left: 0
     right: 0
     bottom: 0
     z-index: 1
+    .center-speed
+      background-color: skyblue
+      position: fixed
+      top: px2rem(100)
+      right: px2rem(200)
+    .speed-bar
+      grid-template-rows: repeat(5, 1fr)
+      position: absolute
+      right: 0
+      margin: 0
+      padding: 4vh 0
+      width: 20vw
+      height: 100%
+      list-style-type: none
+      background: linear-gradient(to right, rgba(0,0,0,0),rgba(0,0,0,1))
+      color: #ffffff
+      font-size: px2rem(15)
+      z-index: 2
     .play-button
       position: absolute
       right: px2rem(12)
@@ -80,9 +99,9 @@
           text-align: left
       .center
         position: absolute
-        left: px2rem(118)
+        left: px2rem(110)
         top: px2rem(21)
-        right: px2rem(98)
+        right: px2rem(115)
         height: px2rem(2)
         .progress-wrapper
           position: relative
@@ -107,30 +126,34 @@
               background-size: 100%
       .right
         float: right
-        margin-right: px2rem(12)
+        margin-right: px2rem(10)
         .speed-btn
           display: inline-block
           width: px2rem(24)
           height: @width
-          position: fixed
-          top: px2rem(50)
-          right: px2rem(50)
-          background-image: url("../../../assets/images/speed0.5.svg")
+          margin-top: px2rem(10)
           background-size: 100%
-          background-position: center;
-        .speed-bar
-          display: inline-block
-          width: 20vw
-          height: 20vh
-          position: fixed
-          top: px2rem(80)
-          right: px2rem(0)
-          background-color: orange
+          background-position: center
+          div
+            width: 100%
+            height: 100%
+            background-size: 100%
+          .speed-point5
+            background-image: url("../../../assets/images/speed0.5.svg")
+          .speed-point75
+            background-image: url("../../../assets/images/speed0.75.svg")
+          .speed1
+            background-image: url("../../../assets/images/speed1.svg")
+          .speed1point5
+            background-image: url("../../../assets/images/speed1.5.svg")
+          .speed2
+            background-image: url("../../../assets/images/speed2.svg")
         .barrage-on, .barrage-off
           display: inline-block
           width: px2rem(24)
           height: @width
           margin-top: px2rem(10)
+          margin-left: px2rem(12)
           background-size: 100% auto
         .barrage-on
           background-image: url("../../../assets/images/barrage-on.png")
@@ -141,7 +164,7 @@
           width: px2rem(24)
           height: @width
           margin-top: px2rem(10)
-          margin-left: px2rem(16)
+          margin-left: px2rem(10)
           background-image: url("../../../assets/images/fullscreen.svg")
           background-size: 100% auto
   .cover

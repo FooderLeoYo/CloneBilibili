@@ -29,13 +29,15 @@ interface PlayerState {
   paused: boolean;
   waiting: boolean;
   barrageSwitch: boolean;
-  fullscreen: boolean;
+  isFullscreen: boolean;
   finish: boolean;
   isShowCover: boolean;
   isShowControlBar: boolean;
   isShowPlayBtn: boolean;
   isLive: boolean;
   isShowSpeedBar: boolean;
+  btnPlaySpeed: string;
+  isShowCenterSpeed: boolean;
 }
 
 class Player extends React.PureComponent<PlayerProps, PlayerState> {
@@ -54,6 +56,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private ctrBarTimer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
   private playBtnTimer: number;
   private isPC: boolean;
+  private centerPlaySpeed: number;
   public static defaultProps = {
     live: false, // 该视频是否是直播
     isLive: false, // 主播是否正在直播
@@ -71,56 +74,86 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.liveDurationRef = React.createRef();
     this.progressBtnRef = React.createRef();
     this.isPC = !(navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i) !== null);
+    this.centerPlaySpeed = 1;
     this.state = {
       duration: 0,
       paused: true,
       waiting: false,
       barrageSwitch: true,
-      fullscreen: false,
+      isFullscreen: false,
       finish: false,
       isShowCover: true,
       isShowControlBar: true,
       isShowPlayBtn: true,
       isLive: props.isLive,
-      isShowSpeedBar: false
+      isShowSpeedBar: false,
+      btnPlaySpeed: "1",
+      isShowCenterSpeed: false
     };
   }
 
   /* 以下为自定义方法 */
-  private setTimeupdateLis = () => {
+
+  /* videoDOM相关 */
+  private getVideoUrl(url) {
+    const { videoURL } = this.context;
+    // 对url统一编码为utf-8的格式到后台
+    // 不加encodeURI的话，默认浏览器编码格式提交；浏览器不同时，传到后台的值也就不同了
+    url = encodeURIComponent(url);
+    // 拼接播放源地址
+    return `${videoURL}?video=${url}`;
+  }
+
+  private playOrPause() {
     const videoDOM = this.videoRef.current;
-    const barrageComponent = this.barrageRef.current;
-    const currentTimeDOM = this.currentTimeRef.current;
-    const progressDOM = this.progressRef.current;
 
-    // 初始化时设置duration
-    if (this.state.duration === 0) {
-      this.setState({ duration: videoDOM.duration });
-    }
-
-    // 更新进度条
-    currentTimeDOM.innerHTML = formatDuration(videoDOM.currentTime, "0#:##");
-    const progress = videoDOM.currentTime / videoDOM.duration * 100;
-    progressDOM.style.width = `${progress}%`;
-
-    // 加载当前时点的弹幕
-    if (this.state.barrageSwitch) {
-      const barrages = this.findBarrages(videoDOM.currentTime);
-      // 发送弹幕
-      barrages.forEach(barrage => {
-        barrageComponent.send(barrage);
+    if (this.state.paused) {
+      videoDOM.play();
+      this.showControlsTemporally();
+      this.playBtnTimer = setTimeout(() => {
+        this.setState({ isShowPlayBtn: false })
+      }, 800);
+      this.setState({
+        paused: false,
+        finish: false,
+      });
+    } else {
+      videoDOM.pause();
+      clearTimeout(this.ctrBarTimer);
+      clearTimeout(this.playBtnTimer);
+      this.setState({
+        paused: true,
+        isShowPlayBtn: true
       });
     }
   }
 
-  private setVideoDOMListner = () => {
+  private setThumbnailListener = () => {
+    const videoDOM = this.videoRef.current;
+    const setPlayState = () => {
+      this.setState({
+        isShowCover: false,
+        paused: false,
+        waiting: false
+      });
+    }
+
+    // "play"是HTML DOM 事件onplay的事件类型，而不是一个自定义名称
+    videoDOM.addEventListener("play", setPlayState);
+    videoDOM.addEventListener("playing", setPlayState);
+    videoDOM.addEventListener("waiting", () => {
+      this.setState({ waiting: true });
+    });
+  }
+
+  private setVideoDOMListener = () => {
     const videoDOM = this.videoRef.current;
     const barrageComponent = this.barrageRef.current;
     const currentTimeDOM = this.currentTimeRef.current;
     const progressDOM = this.progressRef.current;
 
     // 当播放时间发生变动时，更新进度条并加载当前时点的弹幕
-    videoDOM.addEventListener("timeupdate", this.setTimeupdateLis);
+    videoDOM.addEventListener("timeupdate", this.setTimeupdateListener);
 
     // 视频结束时重置进度条和state
     videoDOM.addEventListener("ended", () => {
@@ -135,70 +168,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       // 清除弹幕
       barrageComponent.clear();
     });
-  }
-
-  private setProgressDOM = () => {
-    const videoDOM = this.videoRef.current;
-    const progressDOM = this.progressRef.current;
-    const progressWrapperDOM = progressDOM.parentElement;
-    const progressBtnDOM = this.progressBtnRef.current;
-    const currentTimeDOM = this.currentTimeRef.current;
-
-
-    let width = progressWrapperDOM.offsetWidth; // 进度条总宽度
-    let left = progressWrapperDOM.getBoundingClientRect().left; // 进度条框距离视口左边距离
-    let rate = -1; // 拖拽进度比例
-
-    // 触碰进度条时，设置width和left
-    progressBtnDOM.addEventListener("touchstart", e => {
-      // e.stopPropagation();
-      clearTimeout(this.ctrBarTimer);
-      videoDOM.removeEventListener("timeupdate", this.setTimeupdateLis);
-    });
-
-    progressBtnDOM.addEventListener("touchmove", e => {
-      e.preventDefault(); // 阻止屏幕被拖动
-      const touch = e.touches[0];
-
-      // 计算拖拽进度比例
-      rate = (touch.clientX - left) / width;
-      // 手指点在进度条以外
-      if (rate > 1) {
-        rate = 1;
-      } else if (rate < 0) {
-        rate = 0;
-      }
-
-      const currentTime = videoDOM.duration * rate;
-      progressDOM.style.width = `${rate * 100}%`;
-      currentTimeDOM.innerHTML = formatDuration(currentTime, "0#:##");
-    });
-
-    progressBtnDOM.addEventListener("touchend", e => {
-      const touch = e.changedTouches[0];
-      // if (rate < 0) { // 如果没触发过touchmove
-      //   rate = (touch.clientX - left) / width;
-      //   if (rate > 1) {
-      //     rate = 1;
-      //   } else if (rate < 0) {
-      //     rate = 0;
-      //   }
-      // }
-      videoDOM.currentTime = videoDOM.duration * rate;
-      videoDOM.addEventListener("timeupdate", this.setTimeupdateLis);
-      this.showControlsTemporally();
-      // rate = -1;
-    });
-  }
-
-  private setLiveDurationDOM = () => {
-    const liveDurationDOM = this.liveDurationRef.current;
-    let liveDuration = (new Date().getTime() - this.props.liveTime) / 1000;
-    liveDurationDOM.innerHTML = formatDuration(liveDuration, "0#:##:##");
-    setInterval(() => {
-      liveDuration += 1;
-      liveDurationDOM.innerHTML = formatDuration(liveDuration, "0#:##:##");
-    }, 1000);
   }
 
   private setLiveVideoDOM = () => {
@@ -236,31 +205,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     }
   }
 
-  private initVideo() {
-    const { live } = this.props;
 
-    if (!live) { // 非直播时处理
-      this.getBarrages();
-      this.setVideoDOMListner();
-      this.setProgressDOM();
-    } else { // 直播时处理
-      if (this.props.liveTime) {
-        this.setLiveDurationDOM();
-      }
-      this.setLiveVideoDOM();
-    }
-  }
-
-  public sendBarrage(data: { color: string, content: string }) {
-    if (this.state.barrageSwitch) {
-      this.barrageRef.current.send({
-        type: BarrageType.RANDOM,
-        color: data.color,
-        content: data.content
-      });
-    }
-  }
-
+  /* 弹幕相关 */
   private getBarrages() {
     getBarrages(this.props.video.cId).then(result => {
       const barrages = [];
@@ -279,6 +225,16 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       this.initBarrages = barrages;
       this.barrages = this.initBarrages.slice();
     });
+  }
+
+  public sendBarrage(data: { color: string, content: string }) {
+    if (this.state.barrageSwitch) {
+      this.barrageRef.current.send({
+        type: BarrageType.RANDOM,
+        color: data.color,
+        content: data.content
+      });
+    }
   }
 
   //  根据时间查找弹幕
@@ -304,27 +260,15 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     return barrages;
   }
 
-  private playOrPause() {
-    const videoDOM = this.videoRef.current;
 
-    if (this.state.paused) {
-      videoDOM.play();
-      this.showControlsTemporally();
-      this.playBtnTimer = setTimeout(() => {
-        this.setState({ isShowPlayBtn: false })
-      }, 800);
-      this.setState({
-        paused: false,
-        finish: false,
-      });
+  /* 控制栏相关 */
+
+  /* 控制栏整体 */
+  private showOrHideControls() {
+    if (this.state.isShowControlBar) {
+      this.setState({ isShowControlBar: false });
     } else {
-      videoDOM.pause();
-      clearTimeout(this.ctrBarTimer);
-      clearTimeout(this.playBtnTimer);
-      this.setState({
-        paused: true,
-        isShowPlayBtn: true
-      });
+      this.setState({ isShowControlBar: true });
     }
   }
 
@@ -335,97 +279,16 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       this.setState({ isShowControlBar: true });
     }
     this.ctrBarTimer = setTimeout(() => {
-      this.hideControls();
+      this.showOrHideControls();
     }, 3000);
   }
 
-  private showControls() {
-    this.setState({ isShowControlBar: true });
-  }
-
-  private hideControls() {
-    if (this.state.isShowControlBar) {
-      this.setState({ isShowControlBar: false });
-    }
-  }
-
-  private changePlayPosition(e) {
-    const progressWrapperDOM = e.currentTarget;
-    const left = progressWrapperDOM.getBoundingClientRect().left;
-    const progress = (e.clientX - left) / progressWrapperDOM.offsetWidth;
-    const videoDOM = this.videoRef.current;
-
-    videoDOM.currentTime = videoDOM.duration * progress;
-    // 重新赋值弹幕列表
-    this.barrages = this.initBarrages.slice();
-    // 清除跳转前的弹幕
-    this.barrageRef.current.clear();
-  }
-
-  // 开启或关闭弹幕
-  private onOrOff() {
-    if (this.state.barrageSwitch) {
-      this.barrageRef.current.clear();
-      this.setState({ barrageSwitch: false });
-    } else {
-      this.setState({ barrageSwitch: true });
-    }
-  }
-
-  private entryOrExitFullscreen() {
-    if (this.state.fullscreen) {
-      this.setState({ fullscreen: false });
-      const doc: any = document;
-      if (doc.exitFullscreen) {
-        doc.exitFullscreen();
-      } else if (doc.mozCancelFullScreen) {
-        doc.mozCancelFullScreen();
-      } else if (doc.webkitCancelFullScreen) {
-        doc.webkitCancelFullScreen();
-      } else if (doc.msExitFullscreen) {
-        doc.msExitFullscreen();
-      }
-    } else {
-      this.setState({ fullscreen: true });
-      // 这里调用全屏的是包裹<video>的外层div
-      // 因为如果直接让<video>全屏，则视频控制器会变成浏览器自带的
-      const wrapperDOM: any = this.wrapperRef.current;
-      if (wrapperDOM.requestFullscreen) {
-        wrapperDOM.requestFullscreen();
-      } else if (wrapperDOM.mozRequestFullScreen) {
-        wrapperDOM.mozRequestFullScreen();
-      } else if (wrapperDOM.webkitRequestFullScreen) {
-        wrapperDOM.webkitRequestFullScreen();
-      } else if (wrapperDOM.msRequestFullscreen) {
-        wrapperDOM.msRequestFullscreen();
-      }
-    }
-  }
-
-  private getVideoUrl(url) {
-    const { videoURL } = this.context;
-    // 对url统一编码为utf-8的格式到后台
-    // 不加encodeURI的话，默认浏览器编码格式提交；浏览器不同时，传到后台的值也就不同了
-    url = encodeURIComponent(url);
-    // 拼接播放源地址
-    return `${videoURL}?video=${url}`;
-  }
-
-  private setPlayingState = () => {
-    const videoDOM = this.videoRef.current;
-    const setPlayState = () => {
-      this.setState({
-        isShowCover: false,
-        paused: false,
-        waiting: false
-      });
-    }
-
-    // "play"是HTML DOM 事件onplay的事件类型，而不是一个自定义名称
-    videoDOM.addEventListener("play", setPlayState);
-    videoDOM.addEventListener("playing", setPlayState);
-    videoDOM.addEventListener("waiting", () => {
-      this.setState({ waiting: true });
+  private setFingerListener = () => {
+    const videoAreaDOM = this.videoAreaRef.current;
+    // 这里的事件不能用click，只能touchstart，否则playOrPause方法失效
+    videoAreaDOM.addEventListener("touchstart", e => {
+      e.stopPropagation();
+      this.showControlsTemporally();
     });
   }
 
@@ -459,7 +322,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     videoAreaDOM.addEventListener("mouseout", e => {
       e.stopPropagation();
       clearTimeout(this.ctrBarTimer);
-      this.hideControls();
+      this.showOrHideControls();
     });
     // 鼠标停留在控制器上时，一直显示控制器
     // 这里不绑定mouseover事件，是因为：
@@ -468,19 +331,105 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     controlBarDOM.addEventListener("mousemove", e => {
       e.stopPropagation();
       clearTimeout(this.ctrBarTimer);
-      this.showControls();
+      this.showOrHideControls();
     });
   }
 
-  private setFingerListener = () => {
-    const videoAreaDOM = this.videoAreaRef.current;
-    // 这里的事件不能用click，只能touchstart，否则playOrPause方法失效
-    videoAreaDOM.addEventListener("touchstart", e => {
-      e.stopPropagation();
+  /* 进度条相关 */
+  private setProgressDOM = () => {
+    const videoDOM = this.videoRef.current;
+    const progressDOM = this.progressRef.current;
+    const progressWrapperDOM = progressDOM.parentElement;
+    const progressBtnDOM = this.progressBtnRef.current;
+    const currentTimeDOM = this.currentTimeRef.current;
+
+
+    let width = progressWrapperDOM.offsetWidth; // 进度条总宽度
+    let left = progressWrapperDOM.getBoundingClientRect().left; // 进度条框距离视口左边距离
+    let rate = -1; // 拖拽进度比例
+
+    // 触碰进度条时，设置width和left
+    progressBtnDOM.addEventListener("touchstart", e => {
+      clearTimeout(this.ctrBarTimer);
+      videoDOM.removeEventListener("timeupdate", this.setTimeupdateListener);
+    });
+
+    progressBtnDOM.addEventListener("touchmove", e => {
+      e.preventDefault(); // 阻止屏幕被拖动
+      const touch = e.touches[0];
+
+      // 计算拖拽进度比例
+      rate = (touch.clientX - left) / width;
+      // 手指点在进度条以外
+      if (rate > 1) {
+        rate = 1;
+      } else if (rate < 0) {
+        rate = 0;
+      }
+
+      const currentTime = videoDOM.duration * rate;
+      progressDOM.style.width = `${rate * 100}%`;
+      currentTimeDOM.innerHTML = formatDuration(currentTime, "0#:##");
+    });
+
+    progressBtnDOM.addEventListener("touchend", e => {
+      const touch = e.changedTouches[0];
+      videoDOM.currentTime = videoDOM.duration * rate;
+      videoDOM.addEventListener("timeupdate", this.setTimeupdateListener);
       this.showControlsTemporally();
     });
   }
 
+  private changePlayPosition(e) {
+    const progressWrapperDOM = e.currentTarget;
+    const left = progressWrapperDOM.getBoundingClientRect().left;
+    const progress = (e.clientX - left) / progressWrapperDOM.offsetWidth;
+    const videoDOM = this.videoRef.current;
+
+    videoDOM.currentTime = videoDOM.duration * progress;
+    // 重新赋值弹幕列表
+    this.barrages = this.initBarrages.slice();
+    // 清除跳转前的弹幕
+    this.barrageRef.current.clear();
+  }
+
+  private setTimeupdateListener = () => {
+    const videoDOM = this.videoRef.current;
+    const barrageComponent = this.barrageRef.current;
+    const currentTimeDOM = this.currentTimeRef.current;
+    const progressDOM = this.progressRef.current;
+
+    // 初始化时设置duration
+    if (this.state.duration === 0) {
+      this.setState({ duration: videoDOM.duration });
+    }
+
+    // 更新进度条
+    currentTimeDOM.innerHTML = formatDuration(videoDOM.currentTime, "0#:##");
+    const progress = videoDOM.currentTime / videoDOM.duration * 100;
+    progressDOM.style.width = `${progress}%`;
+
+    // 加载当前时点的弹幕
+    if (this.state.barrageSwitch) {
+      const barrages = this.findBarrages(videoDOM.currentTime);
+      // 发送弹幕
+      barrages.forEach(barrage => {
+        barrageComponent.send(barrage);
+      });
+    }
+  }
+
+  private setLiveDurationDOM = () => {
+    const liveDurationDOM = this.liveDurationRef.current;
+    let liveDuration = (new Date().getTime() - this.props.liveTime) / 1000;
+    liveDurationDOM.innerHTML = formatDuration(liveDuration, "0#:##:##");
+    setInterval(() => {
+      liveDuration += 1;
+      liveDurationDOM.innerHTML = formatDuration(liveDuration, "0#:##:##");
+    }, 1000);
+  }
+
+  /* 播放速度相关 */
   private showOrHideSpeedBar = () => {
     if (this.state.isShowSpeedBar) {
       this.setState({ isShowSpeedBar: false });
@@ -489,31 +438,139 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     }
   }
 
-  private setPlaySpeed = () => {
-    // .playbackRate = 
+  private setPlaySpeed = speed => {
+    const videoDOM = this.videoRef.current;
+
+    videoDOM.playbackRate = speed;
+    this.centerPlaySpeed = speed;
+    this.setState({ isShowCenterSpeed: true });
+    setTimeout(() => {
+      this.setState({ isShowCenterSpeed: false });
+    }, 1500);
+    // playSpeed不能直接用speed，因为如果是数字当有小数点的时候
+    // 将playSpeed拼接到speedBtnPicClass做类名时就会报错
+    switch (speed) {
+      case 0.5:
+        this.setState({ btnPlaySpeed: "Point5" });
+        break;
+      case 0.75:
+        this.setState({ btnPlaySpeed: "Point75" });
+        break;
+      case 1:
+        this.setState({ btnPlaySpeed: "1" });
+        break;
+      case 1.5:
+        this.setState({ btnPlaySpeed: "1Point5" });
+        break;
+      case 2:
+        this.setState({ btnPlaySpeed: "2" });
+        break;
+    }
+  }
+
+  /* 控制栏其他按钮相关 */
+  // 开启或关闭弹幕
+  private onOrOff() {
+    if (this.state.barrageSwitch) {
+      this.barrageRef.current.clear();
+      this.setState({ barrageSwitch: false });
+    } else {
+      this.setState({ barrageSwitch: true });
+    }
+  }
+
+  private entryOrExitFullscreen() {
+    if (this.state.isFullscreen) {
+      this.setState({ isFullscreen: false });
+      const doc: any = document;
+      if (doc.exitFullscreen) {
+        doc.exitFullscreen();
+      } else if (doc.mozCancelFullScreen) {
+        doc.mozCancelFullScreen();
+      } else if (doc.webkitCancelFullScreen) {
+        doc.webkitCancelFullScreen();
+      } else if (doc.msExitFullscreen) {
+        doc.msExitFullscreen();
+      }
+    } else {
+      this.setState({ isFullscreen: true });
+      // 这里调用全屏的是包裹<video>的外层div
+      // 因为如果直接让<video>全屏，则视频控制器会变成浏览器自带的
+      const wrapperDOM: any = this.wrapperRef.current;
+      if (wrapperDOM.requestFullscreen) {
+        wrapperDOM.requestFullscreen();
+      } else if (wrapperDOM.mozRequestFullScreen) {
+        wrapperDOM.mozRequestFullScreen();
+      } else if (wrapperDOM.webkitRequestFullScreen) {
+        wrapperDOM.webkitRequestFullScreen();
+      } else if (wrapperDOM.msRequestFullscreen) {
+        wrapperDOM.msRequestFullscreen();
+      }
+    }
   }
 
   /* 以下为生命周期函数 */
   public componentDidMount() {
+    const { live } = this.props;
+
+    this.setThumbnailListener();
+
     if (this.isPC) {
       this.setMouseListener();
     } else {
       this.setFingerListener();
     }
-    this.setPlayingState();
-    this.initVideo();
+
+    if (!live) { // 非直播时处理
+      this.getBarrages();
+      this.setVideoDOMListener();
+      this.setProgressDOM();
+    } else { // 直播时处理
+      if (this.props.liveTime) {
+        this.setLiveDurationDOM();
+      }
+      this.setLiveVideoDOM();
+    }
   }
 
   /* 以下为渲染部分 */
   public render() {
     const { live, video } = this.props;
-    const videoStyle = { display: this.state.isShowCover ? "none" : "block" };
+    const videoCoverStyle = { display: this.state.isShowCover ? "none" : "block" };
     const coverStyle = { display: this.state.isShowCover ? "block" : "none" };
     const controlBarStyle = { display: this.state.isShowControlBar ? "block" : "none" };
     const playBtnStyle = { display: this.state.isShowPlayBtn ? "block" : "none" };
-    const speedBarStyle = { display: this.state.isShowSpeedBar ? "block" : "none" };
+    // 注意这里设置显示不能是block，因为会覆盖掉css中的grid
+    // 所以直接设成grid，css还可以省去display: grid
+    const speedBarStyle = { display: this.state.isShowSpeedBar ? "grid" : "none" };
+    const centerSpeedStyle = { display: this.state.isShowCenterSpeed ? "block" : "none" };
+    const speedBtnPicClass = style[`speed${this.state.btnPlaySpeed}`];
     const playBtnClass = this.state.paused ? style.play : style.pause;
     const switchClass = this.state.barrageSwitch ? style.barrageOn : style.barrageOff;
+    const generateLi = () => {
+      let liArr = [];
+
+      for (let i = 0; i < 4; i++) {
+        const speed = (i + 1) * 0.5;
+        liArr.push(
+          <li
+            onClick={e => {
+              this.setPlaySpeed(speed);
+              this.showOrHideSpeedBar();
+              this.showOrHideControls();
+            }}
+            key={speed}
+          >{speed}</li>
+        );
+      }
+      liArr.splice(1, 0, <li
+        onClick={e => { this.setPlaySpeed(0.75); }}
+        key={0.75}
+      >{0.75}</li>);
+
+      return liArr;
+    }
+    const liEles = generateLi();
 
     return (
       <div className={style.videoPlayer} ref={this.wrapperRef}>
@@ -527,7 +584,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           webkit-playsinline="true"
           playsInline={true}
           src={live ? "" : this.getVideoUrl(video.url)}
-          style={videoStyle}
+          style={videoCoverStyle}
           ref={this.videoRef}
         />
         {/* 弹幕 */}
@@ -538,6 +595,15 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           <Barrage opacity={live ? 1 : 0.75} ref={this.barrageRef} />
         </div>
         <div className={style.videoArea} ref={this.videoAreaRef}>
+          <div className={style.speedContainer}>
+            <span
+              className={style.centerSpeed}
+              style={centerSpeedStyle}
+            >{this.centerPlaySpeed}</span>
+            <ul className={style.speedBar} style={speedBarStyle}>
+              {liEles}
+            </ul>
+          </div>
           {/* 右边的白色播放暂停按钮 */}
           <div
             className={style.playButton + " " + playBtnClass}
@@ -592,34 +658,16 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                 )
             }
             <div className={style.right}>
-              <div
-                className={style.speedBtn}
-                onClick={e => {
-                  e.stopPropagation();
-                  this.showOrHideSpeedBar();
-                }}
-              />
-              <div
-                className={style.speedBar}
-                style={speedBarStyle}
-                onClick={e => {
-                  e.stopPropagation();
-                  this.setPlaySpeed();
-                }}
-              >
-                <ul>
-                  {
-                    for(let i = 0; i < 5; i++) {
-
-                  }
-                  }
-                  <li>2</li>
-                  <li>1.5</li>
-                  <li>1</li>
-                  <li>0.75</li>
-                  <li>0.5</li>
-                </ul>
-              </div >
+              {/* 调节播放速度 */}
+              <div className={style.speedBtn}>
+                <div
+                  className={speedBtnPicClass}
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.showOrHideSpeedBar();
+                  }}
+                />
+              </div>
               {/* 弹幕开关 */}
               <div
                 className={switchClass}
