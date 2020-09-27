@@ -25,7 +25,6 @@ interface PlayerProps {
 }
 
 interface PlayerState {
-  duration: number;
   paused: boolean;
   waiting: boolean;
   barrageSwitch: boolean;
@@ -36,7 +35,6 @@ interface PlayerState {
   isShowPlayBtn: boolean;
   isLive: boolean;
   isShowSpeedBar: boolean;
-  btnPlaySpeed: string;
   isShowCenterSpeed: boolean;
 }
 
@@ -45,6 +43,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private wrapperRef: React.RefObject<HTMLDivElement>;
   private videoRef: React.RefObject<HTMLVideoElement>;
   private videoAreaRef: React.RefObject<HTMLDivElement>;
+  private barrageContainerRef: React.RefObject<HTMLDivElement>;
   private barrageRef: React.RefObject<Barrage>;
   private controlBarRef: React.RefObject<HTMLDivElement>;
   private currentTimeRef: React.RefObject<HTMLSpanElement>;
@@ -52,22 +51,31 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private liveDurationRef: React.RefObject<HTMLDivElement>;
   private progressBtnRef: React.RefObject<HTMLDivElement>;
   private ctrPlayBtnRef: React.RefObject<HTMLDivElement>;
+  private speedBarRef: React.RefObject<HTMLUListElement>;
+
+  private duration: number;
   private initBarrages: Array<any>; // 拿到数据时的初始格式，供slice后生成barrages
   private barrages: Array<any>; // 真正发送到播放器中的弹幕
   private ctrBarTimer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
+  private easeTimer: number;
   private playBtnTimer: number;
   private isPC: boolean;
   private centerPlaySpeed: number;
+  private btnPlaySpeed: string;
+
   public static defaultProps = {
     live: false, // 该视频是否是直播
     isLive: false, // 主播是否正在直播
     liveTime: 0
   };
+
   constructor(props) {
     super(props);
+
     this.wrapperRef = React.createRef();
     this.videoRef = React.createRef();
     this.videoAreaRef = React.createRef();
+    this.barrageContainerRef = React.createRef();
     this.barrageRef = React.createRef();
     this.controlBarRef = React.createRef();
     this.currentTimeRef = React.createRef();
@@ -75,10 +83,13 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.liveDurationRef = React.createRef();
     this.progressBtnRef = React.createRef();
     this.ctrPlayBtnRef = React.createRef();
+    this.speedBarRef = React.createRef();
+    this.duration = 0;
     this.isPC = !(navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i) !== null);
     this.centerPlaySpeed = 1;
+    this.btnPlaySpeed = "1";
+
     this.state = {
-      duration: 0,
       paused: true,
       waiting: false,
       barrageSwitch: true,
@@ -89,7 +100,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       isShowPlayBtn: true,
       isLive: props.isLive,
       isShowSpeedBar: false,
-      btnPlaySpeed: "1",
       isShowCenterSpeed: false
     };
   }
@@ -121,7 +131,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       });
     } else {
       videoDOM.pause();
-      clearTimeout(this.ctrBarTimer);
+      this.showControlsTemporally();
       clearTimeout(this.playBtnTimer);
       this.setState({
         paused: true,
@@ -265,15 +275,26 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
 
   /* 控制栏相关 */
 
-  /* 控制栏整体 */
-  private showControls = () => {
-    if (this.ctrBarTimer != 0) {
-      clearTimeout(this.ctrBarTimer);
-    }
+  /* 控制栏整体相关 */
+  private setGraduallyHide = (DOM, startTime) => {
+    this.easeTimer = setTimeout(() => {
+      DOM.classList.add(style.graduallyHide);
+    }, startTime);
+    setTimeout(() => {
+      DOM.classList.remove(style.graduallyHide);
+    }, startTime + 500);
+  }
 
-    if (!this.state.isShowControlBar) {
-      this.setState({ isShowControlBar: true });
-    }
+  private showControlsTemporally = () => {
+    const controlBarDOM = this.controlBarRef.current;
+    clearTimeout(this.ctrBarTimer);
+    clearTimeout(this.easeTimer);
+
+    this.setState({ isShowControlBar: true });
+    this.setGraduallyHide(controlBarDOM, 2000);
+    this.ctrBarTimer = setTimeout(() => {
+      this.setState({ isShowControlBar: false });
+    }, 2500);
   }
 
   private showOrHideControls = () => {
@@ -286,36 +307,13 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     }
   }
 
-  private showControlsTemporally() {
-    clearTimeout(this.ctrBarTimer);
-
-    if (!this.state.isShowControlBar) {
-      this.setState({ isShowControlBar: true });
-    }
-    this.ctrBarTimer = setTimeout(() => {
-      this.setState({ isShowControlBar: false });
-    }, 3000);
-  }
-
-  private showPlayBtn = () => {
-    if (this.playBtnTimer != 0) {
-      clearTimeout(this.playBtnTimer);
-    }
-
-    if (!this.state.isShowPlayBtn) {
-      this.setState({ isShowPlayBtn: true });
-    }
-  }
-
   private setFingerListener = () => {
     const videoAreaDOM = this.videoAreaRef.current;
-    const videoDOM = this.videoRef.current;
-    console.log(videoDOM);
-    // 这里的事件不能用click，只能touchstart，否则playOrPause方法失效
-    videoDOM.addEventListener("touchstart", e => {
-      console.log("video click");
+    const barrageContainerDOM = this.barrageContainerRef.current;
+
+    barrageContainerDOM.addEventListener("touchend", e => {
       e.stopPropagation();
-      this.showControlsTemporally();
+      this.showOrHideControls();
     });
   }
 
@@ -370,8 +368,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const progressDOM = this.progressRef.current;
 
     // 初始化时设置duration
-    if (this.state.duration === 0) {
-      this.setState({ duration: videoDOM.duration });
+    if (this.duration === 0) {
+      this.duration = videoDOM.duration;
     }
 
     // 更新进度条
@@ -411,6 +409,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     progressBtnDOM.addEventListener("touchmove", e => {
       e.stopPropagation();
       e.preventDefault(); // 阻止屏幕被拖动
+      this.controlBarRef.current.classList.remove(style.graduallyHide);
+      clearTimeout(this.ctrBarTimer);
+      clearTimeout(this.easeTimer);
       const touch = e.touches[0];
 
       // 计算拖拽进度比例
@@ -460,14 +461,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   }
 
   /* 播放速度相关 */
-  private showOrHideSpeedBar = () => {
-    if (this.state.isShowSpeedBar) {
-      this.setState({ isShowSpeedBar: false });
-    } else {
-      this.setState({ isShowSpeedBar: true });
-    }
-  }
-
   private setPlaySpeed = speed => {
     const videoDOM = this.videoRef.current;
 
@@ -486,21 +479,32 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     // 将playSpeed拼接到speedBtnPicClass做类名时就会报错
     switch (speed) {
       case 0.5:
-        this.setState({ btnPlaySpeed: "Point5" });
+        this.btnPlaySpeed = "Point5";
         break;
       case 0.75:
-        this.setState({ btnPlaySpeed: "Point75" });
+        this.btnPlaySpeed = "Point75";
         break;
       case 1:
-        this.setState({ btnPlaySpeed: "1" });
+        this.btnPlaySpeed = "1";
         break;
       case 1.5:
-        this.setState({ btnPlaySpeed: "1Point5" });
+        this.btnPlaySpeed = "1Point5";
         break;
       case 2:
-        this.setState({ btnPlaySpeed: "2" });
+        this.btnPlaySpeed = "2";
         break;
     }
+  }
+
+  private showSpeedBarTemporally = () => {
+    const speedBarDOM = this.speedBarRef.current;
+    clearTimeout(this.easeTimer);
+
+    this.setState({ isShowSpeedBar: true });
+    this.setGraduallyHide(speedBarDOM, 2000);
+    setTimeout(() => {
+      this.setState({ isShowSpeedBar: false });
+    }, 2500);
   }
 
   /* 控制栏其他按钮相关 */
@@ -544,12 +548,23 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     }
   }
 
+  private showPlayBtn = () => {
+    if (this.playBtnTimer != 0) {
+      clearTimeout(this.playBtnTimer);
+    }
+
+    if (!this.state.isShowPlayBtn) {
+      this.setState({ isShowPlayBtn: true });
+    }
+  }
+
   /* 以下为生命周期函数 */
   public componentDidMount() {
     const { live } = this.props;
 
     this.setThumbnailListener();
 
+    // 设置点击相关监听器
     if (this.isPC) {
       this.setMouseListener();
     } else {
@@ -579,7 +594,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     // 所以直接设成grid，css还可以省去display: grid
     const speedBarStyle = { display: this.state.isShowSpeedBar ? "grid" : "none" };
     const centerSpeedStyle = { display: this.state.isShowCenterSpeed ? "block" : "none" };
-    const speedBtnPicClass = style[`speed${this.state.btnPlaySpeed}`];
+    const speedBtnPicClass = style[`speed${this.btnPlaySpeed}`];
     const playBtnClass = this.state.paused ? style.play : style.pause;
     const switchClass = this.state.barrageSwitch ? style.barrageOn : style.barrageOff;
     const generateLi = () => {
@@ -592,9 +607,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
             onClick={e => {
               e.stopPropagation();
               this.setPlaySpeed(speed);
-              this.showOrHideSpeedBar();
-              // 这里设置isShowControlBar是因为不知道为什么showControlsTemporally会被调用
-              this.setState({ isShowControlBar: false });
+              this.setState({ isShowSpeedBar: false });
             }}
             key={speed}
           >{speed}</li>
@@ -604,57 +617,53 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
         onClick={e => {
           e.stopPropagation();
           this.setPlaySpeed(0.75);
-          this.showOrHideSpeedBar();
-          this.setState({ isShowControlBar: false });
+          this.setState({ isShowSpeedBar: false });
         }}
         key={0.75}
       >{0.75}</li>);
 
       return liArr;
     }
-    const liEles = generateLi();
+    const liElements = generateLi();
 
     return (
       <div className={style.videoPlayer} ref={this.wrapperRef}>
         {/* 视频区域 */}
-        <video
-          height="100%"
-          width="100%"
-          preload="auto"
-          // playsinline是解决ios默认打开网页的时候，会自动全屏播放
-          x5-playsinline="true"
-          webkit-playsinline="true"
-          playsInline={true}
-          src={live ? "" : this.getVideoUrl(video.url)}
-          style={videoCoverStyle}
-          ref={this.videoRef}
-        />
+
+        <div className={style.videoArea} ref={this.videoAreaRef}>
+          {/* 播放速度选择及当前所选速度 */}
+          <video
+            height="100%"
+            width="100%"
+            preload="auto"
+            // playsinline是解决ios默认打开网页的时候，会自动全屏播放
+            x5-playsinline="true"
+            webkit-playsinline="true"
+            playsInline={true}
+            src={live ? "" : this.getVideoUrl(video.url)}
+            style={videoCoverStyle}
+            ref={this.videoRef}
+          />
+        </div>
         {/* 弹幕 */}
         {/* 不把Barrage放进videoArea中是因为： */}
         {/*   如果Barrage成为videoArea的子元素，那么Barrage的事件会冒泡到videoArea */}
         {/*   这样就还要阻止Barrage的事件冒泡，所以不如将其放在外面 */}
-        <div className={style.barrage}>
+        <div className={style.barrage} ref={this.barrageContainerRef}>
           <Barrage opacity={live ? 1 : 0.75} ref={this.barrageRef} />
         </div>
-
-
-
-
-
-
-        <div className={style.videoArea} ref={this.videoAreaRef}>
-          <div
-            onClick={() => { console.log(111); }}
-          ></div>
-          {/* 播放速度选择及当前所选速度 */}
+        <div className={style.controlContainer}>
+          {/* 速度调节及显示 */}
           <div className={style.speedContainer}>
             <span
               className={style.centerSpeed}
               style={centerSpeedStyle}
             >{`${this.centerPlaySpeed}x`}
             </span>
-            <ul className={style.speedBar} style={speedBarStyle}>
-              {liEles}
+            <ul
+              className={style.speedBar} style={speedBarStyle} ref={this.speedBarRef}
+            >
+              {liElements}
             </ul>
           </div>
           {/* 右边的白色播放暂停按钮 */}
@@ -692,7 +701,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                     <span className={style.time} ref={this.currentTimeRef}>00:00</span>
                     <span className={style.split}>/</span>
                     <span className={style.totalDuration}>
-                      {formatDuration(this.state.duration, "0#:##")}
+                      {formatDuration(this.duration, "0#:##")}
                     </span>
                   </div>
                   {/* 进度条 */}
@@ -721,7 +730,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                   className={speedBtnPicClass}
                   onClick={e => {
                     e.stopPropagation();
-                    this.showOrHideSpeedBar();
+                    this.showSpeedBarTemporally();
                     this.setState({ isShowControlBar: false });
                     this.setState({ isShowPlayBtn: false });
                   }}
@@ -746,15 +755,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
             </div>
           </div>
         </div>
-
-
-
-
-
-
-
-
-
         {/* 封面 */}
         <div className={style.cover} style={coverStyle}>
           {
