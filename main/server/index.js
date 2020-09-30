@@ -101,5 +101,5 @@ app.get("*", isProd ? render : (req, res) => {
 
 const port = 3010;
 app.listen(port, () => {
-  console.log("Front-end is running at port " + port);
+  console.log("Main server is running at port " + port);
 });

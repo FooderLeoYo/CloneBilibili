@@ -94,6 +94,8 @@
             color: #212121
             letter-spacing: 0
             word-break: break-all
+            // 加了:global后，括号里的类名就不会被css-modules加上hash
+            // 这么做的原因是这个类名直接来自B站后台数据video.title，而不是本地通过style.xx生成的
             :global(.keyword)
               font-style: normal
               color: #fb7299

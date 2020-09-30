@@ -1,6 +1,7 @@
 const whiteList = process.env.WHITE_LIST.split(",");// 白名单可能不止一个
 
 module.exports = (req, res, next) => {
+  console.log(whiteList);
   const origin = req.get("Origin");
   if (origin) {
     const allowOrigin = whiteList.find(url => origin.indexOf(url) !== -1);

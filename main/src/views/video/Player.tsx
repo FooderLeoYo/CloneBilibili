@@ -59,6 +59,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private ctrBarTimer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
   private easeTimer: number;
   private playBtnTimer: number;
+  private isIos: boolean;
+  private isAndroid: boolean;
   private isPC: boolean;
   private centerPlaySpeed: number;
   private btnPlaySpeed: string;
@@ -85,7 +87,10 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.ctrPlayBtnRef = React.createRef();
     this.speedBarRef = React.createRef();
     this.duration = 0;
-    this.isPC = !(navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i) !== null);
+    this.isIos = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // 只写一个!会报错
+    this.isAndroid = navigator.userAgent.indexOf('Android') > -1 || navigator.userAgent.indexOf('Adr') > -1;
+    // this.isPC = !(navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i) !== null);
+    this.isPC = !this.isIos && !this.isAndroid;
     this.centerPlaySpeed = 1;
     this.btnPlaySpeed = "1";
 
@@ -519,31 +524,47 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   }
 
   private entryOrExitFullscreen() {
-    if (this.state.isFullscreen) {
-      this.setState({ isFullscreen: false });
-      const doc: any = document;
-      if (doc.exitFullscreen) {
-        doc.exitFullscreen();
-      } else if (doc.mozCancelFullScreen) {
-        doc.mozCancelFullScreen();
-      } else if (doc.webkitCancelFullScreen) {
-        doc.webkitCancelFullScreen();
-      } else if (doc.msExitFullscreen) {
-        doc.msExitFullscreen();
-      }
-    } else {
-      this.setState({ isFullscreen: true });
-      // 这里调用全屏的是包裹<video>的外层div
-      // 因为如果直接让<video>全屏，则视频控制器会变成浏览器自带的
-      const wrapperDOM: any = this.wrapperRef.current;
-      if (wrapperDOM.requestFullscreen) {
-        wrapperDOM.requestFullscreen();
-      } else if (wrapperDOM.mozRequestFullScreen) {
-        wrapperDOM.mozRequestFullScreen();
-      } else if (wrapperDOM.webkitRequestFullScreen) {
-        wrapperDOM.webkitRequestFullScreen();
-      } else if (wrapperDOM.msRequestFullscreen) {
-        wrapperDOM.msRequestFullscreen();
+
+    if (this.isIos) { // IOS
+      const videoDOM = this.videoRef.current;
+      videoDOM.removeAttribute('x5-playsinline');
+      videoDOM.removeAttribute('webkit-playsinline');
+    } else { // 安卓、PC
+
+      if (this.state.isFullscreen) {
+        this.setState({ isFullscreen: false });
+        const doc: any = document;
+        if (doc.exitFullscreen) {
+          doc.exitFullscreen();
+        } else if (doc.mozCancelFullScreen) {
+          doc.mozCancelFullScreen();
+        } else if (doc.webkitCancelFullScreen) {
+          doc.webkitCancelFullScreen();
+        } else if (doc.msExitFullscreen) {
+          doc.msExitFullscreen();
+        }
+      } else {
+        this.setState({ isFullscreen: true });
+        // 这里调用全屏的是包裹<video>的外层div
+        // 因为如果直接让<video>全屏，则视频控制器会变成浏览器自带的
+        const wrapperDOM: any = this.wrapperRef.current;
+        const videoDOM = this.videoRef.current;
+        const videoWidth = videoDOM.style.width;
+        const videoHeight = videoDOM.style.height;
+        const cha = Math.abs(parseInt(videoHeight) - parseInt(videoWidth)) / 2;
+        // videoDOM.style.width = '100vh';
+        // videoDOM.style.height = '100vw';
+        // videoDOM.style.transform = `rotate(90deg) translate(-${cha}px, ${cha}px)`;
+        videoDOM.style.transform = `rotate(90deg) translate(-100px, 100px)`;
+        if (wrapperDOM.requestFullscreen) {
+          wrapperDOM.requestFullscreen();
+        } else if (wrapperDOM.mozRequestFullScreen) {
+          wrapperDOM.mozRequestFullScreen();
+        } else if (wrapperDOM.webkitRequestFullScreen) {
+          wrapperDOM.webkitRequestFullScreen();
+        } else if (wrapperDOM.msRequestFullscreen) {
+          wrapperDOM.msRequestFullscreen();
+        }
       }
     }
   }
@@ -746,7 +767,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
               />
               {/* 全屏开关 */}
               <div
-                className={style.fullscreen}
+                className={style.fullscreenBtn}
                 onClick={e => {
                   e.stopPropagation();
                   this.entryOrExitFullscreen();

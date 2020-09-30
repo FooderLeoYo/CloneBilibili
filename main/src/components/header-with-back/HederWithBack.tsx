@@ -10,7 +10,6 @@ import back from "../../assets/images/back.png";
 
 const HeaderWithBack = () => {
   return (
-
     <div className={style.header}>
       <div
         className={style.backBtn}

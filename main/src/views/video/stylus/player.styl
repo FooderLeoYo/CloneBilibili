@@ -21,6 +21,8 @@
     height: 100%
     video
       background-color: #000000
+      &.fullscreen
+        transform: rotate(90deg)
   .barrage
     position: absolute
     top: 0
@@ -201,7 +203,7 @@
           background-image: url("../../../assets/images/barrage-on.png")
         .barrage-off
           background-image: url("../../../assets/images/barrage-off.png")
-        .fullscreen
+        .fullscreen-btn
           display: inline-block
           width: px2rem(24)
           height: @width

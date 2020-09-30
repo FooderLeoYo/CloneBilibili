@@ -159,7 +159,7 @@ class History extends React.Component<null, HistoryState> {
                 {
                   item[1].map(history => (
                     <div className={style.itemWrapper} key={history.aId}>
-                      <a href={"/video/av" + history.aId}>
+                      <Link to={"/video/av" + history.aId}>
                         <div className={style.imgContainer}>
                           <img src={history.pic} />
                         </div>
@@ -169,7 +169,7 @@ class History extends React.Component<null, HistoryState> {
                             {this.getTime(history.viewAt)}
                           </div>
                         </div>
-                      </a>
+                      </Link>
                     </div>
                   ))
                 }

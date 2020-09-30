@@ -48,5 +48,5 @@ app.use(function (err, req, res, next) {
 
 /* eslint-disable no-console */
 app.listen(3011, () => {
-  console.log("Back-end is running at port 3011");
+  console.log("Api server is running at port 3011");
 });
