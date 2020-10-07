@@ -40,7 +40,8 @@ interface PlayerState {
 
 class Player extends React.PureComponent<PlayerProps, PlayerState> {
   /* 以下为初始化 */
-  private wrapperRef: React.RefObject<HTMLDivElement>;
+  private playerRef: React.RefObject<HTMLDivElement>;
+  private videoAreaWrapperRef: React.RefObject<HTMLDivElement>;
   private videoRef: React.RefObject<HTMLVideoElement>;
   private videoAreaRef: React.RefObject<HTMLDivElement>;
   private barrageContainerRef: React.RefObject<HTMLDivElement>;
@@ -74,7 +75,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   constructor(props) {
     super(props);
 
-    this.wrapperRef = React.createRef();
+    this.playerRef = React.createRef();
+    this.videoAreaWrapperRef = React.createRef();
     this.videoRef = React.createRef();
     this.videoAreaRef = React.createRef();
     this.barrageContainerRef = React.createRef();
@@ -523,52 +525,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     }
   }
 
-  private entryOrExitFullscreen() {
-
-    if (this.isIos) { // IOS
-      const videoDOM = this.videoRef.current;
-      videoDOM.removeAttribute('x5-playsinline');
-      videoDOM.removeAttribute('webkit-playsinline');
-    } else { // 安卓、PC
-
-      if (this.state.isFullscreen) {
-        this.setState({ isFullscreen: false });
-        const doc: any = document;
-        if (doc.exitFullscreen) {
-          doc.exitFullscreen();
-        } else if (doc.mozCancelFullScreen) {
-          doc.mozCancelFullScreen();
-        } else if (doc.webkitCancelFullScreen) {
-          doc.webkitCancelFullScreen();
-        } else if (doc.msExitFullscreen) {
-          doc.msExitFullscreen();
-        }
-      } else {
-        this.setState({ isFullscreen: true });
-        // 这里调用全屏的是包裹<video>的外层div
-        // 因为如果直接让<video>全屏，则视频控制器会变成浏览器自带的
-        const wrapperDOM: any = this.wrapperRef.current;
-        const videoDOM = this.videoRef.current;
-        const videoWidth = videoDOM.style.width;
-        const videoHeight = videoDOM.style.height;
-        const cha = Math.abs(parseInt(videoHeight) - parseInt(videoWidth)) / 2;
-        // videoDOM.style.width = '100vh';
-        // videoDOM.style.height = '100vw';
-        // videoDOM.style.transform = `rotate(90deg) translate(-${cha}px, ${cha}px)`;
-        videoDOM.style.transform = `rotate(90deg) translate(-100px, 100px)`;
-        if (wrapperDOM.requestFullscreen) {
-          wrapperDOM.requestFullscreen();
-        } else if (wrapperDOM.mozRequestFullScreen) {
-          wrapperDOM.mozRequestFullScreen();
-        } else if (wrapperDOM.webkitRequestFullScreen) {
-          wrapperDOM.webkitRequestFullScreen();
-        } else if (wrapperDOM.msRequestFullscreen) {
-          wrapperDOM.msRequestFullscreen();
-        }
-      }
-    }
-  }
-
   private showPlayBtn = () => {
     if (this.playBtnTimer != 0) {
       clearTimeout(this.playBtnTimer);
@@ -579,8 +535,47 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     }
   }
 
+  private entryOrExitFullscreen() {
+    const playerDOM: any = this.playerRef.current;
+    const videoDOM: any = this.videoRef.current;
+    const videoAreaWrapperDOM = this.videoAreaWrapperRef.current;
+
+    if (this.state.isFullscreen) {
+      const doc: any = document;
+
+      this.setState({ isFullscreen: false });
+      // videoAreaWrapperDOM.classList.remove(style.fullScreen);
+      if (doc.exitFullscreen) {
+        doc.exitFullscreen();
+      } else if (doc.mozCancelFullScreen) {
+        doc.mozCancelFullScreen();
+      } else if (doc.webkitCancelFullScreen) {
+        doc.webkitCancelFullScreen();
+      } else if (doc.msExitFullscreen) {
+        doc.msExitFullscreen();
+      }
+    } else {
+      this.setState({ isFullscreen: true });
+      // 这里调用全屏的是包裹<video>的外层div
+      // 因为如果直接让<video>全屏，则视频控制器会变成浏览器自带的
+      // videoAreaWrapperDOM.classList.add(style.fullScreen);
+      if (playerDOM.requestFullscreen) {
+        playerDOM.requestFullscreen();
+      } else if (playerDOM.mozRequestFullScreen) {
+        playerDOM.mozRequestFullScreen();
+      } else if (playerDOM.webkitRequestFullScreen) {
+        playerDOM.webkitRequestFullScreen();
+      } else if (playerDOM.msRequestFullscreen) {
+        playerDOM.msRequestFullscreen();
+      }
+    }
+  }
+
   /* 以下为生命周期函数 */
   public componentDidMount() {
+    const playerDOM: any = this.playerRef.current;
+    const videoDOM: any = this.videoRef.current;
+
     const { live } = this.props;
 
     this.setThumbnailListener();
@@ -615,6 +610,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     // 所以直接设成grid，css还可以省去display: grid
     const speedBarStyle = { display: this.state.isShowSpeedBar ? "grid" : "none" };
     const centerSpeedStyle = { display: this.state.isShowCenterSpeed ? "block" : "none" };
+    // 这里不能用style.只能用style[]，因为.后面只能跟字符串，而这里含有变量
     const speedBtnPicClass = style[`speed${this.btnPlaySpeed}`];
     const playBtnClass = this.state.paused ? style.play : style.pause;
     const switchClass = this.state.barrageSwitch ? style.barrageOn : style.barrageOff;
@@ -648,160 +644,147 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const liElements = generateLi();
 
     return (
-      <div className={style.videoPlayer} ref={this.wrapperRef}>
+      <div className={style.videoPlayer} ref={this.playerRef}>
         {/* 视频区域 */}
-
-        <div className={style.videoArea} ref={this.videoAreaRef}>
-          {/* 播放速度选择及当前所选速度 */}
-          <video
-            height="100%"
-            width="100%"
-            preload="auto"
-            // playsinline是解决ios默认打开网页的时候，会自动全屏播放
-            x5-playsinline="true"
-            webkit-playsinline="true"
-            playsInline={true}
-            src={live ? "" : this.getVideoUrl(video.url)}
-            style={videoCoverStyle}
-            ref={this.videoRef}
-          />
-        </div>
-        {/* 弹幕 */}
-        {/* 不把Barrage放进videoArea中是因为： */}
-        {/*   如果Barrage成为videoArea的子元素，那么Barrage的事件会冒泡到videoArea */}
-        {/*   这样就还要阻止Barrage的事件冒泡，所以不如将其放在外面 */}
-        <div className={style.barrage} ref={this.barrageContainerRef}>
-          <Barrage opacity={live ? 1 : 0.75} ref={this.barrageRef} />
-        </div>
-        <div className={style.controlContainer}>
-          {/* 速度调节及显示 */}
-          <div className={style.speedContainer}>
-            <span
-              className={style.centerSpeed}
-              style={centerSpeedStyle}
-            >{`${this.centerPlaySpeed}x`}
-            </span>
-            <ul
-              className={style.speedBar} style={speedBarStyle} ref={this.speedBarRef}
-            >
-              {liElements}
-            </ul>
+        <div className={style.videoAreaWrapper} ref={this.videoAreaWrapperRef}>
+          <div className={style.videoArea} ref={this.videoAreaRef}>
+            {/* 播放速度选择及当前所选速度 */}
+            <video
+              height="100%"
+              width="100%"
+              preload="auto"
+              // playsinline是解决ios默认打开网页的时候，会自动全屏播放
+              // x5-playsinline="true"
+              // webkit-playsinline="true"
+              // playsInline={true}
+              src={live ? "" : this.getVideoUrl(video.url)}
+              style={videoCoverStyle}
+              ref={this.videoRef}
+            />
           </div>
-          {/* 右边的白色播放暂停按钮 */}
-          <div
-            className={style.playButton + " " + playBtnClass}
-            style={playBtnStyle}
-            onClick={e => {
-              e.stopPropagation(); // 阻止点击冒泡到controls
-              this.playOrPause();
-            }}
-          />
-          {/* 控制栏 */}
-          <div
-            className={style.controlBar + (live ? " " + style.liveControl : "")}
-            style={controlBarStyle}
-            ref={this.controlBarRef}
-          >
-            {/* 控制栏播放按钮 */}
+          {/* 弹幕 */}
+          {/* 不把Barrage放进videoArea中是因为： */}
+          {/*   如果Barrage成为videoArea的子元素，那么Barrage的事件会冒泡到videoArea */}
+          {/*   这样就还要阻止Barrage的事件冒泡，所以不如将其放在外面 */}
+          <div className={style.barrage} ref={this.barrageContainerRef}>
+            <Barrage opacity={live ? 1 : 0.75} ref={this.barrageRef} />
+          </div>
+          <div className={style.controlContainer}>
+            {/* 速度调节及显示 */}
+            <div className={style.speedContainer}>
+              <span
+                className={style.centerSpeed}
+                style={centerSpeedStyle}
+              >{`${this.centerPlaySpeed}x`}
+              </span>
+              <ul
+                className={style.speedBar} style={speedBarStyle} ref={this.speedBarRef}
+              >
+                {liElements}
+              </ul>
+            </div>
+            {/* 右边的白色播放暂停按钮 */}
             <div
-              className={style.controlBarPlayBtn + " " + playBtnClass}
-              ref={this.ctrPlayBtnRef}
+              className={style.playButton + " " + playBtnClass}
+              style={playBtnStyle}
               onClick={e => {
-                e.stopPropagation();
+                e.stopPropagation(); // 阻止点击冒泡到controls
                 this.playOrPause();
               }}
+            />
+            {/* 控制栏 */}
+            <div
+              className={style.controlBar + (live ? " " + style.liveControl : "")}
+              style={controlBarStyle}
+              ref={this.controlBarRef}
             >
-            </div>
-            {
-              !live ? (
-                // React.Fragment和空的div类似，都是在最外层起到包裹的作用
-                // 区别是React.Fragment不会真实的html元素，这样就减轻了浏览器渲染压力
-                <React.Fragment>
-                  {/* 当前时间、视频总时长 */}
-                  <div className={style.left}>
-                    <span className={style.time} ref={this.currentTimeRef}>00:00</span>
-                    <span className={style.split}>/</span>
-                    <span className={style.totalDuration}>
-                      {formatDuration(this.duration, "0#:##")}
-                    </span>
-                  </div>
-                  {/* 进度条 */}
-                  <div className={style.center}>
-                    <div
-                      className={style.progressWrapper}
-                      onClick={e => {
-                        e.stopPropagation();
-                        this.changePlayPosition(e);
-                      }}
-                    >
-                      <div className={style.progress} ref={this.progressRef} >
-                        <span className={style.progressBtn} ref={this.progressBtnRef} />
+              {/* 控制栏播放按钮 */}
+              <div
+                className={style.controlBarPlayBtn + " " + playBtnClass}
+                ref={this.ctrPlayBtnRef}
+                onClick={e => {
+                  e.stopPropagation();
+                  this.playOrPause();
+                }}
+              >
+              </div>
+              {
+                !live ? (
+                  // React.Fragment和空的div类似，都是在最外层起到包裹的作用
+                  // 区别是React.Fragment不会真实的html元素，这样就减轻了浏览器渲染压力
+                  <React.Fragment>
+                    {/* 当前时间、视频总时长 */}
+                    <div className={style.left}>
+                      <span className={style.time} ref={this.currentTimeRef}>00:00</span>
+                      <span className={style.split}>/</span>
+                      <span className={style.totalDuration}>
+                        {formatDuration(this.duration, "0#:##")}
+                      </span>
+                    </div>
+                    {/* 进度条 */}
+                    <div className={style.center}>
+                      <div
+                        className={style.progressWrapper}
+                        onClick={e => {
+                          e.stopPropagation();
+                          this.changePlayPosition(e);
+                        }}
+                      >
+                        <div className={style.progress} ref={this.progressRef} >
+                          <span className={style.progressBtn} ref={this.progressBtnRef} />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </React.Fragment>
-              ) : ( // 直播时为直播时长
-                  <div className={style.left} ref={this.liveDurationRef}></div>
-                )
-            }
-            <div className={style.right}>
-              {/* 调节播放速度 */}
-              <div className={style.speedBtn}>
-                <div
-                  className={speedBtnPicClass}
-                  onClick={e => {
-                    e.stopPropagation();
-                    this.showSpeedBarTemporally();
-                    this.setState({ isShowControlBar: false });
-                    this.setState({ isShowPlayBtn: false });
-                  }}
-                />
-              </div>
-              {/* 弹幕开关 */}
-              <div
-                className={switchClass}
-                onClick={e => {
-                  e.stopPropagation();
-                  this.onOrOff();
-                }}
-              />
-              {/* 全屏开关 */}
-              <div
-                className={style.fullscreenBtn}
-                onClick={e => {
-                  e.stopPropagation();
-                  this.entryOrExitFullscreen();
-                }}
-              />
-            </div>
-          </div>
-        </div>
-        {/* 封面 */}
-        <div className={style.cover} style={coverStyle}>
-          {
-            !live ? (
-              <React.Fragment>
-                <div className={style.title}>
-                  av{video.aId}
-                </div>
-                <img className={style.pic} src={video.cover} alt={video.title} />
-                <div className={style.prePlay}>
-                  <div className={style.duration}>
-                    {formatDuration(video.duration, "0#:##:##")}
-                  </div>
+                  </React.Fragment>
+                ) : ( // 直播时为直播时长
+                    <div className={style.left} ref={this.liveDurationRef}></div>
+                  )
+              }
+              <div className={style.right}>
+                {/* 调节播放速度 */}
+                <div className={style.speedBtn}>
                   <div
-                    className={style.preview}
+                    className={speedBtnPicClass}
                     onClick={e => {
                       e.stopPropagation();
-                      this.playOrPause();
+                      this.showSpeedBarTemporally();
+                      this.setState({ isShowControlBar: false });
+                      this.setState({ isShowPlayBtn: false });
                     }}
                   />
                 </div>
-              </React.Fragment>
-            ) : (
+                {/* 弹幕开关 */}
+                <div
+                  className={switchClass}
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.onOrOff();
+                  }}
+                />
+                {/* 全屏开关 */}
+                <div
+                  className={style.fullscreenBtn}
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.entryOrExitFullscreen();
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+          {/* 封面 */}
+          <div className={style.cover} style={coverStyle}>
+            {
+              !live ? (
                 <React.Fragment>
+                  <div className={style.title}>
+                    av{video.aId}
+                  </div>
                   <img className={style.pic} src={video.cover} alt={video.title} />
                   <div className={style.prePlay}>
+                    <div className={style.duration}>
+                      {formatDuration(video.duration, "0#:##:##")}
+                    </div>
                     <div
                       className={style.preview}
                       onClick={e => {
@@ -811,50 +794,64 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                     />
                   </div>
                 </React.Fragment>
-              )
-          }
-        </div>
-        {  // 正在缓冲
-          this.state.waiting ? (
-            <div className={style.loading}>
-              <div className={style.wrapper}>
-                <img className={style.img} src={loading} />
-                <span className={style.text}>
-                  {!live ? "正在缓冲" : ""}
-                </span>
-              </div>
-            </div>
-          ) : null
-        }
-        { // 重新播放
-          this.state.finish ? (
-            <div className={style.finishCover}>
-              <img className={style.coverPic} src={video.cover} alt={video.title} />
-              <div className={style.coverWrapper}>
-                <div
-                  className={style.replay}
-                  onClick={e => {
-                    e.stopPropagation();
-                    this.playOrPause();
-                  }}
-                >
-                  <i className={style.replayIcon} />
-                  <span>重新播放</span>
+              ) : (
+                  <React.Fragment>
+                    <img className={style.pic} src={video.cover} alt={video.title} />
+                    <div className={style.prePlay}>
+                      <div
+                        className={style.preview}
+                        onClick={e => {
+                          e.stopPropagation();
+                          this.playOrPause();
+                        }}
+                      />
+                    </div>
+                  </React.Fragment>
+                )
+            }
+          </div>
+          {  // 正在缓冲
+            this.state.waiting ? (
+              <div className={style.loading}>
+                <div className={style.wrapper}>
+                  <img className={style.img} src={loading} />
+                  <span className={style.text}>
+                    {!live ? "正在缓冲" : ""}
+                  </span>
                 </div>
               </div>
-            </div>
-          ) : null
-        }
-        { // 直播时，主播不在
-          live && !this.state.isLive ? (
-            <div className={style.noticeCover}>
-              <div className={style.noticeWrapper}>
-                <i />
-                <span>闲置中...</span>
+            ) : null
+          }
+          { // 重新播放
+            this.state.finish ? (
+              <div className={style.finishCover}>
+                <img className={style.coverPic} src={video.cover} alt={video.title} />
+                <div className={style.coverWrapper}>
+                  <div
+                    className={style.replay}
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.playOrPause();
+                    }}
+                  >
+                    <i className={style.replayIcon} />
+                    <span>重新播放</span>
+                  </div>
+                </div>
               </div>
-            </div>
-          ) : null
-        }
+            ) : null
+          }
+          { // 直播时，主播不在
+            live && !this.state.isLive ? (
+              <div className={style.noticeCover}>
+                <div className={style.noticeWrapper}>
+                  <i />
+                  <span>闲置中...</span>
+                </div>
+              </div>
+            ) : null
+          }
+        </div>
       </div>
     );
   }

@@ -5,7 +5,6 @@ import { Redirect, Switch } from "react-router-dom";
 import router, { NestedRoute, StatusRoute } from "./router/router";
 import Context, { context } from "./context";
 
-import "./assets/stylus/icon.styl";
 import "./app.styl";
 
 class App extends React.Component {

@@ -32,20 +32,18 @@ class ScrollToTop extends React.Component {
   }
 
   private handleClick() {
-    const initialScrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    // 计算每次向上移动的步长
-    // 回到顶部总的动画时间是一定的，initialScrollTop大单位时间移动的步长就大
-    const step = Math.round(initialScrollTop / 10);
-    const scroll = () => {
-      const scrollDistance = document.documentElement.scrollTop || document.body.scrollTop;
-      // scroll被调用一次则向上移动一步长
-      window.scrollTo(0, scrollDistance - step);
-      // 如果尚未到顶，则继续向上移动一步长
-      if (scrollDistance > 0) {
-        requestAnimationFrame(scroll);
+    const scrollToptimer = setInterval(() => {
+      var top = document.body.scrollTop || document.documentElement.scrollTop;
+      var speed = top / 4;
+      if (document.body.scrollTop != 0) {
+        document.body.scrollTop -= speed;
+      } else {
+        document.documentElement.scrollTop -= speed;
       }
-    }
-    requestAnimationFrame(scroll);
+      if (top == 0) {
+        clearInterval(scrollToptimer);
+      }
+    }, 30);
   }
 
   /* 以下为渲染部分 */
