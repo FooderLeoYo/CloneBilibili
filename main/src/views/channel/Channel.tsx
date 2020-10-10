@@ -1,4 +1,5 @@
 import * as React from "react";
+import { forceCheck } from "react-lazyload";
 import { match } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { History } from "history";
@@ -302,6 +303,12 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
       this.setInitData();
       this.props.dispatch(setShouldLoad(true));
     }
+
+    setTimeout(() => {
+      // 开发环境中，样式在js加载后动态添加会导致图片被检测到未出现在屏幕上
+      // 强制检查懒加载组件是否出现在屏幕上
+      forceCheck();
+    }, 10);
   }
 
   // 这个生命周期函数会在调用 render 方法之前调用
@@ -367,7 +374,9 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
                     />
                   </div>
                   <div className={style.switch} onClick={this.handleSwitchClick}>
-                    <i className="icon-arrow-down" />
+                    <svg className="icon" aria-hidden="true">
+                      <use href="#icon-arrowDownBig"></use>
+                    </svg>
                   </div>
                 </div>
                 {/* 抽屉 */}

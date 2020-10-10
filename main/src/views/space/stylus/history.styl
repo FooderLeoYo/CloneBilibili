@@ -43,19 +43,24 @@ body
       &:last-child
         margin-bottom: 0
       .img-container
+        position: relative
         float: left
         width: px2rem(117.312)
         height: 100%
         border-radius: px2rem(6)
         background-color: #e7e7e7
-        background-image: url("../../../assets/images/tv.png")
-        background-size: px2rem(73.08) px2rem(73.08)
-        background-position: px2rem(22) 0
-        background-repeat: no-repeat
         overflow: hidden
+        text-align: center
+        .placeholder
+          font-size: px2rem(40)
+          color: rgb(204, 204, 204)
+          svg
+            height: 100%
         img
+          position: absolute
+          left: 0
+          top: 0
           width: 100%
-          height: @width
       .info
         margin-left: px2rem(130)
         .title
@@ -82,13 +87,3 @@ body
     color: #999999
     a
       color: #fb7299
-.clear-history
-  width: px2rem(35)
-  height: px2rem(35)
-  position: fixed
-  bottom: px2rem(15)
-  right: px2rem(17)
-  z-index: 999
-  border-radius: 50%
-  img
-    width: px2rem(30)

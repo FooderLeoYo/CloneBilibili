@@ -161,6 +161,11 @@ class History extends React.Component<null, HistoryState> {
                     <div className={style.itemWrapper} key={history.aId}>
                       <Link to={"/video/av" + history.aId}>
                         <div className={style.imgContainer}>
+                          <span className={style.placeholder}>
+                            <svg className="icon" aria-hidden="true">
+                              <use href="#icon-placeholder"></use>
+                            </svg>
+                          </span>
                           <img src={history.pic} />
                         </div>
                         <div className={style.info}>

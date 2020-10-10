@@ -12,15 +12,14 @@
   box-sizing: border-box
   padding-top: px2rem(44)
   padding-bottom: px2rem(20)
+  background-color #ffffff
   .video-container
     position: relative
-    // height: px2rem(211)
     height: 32vh
   .video-info-container
     position relative
     height: px2rem(56)
     margin-top: px2rem(20)
-    margin-bottom: px2rem(10)
     transition: height .3s
     padding-bottom: px2rem(8)
     border-bottom: px2rem(1) solid #e7e7e7
@@ -49,15 +48,11 @@
         color: #999999
         font-size: px2rem(12)
         .up-user-icon
-          display: inline-block
-          width: px2rem(15)
-          height: px2rem(15)
           position: relative
-          top: px2rem(4)
+          top: 0
           margin-right: px2rem(3)
-          background: url('../../../assets/images/up-user-icon.png')
-          background-size: cover
-          background-repeat: no-repeat
+          font-size: px2rem(15)
+          color: #212121
         .up-user-name
           margin-right: px2rem(18)
           color: #212121
@@ -93,8 +88,8 @@
     top: px2rem(45)
     z-index: 1
     justify-content: space-evenly
-    padding: px2rem(10) 0
-    background-color #fff
+    padding: px2rem(8) 0 
+    background-color #f9f9f9
     color: #212121
     .switcher-item
       text-align: center
@@ -105,6 +100,8 @@
         border-bottom: px2rem(2) solid #fb7299
   .bottom-area
     overflow: hidden;
+    padding-top: px2rem(5)
+    background-color: #f4f4f4
     .bottom-wrapper
       width: 200vw
       transition: .5s
@@ -126,10 +123,17 @@
             border-radius: px2rem(6)
             overflow: hidden
             background-color: #e7e7e7
-            background-image: url("../../../assets/images/tv.png")
-            background-size: px2rem(73.08) px2rem(73.08)
-            background-position: px2rem(22) 0
-            background-repeat: no-repeat
+            text-align: center
+            .placeholder
+              font-size: px2rem(40)
+              color: rgb(204, 204, 204)
+            img
+              position: absolute
+              left: 0
+              top: 0
+              width: 100%
+          svg
+            height: 100%
             img
               width: 100%
               height: @width

@@ -6,7 +6,6 @@ import { Video } from "../../class-object-creators";
 import { formatTenThousand } from "../../customed-methods/string";
 
 import style from "./video-item.styl?css-modules";
-import tv from "../../assets/images/tv.png";
 
 interface VideoItemProps {
   video: Video;
@@ -23,7 +22,11 @@ const VideoItem = (props: VideoItemProps) => {
         <div className={style.imageContainer}>
           <div className={style.imageWrapper}>
             {/* 占位图片 */}
-            <img className={style.tv} src={tv} />
+            <span className={style.placeholder}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-placeholder"></use>
+              </svg>
+            </span>
             {/* 视频封面图片 */}
             {
               video.pic ? (
@@ -46,13 +49,20 @@ const VideoItem = (props: VideoItemProps) => {
             {
               showStatistics ? (
                 <div className={style.info}>
-                  <span className={`${style.playIcon} icon-play-count`} />
+                  <span className={style.playIcon} />
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-playCount"></use>
+                  </svg>
                   <span className={style.playCount}>
                     {
                       video.playCount ? formatTenThousand(video.playCount) : "0"
                     }
                   </span>
-                  <span className={`${style.barrageIcon} icon-barrage-count`} />
+                  <span className={style.barrageIcon} >
+                    <svg className="icon" aria-hidden="true">
+                      <use href="#icon-barrageCount"></use>
+                    </svg>
+                  </span>
                   <span className={style.barrageCount}>
                     {
                       video.barrageCount ? formatTenThousand(video.barrageCount) : "0"

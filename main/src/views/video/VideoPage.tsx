@@ -361,7 +361,11 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                       {video.title}
                     </div>
                     <div className={style.videoInfo}>
-                      <i className={style.upUserIcon}></i>
+                      <span className={style.upUserIcon}>
+                        <svg className="icon" aria-hidden="true">
+                          <use href="#icon-uper"></use>
+                        </svg>
+                      </span>
                       <Link to={"/space/" + video.owner.mId}>
                         {/* <a href={"/space/" + video.owner.mId}> */}
                         <span className={style.upUserName}>{video.owner.name}</span>
@@ -402,10 +406,15 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                     {/* 推荐列表 */}
                     <div className={style.recommendList} >
                       {
-                        this.state.recommendVides.map((v) => (
+                        this.state.recommendVides.map(v => (
                           <div className={style.videoWrapper} key={v.aId}>
-                            <a href={"/video/av" + v.aId}>
+                            <Link to={"/video/av" + v.aId}>
                               <div className={style.imageContainer}>
+                                <span className={style.placeholder}>
+                                  <svg className="icon" aria-hidden="true">
+                                    <use href="#icon-placeholder"></use>
+                                  </svg>
+                                </span>
                                 <LazyLoad height="10.575rem">
                                   <img src={this.getPicUrl(v.pic, "@320w_200h")} alt={v.title} />
                                 </LazyLoad>
@@ -429,7 +438,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                                   <span>{formatTenThousand(v.barrageCount)}弹幕</span>
                                 </div>
                               </div>
-                            </a>
+                            </Link>
                           </div>
                         ))
                       }

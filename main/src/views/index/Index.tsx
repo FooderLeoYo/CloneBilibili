@@ -213,7 +213,9 @@ class Index extends React.Component<IndexProps, IndexState> {
                   </div>
                   {/* 打开抽屉箭头 */}
                   <div className={style.switch} onClick={this.handleSwitchClick}>
-                    <i className="icon-arrow-down" />
+                    <svg className="icon" aria-hidden="true">
+                      <use href="#icon-arrowDownBig"></use>
+                    </svg>
                   </div>
                 </div>
                 {/* 抽屉 */}

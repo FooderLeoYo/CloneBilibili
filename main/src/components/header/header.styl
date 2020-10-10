@@ -1,28 +1,33 @@
 @import "../../assets/stylus/px2rem.styl"
 
 .header
-  height: px2rem(28)
+  position: relative
+  height: px2rem(45)
   padding: px2rem(8) 0
   border-bottom: px2rem(0.2) solid #E6E6FA 
-  // background-color: #ffffff
-  background-color: orange
   .logo
-    font-size: px2rem(30)
-    margin-left: px2rem(18)
-    color: black
+    display: inline-block
+    height px2rem(45)
+    line-height: @height
+    margin: px2rem(-25) 0 0 px2rem(18)
+    font-size: px2rem(75)
+  .search-icon
+    position: absolute
+    right: px2rem(55)
+    display: inline-block
+    height 100%
+    line-height: @height
+    font-size: px2rem(25)
+    color: rgb(138, 138, 138)
   .avatar
-    float: right
-    width: px2rem(24)
-    height: @width
-    margin-right: px2rem(10)
-    background-color: green
+    position: absolute
+    right: px2rem(18)
+    display: inline-block
+    height 100%
+    line-height: @height
+    font-size: px2rem(25)
     svg
       border-radius: 50%
-  .search-icon
-    float: right
-    font-size: px2rem(24)
-    margin-right: px2rem(15)
-    background-color: green
 a
   text-decoration: none
     

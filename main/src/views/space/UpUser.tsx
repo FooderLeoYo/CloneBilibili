@@ -226,6 +226,11 @@ class UpUser extends React.Component<UpUserProps, UpUserState> {
                     <div className={style.videoWrapper} key={video.aId}>
                       <a href={"/video/av" + video.aId}>
                         <div className={style.imageContainer}>
+                          <span className={style.placeholder}>
+                            <svg className="icon" aria-hidden="true">
+                              <use href="#icon-placeholder"></use>
+                            </svg>
+                          </span>
                           <LazyLoad height="10.575rem">
                             <img src={this.getPicUrl("https:" + video.pic, "@200w_125h")} alt={video.title} />
                           </LazyLoad>

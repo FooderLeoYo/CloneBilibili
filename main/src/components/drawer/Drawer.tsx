@@ -121,8 +121,10 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
           <div className={style.drawerItemContainer}>
             {items}
           </div>
-          <div className={style.drawerSwitch}>
-            <i className="icon-arrow-up" onClick={() => { this.hide(); }} />
+          <div className={style.drawerSwitch} onClick={() => { this.hide(); }}>
+            <svg className="icon" aria-hidden="true">
+              <use href="#icon-arrowUpBig"></use>
+            </svg>
           </div>
         </div>
       </div>

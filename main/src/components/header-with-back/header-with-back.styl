@@ -5,32 +5,44 @@
 .header
   display: flex
   height: px2rem(45)
-  padding: px2rem(8) 
-  background-color: #ffffff
+  border-bottom: px2rem(0.2) solid #E6E6FA
+  background-color #fff
   .back-btn
     width: px2rem(80)
-    height: px2rem(18)
     padding-left: px2rem(7)
-    img
-      width: px2rem(20)
-      height: px2rem(30)
+    color: rgb(251, 114, 153)
+    font-size: px2rem(20)
+    background-color: green
+    svg
+      height: 100%
+      line-height: @height
   .logo-wrapper
     flex: 1
+    text-align: center
     .logo
-      width: px2rem(62)
-      margin: 0 auto
+      margin-top: px2rem(-29)
+      font-size: px2rem(75)
   .tools
+    position: relative
     width: px2rem(80)
-    .avatar
-      float: right
-      width: px2rem(28)
-      height: @width
-      margin-top: px2rem(-1)
-      margin-right: px2rem(12)
-      svg
-        border-radius: 50%
+    background-color: orange
     .search-icon
-      float: right
-      font-size: px2rem(28)
-      margin-top: px2rem(-3)
-      margin-right: px2rem(10)
+      position: absolute
+      right: px2rem(55)
+      display: inline-block
+      height 100%
+      font-size: px2rem(25)
+      color: rgb(138, 138, 138)
+      svg
+        height: 100%
+        line-height: @height
+    .avatar
+      position: absolute
+      right: px2rem(18)
+      display: inline-block
+      height 100%
+      font-size: px2rem(25)
+      svg
+        height: 100%
+        line-height: @height
+        border-radius: 50%

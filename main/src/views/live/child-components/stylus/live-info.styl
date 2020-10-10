@@ -4,13 +4,11 @@
   width: 100%
   .cover-wrapper
     position: relative
+    height: 100%
     width: 100%
     padding-bottom: 62%
     color: #ffffff
-    background-image: url("../../../../assets/images/tv.png")
-    background-repeat: no-repeat
-    background-size: px2rem(200) px2rem(200)
-    background-position: center
+    background-color:#ffffff
     .cover
       position: absolute
       top: 0
@@ -19,9 +17,12 @@
       height: 100%
       border-radius: px2rem(8)
       overflow: hidden
-      opacity: 0
-      transition: opacity .3s ease
-      transform: translate3d(0, 0, 0)
+      text-align: center
+      .placeholder
+        font-size: px2rem(50)
+        color: rgb(204, 204, 204)
+        svg
+          height: 100%
       &:after
         content: ""
         position: absolute
@@ -31,8 +32,11 @@
         bottom: 0
         background-color: rgba(0, 0, 0, .2)
       img
+        position: absolute
+        left: 0
+        top: 0
         width: 100%
-        height: 100%
+        height: @width
     .name
       position: absolute
       left: 0
@@ -52,10 +56,8 @@
       margin: 0 px2rem(9) px2rem(5) 0
       padding-left: px2rem(15)
       font-size: px2rem(10)
-      background-image: url("../../../../assets/images/eye.png")
-      background-repeat: no-repeat
-      background-size: px2rem(10) px2rem(9)
-      background-position: 0 px2rem(2)
+      .placeholder
+        font-size: px2rem(12)
   .title
     margin: px2rem(5) px2rem(7)
     line-height: px2rem(16)

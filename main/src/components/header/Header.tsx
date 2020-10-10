@@ -8,17 +8,23 @@ const Header = () => {
     <div className={style.header}>
       {/* <a className={style.logo} href="/index"><Logo /></a> */}
       <Link className={style.logo} to="/index">
-        <i className="iconfont icon-logo"></i>
-      </Link>
-      {/* <a className={style.avatar} href="/space"><Avatar /></a> */}
-      <Link className={style.avatar} to="/space">
-        <i className="iconfont icon-avatar"></i>
+        <svg className="icon" aria-hidden="true">
+          <use href="#icon-logo"></use>
+        </svg>
       </Link>
       {/* <a className={style.searchIcon} href="/search"><i className="icon-search" /></a> */}
       <Link className={style.searchIcon} to="/search">
-        <i className="iconfont icon-search"></i>
+        <svg className="icon" aria-hidden="true">
+          <use href="#icon-search"></use>
+        </svg>
       </Link>
-    </div>
+      {/* <a className={style.avatar} href="/space"><Avatar /></a> */}
+      <Link className={style.avatar} to="/space">
+        <svg className="icon" aria-hidden="true">
+          <use href="#icon-avatar"></use>
+        </svg>
+      </Link>
+    </div >
   );
 }
 

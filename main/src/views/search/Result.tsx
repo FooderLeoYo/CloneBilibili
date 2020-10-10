@@ -221,6 +221,11 @@ class Result extends React.Component<ResultProps, ResultState> {
                       {/* 这里的href为相对url，因此不需要写完整的 */}
                       <a href={"/video/av" + video.aId}>
                         <div className={style.imageContainer}>
+                          <span className={style.placeholder}>
+                            <svg className="icon" aria-hidden="true">
+                              <use href="#icon-placeholder"></use>
+                            </svg>
+                          </span>
                           <LazyLoad height={"3.654rem"}>
                             <img src={this.getPicUrl("https:" + video.pic, "@200w_125h")} alt={video.title} />
                           </LazyLoad>

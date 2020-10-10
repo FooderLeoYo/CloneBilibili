@@ -17,16 +17,27 @@ function LiveInfo(props: LiveInfoProps) {
     <div className={style.liveInfo}>
       <div className={style.coverWrapper}>
         <div className={style.cover}>
+          <span className={style.placeholder}>
+            <svg className="icon" aria-hidden="true">
+              <use href="#icon-placeholder"></use>
+            </svg>
+          </span>
           {/* offset={100}表示当框进入屏幕100px以后，才加载图片 */}
           <LazyLoad height={"100%"} offset={100}>
-            {/* 等图片完全加载后才将opacity由0设为1，以免图片显示不全 */}
             <img src={data.cover} alt={data.title} onLoad={e => {
-              (e.currentTarget.parentNode as HTMLImageElement).style.opacity = "1";
+              {/* 等图片完全加载后才将opacity由0设为1，以免图片显示不全 */ }
             }} />
           </LazyLoad>
         </div>
         <span className={style.name}>{data.upUser.name}</span>
-        <span className={style.online}>{formatTenThousand(data.onlineNum)}</span>
+        <span className={style.online}>
+          <span className={style.placeholder}>
+            <svg className="icon" aria-hidden="true">
+              <use href="#icon-liveViewCount"></use>
+            </svg>
+          </span>
+          {formatTenThousand(data.onlineNum)}
+        </span>
       </div>
       <div className={style.title}>{data.title}</div>
     </div>

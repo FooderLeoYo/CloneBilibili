@@ -14,7 +14,6 @@ import Context from "../../context";
 import { PartitionType, Video } from "../../class-object-creators";
 import { getPicSuffix } from "../../customed-methods/image";
 import { formatTenThousand } from "../../customed-methods/string";
-import back from "../../assets/images/back.png";
 import style from "./ranking.styl?css-modules";
 
 interface RankingProps {
@@ -117,7 +116,9 @@ class Ranking extends React.Component<RankingProps, RankingState> {
           {/* 头部 */}
           <div className={style.header}>
             <span onClick={() => { window.history.back(); }}>
-              <img src={back} />
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-back"></use>
+              </svg>
             </span>
             <span>排行榜</span>
           </div>
@@ -151,6 +152,11 @@ class Ranking extends React.Component<RankingProps, RankingState> {
                   <div className={style.info}>
                     {/* 视频封面 */}
                     <div className={style.imageContainer}>
+                      <span className={style.placeholder}>
+                        <svg className="icon" aria-hidden="true">
+                          <use href="#icon-placeholder"></use>
+                        </svg>
+                      </span>
                       <LazyLoad height={"5.875rem"}>
                         <img
                           src={this.getPicUrl(video.pic, "@200w_125h")}

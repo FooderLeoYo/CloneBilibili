@@ -36,6 +36,7 @@ interface PlayerState {
   isLive: boolean;
   isShowSpeedBar: boolean;
   isShowCenterSpeed: boolean;
+  gestureType: number; // 手势类型：0：无手势；1：上下滑动；2：左右滑动
 }
 
 class Player extends React.PureComponent<PlayerProps, PlayerState> {
@@ -89,10 +90,11 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.ctrPlayBtnRef = React.createRef();
     this.speedBarRef = React.createRef();
     this.duration = 0;
-    this.isIos = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // 只写一个!会报错
-    this.isAndroid = navigator.userAgent.indexOf('Android') > -1 || navigator.userAgent.indexOf('Adr') > -1;
-    // this.isPC = !(navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i) !== null);
-    this.isPC = !this.isIos && !this.isAndroid;
+    // this.isIos = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // 只写一个!会报错
+    // this.isAndroid = navigator.userAgent.indexOf('Android') > -1 || navigator.userAgent.indexOf('Adr') > -1;
+    // this.isPC = !this.isIos && !this.isAndroid;
+    // this.isPC = !(navigator.userAgent.match(/(iPhone|iPad|iPod|iOS|Android)/i) !== null);
+    this.isPC = !(/(Safari|iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
     this.centerPlaySpeed = 1;
     this.btnPlaySpeed = "1";
 
@@ -107,7 +109,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       isShowPlayBtn: true,
       isLive: props.isLive,
       isShowSpeedBar: false,
-      isShowCenterSpeed: false
+      isShowCenterSpeed: false,
+      gestureType: 0
     };
   }
 
@@ -304,23 +307,94 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     }, 2500);
   }
 
-  private showOrHideControls = () => {
-    if (this.state.isShowControlBar) {
-      this.setState({ isShowControlBar: false });
-    } else {
-      if (this.ctrBarTimer != 0) {
-        this.showControlsTemporally();
-      }
-    }
-  }
-
   private setFingerListener = () => {
-    const videoAreaDOM = this.videoAreaRef.current;
+    // 用barrageContainerDOM而不是videoAreaDOM的原因见player.styl中各DOM的层级关系
     const barrageContainerDOM = this.barrageContainerRef.current;
+    const distanceToTop = barrageContainerDOM.getBoundingClientRect().top + window.scrollY;
+    const videoDOM = this.videoRef.current;
+    const initVolume = videoDOM.volume;
+    let startPos = {
+      x: 0,
+      y: distanceToTop
+    };
+    let curPos = {
+      x: 0,
+      y: distanceToTop
+    };
+    let moveRatio = {
+      x: 0,
+      y: 0
+    };
+
+    barrageContainerDOM.addEventListener("touchstart", e => {
+      startPos = {
+        x: e.targetTouches[0].pageX,
+        y: e.targetTouches[0].pageY - distanceToTop
+      };
+    });
+
+    barrageContainerDOM.addEventListener("touchmove", e => {
+      // 防止滑动拖动整个videoPage
+      e.preventDefault();
+      e.stopPropagation();
+
+      const barrageWidth = barrageContainerDOM.getBoundingClientRect().width;
+      const barrageHeight = barrageContainerDOM.getBoundingClientRect().height;
+
+      curPos = {
+        x: e.targetTouches[0].pageX,
+        y: e.targetTouches[0].pageY - distanceToTop
+      };
+      // moveDis = {
+      //   x: curPos.x - startPos.x,
+      //   y: curPos.y - startPos.y
+      // };
+      moveRatio = {
+        x: (curPos.x - startPos.x) / barrageWidth,
+        y: (curPos.y - startPos.y) / barrageHeight
+      };
+
+      if (this.state.gestureType !== 1 && Math.abs(moveRatio.x) > 0.05) {
+        if (this.state.gestureType !== 2) {
+          this.setState({ gestureType: 2 });
+        }
+
+        console.log("左右滑动");
+      } else if (this.state.gestureType !== 2 && Math.abs(moveRatio.y) > 0.1) {
+        if (this.state.gestureType !== 1) {
+          this.setState({ gestureType: 1 });
+        }
+
+        let volumeAfterChange = initVolume - moveRatio.y; // 取反
+        if (volumeAfterChange < 0) {
+          videoDOM.volume = 0;
+        } else if (volumeAfterChange > 1) {
+          videoDOM.volume = 1;
+        } else {
+          videoDOM.volume = volumeAfterChange;
+        }
+        console.log(videoDOM.volume);
+        console.log("上下滑动");
+      }
+    });
 
     barrageContainerDOM.addEventListener("touchend", e => {
       e.stopPropagation();
-      this.showOrHideControls();
+
+      // 点击时显示/隐藏控制栏
+      if (this.state.isShowControlBar) {
+        this.setState({ isShowControlBar: false });
+      } else if (this.ctrBarTimer != 0) {
+        this.showControlsTemporally();
+      }
+
+      // 初始化
+      this.setState({ gestureType: 0 });
+      startPos = {
+        x: 0,
+        y: distanceToTop
+      };
+
     });
   }
 
@@ -573,9 +647,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
 
   /* 以下为生命周期函数 */
   public componentDidMount() {
-    const playerDOM: any = this.playerRef.current;
-    const videoDOM: any = this.videoRef.current;
-
     const { live } = this.props;
 
     this.setThumbnailListener();
