@@ -25,7 +25,6 @@ function LiveInfo(props: LiveInfoProps) {
           {/* offset={100}表示当框进入屏幕100px以后，才加载图片 */}
           <LazyLoad height={"100%"} offset={100}>
             <img src={data.cover} alt={data.title} onLoad={e => {
-              {/* 等图片完全加载后才将opacity由0设为1，以免图片显示不全 */ }
             }} />
           </LazyLoad>
         </div>

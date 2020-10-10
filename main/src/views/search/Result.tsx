@@ -263,6 +263,9 @@ class Result extends React.Component<ResultProps, ResultState> {
                     <div className={style.upUserWrapper} key={user.mId}>
                       <a href={"/space/" + user.mId}>
                         <div className={style.face}>
+                          <svg className="icon" aria-hidden="true">
+                            <use href="#icon-placeholder"></use>
+                          </svg>
                           <LazyLoad height={"3rem"}>
                             <img src={this.getPicUrl("https:" + user.face, "@120w_120h")} alt={user.name} />
                           </LazyLoad>

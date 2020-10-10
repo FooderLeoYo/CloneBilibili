@@ -46,6 +46,19 @@
       left: 0
       right: 0
       bottom: 0
+      .cur-volume-container
+        position: fixed
+        top: px2rem(50)
+        left: px2rem(100)
+        height: px2rem(50)
+        background-color: #4c4c4c
+        .cur-volume
+          display: inline-block
+          position: absolute
+          bottom: 0
+          left: 0
+          width: px2rem(3)
+          background-color: #de698c
       .speed-container
         .center-speed
           position: absolute
@@ -86,13 +99,12 @@
         bottom: px2rem(56)
         width: px2rem(46)
         height: px2rem(46)
+        z-index: 2
         opacity: .85
         background-size: 100% auto
-        z-index: 2
-        &.play
-          background-image: url("../../../assets/images/tv-play.png")
-        &.pause
-          background-image: url("../../../assets/images/tv-pause.png")
+        svg
+          font-size: px2rem(46)
+          color: #ffffff
       .control-bar
         position absolute
         bottom: 0
@@ -100,6 +112,7 @@
         height: px2rem(44)
         background: linear-gradient(rgba(0,0,0,0),rgba(0,0,0,1))
         z-index: 2
+        background-color: orange
         &.gradually-hide
           animation: hide 500ms ease-in;
           -webkit-animation: hide 500ms ease-in;
@@ -113,12 +126,11 @@
           width:px2rem(25)
           height: px2rem(25)
           opacity: .85
-          &.play
-            background: url("../../../assets/images/control-bar-play.png") no-repeat 
-            background-size: px2rem(25) px2rem(25)
-          &.pause
-            background: url("../../../assets/images/control-bar-pause.png") no-repeat 
-            background-size: px2rem(24) px2rem(24)
+          svg
+            font-size: px2rem(25)
+            height: 100%
+            line-height: @height 
+          color: #ffffff
         &.live-control
           background-color: transparent
           background-image: linear-gradient(180deg, transparent, rgba(0, 0, 0, .7))
@@ -175,6 +187,8 @@
         .right
           float: right
           margin-right: px2rem(10)
+          display:flex
+          align-items: center
           .speed-btn
             display: inline-block
             width: px2rem(24)
@@ -186,35 +200,37 @@
               width: 100%
               height: 100%
               background-size: 100%
-            .speed-point5
-              background-image: url("../../../assets/images/speed0.5.svg")
-            .speed-point75
-              background-image: url("../../../assets/images/speed0.75.svg")
-            .speed1
-              background-image: url("../../../assets/images/speed1.svg")
-            .speed1point5
-              background-image: url("../../../assets/images/speed1.5.svg")
-            .speed2
-              background-image: url("../../../assets/images/speed2.svg")
-          .barrage-on, .barrage-off
+            // .speed-point5
+            //   background-image: url("../../../assets/images/speed0.5.svg")
+            // .speed-point75
+            //   background-image: url("../../../assets/images/speed0.75.svg")
+            // .speed1
+            //   background-image: url("../../../assets/images/speed1.svg")
+            // .speed1point5
+            //   background-image: url("../../../assets/images/speed1.5.svg")
+            // .speed2
+            //   background-image: url("../../../assets/images/speed2.svg")
+          .barrage-btn
             display: inline-block
-            width: px2rem(24)
+            position: absolute
+            top: px2rem(9)
+            right: px2rem(37)
+            width: px2rem(27)
             height: @width
-            margin-top: px2rem(10)
-            margin-left: px2rem(12)
-            background-size: 100% auto
-          .barrage-on
-            background-image: url("../../../assets/images/barrage-on.png")
-          .barrage-off
-            background-image: url("../../../assets/images/barrage-off.png")
+            svg
+              font-size: px2rem(27)
+              color: #ffffff
           .fullscreen-btn
             display: inline-block
+            position: absolute
+            top: px2rem(9)
+            right: px2rem(8)
             width: px2rem(24)
             height: @width
-            margin-top: px2rem(10)
-            margin-left: px2rem(10)
-            background-image: url("../../../assets/images/fullscreen.svg")
-            background-size: 100% auto
+            line-height: @height
+            svg
+              font-size: px2rem(24)
+              color: #ffffff
     .cover
       position: absolute
       top: 0
@@ -255,13 +271,12 @@
           background-color: hsla(0, 0%, 100%, .2)
           border-radius: px2rem(2)
         .preview
-          float: right
+          position: absolute
+          top: px2rem(-30)
+          right: px2rem(12)
           width: px2rem(46)
           height: px2rem(46)
-          margin-right: px2rem(12)
-          margin-top: px2rem(-20)
-          background: url("../../../assets/images/tv-play.png")
-          background-size: 100% auto
+          font-size: px2rem(46)
     .loading
       position: absolute
       top: 0

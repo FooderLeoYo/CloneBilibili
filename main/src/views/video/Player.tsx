@@ -54,6 +54,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private progressBtnRef: React.RefObject<HTMLDivElement>;
   private ctrPlayBtnRef: React.RefObject<HTMLDivElement>;
   private speedBarRef: React.RefObject<HTMLUListElement>;
+  private curVolumeRef: React.RefObject<HTMLSpanElement>;
 
   private duration: number;
   private initBarrages: Array<any>; // 拿到数据时的初始格式，供slice后生成barrages
@@ -61,8 +62,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private ctrBarTimer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
   private easeTimer: number;
   private playBtnTimer: number;
-  private isIos: boolean;
-  private isAndroid: boolean;
+  // private isIos: boolean;
+  // private isAndroid: boolean;
   private isPC: boolean;
   private centerPlaySpeed: number;
   private btnPlaySpeed: string;
@@ -89,6 +90,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.progressBtnRef = React.createRef();
     this.ctrPlayBtnRef = React.createRef();
     this.speedBarRef = React.createRef();
+    this.curVolumeRef = React.createRef();
     this.duration = 0;
     // this.isIos = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // 只写一个!会报错
     // this.isAndroid = navigator.userAgent.indexOf('Android') > -1 || navigator.userAgent.indexOf('Adr') > -1;
@@ -312,7 +314,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const barrageContainerDOM = this.barrageContainerRef.current;
     const distanceToTop = barrageContainerDOM.getBoundingClientRect().top + window.scrollY;
     const videoDOM = this.videoRef.current;
-    const initVolume = videoDOM.volume;
+    let initVolume = videoDOM.volume;
+    let volumeAfterChange = initVolume;
     let startPos = {
       x: 0,
       y: distanceToTop
@@ -345,36 +348,40 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
         x: e.targetTouches[0].pageX,
         y: e.targetTouches[0].pageY - distanceToTop
       };
-      // moveDis = {
-      //   x: curPos.x - startPos.x,
-      //   y: curPos.y - startPos.y
-      // };
       moveRatio = {
         x: (curPos.x - startPos.x) / barrageWidth,
         y: (curPos.y - startPos.y) / barrageHeight
       };
 
+      // 左右滑动
       if (this.state.gestureType !== 1 && Math.abs(moveRatio.x) > 0.05) {
         if (this.state.gestureType !== 2) {
           this.setState({ gestureType: 2 });
         }
 
-        console.log("左右滑动");
+        // 上下滑动
       } else if (this.state.gestureType !== 2 && Math.abs(moveRatio.y) > 0.1) {
+        const curVolumeDOM = this.curVolumeRef.current;
+
         if (this.state.gestureType !== 1) {
           this.setState({ gestureType: 1 });
         }
 
-        let volumeAfterChange = initVolume - moveRatio.y; // 取反
+        volumeAfterChange = initVolume - moveRatio.y; // 取反
         if (volumeAfterChange < 0) {
           videoDOM.volume = 0;
+          curVolumeDOM.style.height = `0`;
+          volumeAfterChange = 0;
+          return;
         } else if (volumeAfterChange > 1) {
           videoDOM.volume = 1;
+          curVolumeDOM.style.height = `100%`;
+          volumeAfterChange = 1;
+          return;
         } else {
           videoDOM.volume = volumeAfterChange;
+          curVolumeDOM.style.height = `${volumeAfterChange * 100}%`;
         }
-        console.log(videoDOM.volume);
-        console.log("上下滑动");
       }
     });
 
@@ -388,13 +395,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
         this.showControlsTemporally();
       }
 
-      // 初始化
+      // 设置下一次触摸事件的初始值
       this.setState({ gestureType: 0 });
-      startPos = {
-        x: 0,
-        y: distanceToTop
-      };
-
+      initVolume = volumeAfterChange;
     });
   }
 
@@ -683,8 +686,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const centerSpeedStyle = { display: this.state.isShowCenterSpeed ? "block" : "none" };
     // 这里不能用style.只能用style[]，因为.后面只能跟字符串，而这里含有变量
     const speedBtnPicClass = style[`speed${this.btnPlaySpeed}`];
-    const playBtnClass = this.state.paused ? style.play : style.pause;
-    const switchClass = this.state.barrageSwitch ? style.barrageOn : style.barrageOff;
     const generateLi = () => {
       let liArr = [];
 
@@ -725,9 +726,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
               width="100%"
               preload="auto"
               // playsinline是解决ios默认打开网页的时候，会自动全屏播放
-              // x5-playsinline="true"
-              // webkit-playsinline="true"
-              // playsInline={true}
+              x5-playsinline="true"
+              webkit-playsinline="true"
+              playsInline={true}
               src={live ? "" : this.getVideoUrl(video.url)}
               style={videoCoverStyle}
               ref={this.videoRef}
@@ -741,6 +742,11 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
             <Barrage opacity={live ? 1 : 0.75} ref={this.barrageRef} />
           </div>
           <div className={style.controlContainer}>
+            {/* 调节音量后显示当前音量 */}
+            <div className={style.curVolumeContainer}>
+              <span className={style.curVolume} ref={this.curVolumeRef} />
+              音量
+            </div>
             {/* 速度调节及显示 */}
             <div className={style.speedContainer}>
               <span
@@ -756,13 +762,23 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
             </div>
             {/* 右边的白色播放暂停按钮 */}
             <div
-              className={style.playButton + " " + playBtnClass}
+              className={style.playButton}
               style={playBtnStyle}
               onClick={e => {
                 e.stopPropagation(); // 阻止点击冒泡到controls
                 this.playOrPause();
               }}
-            />
+            >
+              {
+                this.state.paused ?
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-play"></use>
+                  </svg> :
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-pause"></use>
+                  </svg>
+              }
+            </div>
             {/* 控制栏 */}
             <div
               className={style.controlBar + (live ? " " + style.liveControl : "")}
@@ -771,13 +787,22 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
             >
               {/* 控制栏播放按钮 */}
               <div
-                className={style.controlBarPlayBtn + " " + playBtnClass}
+                className={style.controlBarPlayBtn}
                 ref={this.ctrPlayBtnRef}
                 onClick={e => {
                   e.stopPropagation();
                   this.playOrPause();
                 }}
               >
+                {
+                  this.state.paused ?
+                    <svg className="icon" aria-hidden="true">
+                      <use href="#icon-ctrPlay"></use>
+                    </svg> :
+                    <svg className="icon" aria-hidden="true">
+                      <use href="#icon-ctrPause"></use>
+                    </svg>
+                }
               </div>
               {
                 !live ? (
@@ -826,12 +851,22 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                 </div>
                 {/* 弹幕开关 */}
                 <div
-                  className={switchClass}
+                  className={style.barrageBtn}
                   onClick={e => {
                     e.stopPropagation();
                     this.onOrOff();
                   }}
-                />
+                >
+                  {
+                    this.state.barrageSwitch ?
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#icon-barrageOff"></use>
+                      </svg> :
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#icon-barrageOn"></use>
+                      </svg>
+                  }
+                </div>
                 {/* 全屏开关 */}
                 <div
                   className={style.fullscreenBtn}
@@ -839,7 +874,11 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                     e.stopPropagation();
                     this.entryOrExitFullscreen();
                   }}
-                />
+                >
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-fullscreenBtn"></use>
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
@@ -862,7 +901,11 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                         e.stopPropagation();
                         this.playOrPause();
                       }}
-                    />
+                    >
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#icon-play"></use>
+                      </svg>
+                    </div>
                   </div>
                 </React.Fragment>
               ) : (

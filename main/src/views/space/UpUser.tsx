@@ -179,7 +179,9 @@ class UpUser extends React.Component<UpUserProps, UpUserState> {
             {
               upUser.face ? (
                 <img src={this.getPicUrl(upUser.face, "@160w_160h")} alt={upUser.name} />
-              ) : null
+              ) : <svg className="icon" aria-hidden="true">
+                  <use href="#icon-avatar"></use>
+                </svg>
             }
           </div>
           <div className={style.info}>
