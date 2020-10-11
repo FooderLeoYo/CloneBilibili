@@ -559,20 +559,19 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       this.setState({ isShowCenterSpeed: false });
     }, 1000);
 
-    // playSpeed不能直接用speed，因为如果是数字当有小数点的时候
-    // 将playSpeed拼接到speedBtnPicClass做类名时就会报错
+    // btnPlaySpeed不能直接用speed，因为iconfont命名不允许有小数点
     switch (speed) {
       case 0.5:
-        this.btnPlaySpeed = "Point5";
+        this.btnPlaySpeed = "0point5";
         break;
       case 0.75:
-        this.btnPlaySpeed = "Point75";
+        this.btnPlaySpeed = "0point75";
         break;
       case 1:
         this.btnPlaySpeed = "1";
         break;
       case 1.5:
-        this.btnPlaySpeed = "1Point5";
+        this.btnPlaySpeed = "1point5";
         break;
       case 2:
         this.btnPlaySpeed = "2";
@@ -685,7 +684,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const speedBarStyle = { display: this.state.isShowSpeedBar ? "grid" : "none" };
     const centerSpeedStyle = { display: this.state.isShowCenterSpeed ? "block" : "none" };
     // 这里不能用style.只能用style[]，因为.后面只能跟字符串，而这里含有变量
-    const speedBtnPicClass = style[`speed${this.btnPlaySpeed}`];
+    const playBtnIconName = this.state.paused ? "play" : "pause";
+    const ctrPlayBtnIconName = this.state.paused ? "Play" : "Pause";
+    const barrageBtnIconName = this.state.barrageSwitch ? "On" : "Off";
     const generateLi = () => {
       let liArr = [];
 
@@ -769,15 +770,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                 this.playOrPause();
               }}
             >
-              {
-                this.state.paused ?
-                  <svg className="icon" aria-hidden="true">
-                    <use href="#icon-play"></use>
-                  </svg> :
-                  <svg className="icon" aria-hidden="true">
-                    <use href="#icon-pause"></use>
-                  </svg>
-              }
+              <svg className="icon" aria-hidden="true">
+                <use href={`#icon-${playBtnIconName}`}></use>
+              </svg>
             </div>
             {/* 控制栏 */}
             <div
@@ -794,15 +789,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                   this.playOrPause();
                 }}
               >
-                {
-                  this.state.paused ?
-                    <svg className="icon" aria-hidden="true">
-                      <use href="#icon-ctrPlay"></use>
-                    </svg> :
-                    <svg className="icon" aria-hidden="true">
-                      <use href="#icon-ctrPause"></use>
-                    </svg>
-                }
+                <svg className="icon" aria-hidden="true">
+                  <use href={`#icon-ctr${ctrPlayBtnIconName}`}></use>
+                </svg>
               </div>
               {
                 !live ? (
@@ -838,16 +827,18 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
               }
               <div className={style.right}>
                 {/* 调节播放速度 */}
-                <div className={style.speedBtn}>
-                  <div
-                    className={speedBtnPicClass}
-                    onClick={e => {
-                      e.stopPropagation();
-                      this.showSpeedBarTemporally();
-                      this.setState({ isShowControlBar: false });
-                      this.setState({ isShowPlayBtn: false });
-                    }}
-                  />
+                <div
+                  className={style.speedBtn}
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.showSpeedBarTemporally();
+                    this.setState({ isShowControlBar: false });
+                    this.setState({ isShowPlayBtn: false });
+                  }}
+                >
+                  <svg className="icon" aria-hidden="true">
+                    <use href={`#icon-speed${this.btnPlaySpeed}`}></use>
+                  </svg>
                 </div>
                 {/* 弹幕开关 */}
                 <div
@@ -857,15 +848,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                     this.onOrOff();
                   }}
                 >
-                  {
-                    this.state.barrageSwitch ?
-                      <svg className="icon" aria-hidden="true">
-                        <use href="#icon-barrageOff"></use>
-                      </svg> :
-                      <svg className="icon" aria-hidden="true">
-                        <use href="#icon-barrageOn"></use>
-                      </svg>
-                  }
+                  <svg className="icon" aria-hidden="true">
+                    <use href={`#icon-barrage${barrageBtnIconName}`}></use>
+                  </svg>
                 </div>
                 {/* 全屏开关 */}
                 <div
