@@ -168,15 +168,27 @@ class Ranking extends React.Component<RankingProps, RankingState> {
                     <div className={style.infoWrapper}>
                       <p>{video.title}</p>
                       <div className={style.ownerWrapper}>
-                        <span className={style.iconUp} />
+                        <span className={style.iconUp} >
+                          <svg className="icon" aria-hidden="true">
+                            <use href="#icon-uper"></use>
+                          </svg>
+                        </span>
                         <span className={style.owner}>{video.owner.name}</span>
                       </div>
                       <div className={style.countInfo}>
-                        <span className={style.iconPlay} />
+                        <span className={style.iconPlay} >
+                          <svg className="icon" aria-hidden="true">
+                            <use href="#icon-playCount"></use>
+                          </svg>
+                        </span>
                         <span className={style.playCount}>
                           {formatTenThousand(video.playCount)}
                         </span>
-                        <span className={style.iconBarrage} />
+                        <span className={style.iconBarrage} >
+                          <svg className="icon" aria-hidden="true">
+                            <use href="#icon-barrageCount"></use>
+                          </svg>
+                        </span>
                         <span className={style.barrageCount}>
                           {formatTenThousand(video.barrageCount)}
                         </span>

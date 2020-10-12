@@ -55,6 +55,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private ctrPlayBtnRef: React.RefObject<HTMLDivElement>;
   private speedBarRef: React.RefObject<HTMLUListElement>;
   private curVolumeRef: React.RefObject<HTMLSpanElement>;
+  private progressWrapperRef: React.RefObject<HTMLDivElement>;
 
   private duration: number;
   private initBarrages: Array<any>; // 拿到数据时的初始格式，供slice后生成barrages
@@ -66,7 +67,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   // private isAndroid: boolean;
   private isPC: boolean;
   private centerPlaySpeed: number;
-  private btnPlaySpeed: string;
+  private speedBtnSuffix: string;
 
   public static defaultProps = {
     live: false, // 该视频是否是直播
@@ -91,14 +92,16 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.ctrPlayBtnRef = React.createRef();
     this.speedBarRef = React.createRef();
     this.curVolumeRef = React.createRef();
-    this.duration = 0;
+    this.progressWrapperRef = React.createRef();
+
     // this.isIos = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // 只写一个!会报错
     // this.isAndroid = navigator.userAgent.indexOf('Android') > -1 || navigator.userAgent.indexOf('Adr') > -1;
     // this.isPC = !this.isIos && !this.isAndroid;
     // this.isPC = !(navigator.userAgent.match(/(iPhone|iPad|iPod|iOS|Android)/i) !== null);
     this.isPC = !(/(Safari|iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
     this.centerPlaySpeed = 1;
-    this.btnPlaySpeed = "1";
+    this.speedBtnSuffix = "1";
+    this.duration = 0;
 
     this.state = {
       paused: true,
@@ -297,12 +300,17 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     }, startTime + 500);
   }
 
-  private showControlsTemporally = () => {
-    const controlBarDOM = this.controlBarRef.current;
+  private showControls = () => {
     clearTimeout(this.ctrBarTimer);
     clearTimeout(this.easeTimer);
+    this.controlBarRef.current.classList.remove(style.graduallyHide);
 
     this.setState({ isShowControlBar: true });
+  }
+
+  private showControlsTemporally = () => {
+    const controlBarDOM = this.controlBarRef.current;
+    this.showControls();
     this.setGraduallyHide(controlBarDOM, 2000);
     this.ctrBarTimer = setTimeout(() => {
       this.setState({ isShowControlBar: false });
@@ -314,8 +322,18 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const barrageContainerDOM = this.barrageContainerRef.current;
     const distanceToTop = barrageContainerDOM.getBoundingClientRect().top + window.scrollY;
     const videoDOM = this.videoRef.current;
+    const progressDOM = this.progressRef.current;
+    const currentTimeDOM = this.currentTimeRef.current;
+    const curVolumeDOM = this.curVolumeRef.current;
+    const progressWrapperDOM = this.progressWrapperRef.current;
+    const barrageWidth = barrageContainerDOM.getBoundingClientRect().width;
+    const barrageHeight = barrageContainerDOM.getBoundingClientRect().height;
     let initVolume = videoDOM.volume;
     let volumeAfterChange = initVolume;
+    let initTime = 0;
+    let timeAfterChange = initTime;
+    let initProgress;
+    let progressAfterChange;
     let startPos = {
       x: 0,
       y: distanceToTop
@@ -334,15 +352,14 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
         x: e.targetTouches[0].pageX,
         y: e.targetTouches[0].pageY - distanceToTop
       };
+      initTime = videoDOM.currentTime;
+      initProgress = progressDOM.style.width;
     });
 
     barrageContainerDOM.addEventListener("touchmove", e => {
       // 防止滑动拖动整个videoPage
       e.preventDefault();
       e.stopPropagation();
-
-      const barrageWidth = barrageContainerDOM.getBoundingClientRect().width;
-      const barrageHeight = barrageContainerDOM.getBoundingClientRect().height;
 
       curPos = {
         x: e.targetTouches[0].pageX,
@@ -354,15 +371,25 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       };
 
       // 左右滑动
-      if (this.state.gestureType !== 1 && Math.abs(moveRatio.x) > 0.05) {
+      // 判断this.state.gestureType !== 1目的是：
+      // 在本次touch中，如果手势之前已经处于“上下滑动”状态，则不会进入“左右滑动”
+      if (this.state.gestureType !== 1 && Math.abs(moveRatio.x) > Math.abs(moveRatio.y)) {
         if (this.state.gestureType !== 2) {
           this.setState({ gestureType: 2 });
         }
 
-        // 上下滑动
-      } else if (this.state.gestureType !== 2 && Math.abs(moveRatio.y) > 0.1) {
-        const curVolumeDOM = this.curVolumeRef.current;
 
+        videoDOM.removeEventListener("timeupdate", this.setTimeupdateListener);
+        this.showControls();
+
+        timeAfterChange = initTime + videoDOM.duration * moveRatio.x;
+        // 到这里
+        // progressAfterChange = initProgress + progressWrapperDOM.style.width * moveRatio.x;
+        progressDOM.style.width = `${progressAfterChange * 100}%`;
+        currentTimeDOM.innerHTML = formatDuration(timeAfterChange, "0#:##");
+
+        // 上下滑动
+      } else if (this.state.gestureType !== 2 && Math.abs(moveRatio.y) > Math.abs(moveRatio.x)) {
         if (this.state.gestureType !== 1) {
           this.setState({ gestureType: 1 });
         }
@@ -393,6 +420,12 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
         this.setState({ isShowControlBar: false });
       } else if (this.ctrBarTimer != 0) {
         this.showControlsTemporally();
+      }
+
+      if (this.state.gestureType === 1) {
+        videoDOM.currentTime = timeAfterChange;
+        this.barrages = this.initBarrages.slice();
+        this.barrageRef.current.clear();
       }
 
       // 设置下一次触摸事件的初始值
@@ -562,19 +595,19 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     // btnPlaySpeed不能直接用speed，因为iconfont命名不允许有小数点
     switch (speed) {
       case 0.5:
-        this.btnPlaySpeed = "0point5";
+        this.speedBtnSuffix = "0point5";
         break;
       case 0.75:
-        this.btnPlaySpeed = "0point75";
+        this.speedBtnSuffix = "0point75";
         break;
       case 1:
-        this.btnPlaySpeed = "1";
+        this.speedBtnSuffix = "1";
         break;
       case 1.5:
-        this.btnPlaySpeed = "1point5";
+        this.speedBtnSuffix = "1point5";
         break;
       case 2:
-        this.btnPlaySpeed = "2";
+        this.speedBtnSuffix = "2";
         break;
     }
   }
@@ -683,7 +716,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     // 所以直接设成grid，css还可以省去display: grid
     const speedBarStyle = { display: this.state.isShowSpeedBar ? "grid" : "none" };
     const centerSpeedStyle = { display: this.state.isShowCenterSpeed ? "block" : "none" };
-    // 这里不能用style.只能用style[]，因为.后面只能跟字符串，而这里含有变量
     const playBtnIconName = this.state.paused ? "play" : "pause";
     const ctrPlayBtnIconName = this.state.paused ? "Play" : "Pause";
     const barrageBtnIconName = this.state.barrageSwitch ? "On" : "Off";
@@ -814,6 +846,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                           e.stopPropagation();
                           this.changePlayPosition(e);
                         }}
+                        ref={this.progressWrapperRef}
                       >
                         <div className={style.progress} ref={this.progressRef} >
                           <span className={style.progressBtn} ref={this.progressBtnRef} />
@@ -837,7 +870,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                   }}
                 >
                   <svg className="icon" aria-hidden="true">
-                    <use href={`#icon-speed${this.btnPlaySpeed}`}></use>
+                    <use href={`#icon-speed${this.speedBtnSuffix}`}></use>
                   </svg>
                 </div>
                 {/* 弹幕开关 */}

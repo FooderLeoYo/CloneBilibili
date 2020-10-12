@@ -21,7 +21,7 @@
     img
       width: 100%
   .info
-    span, img
+    span
       float: left
     &:after
       content: ""
@@ -32,15 +32,20 @@
       font-size: px2rem(20)
       color: #212121
     .sex
-      margin-left: px2rem(12)
-      margin-top: px2rem(7)
+      position: absolute
+      top: px2rem(63)
+      margin-left: px2rem(50)
       font-size: px2rem(16)
-    img
-      width: px2rem(28)
-      margin-left: px2rem(6)
-      margin-top: px2rem(8)
+    .level
+      position: absolute
+      top: px2rem(56)
+      margin-left: px2rem(120)
+      font-size: px2rem(28)
     .uid
-      margin-left: px2rem(6)
+      position: absolute
+      top: px2rem(64)
+      left: px2rem(150)
+      margin-left: px2rem(25)
       margin-top: px2rem(6)
       font-size: px2rem(14)
       color: #212121
@@ -141,17 +146,8 @@
           color: #999999
           span
             display: inline-block
-            vertical-align: middle
           .icon-play, .icon-barrage
-            width: px2rem(14)
-            height: px2rem(12)
-            background-size: 100% 100%
-            background-position: center center
-          .icon-play
-            background-image: url("../../../assets/images/ico-play.png")
-          .icon-barrage
-            margin-left: px2rem(15)
-            background-image: url("../../../assets/images/ico-danmu.png")
+            font-size: px2rem(16)
           .play-count, .barrage-count
             margin-left: px2rem(6)
             width: px2rem(56)

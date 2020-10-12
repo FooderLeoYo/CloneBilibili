@@ -48,9 +48,9 @@ class UpUser extends React.Component<UpUserProps, UpUserState> {
     this.contentRef = React.createRef();
     this.contentExpand = false;
     this.sexClass = {
-      男: "icon-sex-man",
-      女: "icon-sex-woman",
-      保密: "icon-sex-secrecy"
+      男: "sexMan",
+      女: "sexWoman",
+      保密: "sexSecrecy"
     }
     this.videoPage = {
       pageNumber: 1,
@@ -186,8 +186,19 @@ class UpUser extends React.Component<UpUserProps, UpUserState> {
           </div>
           <div className={style.info}>
             <span className={style.name}>{upUser.name ? upUser.name : "--"}</span>
-            <span className={`${style.sex} ${this.sexClass[upUser.sex]}`} />
-            {upUser.level ? (<img src={require(`../../assets/images/lv${upUser.level}.png`)} />) : null}
+            <span className={style.sex} >
+              <svg className="icon" aria-hidden="true">
+                <use href={`#icon-${this.sexClass[upUser.sex]}`}></use>
+              </svg>
+            </span>
+            {
+              upUser.level ?
+                <span className={style.level}>
+                  <svg className="icon" aria-hidden="true">
+                    <use href={`#icon-lv${upUser.level}`}></use>
+                  </svg>
+                </span> : null
+            }
             <span className={style.uid}>UID:{upUser.mId}</span>
           </div>
           <div className={style.detail}>
@@ -243,11 +254,19 @@ class UpUser extends React.Component<UpUserProps, UpUserState> {
                             {video.title}
                           </div>
                           <div className={style.countInfo}>
-                            <span className={style.iconPlay} />
+                            <span className={style.iconPlay} >
+                              <svg className="icon" aria-hidden="true">
+                                <use href="#icon-playCount"></use>
+                              </svg>
+                            </span>
                             <span className={style.playCount}>
                               {formatTenThousand(video.playCount)}
                             </span>
-                            <span className={style.iconBarrage} />
+                            <span className={style.iconBarrage} >
+                              <svg className="icon" aria-hidden="true">
+                                <use href="#icon-barrageCount"></use>
+                              </svg>
+                            </span>
                             <span className={style.barrageCount}>
                               {formatTenThousand(video.barrageCount)}
                             </span>
