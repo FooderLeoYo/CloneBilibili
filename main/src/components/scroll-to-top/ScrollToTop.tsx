@@ -1,7 +1,5 @@
 import * as React from "react";
 
-import ToTopBtn from "../totop/ToTopBtn";
-
 import style from "./scroll-to-top.styl?css-modules";
 
 class ScrollToTop extends React.Component {
@@ -51,7 +49,9 @@ class ScrollToTop extends React.Component {
     return (
       <div className={style.toTopBtn} ref={this.toTopBtnRef}
         onClick={() => { this.handleClick() }}>
-        <ToTopBtn />
+        <svg className="icon" aria-hidden="true">
+          <use href="#icon-rocket"></use>
+        </svg>
       </div>
     );
   }

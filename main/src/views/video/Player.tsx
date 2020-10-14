@@ -36,7 +36,9 @@ interface PlayerState {
   isLive: boolean;
   isShowSpeedBar: boolean;
   isShowCenterSpeed: boolean;
-  gestureType: number; // 手势类型：0：无手势；1：上下滑动；2：左右滑动
+  gestureType: number; // 手势类型：0：无手势；1：左右滑动；2：右边的上下滑动；3：左边的上下滑动
+  isShowCenterVolume: boolean;
+  isShowCenterBri: boolean;
 }
 
 class Player extends React.PureComponent<PlayerProps, PlayerState> {
@@ -56,6 +58,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private speedBarRef: React.RefObject<HTMLUListElement>;
   private curVolumeRef: React.RefObject<HTMLSpanElement>;
   private progressWrapperRef: React.RefObject<HTMLDivElement>;
+  private curBrightnessRef: React.RefObject<HTMLDivElement>;
 
   private duration: number;
   private initBarrages: Array<any>; // 拿到数据时的初始格式，供slice后生成barrages
@@ -93,6 +96,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.speedBarRef = React.createRef();
     this.curVolumeRef = React.createRef();
     this.progressWrapperRef = React.createRef();
+    this.curBrightnessRef = React.createRef();
 
     // this.isIos = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // 只写一个!会报错
     // this.isAndroid = navigator.userAgent.indexOf('Android') > -1 || navigator.userAgent.indexOf('Adr') > -1;
@@ -115,7 +119,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       isLive: props.isLive,
       isShowSpeedBar: false,
       isShowCenterSpeed: false,
-      gestureType: 0
+      gestureType: 0,
+      isShowCenterVolume: false,
+      isShowCenterBri: false
     };
   }
 
@@ -318,64 +324,59 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   }
 
   private setFingerListener = () => {
-    // 用barrageContainerDOM而不是videoAreaDOM的原因见player.styl中各DOM的层级关系
+    // 用barrageContainerDOM而不是videoAreaDOM的原因，见player.styl中各DOM的层级关系
     const barrageContainerDOM = this.barrageContainerRef.current;
     const distanceToTop = barrageContainerDOM.getBoundingClientRect().top + window.scrollY;
     const videoDOM = this.videoRef.current;
-    const progressDOM = this.progressRef.current;
-    const currentTimeDOM = this.currentTimeRef.current;
-    const curVolumeDOM = this.curVolumeRef.current;
-    const progressWrapperDOM = this.progressWrapperRef.current;
-    const barrageWidth = barrageContainerDOM.getBoundingClientRect().width;
-    const barrageHeight = barrageContainerDOM.getBoundingClientRect().height;
-    let initVolume = videoDOM.volume;
-    let volumeAfterChange = initVolume;
-    let initTime = 0;
-    let timeAfterChange = initTime;
-    let initProgress;
-    let progressAfterChange;
+    let initVolume: number;
+    let initTime: number;
+    let timeAfterChange: number;
+    let initProgress: number;
+    let initBrightness: number = 1;
+    let briAfterChange: number;
     let startPos = {
       x: 0,
       y: distanceToTop
     };
-    let curPos = {
-      x: 0,
-      y: distanceToTop
-    };
-    let moveRatio = {
-      x: 0,
-      y: 0
-    };
+
 
     barrageContainerDOM.addEventListener("touchstart", e => {
+      // 设置下一次触摸事件的初始值
+      this.setState({ gestureType: 0 });
       startPos = {
         x: e.targetTouches[0].pageX,
         y: e.targetTouches[0].pageY - distanceToTop
       };
+      initVolume = videoDOM.volume;
       initTime = videoDOM.currentTime;
-      initProgress = progressDOM.style.width;
+      initProgress = initTime / videoDOM.duration;
     });
 
     barrageContainerDOM.addEventListener("touchmove", e => {
-      // 防止滑动拖动整个videoPage
-      e.preventDefault();
-      e.stopPropagation();
-
-      curPos = {
+      const barrageWidth = barrageContainerDOM.getBoundingClientRect().width;
+      const barrageHeight = barrageContainerDOM.getBoundingClientRect().height;
+      const curPos = {
         x: e.targetTouches[0].pageX,
         y: e.targetTouches[0].pageY - distanceToTop
       };
-      moveRatio = {
+      const moveRatio = {
         x: (curPos.x - startPos.x) / barrageWidth,
         y: (curPos.y - startPos.y) / barrageHeight
       };
 
+      // 防止滑动拖动整个videoPage
+      e.preventDefault();
+      e.stopPropagation();
+
       // 左右滑动
       // 判断this.state.gestureType !== 1目的是：
       // 在本次touch中，如果手势之前已经处于“上下滑动”状态，则不会进入“左右滑动”
-      if (this.state.gestureType !== 1 && Math.abs(moveRatio.x) > Math.abs(moveRatio.y)) {
-        if (this.state.gestureType !== 2) {
-          this.setState({ gestureType: 2 });
+      if (this.state.gestureType === 1 || this.state.gestureType === 0 && Math.abs(moveRatio.x) > Math.abs(moveRatio.y)) {
+        const progressDOM = this.progressRef.current;
+        const currentTimeDOM = this.currentTimeRef.current;
+        const progressAfterChange = initProgress + moveRatio.x;
+        if (this.state.gestureType !== 1) {
+          this.setState({ gestureType: 1 });
         }
 
 
@@ -383,31 +384,53 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
         this.showControls();
 
         timeAfterChange = initTime + videoDOM.duration * moveRatio.x;
-        // 到这里
-        // progressAfterChange = initProgress + progressWrapperDOM.style.width * moveRatio.x;
-        progressDOM.style.width = `${progressAfterChange * 100}%`;
         currentTimeDOM.innerHTML = formatDuration(timeAfterChange, "0#:##");
+        progressDOM.style.width = `${progressAfterChange * 100}%`;
 
-        // 上下滑动
-      } else if (this.state.gestureType !== 2 && Math.abs(moveRatio.y) > Math.abs(moveRatio.x)) {
-        if (this.state.gestureType !== 1) {
-          this.setState({ gestureType: 1 });
+        // 右边的上下滑动
+      } else if (this.state.gestureType === 2 || (this.state.gestureType === 0 &&
+        Math.abs(moveRatio.y) > Math.abs(moveRatio.x) && curPos.x > barrageWidth / 2)) {
+        const curVolumeDOM = this.curVolumeRef.current;
+        if (this.state.gestureType !== 2) {
+          this.setState({ gestureType: 2 });
         }
+        this.setState({ isShowCenterVolume: true });
 
-        volumeAfterChange = initVolume - moveRatio.y; // 取反
-        if (volumeAfterChange < 0) {
-          videoDOM.volume = 0;
-          curVolumeDOM.style.height = `0`;
+        let volumeAfterChange = initVolume - moveRatio.y; // y轴向下为正，因此取反
+        if (volumeAfterChange <= 0) {
+          curVolumeDOM.style.width = `0%`;
           volumeAfterChange = 0;
           return;
-        } else if (volumeAfterChange > 1) {
-          videoDOM.volume = 1;
-          curVolumeDOM.style.height = `100%`;
+        } else if (volumeAfterChange >= 1) {
+          curVolumeDOM.style.width = `100%`;
           volumeAfterChange = 1;
           return;
         } else {
+          curVolumeDOM.style.width = `${volumeAfterChange * 100}%`;
           videoDOM.volume = volumeAfterChange;
-          curVolumeDOM.style.height = `${volumeAfterChange * 100}%`;
+        }
+
+        // 左边的上下滑动
+      } else if (this.state.gestureType === 3 || (this.state.gestureType === 0 &&
+        Math.abs(moveRatio.y) > Math.abs(moveRatio.x) && curPos.x < barrageWidth / 2)) {
+        const curBrightnessDOM = this.curBrightnessRef.current;
+        if (this.state.gestureType !== 3) {
+          this.setState({ gestureType: 3 });
+        }
+        this.setState({ isShowCenterBri: true });
+
+        briAfterChange = initBrightness - moveRatio.y;
+        if (briAfterChange <= 0) {
+          curBrightnessDOM.style.width = `0%`;
+          briAfterChange = 0;
+          return;
+        } else if (briAfterChange >= 1) {
+          curBrightnessDOM.style.width = `100%`;
+          briAfterChange = 1;
+          return;
+        } else {
+          curBrightnessDOM.style.width = `${briAfterChange * 100}%`;
+          videoDOM.style.filter = `brightness(${briAfterChange})`;
         }
       }
     });
@@ -415,22 +438,26 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     barrageContainerDOM.addEventListener("touchend", e => {
       e.stopPropagation();
 
-      // 点击时显示/隐藏控制栏
-      if (this.state.isShowControlBar) {
-        this.setState({ isShowControlBar: false });
-      } else if (this.ctrBarTimer != 0) {
-        this.showControlsTemporally();
-      }
-
-      if (this.state.gestureType === 1) {
+      if (this.state.gestureType === 0) {
+        if (!this.state.isShowControlBar) {
+          this.showControlsTemporally();
+        } else {
+          this.setState({ isShowControlBar: false });
+        }
+      } else if (this.state.gestureType === 1) {
         videoDOM.currentTime = timeAfterChange;
-        this.barrages = this.initBarrages.slice();
-        this.barrageRef.current.clear();
+        videoDOM.addEventListener("timeupdate", this.setTimeupdateListener);
+        this.showControlsTemporally();
+      } else if (this.state.gestureType === 2) {
+        setTimeout(() => {
+          this.setState({ isShowCenterVolume: false });
+        }, 200);
+      } else {
+        initBrightness = briAfterChange;
+        setTimeout(() => {
+          this.setState({ isShowCenterBri: false });
+        }, 200);
       }
-
-      // 设置下一次触摸事件的初始值
-      this.setState({ gestureType: 0 });
-      initVolume = volumeAfterChange;
     });
   }
 
@@ -483,7 +510,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const barrageComponent = this.barrageRef.current;
     const currentTimeDOM = this.currentTimeRef.current;
     const progressDOM = this.progressRef.current;
-
     // 初始化时设置duration
     if (this.duration === 0) {
       this.duration = videoDOM.duration;
@@ -646,8 +672,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
 
   private entryOrExitFullscreen() {
     const playerDOM: any = this.playerRef.current;
-    const videoDOM: any = this.videoRef.current;
-    const videoAreaWrapperDOM = this.videoAreaWrapperRef.current;
+    // const videoDOM: any = this.videoRef.current;
+    // const videoAreaWrapperDOM = this.videoAreaWrapperRef.current;
 
     if (this.state.isFullscreen) {
       const doc: any = document;
@@ -715,7 +741,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     // 注意这里设置显示不能是block，因为会覆盖掉css中的grid
     // 所以直接设成grid，css还可以省去display: grid
     const speedBarStyle = { display: this.state.isShowSpeedBar ? "grid" : "none" };
-    const centerSpeedStyle = { display: this.state.isShowCenterSpeed ? "block" : "none" };
+    const centerSpeedStyle = { display: this.state.isShowCenterSpeed ? "block" : "none" };/*  */
+    const centerVolumeStyle = { display: this.state.isShowCenterVolume ? "block" : "none" };/*  */
+    const centerBriStyle = { display: this.state.isShowCenterBri ? "block" : "none" };/*  */
     const playBtnIconName = this.state.paused ? "play" : "pause";
     const ctrPlayBtnIconName = this.state.paused ? "Play" : "Pause";
     const barrageBtnIconName = this.state.barrageSwitch ? "On" : "Off";
@@ -776,9 +804,22 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           </div>
           <div className={style.controlContainer}>
             {/* 调节音量后显示当前音量 */}
-            <div className={style.curVolumeContainer}>
-              <span className={style.curVolume} ref={this.curVolumeRef} />
-              音量
+            <div className={style.curVolumeContainer} style={centerVolumeStyle}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-volume"></use>
+              </svg>
+              <div className={style.volumeBarContainer}>
+                <span className={style.curVolume} ref={this.curVolumeRef} />
+              </div>
+            </div>
+            {/* 调节亮度后显示当前亮度 */}
+            <div className={style.curBrightnessContainer} style={centerBriStyle}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-brightness"></use>
+              </svg>
+              <div className={style.britnessBarContainer}>
+                <span className={style.curBrightness} ref={this.curBrightnessRef} />
+              </div>
             </div>
             {/* 速度调节及显示 */}
             <div className={style.speedContainer}>
@@ -966,7 +1007,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                       this.playOrPause();
                     }}
                   >
-                    <i className={style.replayIcon} />
+                    <svg className="icon" aria-hidden="true">
+                      <use href="#icon-replay"></use>
+                    </svg>
                     <span>重新播放</span>
                   </div>
                 </div>

@@ -110,16 +110,19 @@ html, body, :global(#app), :global(.view), :global(.search)
     .history-item
       height: 2.2rem
       borderBottom(#cccccc)
-      .history-ico
-        float: left
-        width: .8rem
+      .history-icon
+        position: absolute
+        top: 50%
+        transform: translateY(-50%)
+        width: 1.2rem
         height: @width
-        margin-top: .7rem
-        background-image: url("../../../assets/images/history.png")
-        background-size: 100% 100%
+        line-height: @height
+        color: rgb(153, 153, 153)
       .name
+        display: inline-block
         width: 14rem
-        line-height: 2.2rem
+        height: 2.2rem
+        line-height: @height
         margin-left: 1.25rem
         font-size: .7rem
         color: #505050

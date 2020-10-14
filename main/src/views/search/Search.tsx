@@ -214,7 +214,11 @@ class Search extends React.Component<any, SearchState> {
                           key={i}
                           onClick={() => { this.setKeyword(history.value); }}
                         >
-                          <i className={style.historyIco} />
+                          <span className={style.historyIcon} >
+                            <svg className="icon" aria-hidden="true">
+                              <use href="#icon-history"></use>
+                            </svg>
+                          </span>
                           <div className={style.name}>{history.value}</div>
                         </div>
                       ))

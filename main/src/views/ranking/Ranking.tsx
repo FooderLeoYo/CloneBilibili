@@ -143,9 +143,9 @@ class Ranking extends React.Component<RankingProps, RankingState> {
                     {
                       // 排行前3名序号是奖牌
                       i < 3 ? (
-                        <img src={
-                          require(`../../assets/images/rank${i + 1}.png`)
-                        } />
+                        <svg className="icon" aria-hidden="true">
+                          <use href={`#icon-rank${i + 1}`}></use>
+                        </svg>
                       ) : i + 1
                     }
                   </div>

@@ -6,13 +6,15 @@ import style from "./header-with-back.styl?css-modules";
 const HeaderWithBack = () => {
   return (
     <div className={style.header}>
-      <div
-        className={style.backBtn}
-        onClick={() => { window.history.back(); }}
-      >
-        <svg className="icon" aria-hidden="true">
-          <use href="#icon-back"></use>
-        </svg>
+      <div className={style.backWrapper}>
+        <div
+          className={style.backBtn}
+          onClick={() => { window.history.back(); }}
+        >
+          <svg className="icon" aria-hidden="true">
+            <use href="#icon-back"></use>
+          </svg>
+        </div>
       </div>
       <div className={style.logoWrapper}>
         <div className={style.logo}>
@@ -26,7 +28,7 @@ const HeaderWithBack = () => {
       </div>
       <div className={style.tools}>
         {/* <a className={style.searchIcon} href="/search"> */}
-        <Link className={style.searchIcon} to="/search">
+        <Link className={style.search} to="/search">
           <svg className="icon" aria-hidden="true">
             <use href="#icon-search"></use>
           </svg>

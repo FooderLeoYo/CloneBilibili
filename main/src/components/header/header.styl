@@ -3,31 +3,47 @@
 .header
   position: relative
   height: px2rem(45)
-  padding: px2rem(8) 0
   border-bottom: px2rem(0.2) solid #E6E6FA 
+  background-color #fff
   .logo
     display: inline-block
-    height px2rem(45)
-    line-height: @height
-    margin: px2rem(-25) 0 0 px2rem(18)
+    height 100%
+    padding-left: px2rem(20)
     font-size: px2rem(75)
-  .search-icon
-    position: absolute
-    right: px2rem(55)
-    display: inline-block
-    height 100%
-    line-height: @height
-    font-size: px2rem(25)
-    color: rgb(138, 138, 138)
-  .avatar
-    position: absolute
-    right: px2rem(18)
-    display: inline-block
-    height 100%
-    line-height: @height
-    font-size: px2rem(25)
     svg
-      border-radius: 50%
+      display: block
+      margin: 0
+      height: 100%
+  .tools
+    display: inline-block
+    position: absolute
+    right: 0
+    width: px2rem(80)
+    height: 100%
+    .search
+      position: absolute
+      top: 52%
+      transform:translateY(-50%)
+      right: px2rem(50)
+      display: inline-block
+      width: px2rem(25)
+      height: @width
+      line-height: @height
+      font-size: px2rem(25)
+      color: rgb(138, 138, 138)
+    .avatar
+      position: absolute
+      top: 50%
+      transform:translateY(-50%)
+      right: px2rem(18)
+      display: inline-block
+      width: px2rem(25)
+      height: px2rem(25)
+      line-height: @height
+      text-align: center
+      font-size: px2rem(25)
+      svg
+        border-radius: 50%
 a
   text-decoration: none
     

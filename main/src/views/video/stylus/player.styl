@@ -47,18 +47,53 @@
       right: 0
       bottom: 0
       .cur-volume-container
-        position: fixed
-        top: px2rem(50)
-        left: px2rem(100)
-        height: px2rem(50)
-        background-color: #4c4c4c
-        .cur-volume
-          display: inline-block
+        position: absolute
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%)
+        width: px2rem(100)
+        height: px2rem(28)
+        line-height: @height
+        padding: 0 px2rem(10)
+        border-radius: 5%
+        background-color: rgba(0, 0, 0, .4)
+        font-size: px2rem(15)
+        color: #ffffff
+        .volume-bar-container
           position: absolute
-          bottom: 0
-          left: 0
-          width: px2rem(3)
-          background-color: #de698c
+          top: px2rem(-4)
+          display: inline-block
+          margin-left: px2rem(5)
+          width: px2rem(60)
+          height: px2rem(2)
+          .cur-volume
+            display: inline-block
+            height: 100%
+            background-color: #de698c
+      .cur-brightness-container
+        position: absolute
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%)
+        width: px2rem(100)
+        height: px2rem(28)
+        line-height: @height
+        padding: 0 px2rem(10)
+        border-radius: 5%
+        background-color: rgba(0, 0, 0, .4)
+        font-size: px2rem(15)
+        color: #ffffff
+        .britness-bar-container
+          position: absolute
+          top: px2rem(-4)
+          display: inline-block
+          margin-left: px2rem(5)
+          width: px2rem(60)
+          height: px2rem(2)
+          .cur-brightness
+            display: inline-block
+            height: 100%
+            background-color: #de698c
       .speed-container
         .center-speed
           position: absolute
@@ -301,12 +336,10 @@
           .replay-icon
             display: inline-block
             float: left
-            width: px2rem(16)
-            height: px2rem(16)
             margin-top: px2rem(2)
             margin-right: px2rem(3)
-            background-image: url("../../../assets/images/ico-replay.png")
-            background-size: 100% 100%
+            font-size: px2rem(16)
+            color: #ffffff
     .notice-cover
       position: absolute
       top: 0

@@ -7,42 +7,49 @@
   height: px2rem(45)
   border-bottom: px2rem(0.2) solid #E6E6FA
   background-color #fff
-  .back-btn
+  .back-wrapper
     width: px2rem(80)
-    padding-left: px2rem(7)
-    color: rgb(251, 114, 153)
-    font-size: px2rem(20)
-    background-color: green
-    svg
-      height: 100%
-      line-height: @height
+    .back-btn
+      position: absolute
+      top: 50%
+      transform: translateY(-50%)
+      width: px2rem(40)
+      padding-left: px2rem(7)
+      color: rgb(251, 114, 153)
+      font-size: px2rem(20)
   .logo-wrapper
     flex: 1
-    text-align: center
     .logo
-      margin-top: px2rem(-29)
+      height: 100%
       font-size: px2rem(75)
+      svg
+        display: block
+        margin: 0 auto
+        height: 100%
   .tools
     position: relative
     width: px2rem(80)
-    background-color: orange
-    .search-icon
+    .search
       position: absolute
-      right: px2rem(55)
+      top: 51%
+      transform:translateY(-50%)
+      right: px2rem(50)
       display: inline-block
-      height 100%
+      width: px2rem(25)
+      height: @width
+      line-height: @height
       font-size: px2rem(25)
       color: rgb(138, 138, 138)
-      svg
-        height: 100%
-        line-height: @height
     .avatar
       position: absolute
+      top: 50%
+      transform:translateY(-50%)
       right: px2rem(18)
       display: inline-block
-      height 100%
+      width: px2rem(25)
+      height: px2rem(25)
+      line-height: @height
+      text-align: center
       font-size: px2rem(25)
       svg
-        height: 100%
-        line-height: @height
         border-radius: 50%

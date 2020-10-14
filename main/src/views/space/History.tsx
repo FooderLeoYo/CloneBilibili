@@ -9,7 +9,6 @@ import storage, { ViewHistory } from "../../customed-methods/storage";
 import { formatDate } from "../../customed-methods/datetime";
 import style from "./stylus/history.styl?css-modules";
 import tips from "../../assets/images/nocontent.png";
-import clearIcon from "../../assets/images/clear-history.svg"
 
 interface HistoryState {
   itemIndex: number;
@@ -189,10 +188,11 @@ class History extends React.Component<null, HistoryState> {
                 <div className={style.text}>快去发现&nbsp;<Link to="/index">新内容</Link>&nbsp;吧！</div>
               </div>
             ) : (
-                <div className={style.clearHistory} onClick={this.clearHistory}>
-                  {/* <span>清空历史记录！！！！！！！！</span> */}
-                  <img src={clearIcon} alt="clearHistory" />
-                </div>
+                <span className={style.clearHistory} onClick={this.clearHistory}>
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-clean"></use>
+                  </svg>
+                </span>
               )
           }
         </div>
