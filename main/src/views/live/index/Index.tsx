@@ -145,7 +145,11 @@ function Index(props: IndexProps) {
                               //     `&area_id=${item.areaId}` +
                               //     `&area_name=${item.areaName}`
                               // });
-                            }}>进去看看</span>
+                            }}>进去看看
+                            <svg className="icon" aria-hidden="true">
+                                <use href="#icon-more"></use>
+                              </svg>
+                            </span>
                           </h4>
                           {/* 分区下的4个直播间 */}
                           <div className={style.rooms}>

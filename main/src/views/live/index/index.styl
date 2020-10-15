@@ -15,22 +15,30 @@
     &:nth-last-child(2)
       margin-bottom: 0
     .title
-      height: px2rem(18)
+      height: px2rem(32)
       line-height: @height
-      padding: px2rem(12) 0
+      padding: px2rem(6) 0
       margin: 0
-      font-size: px2rem(15)
+      font-size: px2rem(16)
       font-weight: normal
       color: #181818
       .more
         float: right
+        display: inline-block
+        position: relative
+        top: px2rem(5)
+        height: px2rem(20)
+        line-height: @height
         padding-right: px2rem(25)
         font-size: px2rem(13)
         color: #919799
-        background-image: url("../../../assets/images/right-arrow-button.png")
-        background-repeat: no-repeat
-        background-position: right center
-        background-size: contain // 把图像扩展至最大尺寸，以使其宽度和高度完全适应内容区域
+        svg
+          position: absolute
+          top: 50%
+          transform: translateY(-50%)
+          margin-left: px2rem(4)
+          font-size: px2rem(20)
+          color: rgb(204,204,204)
     .rooms
       padding: 0 px2rem(5)
       .room-wrapper

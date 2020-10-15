@@ -114,7 +114,7 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
         <span>{item.name}</span>
       </div>
     ));
-    /* 渲染页面 */
+
     return (
       <div className={style.drawer}>
         <div className={style.drawerWrapper} ref={this.drawerWrapperRef}>
@@ -123,7 +123,7 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
           </div>
           <div className={style.drawerSwitch} onClick={() => { this.hide(); }}>
             <svg className="icon" aria-hidden="true">
-              <use href="#icon-arrowUpBig"></use>
+              <use href="#icon-arrowDownBig"></use>
             </svg>
           </div>
         </div>

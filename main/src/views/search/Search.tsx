@@ -151,10 +151,14 @@ class Search extends React.Component<any, SearchState> {
             {/* 清空输入内容 */}
             {
               this.state.searchValue ? (
-                <i
+                <span
                   className={style.searchClose}
                   onClick={() => { this.clearSearch(); }}
-                />
+                >
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-close"></use>
+                  </svg>
+                </span>
               ) : null
             }
           </div>

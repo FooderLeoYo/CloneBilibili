@@ -351,11 +351,14 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                 </div>
                 {/* 视频信息 */}
                 <div className={style.videoInfoContainer} ref={this.infoContainerRef}>
-                  <i
-                    className={`icon-arrow-down ${style.iconArrow}`}
+                  <span
+                    className={style.iconArrow}
                     ref={this.arrowRef}
-                    onClick={this.toggle}
-                  />
+                    onClick={this.toggle}>
+                    <svg className="icon" aria-hidden="true">
+                      <use href="#icon-arrowDownBig"></use>
+                    </svg>
+                  </span>
                   <div className={style.infoWrapper} ref={this.infoRef}>
                     <div className={style.title}>
                       {video.title}

@@ -6,6 +6,7 @@ import { getBarrages } from "../../api/video";
 
 import Barrage, { BarrageType } from "./Barrage";
 import { formatDuration } from "../../customed-methods/string";
+import storage, { PlayPositionHistory } from "../../customed-methods/storage";
 
 import loading from "../../assets/images/loading.svg";
 import style from "./stylus/player.styl?css-modules";
@@ -55,11 +56,15 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private liveDurationRef: React.RefObject<HTMLDivElement>;
   private progressBtnRef: React.RefObject<HTMLDivElement>;
   private ctrPlayBtnRef: React.RefObject<HTMLDivElement>;
+  private speedBtnRef: React.RefObject<HTMLDivElement>;
+  private barrageBtnRef: React.RefObject<HTMLDivElement>;
+  private fullscreenBtnRef: React.RefObject<HTMLDivElement>;
   private speedBarRef: React.RefObject<HTMLUListElement>;
   private curVolumeRef: React.RefObject<HTMLSpanElement>;
   private progressWrapperRef: React.RefObject<HTMLDivElement>;
   private curBrightnessRef: React.RefObject<HTMLDivElement>;
 
+  private lastPlayPos: number;
   private duration: number;
   private initBarrages: Array<any>; // 拿到数据时的初始格式，供slice后生成barrages
   private barrages: Array<any>; // 真正发送到播放器中的弹幕
@@ -93,6 +98,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.liveDurationRef = React.createRef();
     this.progressBtnRef = React.createRef();
     this.ctrPlayBtnRef = React.createRef();
+    this.speedBtnRef = React.createRef();
+    this.barrageBtnRef = React.createRef();
+    this.fullscreenBtnRef = React.createRef();
     this.speedBarRef = React.createRef();
     this.curVolumeRef = React.createRef();
     this.progressWrapperRef = React.createRef();
@@ -106,6 +114,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.centerPlaySpeed = 1;
     this.speedBtnSuffix = "1";
     this.duration = 0;
+    this.lastPlayPos = 0;
 
     this.state = {
       paused: true,
@@ -238,6 +247,14 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     }
   }
 
+  private getLastPlayPos = () => {
+    // const targetHistory = storage.getPlayPositionHistory().find(() => {
+
+    // });
+
+    // this.lastPlayPos = targetHistory.position;
+  }
+
 
   /* 弹幕相关 */
   private getBarrages() {
@@ -297,6 +314,22 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   /* 控制栏相关 */
 
   /* 控制栏整体相关 */
+  private setActivedColor = dom => {
+    dom.addEventListener("touchstart", () => {
+      dom.style.color = "#de698c";
+    })
+    dom.addEventListener("touchend", () => {
+      dom.style.color = "#ffffff";
+    })
+  }
+
+  private setElesActivedColor = () => {
+    this.setActivedColor(this.ctrPlayBtnRef.current);
+    this.setActivedColor(this.speedBtnRef.current);
+    this.setActivedColor(this.barrageBtnRef.current);
+    this.setActivedColor(this.fullscreenBtnRef.current);
+  }
+
   private setGraduallyHide = (DOM, startTime) => {
     this.easeTimer = setTimeout(() => {
       DOM.classList.add(style.graduallyHide);
@@ -336,12 +369,12 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     let briAfterChange: number;
     let startPos = {
       x: 0,
-      y: distanceToTop
+      y: 0
     };
 
 
     barrageContainerDOM.addEventListener("touchstart", e => {
-      // 设置下一次触摸事件的初始值
+      // 设置触摸事件的初始值
       this.setState({ gestureType: 0 });
       startPos = {
         x: e.targetTouches[0].pageX,
@@ -368,28 +401,33 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       e.preventDefault();
       e.stopPropagation();
 
-      // 左右滑动
-      // 判断this.state.gestureType !== 1目的是：
+      // 判断this.state.gestureType === 1目的是：
       // 在本次touch中，如果手势之前已经处于“上下滑动”状态，则不会进入“左右滑动”
-      if (this.state.gestureType === 1 || this.state.gestureType === 0 && Math.abs(moveRatio.x) > Math.abs(moveRatio.y)) {
+      if (this.state.gestureType === 1 || (this.state.gestureType === 0 &&
+        Math.abs(moveRatio.x) > Math.abs(moveRatio.y))) { // 左右滑动
         const progressDOM = this.progressRef.current;
         const currentTimeDOM = this.currentTimeRef.current;
         const progressAfterChange = initProgress + moveRatio.x;
+
         if (this.state.gestureType !== 1) {
           this.setState({ gestureType: 1 });
         }
-
-
         videoDOM.removeEventListener("timeupdate", this.setTimeupdateListener);
         this.showControls();
 
         timeAfterChange = initTime + videoDOM.duration * moveRatio.x;
-        currentTimeDOM.innerHTML = formatDuration(timeAfterChange, "0#:##");
-        progressDOM.style.width = `${progressAfterChange * 100}%`;
-
-        // 右边的上下滑动
+        if (timeAfterChange >= videoDOM.duration) {
+          currentTimeDOM.innerHTML = formatDuration(videoDOM.duration, "0#:##");
+          progressDOM.style.width = "100%";
+        } else if (timeAfterChange <= 0) {
+          currentTimeDOM.innerHTML = formatDuration(0, "0#:##");
+          progressDOM.style.width = "0%";
+        } else {
+          currentTimeDOM.innerHTML = formatDuration(timeAfterChange, "0#:##");
+          progressDOM.style.width = `${progressAfterChange * 100}%`;
+        }
       } else if (this.state.gestureType === 2 || (this.state.gestureType === 0 &&
-        Math.abs(moveRatio.y) > Math.abs(moveRatio.x) && curPos.x > barrageWidth / 2)) {
+        curPos.x > barrageWidth / 2)) { // 右边的上下滑动
         const curVolumeDOM = this.curVolumeRef.current;
         if (this.state.gestureType !== 2) {
           this.setState({ gestureType: 2 });
@@ -409,10 +447,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           curVolumeDOM.style.width = `${volumeAfterChange * 100}%`;
           videoDOM.volume = volumeAfterChange;
         }
-
-        // 左边的上下滑动
-      } else if (this.state.gestureType === 3 || (this.state.gestureType === 0 &&
-        Math.abs(moveRatio.y) > Math.abs(moveRatio.x) && curPos.x < barrageWidth / 2)) {
+      } else { // 左边的上下滑动
         const curBrightnessDOM = this.curBrightnessRef.current;
         if (this.state.gestureType !== 3) {
           this.setState({ gestureType: 3 });
@@ -459,6 +494,11 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
         }, 200);
       }
     });
+
+    barrageContainerDOM.addEventListener("gesturestart", e => {
+      console.log(111);
+      e.preventDefault();
+    })
   }
 
   private setMouseListener = () => {
@@ -523,10 +563,12 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     // 加载当前时点的弹幕
     if (this.state.barrageSwitch) {
       const barrages = this.findBarrages(videoDOM.currentTime);
-      // 发送弹幕
-      barrages.forEach(barrage => {
-        barrageComponent.send(barrage);
-      });
+      // 如果当前正在播放，则发送弹幕
+      if (!this.state.paused) {
+        barrages.forEach(barrage => {
+          barrageComponent.send(barrage);
+        });
+      }
     }
   }
 
@@ -710,9 +752,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   public componentDidMount() {
     const { live } = this.props;
 
+    // 设置相关监听器
     this.setThumbnailListener();
-
-    // 设置点击相关监听器
+    this.setElesActivedColor();
     if (this.isPC) {
       this.setMouseListener();
     } else {
@@ -720,14 +762,24 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     }
 
     if (!live) { // 非直播时处理
-      this.getBarrages();
+      this.getLastPlayPos();
       this.setVideoDOMListener();
       this.setProgressDOM();
+      this.getBarrages();
     } else { // 直播时处理
       if (this.props.liveTime) {
         this.setLiveDurationDOM();
       }
       this.setLiveVideoDOM();
+    }
+  }
+
+  public componentWillUnmount() {
+    if (!this.props.isLive) {
+      storage.setPlayPositionHistory({
+        aId: this.props.video.aId,
+        position: this.videoRef.current.currentTime
+      })
     }
   }
 
@@ -754,6 +806,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
         const speed = (i + 1) * 0.5;
         liArr.push(
           <li
+            style={{ color: this.centerPlaySpeed === speed ? "#de698c" : "#ffffff" }}
             onClick={e => {
               e.stopPropagation();
               this.setPlaySpeed(speed);
@@ -764,6 +817,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
         );
       }
       liArr.splice(1, 0, <li
+        style={{ color: this.centerPlaySpeed === 0.75 ? "#de698c" : "#ffffff" }}
         onClick={e => {
           e.stopPropagation();
           this.setPlaySpeed(0.75);
@@ -828,11 +882,13 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                 style={centerSpeedStyle}
               >{`${this.centerPlaySpeed}x`}
               </span>
-              <ul
-                className={style.speedBar} style={speedBarStyle} ref={this.speedBarRef}
-              >
-                {liElements}
-              </ul>
+              <div className={style.speedBarWrapper}>
+                <ul
+                  className={style.speedBar} style={speedBarStyle} ref={this.speedBarRef}
+                >
+                  {liElements}
+                </ul>
+              </div>
             </div>
             {/* 右边的白色播放暂停按钮 */}
             <div
@@ -903,6 +959,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                 {/* 调节播放速度 */}
                 <div
                   className={style.speedBtn}
+                  ref={this.speedBtnRef}
                   onClick={e => {
                     e.stopPropagation();
                     this.showSpeedBarTemporally();
@@ -917,6 +974,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                 {/* 弹幕开关 */}
                 <div
                   className={style.barrageBtn}
+                  ref={this.barrageBtnRef}
                   onClick={e => {
                     e.stopPropagation();
                     this.onOrOff();
@@ -929,6 +987,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                 {/* 全屏开关 */}
                 <div
                   className={style.fullscreenBtn}
+                  ref={this.fullscreenBtnRef}
                   onClick={e => {
                     e.stopPropagation();
                     this.entryOrExitFullscreen();
@@ -987,7 +1046,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
             this.state.waiting ? (
               <div className={style.loading}>
                 <div className={style.wrapper}>
-                  <img className={style.img} src={loading} />
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-loading"></use>
+                  </svg>
                   <span className={style.text}>
                     {!live ? "正在缓冲" : ""}
                   </span>
@@ -1007,10 +1068,12 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                       this.playOrPause();
                     }}
                   >
-                    <svg className="icon" aria-hidden="true">
-                      <use href="#icon-replay"></use>
-                    </svg>
-                    <span>重新播放</span>
+                    <span className={style.replayIcon}>
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#icon-replay"></use>
+                      </svg>
+                    </span>
+                    <span className={style.replayWords}>重新播放</span>
                   </div>
                 </div>
               </div>

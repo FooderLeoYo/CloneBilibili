@@ -107,27 +107,36 @@
           text-align: center
           font-size: px2rem(12)
           background-color: rgba(0, 0, 0, .4)
-          color: #ffff
+          color: #ffffff
           z-index: 2
-        .speed-bar
-          grid-template-rows: repeat(5, 1fr)
-          justify-items: center
+        .speed-bar-wrapper
           position: absolute
           right: 0
-          margin: 0
-          padding: 4vh 0
-          width: 20vw
+          margin: 0 auto
+          width: px2rem(70)
           height: 100%
-          list-style-type: none
-          background: linear-gradient(to right, rgba(0,0,0,0),rgba(0,0,0,1))
-          color: #ffffff
-          font-size: px2rem(15)
-          z-index: 2
-          &.gradually-hide
-            animation: hide 500ms ease-in;
-            -webkit-animation: hide 500ms ease-in;
-            animation-fill-mode:forwards;
-            -webkit-animation-fill-mode: forwards;
+          // background: linear-gradient(to right, rgba(0,0,0,0),rgba(0,0,0,1))
+          background-color: orange
+          .speed-bar
+            // position: absolute
+            // top: 50%
+            // left: 50%
+            // transform: translateY(-50%)
+            width: px2rem(60)
+            padding: px2rem(5) 
+            list-style-type: none
+            color: #ffffff
+            font-size: px2rem(20)
+            text-align: center
+            z-index: 2
+            background-color: green
+            li
+              background-color: pink
+            &.gradually-hide
+              animation: hide 500ms ease-in;
+              -webkit-animation: hide 500ms ease-in;
+              animation-fill-mode:forwards;
+              -webkit-animation-fill-mode: forwards;
       .play-button
         position: absolute
         right: px2rem(12)
@@ -326,20 +335,31 @@
         position: relative
         height: 100%
         padding: 0 px2rem(12)
-        font-size: px2rem(14)
         color: #ffffff
         background-color: rgba(0, 0, 0, .8)
         .replay
           position: absolute
           right: px2rem(12)
           bottom: px2rem(30)
+          width: px2rem(100)
+          height: px2rem(60)
+          line-height: @height
+          background-color: orange
           .replay-icon
+            font-size: px2rem(25)
+            background-color: green
+            svg
+              position: absolute;
+              top: 50%;
+              transform: translateY(-50%)
+          .replay-words
+            // margin-left: px2rem(3)
+            background-color: red
             display: inline-block
-            float: left
-            margin-top: px2rem(2)
-            margin-right: px2rem(3)
-            font-size: px2rem(16)
-            color: #ffffff
+            width: px2rem(60)
+            height: px2rem(30)
+            line-height: @height
+            font-size: px2rem(15)
     .notice-cover
       position: absolute
       top: 0

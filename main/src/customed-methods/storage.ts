@@ -4,6 +4,7 @@
 
 const VIEW_HISTORY = "view_history";
 const SEARCH_HISTORY = "search_history";
+const PLAY_POSITION_HISTORY = "play_position_history";
 
 export interface ViewHistory {
   aId: number;
@@ -15,6 +16,11 @@ export interface ViewHistory {
 export interface SearcHistory {
   value: string;
   timestamp: number;
+}
+
+export interface PlayPositionHistory {
+  aId: number;
+  position: number;
 }
 
 export default {
@@ -52,7 +58,7 @@ export default {
       searchHistory = JSON.parse(item);
     }
 
-    const findIndex = searchHistory.findIndex(view => view.value === history.value);
+    const findIndex = searchHistory.findIndex(search => search.value === history.value);
     if (findIndex !== -1) {
       searchHistory.splice(findIndex, 1);
     }
@@ -65,6 +71,30 @@ export default {
   //  获取搜索历史
   getSearchHistory(): SearcHistory[] {
     const item = window.localStorage.getItem(SEARCH_HISTORY);
+    return item ? JSON.parse(item) : [];
+  },
+
+  // 添加上次播放位置历史
+  setPlayPositionHistory(history: PlayPositionHistory): void {
+    let playPositionHistory = [];
+    const item = window.localStorage.getItem(PLAY_POSITION_HISTORY);
+    if (item) {
+      playPositionHistory = JSON.parse(item);
+    }
+
+    const findIndex = playPositionHistory.findIndex(video => video.aId === history.aId);
+    if (findIndex !== -1) {
+      playPositionHistory.splice(findIndex, 1);
+    }
+
+    playPositionHistory.unshift(history);
+    this.clearSearchHistory();
+    window.localStorage.setItem(PLAY_POSITION_HISTORY, JSON.stringify(playPositionHistory));
+  },
+
+  //  获取上次播放位置历史
+  getPlayPositionHistory(): PlayPositionHistory[] {
+    const item = window.localStorage.getItem(PLAY_POSITION_HISTORY);
     return item ? JSON.parse(item) : [];
   },
 
