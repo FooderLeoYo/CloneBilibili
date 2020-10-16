@@ -215,7 +215,6 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     getRankingPartitions().then(result => {
       if (result.code === "1") {
         this.rankingPartitions = createPartitionTypes(result.data);
-
       }
     });
   }

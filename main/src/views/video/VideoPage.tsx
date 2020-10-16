@@ -40,6 +40,7 @@ interface VideoPageState {
   comments: any;
   isRecommend: boolean; // 必须设成state而不能是初始化时的一个private变量，否则变化不引发组件更新
   isSwitcherFixed: boolean;
+  prevId: number;
 }
 
 class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
@@ -80,6 +81,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
       comments: [],
       isRecommend: true,
       isSwitcherFixed: false,
+      prevId: -999
     }
   }
 
@@ -310,6 +312,20 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
       this.setInitStatus();
 
       this.props.dispatch(setShouldLoad(true));
+    }
+
+    // const rId = parseInt(this.props.match.params.rId, 10);
+    // console.log(rId);
+  }
+
+  public static getDerivedStateFromProps(props, state) {
+    const aId = parseInt(props.match.params.aId, 10);
+
+    if (aId !== state.prevId) {
+      return {
+        videoData: {},
+        prevId: aId
+      };
     }
   }
 

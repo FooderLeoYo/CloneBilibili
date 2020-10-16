@@ -114,7 +114,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.centerPlaySpeed = 1;
     this.speedBtnSuffix = "1";
     this.duration = 0;
-    this.lastPlayPos = 0;
+    this.lastPlayPos = -1;
 
     this.state = {
       paused: true,
@@ -248,11 +248,11 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   }
 
   private getLastPlayPos = () => {
-    // const targetHistory = storage.getPlayPositionHistory().find(() => {
-
-    // });
-
-    // this.lastPlayPos = targetHistory.position;
+    const targetHistory = storage.getPlayPositionHistory().
+      find(v => v.aId === this.props.video.aId);
+    if (targetHistory) { // 如果是第一次打开该视频，则targetHistory不存在
+      this.lastPlayPos = targetHistory.position;
+    }
   }
 
 
@@ -799,6 +799,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const playBtnIconName = this.state.paused ? "play" : "pause";
     const ctrPlayBtnIconName = this.state.paused ? "Play" : "Pause";
     const barrageBtnIconName = this.state.barrageSwitch ? "On" : "Off";
+    const videoDOM = this.videoRef.current;
     const generateLi = () => {
       let liArr = [];
 
@@ -857,6 +858,20 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
             <Barrage opacity={live ? 1 : 0.75} ref={this.barrageRef} />
           </div>
           <div className={style.controlContainer}>
+            {/* 是否跳转到上次播放位置 */}
+            {
+              this.lastPlayPos !== -1 ? <div className={style.lastPosWrapper}>
+                <span className={style.lastPos}>
+                  {`记忆您上次看到${formatDuration(this.lastPlayPos, "0#:##")}`}
+                </span>
+                <span
+                  className={style.jumpToPos}
+                  onClick={() => videoDOM.currentTime = this.lastPlayPos}
+                >
+                  {`跳转播放`}
+                </span>
+              </div> : null
+            }
             {/* 调节音量后显示当前音量 */}
             <div className={style.curVolumeContainer} style={centerVolumeStyle}>
               <svg className="icon" aria-hidden="true">
