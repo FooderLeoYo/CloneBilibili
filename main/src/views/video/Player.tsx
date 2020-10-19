@@ -6,7 +6,7 @@ import { getBarrages } from "../../api/video";
 
 import Barrage, { BarrageType } from "./Barrage";
 import { formatDuration } from "../../customed-methods/string";
-import storage, { PlayPositionHistory } from "../../customed-methods/storage";
+import storage from "../../customed-methods/storage";
 
 import loading from "../../assets/images/loading.svg";
 import style from "./stylus/player.styl?css-modules";
@@ -63,6 +63,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private curVolumeRef: React.RefObject<HTMLSpanElement>;
   private progressWrapperRef: React.RefObject<HTMLDivElement>;
   private curBrightnessRef: React.RefObject<HTMLDivElement>;
+  private lastPosWrapperRef: React.RefObject<HTMLDivElement>;
 
   private lastPlayPos: number;
   private duration: number;
@@ -105,6 +106,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.curVolumeRef = React.createRef();
     this.progressWrapperRef = React.createRef();
     this.curBrightnessRef = React.createRef();
+    this.lastPosWrapperRef = React.createRef();
 
     // this.isIos = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // 只写一个!会报错
     // this.isAndroid = navigator.userAgent.indexOf('Android') > -1 || navigator.userAgent.indexOf('Adr') > -1;
@@ -253,6 +255,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     if (targetHistory) { // 如果是第一次打开该视频，则targetHistory不存在
       this.lastPlayPos = targetHistory.position;
     }
+    setTimeout(() => {
+      this.lastPosWrapperRef.current.classList.add(style.graduallyHide);
+    }, 5000);
   }
 
 
@@ -860,7 +865,10 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           <div className={style.controlContainer}>
             {/* 是否跳转到上次播放位置 */}
             {
-              this.lastPlayPos !== -1 ? <div className={style.lastPosWrapper}>
+              this.lastPlayPos !== -1 ? <div
+                className={style.lastPosWrapper}
+                ref={this.lastPosWrapperRef}
+              >
                 <span className={style.lastPos}>
                   {`记忆您上次看到${formatDuration(this.lastPlayPos, "0#:##")}`}
                 </span>

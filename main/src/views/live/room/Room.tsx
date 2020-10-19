@@ -46,7 +46,6 @@ function Room(props: RoomProps) {
   const { shouldLoad, dispatch, roomData } = props;
   const { live } = roomData;
   let chatWebSocket: ChatWebSocket;
-  let test;
 
   const [preRoomData, setPreRoomData] = useState(roomData);
   const [isDataOk, setIsDataOk] = useState(false);
@@ -82,7 +81,6 @@ function Room(props: RoomProps) {
       if (result.code === "1") {
         const url = `wss://${result.data.host}/sub`;
         chatWebSocket = new ChatWebSocket(url, roomData.live.roomId);
-        test = 1;
 
         // HEARTBEAT_REPLY的res.body就是res发送时的人气数据
         chatWebSocket.on(Events.HEARTBEAT_REPLY, ({ onlineNum }) => {
@@ -110,26 +108,27 @@ function Room(props: RoomProps) {
   }
 
   const setInitData = () => {
-    setIsDataOk(true);
     setDanmu();
     setUpInfo();
+    setIsDataOk(true);
   }
 
   useEffect(() => {
-    // if (shouldLoad) {
-    // 这个数据非常慢，dispatch后props中仍然没有roomData
-    // 到了下面的仿getDerivedStateFromProps时才有数据
-    // 因此setInitData放到那里执行
-    //   dispatch(getRoomData(props.match.params.roomId))
-    // } else {
-    setInitData();
-    //   dispatch(setShouldLoad(true));
-    // }
+    if (shouldLoad) {
+      // 这个数据非常慢，dispatch后props中仍然没有roomData
+      // 到了下面的仿getDerivedStateFromProps时才有数据
+      // 因此setInitData放到那里执行
+      dispatch(getRoomData(props.match.params.roomId))
+    } else {
+      setInitData();
+      dispatch(setShouldLoad(true));
+    }
 
     // 这里相当于componentWillUnmount
-    // return () => {
-    // chatWebSocket.webSocket.close();
-    // }
+    return () => {
+      // chatWebSocket.webSocket.close();
+      // console.log(chatWebSocket);
+    }
   }, []);
 
   // 相当于getDerivedStateFromProps

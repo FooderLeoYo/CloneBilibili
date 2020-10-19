@@ -121,7 +121,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     return publicDateStr;
   }
 
-  private getRecommentVides() {
+  private getRecommentVideos() {
     getRecommendVides(this.props.match.params.aId)
       .then(result => {
         if (result.code === "1") {
@@ -302,30 +302,33 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
 
   /* 以下为生命周期函数 */
   public componentDidMount() {
-    this.getRecommentVides();
+    this.getRecommentVideos();
     this.getComments();
 
     if (this.props.shouldLoad) {
-      this.props.dispatch(getVideoDetail(this.props.match.params.aId))
-        .then(() => { this.setInitStatus(); });
+      this.props.dispatch(getVideoDetail(this.props.match.params.aId)).
+        then(() => { this.setInitStatus(); });
     } else {
       this.setInitStatus();
 
       this.props.dispatch(setShouldLoad(true));
     }
-
-    // const rId = parseInt(this.props.match.params.rId, 10);
-    // console.log(rId);
   }
 
-  public static getDerivedStateFromProps(props, state) {
-    const aId = parseInt(props.match.params.aId, 10);
-
-    if (aId !== state.prevId) {
-      return {
+  public componentDidUpdate() {
+    // const aId = parseInt(this.props.match.params.aId, 10);
+    const aId = this.props.match.params.aId;
+    if (aId !== this.state.prevId) {
+      this.setState({
+        isDataOk: false,
         videoData: {},
         prevId: aId
-      };
+      });
+
+      this.getRecommentVideos();
+      this.getComments();
+      this.props.dispatch(getVideoDetail(aId)).
+        then(() => { this.setInitStatus(); });
     }
   }
 

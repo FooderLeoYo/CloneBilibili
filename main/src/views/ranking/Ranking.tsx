@@ -115,7 +115,10 @@ class Ranking extends React.Component<RankingProps, RankingState> {
         <div className={style.topWrapper}>
           {/* 头部 */}
           <div className={style.header}>
-            <span onClick={() => { window.history.back(); }}>
+            <span
+              onClick={() => { window.history.back(); }}
+              className={style.backBtn}
+            >
               <svg className="icon" aria-hidden="true">
                 <use href="#icon-back"></use>
               </svg>

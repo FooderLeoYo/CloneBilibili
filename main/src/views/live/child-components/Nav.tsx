@@ -27,11 +27,11 @@ function Nav(props: NavProps) {
     if (tab.id === -1) {
       return;
     } else if (tab.id === 0) {
-      window.location.href = "/index";
-      // props.history.push({ pathname: "/index" });
+      // window.location.href = "/index";
+      props.history.push({ pathname: "/index" });
     } else {
-      window.location.href = "/channel/" + tab.id;
-      // props.history.push({ pathname: "/channel/" + tab.id });
+      // window.location.href = "/channel/" + tab.id;
+      props.history.push({ pathname: "/channel/" + tab.id });
     }
   }
 
@@ -42,39 +42,39 @@ function Nav(props: NavProps) {
   const handleSecondClick = tab => {
     setLvTwoTabIndex(tab.id);
     if (tab.id === 0) {
-      window.location.href = "/live";
-      // props.history.push({ pathname: "/live" });
+      // window.location.href = "/live";
+      props.history.push({ pathname: "/live" });
     } else if (tab.id === 9) {
-      window.location.href = `/live/list` +
-        `?parent_area_id=0` +
-        `&parent_area_name=全部直播` +
-        `&area_id=` +
-        `&area_name=`
-      // props.history.push({
-      //   pathname: "/live/list",
-      //   search: `?parent_area_id=0` +
-      //     `&parent_area_name=全部直播` +
-      //     `&area_id=` +
-      //     `&area_name=`
-      // });
+      // window.location.href = `/live/list` +
+      //   `?parent_area_id=0` +
+      //   `&parent_area_name=全部直播` +
+      //   `&area_id=` +
+      //   `&area_name=`
+      props.history.push({
+        pathname: "/live/list",
+        search: `?parent_area_id=0` +
+          `&parent_area_name=全部直播` +
+          `&area_id=` +
+          `&area_name=`
+      });
     } else {
       const indx = tab.id - 1;
       const parent_area_id = props.secondQueryPar[indx].parent_area_id;
       const parent_area_name = props.secondQueryPar[indx].parent_area_name;
       const area_id = props.secondQueryPar[indx].area_id;
       const area_name = props.secondQueryPar[indx].area_name;
-      window.location.href = `/live/list` +
-        `?parent_area_id=${parent_area_id}` +
-        `&parent_area_name=${parent_area_name}` +
-        `&area_id=${area_id}` +
-        `&area_name=${area_name}`;
-      // props.history.push({
-      //   pathname: "/live/list",
-      //   search: `?parent_area_id=${parent_area_id}` +
-      //     `&parent_area_name=${parent_area_name}` +
-      //     `&area_id=${area_id}` +
-      //     `&area_name=${area_name}`
-      // });
+      // window.location.href = `/live/list` +
+      //   `?parent_area_id=${parent_area_id}` +
+      //   `&parent_area_name=${parent_area_name}` +
+      //   `&area_id=${area_id}` +
+      //   `&area_name=${area_name}`;
+      props.history.push({
+        pathname: "/live/list",
+        search: `?parent_area_id=${parent_area_id}` +
+          `&parent_area_name=${parent_area_name}` +
+          `&area_id=${area_id}` +
+          `&area_name=${area_name}`
+      });
     }
   }
 

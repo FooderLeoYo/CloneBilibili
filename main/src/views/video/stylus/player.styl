@@ -9,6 +9,17 @@
   100% {opacity: 0;}
 }
 
+gradually-hide-style(hideTime)
+  animation: hide (hideTime)ms ease-in;
+  -webkit-animation: hide (hideTime)ms ease-in;
+  animation-fill-mode:forwards;
+  -webkit-animation-fill-mode: forwards;
+
+// 关于z-index的设置：
+// video-area为0，在最底层，这样就不会遮住弹幕层
+// barrage为1，点击视频区域时，会触发的相关事件监听器均加在这一层
+// 各控制按钮为2，保证不被前两层遮盖而点不到
+
 .video-player
   position: relative
   height: 100%
@@ -33,10 +44,6 @@
       left: 0
       right: 0
       bottom: 0
-      // 关于z-index的设置：
-      // video-area为0，在最底层，这样就不会遮住弹幕层
-      // barrage为1，点击视频区域时，会触发的相关事件监听器均加在这一层
-      // 各控制按钮为2，保证不被前两层遮盖而点不到
       z-index: 1
       height: 100%
       user-select: none
@@ -50,13 +57,16 @@
         position: absolute
         bottom: px2rem(40)
         z-index: 2
-        background-color: green
+        padding: px2rem(3) px2rem(5)
+        background-color: rgba(0, 0, 0, .4)
         font-size: px2rem(10)
         .last-pos
           color: #ffffff
         .jump-to-pos
           margin-left: px2rem(10)
           color: #de698c
+        &.gradually-hide
+          gradually-hide-style(500)
       .cur-volume-container
         position: absolute
         left: 50%;
@@ -111,43 +121,38 @@
           left: 50%;
           top: 50%;
           transform: translate(-50%, -50%)
-          width: 11vw
-          height: 5vh
+          width: px2rem(40)
+          height: px2rem(30)
           border-radius: 10%
           line-height: @height
           text-align: center
-          font-size: px2rem(12)
+          font-size: px2rem(10)
           background-color: rgba(0, 0, 0, .4)
           color: #ffffff
           z-index: 2
         .speed-bar-wrapper
           position: absolute
           right: 0
-          margin: 0 auto
           width: px2rem(70)
           height: 100%
-          // background: linear-gradient(to right, rgba(0,0,0,0),rgba(0,0,0,1))
-          background-color: orange
+          z-index: 2
+          background: linear-gradient(to right, rgba(0,0,0,0),rgba(0,0,0,1))
           .speed-bar
-            // position: absolute
-            // top: 50%
-            // left: 50%
-            // transform: translateY(-50%)
+            position: absolute
+            top: 50%
+            left: 50%
+            transform: translate(-50%, -50%)
             width: px2rem(60)
+            margin: 0
             padding: px2rem(5) 
             list-style-type: none
             color: #ffffff
-            font-size: px2rem(20)
+            font-size: px2rem(15)
             text-align: center
-            z-index: 2
-            background-color: green
             li
-              background-color: pink
+              margin: px2rem(7)
             &.gradually-hide
-              animation: hide 500ms ease-in;
-              -webkit-animation: hide 500ms ease-in;
-              animation-fill-mode:forwards;
-              -webkit-animation-fill-mode: forwards;
+              gradually-hide-style(500)
       .play-button
         position: absolute
         right: px2rem(12)
@@ -168,10 +173,7 @@
         background: linear-gradient(rgba(0,0,0,0),rgba(0,0,0,1))
         z-index: 2
         &.gradually-hide
-          animation: hide 500ms ease-in;
-          -webkit-animation: hide 500ms ease-in;
-          animation-fill-mode:forwards;
-          -webkit-animation-fill-mode: forwards;
+          gradually-hide-style(500)
         .control-bar-play-btn
           display: inline-block
           position: absolute

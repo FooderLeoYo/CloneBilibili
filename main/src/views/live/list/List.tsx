@@ -3,12 +3,12 @@ import { Location } from "history";
 import { Helmet } from "react-helmet";
 import { parse } from "query-string";
 import { History } from "history";
-// import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import Context from "../../../context";
 import { getLiveListData } from "../../../api/live";
-// import { setShouldLoad } from "../../../redux/action-creators";
-// import getLiveListInfo from "../../../redux/async-action-creators/live/list";
+import { setShouldLoad } from "../../../redux/action-creators";
+import getLiveListInfo from "../../../redux/async-action-creators/live/list";
 
 import { Live, UpUser, PartitionType, LiveSecQueryParType } from "../../../class-object-creators";
 import LoadingCutscene from "../../../components/loading-cutscene/LoadingCutscene";
@@ -59,6 +59,7 @@ function List(props: ListProps) {
   const [lives, setLives] = useState(liveListData.list);
   const [isDataOk, setIsDataOk] = useState(false);
   const [isLoadMore, setIsLoadMore] = useState(false);
+  const [prevSearch, setPrevSearch] = useState(props.location.search);
 
   let firstRender: boolean = true;
   // 第一次render
@@ -104,7 +105,8 @@ function List(props: ListProps) {
         livePage.pageNumber++;
 
         setLives(lives.concat(list));
-
+        setIsLoadMore(false);
+        setIsDataOk(true);
         // if (livePage.pageNumber > 1) {
         // 从list中过滤掉lives中已有的主播数据
         // const filteredLives = list.filter(live =>
@@ -113,21 +115,36 @@ function List(props: ListProps) {
         // } else {
         // setLives(list);
         // }
-        setIsLoadMore(false);
-        setIsDataOk(true);
       }
     });
   };
 
   useEffect(() => {
-    // if (shouldLoad) {
-    // livePage.pageNumber = 1;
-    // getLives();
-    // } else {
-    setIsDataOk(true);
-    // dispatch(setShouldLoad(true));
-    // }
+    if (shouldLoad) {
+      livePage.pageNumber = 1;
+      getLives();
+    } else {
+      setIsDataOk(true);
+      dispatch(setShouldLoad(true));
+    }
   }, []);
+
+  useEffect(() => {
+    const search = props.location.search;
+    if (search !== prevSearch) {
+      setIsDataOk(false);
+      setLives([]);
+      setPrevSearch(search);
+    }
+  })
+
+  useEffect(() => {
+    // 判断的作用是：请求数据后将继续触发该useEffect，形成死循环
+    if (lives.length === 0) {
+      livePage.pageNumber = 1;
+      getLives();
+    }
+  }, [lives])
 
   return (
     <div className="live-list">
@@ -162,20 +179,20 @@ function List(props: ListProps) {
                             data.cover = `${context.picURL}?pic=${data.cover}`;
                           }
                           return (
-                            <a
-                              className={style.roomWrapper}
-                              key={data.roomId}
-                              href={`/live/${data.roomId}`}
-                            >
-                              <LiveInfo data={data} />
-                            </a>
-                            // <Link
+                            // <a
                             //   className={style.roomWrapper}
                             //   key={data.roomId}
-                            //   to={`/live/${data.roomId}`}
+                            //   href={`/live/${data.roomId}`}
                             // >
                             //   <LiveInfo data={data} />
-                            // </Link>
+                            // </a>
+                            <Link
+                              className={style.roomWrapper}
+                              key={data.roomId}
+                              to={`/live/${data.roomId}`}
+                            >
+                              <LiveInfo data={data} />
+                            </Link>
                           )
                         })
                       }
