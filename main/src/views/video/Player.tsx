@@ -8,7 +8,6 @@ import Barrage, { BarrageType } from "./Barrage";
 import { formatDuration } from "../../customed-methods/string";
 import storage from "../../customed-methods/storage";
 
-import loading from "../../assets/images/loading.svg";
 import style from "./stylus/player.styl?css-modules";
 
 interface PlayerProps {
@@ -115,7 +114,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     this.isPC = !(/(Safari|iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
     this.centerPlaySpeed = 1;
     this.speedBtnSuffix = "1";
-    this.duration = 0;
+    this.duration = -1;
     this.lastPlayPos = -1;
 
     this.state = {
@@ -252,12 +251,13 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private getLastPlayPos = () => {
     const targetHistory = storage.getPlayPositionHistory().
       find(v => v.aId === this.props.video.aId);
-    if (targetHistory) { // 如果是第一次打开该视频，则targetHistory不存在
+
+    if (targetHistory) { // 如果是不是第一次打开该视频，才执行相关操作
       this.lastPlayPos = targetHistory.position;
+      setTimeout(() => {
+        this.lastPosWrapperRef.current.classList.add(style.graduallyHide);
+      }, 5000);
     }
-    setTimeout(() => {
-      this.lastPosWrapperRef.current.classList.add(style.graduallyHide);
-    }, 5000);
   }
 
 

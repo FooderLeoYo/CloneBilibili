@@ -352,23 +352,21 @@ gradually-hide-style(hideTime)
         background-color: rgba(0, 0, 0, .8)
         .replay
           position: absolute
-          right: px2rem(12)
-          bottom: px2rem(30)
+          right: 0
+          bottom: 0
           width: px2rem(100)
           height: px2rem(60)
-          line-height: @height
-          background-color: orange
           .replay-icon
             font-size: px2rem(25)
-            background-color: green
             svg
               position: absolute;
               top: 50%;
               transform: translateY(-50%)
           .replay-words
-            // margin-left: px2rem(3)
-            background-color: red
-            display: inline-block
+            position: absolute
+            left: px2rem(30)
+            top: 50%
+            transform: translateY(-50%)
             width: px2rem(60)
             height: px2rem(30)
             line-height: @height

@@ -2,7 +2,7 @@ import * as React from "react";
 
 import VideoItem from "../../../components/video-item/VideoItem";
 
-import style from "../stylus/partition.styl?css-modules";
+import style from "./stylus/partition.styl?css-modules";
 
 const Partition = props => {
   const { data, history, getPicUrl } = props;

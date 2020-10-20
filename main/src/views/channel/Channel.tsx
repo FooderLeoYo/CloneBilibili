@@ -55,7 +55,7 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
   private isRecAndChildrenGtTwo: boolean;
   private drawerRef: React.RefObject<Drawer>;
   private videoLatestId: number;
-  private rankingPartitions: PartitionType[]; // 用于获取点击“排行榜”后跳转到的url的id
+  private rankingPartitions: PartitionType[]; // 用于获取点击“排行榜”后，跳转到的url中最后的id
 
   constructor(props) {
     super(props);
@@ -70,29 +70,8 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
   }
 
   /* 以下为自定义方法 */
-  private handleSwitchClick = () => {
-    this.drawerRef.current.show();
-  }
 
-  private handleRankingClick = lvOnePartition => {
-    if (this.rankingPartitions.length > 0) {
-      // 从一级分类中查找与当前ranking分类相同的ranking分类
-      if (this.rankingPartitions.findIndex(partition =>
-        partition.id === lvOnePartition.id) !== -1) {
-        // window.location.href = "/ranking/" + lvOnePartition.id
-        this.props.history.push({ pathname: "/ranking/" + lvOnePartition.id });
-      } else {
-        // 如果一级分类中没有，则从二级分类中查找
-        const partitionType = this.rankingPartitions.find(partition =>
-          lvOnePartition.children.findIndex(p =>
-            p.id === partition.id) !== -1
-        );
-        // window.location.href = "/ranking/" + partitionType.id
-        this.props.history.push({ pathname: "/ranking/" + partitionType.id });
-      }
-    }
-  }
-
+  /* 获取数据相关 */
   private getPicUrl(url, format) {
     const { picURL } = this.context;
     let suffix = ".webp";
@@ -154,6 +133,87 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     this.lvOneTabData.push(new PartitionType(-1, "直播"));
   }
 
+
+  /* 点击相关 */
+  private handleSwitchClick = () => {
+    this.drawerRef.current.show();
+  }
+
+  private handleRankingClick = lvOnePartition => {
+    if (this.rankingPartitions.length > 0) {
+      // 从一级分类中查找与当前ranking分类相同的ranking分类
+      if (this.rankingPartitions.findIndex(partition =>
+        partition.id === lvOnePartition.id) !== -1) {
+        // window.location.href = "/ranking/" + lvOnePartition.id
+        this.props.history.push({ pathname: "/ranking/" + lvOnePartition.id });
+      } else {
+        // 如果一级分类中没有，则从二级分类中查找
+        const partitionType = this.rankingPartitions.find(partition =>
+          lvOnePartition.children.findIndex(p =>
+            p.id === partition.id) !== -1
+        );
+        // window.location.href = "/ranking/" + partitionType.id
+        this.props.history.push({ pathname: "/ranking/" + partitionType.id });
+      }
+    }
+  }
+
+  private handleClick = tab => {
+    if (tab.id !== this.curLvOneTabIndex) {
+      // 当前分类为直播
+      if (tab.id === -1) {
+        window.location.href = "/live";
+        // this.props.history.push({
+        //   pathname: "/live"
+        // });
+        return;
+      }
+      if (tab.id === 0) {
+        // window.location.href = "/index";
+        this.props.history.push({
+          pathname: "/index"
+        });
+      } else {
+        this.setState({ isDataOk: false });
+
+        this.props.history.push({
+          pathname: "/channel/" + tab.id
+        });
+        // 这里如果不放到延时里，setAllData里的方法调用时，tab.id还没来得及变
+        setTimeout(() => {
+          this.setAllData();
+        }, 1);
+
+        // 如果是通过drawer点击的分类，则点击后隐藏drawer
+        if (this.drawerRef.current.pull) {
+          this.drawerRef.current.hide();
+        }
+      }
+    }
+  }
+
+  private handleSecondClick = tab => {
+    // if (tab.id !== this.curLvTwoTabIndex) {
+    this.setState({ isDataOk: false });
+    // this.curLvTwoTabIndex = tab.id;
+
+    this.props.history.push({
+      pathname: "/channel/" + tab.id
+    });
+    setTimeout(() => {
+      this.setAllData();
+      console.log(`tab.id: ${tab.id}`);
+      console.log(`curLvTwoTabIndex: ${this.curLvTwoTabIndex}`);
+      // 非“推荐”时才需要加载最新视频数据
+      if (this.curLvTwoTabIndex !== 0) {
+        this.setvideoLatestId();
+      }
+    }, 1);
+    // }
+  }
+
+
+  /* 设置tab相关 */
   // 根据m.params.rId来设置index和一级partition
   private setTabIndexAndLvOnePar() {
     const { match: m } = this.props;
@@ -195,6 +255,8 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     }
   }
 
+
+  /* 设置其他数据相关 */
   private setParOrLatest() {
     this.isRecAndChildrenGtTwo =
       this.curLvTwoTabIndex === 0 && this.lvOnePartition.children.length > 1
@@ -237,56 +299,6 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     }, 1);
   }
 
-  private handleClick = tab => {
-    if (tab.id !== this.curLvOneTabIndex) {
-      // 当前分类为直播
-      if (tab.id === -1) {
-        window.location.href = "/live";
-        // this.props.history.push({
-        //   pathname: "/live"
-        // });
-        return;
-      }
-      if (tab.id === 0) {
-        // window.location.href = "/index";
-        this.props.history.push({
-          pathname: "/index"
-        });
-      } else {
-        this.setState({ isDataOk: false });
-
-        this.props.history.push({
-          pathname: "/channel/" + tab.id
-        });
-        // 这里如果不放到延时里，setAllData里的方法调用时，tab.id还没来得及变
-        setTimeout(() => {
-          this.setAllData();
-        }, 1);
-
-        // 如果是通过drawer点击的分类，则点击后隐藏drawer
-        if (this.drawerRef.current.pull) {
-          this.drawerRef.current.hide();
-        }
-      }
-    }
-  }
-
-  private handleSecondClick = tab => {
-    if (tab.id !== this.curLvTwoTabIndex) {
-      this.setState({ isDataOk: false });
-
-      this.curLvTwoTabIndex = tab.id;
-
-      this.props.history.push({
-        pathname: "/channel/" + tab.id
-      });
-      setTimeout(() => {
-        this.setAllData();
-        this.setvideoLatestId();
-      }, 1);
-    }
-  }
-
   private setInitData() {
     this.setrankingPartitions();
     this.getLvOneTabData();
@@ -310,10 +322,6 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     }, 10);
   }
 
-  // 这个生命周期函数会在调用 render 方法之前调用
-  // 在初始挂载及后续更新时都会被调用
-  // 它应返回一个对象来更新 state，如果返回 null 则不更新任何内容
-
   // 如果不用这个进行清空，在切换时之前的内容会短暂停留
   public static getDerivedStateFromProps(props, state) {
     const rId = parseInt(props.match.params.rId, 10);
@@ -331,9 +339,6 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     return null;
   }
 
-  // 此生命周期函数在最近一次渲染输出（提交到 DOM 节点）之前调用
-  // 它使得组件能在发生更改之前从 DOM 中捕获一些信息（例如，滚动位置）
-  // 此生命周期函数的返回值将作为第三个参数传递给componentDidUpdate
   public getSnapshotBeforeUpdate() {
     return document.documentElement.scrollTop || document.body.scrollTop > 0
   }
@@ -413,9 +418,15 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
                         className={style.ranking}
                         onClick={() => { this.handleRankingClick(this.lvOnePartition) }}
                       >
-                        <i className={`${style.iconRanking} icon-ranking`} />
+                        <svg className="icon" aria-hidden="true">
+                          <use href="#icon-ranking"></use>
+                        </svg>
                         <span className={style.text}>排行榜</span>
-                        <i className={`${style.iconRight} icon-arrow-right`} />
+                        <span className={style.more}>
+                          <svg className="icon" aria-hidden="true">
+                            <use href="#icon-back"></use>
+                          </svg>
+                        </span>
                       </div>
                       : null
                   }

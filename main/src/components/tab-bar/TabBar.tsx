@@ -62,9 +62,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     }, 100);
   }
 
-  // re-render前，检查此时props的currentIndex是否与之前state中的不同，不同则更新
-  // 会在路由跳转下的点击切换tab时被触发
-  // getDerivedStateFromProps将传入的props映射到state
+  // 路由跳转时更新state进而触发页面更新，否则路由跳转时路径变化无法触发页面更新
   public static getDerivedStateFromProps(props, state) {
     if (props.currentIndex !== undefined) {
       if (props.currentIndex !== state.currentIndex) {

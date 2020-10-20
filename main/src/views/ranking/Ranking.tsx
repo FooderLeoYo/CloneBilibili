@@ -37,9 +37,7 @@ class Ranking extends React.Component<RankingProps, RankingState> {
     super(props);
     const { shouldLoad } = props;
     this.state = {
-      currentTabIndex: props.rankingPartitions.findIndex(parittion =>
-        parittion.id === parseInt(props.match.params.rId, 10)
-      ),
+      currentTabIndex: -9,
       loading: shouldLoad
     }
   }
@@ -58,7 +56,7 @@ class Ranking extends React.Component<RankingProps, RankingState> {
   }
 
   public handleClick = tab => {
-    const currentTabIndex = this.props.rankingPartitions.findIndex((parittion) =>
+    const currentTabIndex = this.props.rankingPartitions.findIndex(parittion =>
       parittion.id === parseInt(tab.id, 10)
     );
     // 将this.state.currentTabIndex改成当前点击项
@@ -68,9 +66,7 @@ class Ranking extends React.Component<RankingProps, RankingState> {
     });
     // 获取currentTabIndex对应的展示数据并保存到store中
     this.props.dispatch(getVideoList(tab.id))
-      .then(() => {
-        this.setState({ loading: false });
-      });
+      .then(() => { this.setState({ loading: false }); });
   }
 
   /* 以下是生命周期函数 */
@@ -78,6 +74,11 @@ class Ranking extends React.Component<RankingProps, RankingState> {
     if (this.props.shouldLoad) {
       this.props.dispatch(getRankingVideoList(this.props.match.params.rId))
         .then(() => {
+          this.setState({
+            currentTabIndex: this.props.rankingPartitions.findIndex(parittion =>
+              parittion.id === parseInt(this.props.match.params.rId, 10)
+            )
+          });
           this.setState({ loading: false });
         });
     } else {
@@ -88,7 +89,6 @@ class Ranking extends React.Component<RankingProps, RankingState> {
     }, 10);
   }
 
-  // getSnapshotBeforeUpdate的返回值将作为 componentDidUpdate() 的第三个参数
   public getSnapshotBeforeUpdate() {
     return document.documentElement.scrollTop || document.body.scrollTop > 0
   }

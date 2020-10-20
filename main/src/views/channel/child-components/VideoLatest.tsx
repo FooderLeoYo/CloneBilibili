@@ -6,7 +6,7 @@ import VideoItem from "../../../components/video-item/VideoItem";
 
 import { Video, createVideoByLatest } from "../../../class-object-creators";
 
-import style from "../stylus/video-latest.styl?css-modules";
+import style from "./stylus/video-latest.styl?css-modules";
 import tips from "../../../assets/images/tips.png";
 
 interface VideoLatestProps {
