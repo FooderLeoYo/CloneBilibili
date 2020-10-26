@@ -8,7 +8,6 @@ import { Link } from "react-router-dom";
 import Context from "../../../context";
 import { getLiveListData } from "../../../api/live";
 import { setShouldLoad } from "../../../redux/action-creators";
-import getLiveListInfo from "../../../redux/async-action-creators/live/list";
 
 import { Live, UpUser, PartitionType, LiveSecQueryParType } from "../../../class-object-creators";
 import LoadingCutscene from "../../../components/loading-cutscene/LoadingCutscene";
@@ -107,14 +106,6 @@ function List(props: ListProps) {
         setLives(lives.concat(list));
         setIsLoadMore(false);
         setIsDataOk(true);
-        // if (livePage.pageNumber > 1) {
-        // 从list中过滤掉lives中已有的主播数据
-        // const filteredLives = list.filter(live =>
-        //   lives.findIndex(item => item.roomId === live.roomId) === -1);
-        // setLives(lives.concat(filteredLives));
-        // } else {
-        // setLives(list);
-        // }
       }
     });
   };

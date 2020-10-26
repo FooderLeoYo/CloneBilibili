@@ -45,11 +45,16 @@ const {
 function Room(props: RoomProps) {
   const { shouldLoad, dispatch, roomData } = props;
   const { live } = roomData;
-  let chatWebSocket: ChatWebSocket;
 
   const [preRoomData, setPreRoomData] = useState(roomData);
   const [isDataOk, setIsDataOk] = useState(false);
   const [anchor, setAnchor] = useState(new UpUser(0, "", ""));
+  // 这里将setDanmu中new的chatWebSocket又赋给一个state变量wsForClose，
+  // 而不是let声明一个变量，再在new chatWebSocket的时候将其赋给这个变量是因为:
+  // let声明一个变量的话，无法在useEffect中检测到这个变量变化，
+  // 就无法在new后拿到ChatWebSocket实例，在组件卸载时执行.close()就会报错未定义
+  const [wsForClose, setWsForClose] = useState<ChatWebSocket>();
+
   const onlineNumRef: React.Ref<HTMLSpanElement> = useRef(null);
   const videoPlayerRef: React.Ref<VideoPlayer> = useRef(null);
 
@@ -80,7 +85,10 @@ function Room(props: RoomProps) {
     getDanMuConfig(roomData.live.roomId).then(result => {
       if (result.code === "1") {
         const url = `wss://${result.data.host}/sub`;
-        chatWebSocket = new ChatWebSocket(url, roomData.live.roomId);
+        // 这里不直接setWsForClose(new ChatWebSocket())是因为：
+        // setWsForClose不是同步的，那么下面的两个.on就会报错未定义
+        const chatWebSocket = new ChatWebSocket(url, roomData.live.roomId);
+        setWsForClose(chatWebSocket);
 
         // HEARTBEAT_REPLY的res.body就是res发送时的人气数据
         chatWebSocket.on(Events.HEARTBEAT_REPLY, ({ onlineNum }) => {
@@ -118,18 +126,23 @@ function Room(props: RoomProps) {
       // 这个数据非常慢，dispatch后props中仍然没有roomData
       // 到了下面的仿getDerivedStateFromProps时才有数据
       // 因此setInitData放到那里执行
-      dispatch(getRoomData(props.match.params.roomId))
+      dispatch(getRoomData(props.match.params.roomId));
     } else {
       setInitData();
       dispatch(setShouldLoad(true));
     }
-
-    // 这里相当于componentWillUnmount
-    return () => {
-      // chatWebSocket.webSocket.close();
-      // console.log(chatWebSocket);
-    }
   }, []);
+
+  // 这里相当于只关注wsForClose的componentWillUnmount
+  useEffect(() => {
+    if (wsForClose) {
+      // 不能把return放到模拟componentDidMount的useEffect中，因为：
+      // 不给useEffect第二个参数传[wsForClose]的话，拿到的wsForClose永远是初始的“undefined”
+      return () => {
+        wsForClose.webSocket.close();
+      }
+    }
+  }, [wsForClose]);
 
   // 相当于getDerivedStateFromProps
   if (props.roomData !== preRoomData) {
@@ -154,8 +167,8 @@ function Room(props: RoomProps) {
                   <section className={style.main}>
                     <div className={style.liveContainer}>
                       <VideoPlayer
-                        live={true}
-                        isLive={live.isLive === 1}
+                        isLive={true}
+                        isStreaming={live.isLive === 1}
                         // getTime()返回liveTime距 1970 年 1 月 1 日之间的毫秒数
                         liveTime={new Date(roomData.liveTime.replace(/-/g, "/")).getTime()}
                         video={{

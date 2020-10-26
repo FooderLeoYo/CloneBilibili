@@ -50,6 +50,7 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
   private curLvOneTabIndex: number;
   private lvOnePartition: PartitionType; // 当前一级分类
   private lvTwoTabData: PartitionType[];
+  private prevLvTwoTabIndex: number;
   private curLvTwoTabIndex: number;
   private lvTwoPartition: PartitionType;
   private isRecAndChildrenGtTwo: boolean;
@@ -60,6 +61,7 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
   constructor(props) {
     super(props);
     this.drawerRef = React.createRef();
+    this.prevLvTwoTabIndex = 0;
 
     this.state = {
       isDataOk: false,
@@ -162,10 +164,10 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     if (tab.id !== this.curLvOneTabIndex) {
       // 当前分类为直播
       if (tab.id === -1) {
-        window.location.href = "/live";
-        // this.props.history.push({
-        //   pathname: "/live"
-        // });
+        // window.location.href = "/live";
+        this.props.history.push({
+          pathname: "/live"
+        });
         return;
       }
       if (tab.id === 0) {
@@ -193,28 +195,38 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
   }
 
   private handleSecondClick = tab => {
-    // if (tab.id !== this.curLvTwoTabIndex) {
-    this.setState({ isDataOk: false });
-    // this.curLvTwoTabIndex = tab.id;
+    this.setTabIndex(tab.id);
 
-    this.props.history.push({
-      pathname: "/channel/" + tab.id
-    });
-    setTimeout(() => {
-      this.setAllData();
-      console.log(`tab.id: ${tab.id}`);
-      console.log(`curLvTwoTabIndex: ${this.curLvTwoTabIndex}`);
-      // 非“推荐”时才需要加载最新视频数据
-      if (this.curLvTwoTabIndex !== 0) {
-        this.setvideoLatestId();
-      }
-    }, 1);
-    // }
+    if (this.prevLvTwoTabIndex !== this.curLvTwoTabIndex) {
+      this.setState({ isDataOk: false });
+
+      this.props.history.push({
+        pathname: "/channel/" + tab.id
+      });
+      setTimeout(() => {
+        this.setAllData();
+        // 非“推荐”时才需要加载最新视频数据
+        if (this.curLvTwoTabIndex !== 0) {
+          this.setvideoLatestId();
+        }
+        this.prevLvTwoTabIndex = this.curLvTwoTabIndex;
+      }, 1);
+    }
   }
 
 
   /* 设置tab相关 */
-  // 根据m.params.rId来设置index和一级partition
+  private setTabIndex = id => {
+    this.curLvOneTabIndex = this.lvOneTabData.findIndex(parittion => {
+      this.curLvTwoTabIndex = parittion.children.findIndex(child =>
+        child.id === parseInt(id, 10)
+      );
+      return this.curLvTwoTabIndex !== -1;
+    });
+    this.lvOnePartition = this.lvOneTabData[this.curLvOneTabIndex];
+    this.curLvTwoTabIndex += 1;
+  }
+
   private setTabIndexAndLvOnePar() {
     const { match: m } = this.props;
 
@@ -231,16 +243,7 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     this.curLvTwoTabIndex = 0;
     if (!this.lvOnePartition) {
       // 根据二级分类查找对应一级分类
-      this.curLvOneTabIndex = this.lvOneTabData.findIndex(parittion => {
-        this.curLvTwoTabIndex = parittion.children.findIndex(child =>
-          child.id === parseInt(m.params.rId, 10)
-        );
-        return this.curLvTwoTabIndex !== -1;
-      });
-      // 将this.lvOnePartition设置为m.params.rId对应的一级分类的partition
-      this.lvOnePartition = this.lvOneTabData[this.curLvOneTabIndex];
-      // 二级分类会在最左侧插入'推荐'内容，因此让当前索引+1
-      this.curLvTwoTabIndex += 1;
+      this.setTabIndex(m.params.rId);
     }
   }
 

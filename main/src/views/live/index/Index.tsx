@@ -2,6 +2,7 @@ import * as React from "react";
 import { History } from "history";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
+import { forceCheck } from "react-lazyload";
 
 import Context from "../../../context";
 import getLiveData from "../../../redux/async-action-creators/live/index";
@@ -39,7 +40,7 @@ const { useEffect, useState } = React;
 function Index(props: IndexProps) {
   /* 以下为初始化 */
   const [isDataOk, setIsDataOk] = useState(false);
-  // const { shouldLoad, dispatch } = props;
+  const { shouldLoad, dispatch } = props;
   // 轮播图和直播类型数据
   const { bannerList, itemList } = props.liveData;
   // 导航栏数据
@@ -72,12 +73,12 @@ function Index(props: IndexProps) {
     // 此时有服务端的预取数据，页面使用预取数据即可而无需调用getLives
     // 但是预取数据仅仅是当前页面，因此要setShouldLoad(true)
     // 因为路由跳转切换下一个页面时，下一个页面将没有对应的预取数据，需要自己获取
-    // if (shouldLoad) {
-    //   dispatch(getLiveData()).then(() => { setIsDataOk(true); });
-    // } else {
-    setIsDataOk(true);
-    // dispatch(setShouldLoad(true));
-    // }
+    if (shouldLoad) {
+      dispatch(getLiveData()).then(() => { setIsDataOk(true); });
+    } else {
+      setIsDataOk(true);
+      dispatch(setShouldLoad(true));
+    }
   }, []);  // 传入空数组，组件第一次挂载后调用，组件更新不回调
 
   /* 以下为渲染部分 */
@@ -159,20 +160,20 @@ function Index(props: IndexProps) {
                                   data.cover = `${context.picURL}?pic=${data.cover}`;
                                 }
                                 return (
-                                  <a
-                                    className={style.roomWrapper}
-                                    key={data.roomId}
-                                    href={`/live/${data.roomId}`}
-                                  >
-                                    <LiveInfo data={data} />
-                                  </a>
-                                  // <Link
+                                  // <a
                                   //   className={style.roomWrapper}
                                   //   key={data.roomId}
-                                  //   to={`/live/${data.roomId}`}
+                                  //   href={`/live/${data.roomId}`}
                                   // >
                                   //   <LiveInfo data={data} />
-                                  // </Link>
+                                  // </a>
+                                  <Link
+                                    className={style.roomWrapper}
+                                    key={data.roomId}
+                                    to={`/live/${data.roomId}`}
+                                  >
+                                    <LiveInfo data={data} />
+                                  </Link>
                                 )
                               })
                             }

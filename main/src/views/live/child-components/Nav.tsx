@@ -93,7 +93,9 @@ function Nav(props: NavProps) {
         </div>
         {/* 点击打开抽屉 */}
         <div className={style.switch} onClick={handleSwitchClick}>
-          <i className="icon-arrow-down" />
+          <svg className="icon" aria-hidden="true">
+            <use href="#icon-arrowDownBig"></use>
+          </svg>
         </div>
       </div>
       {/* 抽屉 */}

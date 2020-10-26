@@ -68,10 +68,10 @@ class Index extends React.Component<IndexProps, IndexState> {
     } else if (tab.id === -1) {
       // history.push是单页面路由跳转，而上面两个是链接跳转
       // 区别在于链接跳转后会刷新页面，之前的浏览记录会消失
-      window.location.href = "/live";
-      // this.props.history.push({
-      //   pathname: "/live"
-      // });
+      // window.location.href = "/live";
+      this.props.history.push({
+        pathname: "/live"
+      });
     } else {
       // window.location.href = "/channel/" + tab.id;
       this.props.history.push({

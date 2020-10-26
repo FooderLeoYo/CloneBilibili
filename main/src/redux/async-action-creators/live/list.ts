@@ -27,7 +27,7 @@ export default function getLiveListInfo(data: {
     return Promise.all(promises)
       .then(([liveListRes, partiRes, liveIndexRes]) => {
         if (liveListRes.code === "1") {
-          const list = liveListRes.data.list.map((data) =>
+          const list = liveListRes.data.list.map(data =>
             new Live(data.title, data.roomid, data.online, data.user_cover, 0, "",
               new UpUser(data.uid, data.uname, data.face))
           );
@@ -42,19 +42,19 @@ export default function getLiveListInfo(data: {
           const partitions = partiRes.data["0"];
           let oneLevels = createPartitionTypes(partitions);
           // 过滤掉 番剧，电影，电视剧，纪录片
-          oneLevels = oneLevels.filter((partition) => [13, 23, 11, 177].indexOf(partition.id) === -1);
+          oneLevels = oneLevels.filter(partition => [13, 23, 11, 177].indexOf(partition.id) === -1);
           dispatch(setOneLevelPartitions(oneLevels));
         }
 
         if (liveIndexRes.code === "1") {
           const moduleList = liveIndexRes.data.module_list;
 
-          const itemModuleList = moduleList.filter((item) =>
+          const itemModuleList = moduleList.filter(item =>
             itemTitle.indexOf(item.module_info.title) !== -1
           );
 
           // 直播列表
-          const itemList = itemModuleList.map((item) => {
+          const itemList = itemModuleList.map(item => {
             const query = parse(item.module_info.link.substring(item.module_info.link.indexOf("?")));
             const o = {
               title: item.module_info.title,
