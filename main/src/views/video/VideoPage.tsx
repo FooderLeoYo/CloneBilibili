@@ -13,7 +13,7 @@ import { setShouldLoad } from "../../redux/action-creators";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 import HeaderWithBack from "../../components/header-with-back/HederWithBack";
 import LoadingCutscene from "../../components/loading-cutscene/LoadingCutscene";
-import VideoPlayer from "./Player";
+import VideoPlayer from "../../components/player/Player";
 
 import { Video, createVideo, UpUser } from "../../class-object-creators";
 import { getPicSuffix } from "../../customed-methods/image";

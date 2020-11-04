@@ -14,7 +14,7 @@ import { formatTenThousand } from "../../../customed-methods/string";
 
 import LoadingCutscene from "../../../components/loading-cutscene/LoadingCutscene";
 import HeaderWithBack from "../../../components/header-with-back/HederWithBack";
-import VideoPlayer from "../../video/Player";
+import VideoPlayer from "../../../components/player/Player";
 import BottomArea, { sendMsg } from "./BottomArea";
 import ChatWebSocket, { Events } from "./ChatWS";
 

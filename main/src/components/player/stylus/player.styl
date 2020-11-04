@@ -9,6 +9,11 @@
   100% {opacity: 0;}
 }
 
+// @keyframes loadingRotate{
+//   from{transform: rotate(0deg)}
+//   to{transform: rotate(360deg)}
+// }
+
 gradually-hide-style(hideTime)
   animation: hide (hideTime)ms ease-in;
   -webkit-animation: hide (hideTime)ms ease-in;
@@ -323,9 +328,6 @@ gradually-hide-style(hideTime)
       z-index: 99
       .wrapper
         text-align: center
-        .img
-          width: px2rem(40)
-          height: @width
         .text
           display: block
           margin-top: px2rem(4)

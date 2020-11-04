@@ -4,7 +4,8 @@ import * as Hls from "hls.js";
 import Context from "../../context";
 import { getBarrages } from "../../api/video";
 
-import Barrage, { BarrageType } from "./Barrage";
+import Barrage, { BarrageType } from "./child-components/Barrage";
+import PlayerLoading from "./child-components/PlayerLoading"
 import { formatDuration } from "../../customed-methods/string";
 import storage from "../../customed-methods/storage";
 
@@ -76,6 +77,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private isPC: boolean;
   private centerPlaySpeed: number;
   private speedBtnSuffix: string;
+  private progressWidth: number;
+  private progressLeft: number;
 
   public static defaultProps = {
     isLive: false,
@@ -173,6 +176,10 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
 
   private setThumbnailListener = () => {
     const videoDOM = this.videoRef.current;
+
+    if (this.props.isLive) {
+      this.showControlsTemporally();
+    }
     const setPlayState = () => {
       this.setState({
         isShowCover: false,
@@ -182,7 +189,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     }
 
     // "play"是HTML DOM 事件onplay的事件类型，而不是一个自定义名称
-    videoDOM.addEventListener("play", setPlayState);
+    if (!this.props.isLive) {
+      videoDOM.addEventListener("play", setPlayState);
+    }
     videoDOM.addEventListener("playing", setPlayState);
     videoDOM.addEventListener("waiting", () => {
       this.setState({ waiting: true });
@@ -246,8 +255,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
         }
       });
     }
-
-    this.showControlsTemporally();
   }
 
   private getLastPlayPos = () => {
@@ -368,6 +375,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   private setFingerListener = () => {
     // 用barrageContainerDOM而不是videoAreaDOM的原因，见player.styl中各DOM的层级关系
     const barrageContainerDOM = this.barrageContainerRef.current;
+    const barrageWidth = barrageContainerDOM.getBoundingClientRect().width;
+    const barrageHeight = barrageContainerDOM.getBoundingClientRect().height;
     const distanceToTop = barrageContainerDOM.getBoundingClientRect().top + window.scrollY;
     const videoDOM = this.videoRef.current;
     let initVolume: number;
@@ -395,8 +404,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       });
 
       barrageContainerDOM.addEventListener("touchmove", e => {
-        const barrageWidth = barrageContainerDOM.getBoundingClientRect().width;
-        const barrageHeight = barrageContainerDOM.getBoundingClientRect().height;
         const curPos = {
           x: e.targetTouches[0].pageX,
           y: e.targetTouches[0].pageY - distanceToTop
@@ -552,17 +559,18 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   /* 进度条相关 */
   private setTimeupdateListener = () => {
     const videoDOM = this.videoRef.current;
+    const videoDur = videoDOM.duration
     const barrageComponent = this.barrageRef.current;
     const currentTimeDOM = this.currentTimeRef.current;
     const progressDOM = this.progressRef.current;
     // 初始化时设置duration
     if (this.duration === 0) {
-      this.duration = videoDOM.duration;
+      this.duration = videoDur;
     }
 
     // 更新进度条
     currentTimeDOM.innerHTML = formatDuration(videoDOM.currentTime, "0#:##");
-    const progress = videoDOM.currentTime / videoDOM.duration * 100;
+    const progress = videoDOM.currentTime / videoDur * 100;
     progressDOM.style.width = `${progress}%`;
 
     // 加载当前时点的弹幕
@@ -585,8 +593,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const currentTimeDOM = this.currentTimeRef.current;
 
 
-    let width = progressWrapperDOM.offsetWidth; // 进度条总宽度
-    let left = progressWrapperDOM.getBoundingClientRect().left; // 进度条框距离视口左边距离
     let rate = -1; // 拖拽进度比例
 
     // 触碰进度条时，设置width和left
@@ -599,38 +605,38 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     progressBtnDOM.addEventListener("touchmove", e => {
       e.stopPropagation();
       e.preventDefault(); // 阻止屏幕被拖动
-      this.controlBarRef.current.classList.remove(style.graduallyHide);
-      clearTimeout(this.ctrBarTimer);
-      clearTimeout(this.easeTimer);
-      const touch = e.touches[0];
 
       // 计算拖拽进度比例
-      rate = (touch.clientX - left) / width;
+      const touch = e.touches[0];
+      rate = (touch.pageX - this.progressLeft) / this.progressWidth;
       // 手指点在进度条以外
       if (rate > 1) {
         rate = 1;
       } else if (rate < 0) {
         rate = 0;
       }
-
       const currentTime = videoDOM.duration * rate;
       progressDOM.style.width = `${rate * 100}%`;
       currentTimeDOM.innerHTML = formatDuration(currentTime, "0#:##");
+
+      this.controlBarRef.current.classList.remove(style.graduallyHide);
+      clearTimeout(this.ctrBarTimer);
+      clearTimeout(this.easeTimer);
     });
 
     progressBtnDOM.addEventListener("touchend", e => {
       e.stopPropagation();
-      const touch = e.changedTouches[0];
       videoDOM.currentTime = videoDOM.duration * rate;
       videoDOM.addEventListener("timeupdate", this.setTimeupdateListener);
       this.showControlsTemporally();
     });
+
+    this.progressWidth = progressWrapperDOM.offsetWidth;
+    this.progressLeft = progressWrapperDOM.getBoundingClientRect().left;
   }
 
   private changePlayPosition(e) {
-    const progressWrapperDOM = e.currentTarget;
-    const left = progressWrapperDOM.getBoundingClientRect().left;
-    const progress = (e.clientX - left) / progressWrapperDOM.offsetWidth;
+    const progress = (e.clientX - this.progressLeft) / this.progressWidth;
     const videoDOM = this.videoRef.current;
 
     videoDOM.currentTime = videoDOM.duration * progress;
@@ -958,7 +964,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
                       <span className={style.time} ref={this.currentTimeRef}>00:00</span>
                       <span className={style.split}>/</span>
                       <span className={style.totalDuration}>
-                        {formatDuration(this.duration, "0#:##")}
+                        {formatDuration(video.duration, "0#:##")}
                       </span>
                     </div>
                     {/* 进度条 */}
@@ -1075,9 +1081,12 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
             this.state.waiting ? (
               <div className={style.loading}>
                 <div className={style.wrapper}>
-                  <svg className="icon" aria-hidden="true">
-                    <use href="#icon-loading"></use>
-                  </svg>
+                  <span className={style.animation}>
+                    {/* <svg className="icon" aria-hidden="true">
+                      <use href="#icon-loading"></use>
+                    </svg> */}
+                    <PlayerLoading />
+                  </span>
                   <span className={style.text}>
                     {!isLive ? "正在缓冲" : ""}
                   </span>
