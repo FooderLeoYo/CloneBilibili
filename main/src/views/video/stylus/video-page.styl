@@ -100,16 +100,28 @@
         color: #fb7299
         border-bottom: px2rem(2) solid #fb7299
   .bottom-area
-    overflow: hidden;
+    height: 100%
+    overflow: hidden
+    z-index: 0
     padding-top: px2rem(5)
     background-color: #f4f4f4
     .bottom-wrapper
+      position: relative
+      height: 100%
       width: 200vw
       transition: .5s
-      .recommend-list
-        float: left
-        overflow-x: hidden;
+      .recommend-list,
+      .comment
+        position: absolute
+        top: 0
+        left: 0
+        right: 0
         width: 100vw
+        will-change: transform
+        &.is-current
+          position: relative
+      .recommend-list
+        overflow-x: hidden;
         padding: 0 px2rem(15)
         .video-wrapper
           height: px2rem(73.08)
@@ -168,8 +180,7 @@
             color: #999999
             font-size: px2rem(12)
       .comment
-        float: left
-        width: 100vw
+        transform: translateX(100vw)
         padding: 0 px2rem(15)
         .comment-title
           margin-left: px2rem(12)

@@ -52,7 +52,8 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
   private switcherRef: React.RefObject<HTMLDivElement>;
   private bottomWrapperRef: React.RefObject<HTMLDivElement>;
   private commentAreaRef: React.RefObject<HTMLDivElement>;
-  private commentsBottomRef: React.RefObject<HTMLDivElement>;
+  private recommendListRef: React.RefObject<HTMLDivElement>;
+
   private infoExpand: boolean;
   private commentPage: { pageNumber: number, pageSize: number, count: number };
   private bottomPos: number;
@@ -65,7 +66,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     this.switcherRef = React.createRef();
     this.bottomWrapperRef = React.createRef();
     this.commentAreaRef = React.createRef();
-    this.commentsBottomRef = React.createRef();
+    this.recommendListRef = React.createRef();
     this.infoExpand = false;
     this.commentPage = {
       pageNumber: 1,
@@ -233,9 +234,13 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
 
   private switchBottom(indx: Number) {
     const bottomDOM = this.bottomWrapperRef.current;
+    const recDOM = this.recommendListRef.current;
+    const comDOM = this.commentAreaRef.current;
     switch (indx) {
       case 1:
         if (!this.state.isRecommend) {
+          recDOM.classList.add(style.isCurrent);
+          comDOM.classList.remove(style.isCurrent);
           window.scrollTo(0, this.bottomPos);
           bottomDOM.style.transform = `translateX(0)`;
           this.setState({ isRecommend: true });
@@ -243,6 +248,8 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
         break;
       case 2:
         if (this.state.isRecommend) {
+          comDOM.classList.add(style.isCurrent);
+          recDOM.classList.remove(style.isCurrent);
           window.scrollTo(0, this.bottomPos);
           bottomDOM.style.transform = `translateX(-100vw)`;
           this.setState({ isRecommend: false });
@@ -253,7 +260,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     }
   }
 
-  private setDoms() {
+  private setBottomListeners() {
     // 设置底部切换区域的位置，切换时都跳到这个位置
     const topWrapperDOM = this.topWrapperRef.current;
     const switcherDOM = this.switcherRef.current;
@@ -263,11 +270,11 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     const bottomDOM = this.bottomWrapperRef.current;
     let initX = 0;
     let fingerMoveDistanceX = 0;
-    bottomDOM.addEventListener("touchstart", (e) => {
+    bottomDOM.addEventListener("touchstart", e => {
       e.stopPropagation();
       initX = e.touches[0].pageX;
     });
-    bottomDOM.addEventListener("touchmove", (e) => {
+    bottomDOM.addEventListener("touchmove", e => {
       let curX = e.touches[0].pageX;
       fingerMoveDistanceX = curX - initX;
     });
@@ -296,7 +303,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
 
     // 不放在定时器里会报错找不到相关Dom节点
     setTimeout(() => {
-      this.setDoms();
+      this.setBottomListeners();
     }, 1);
   }
 
@@ -310,13 +317,15 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
         then(() => { this.setInitStatus(); });
     } else {
       this.setInitStatus();
-
       this.props.dispatch(setShouldLoad(true));
     }
+
+    setTimeout(() => {
+      this.recommendListRef.current.classList.add(style.isCurrent);
+    }, 1000);
   }
 
   public componentDidUpdate() {
-    // const aId = parseInt(this.props.match.params.aId, 10);
     const aId = this.props.match.params.aId;
     if (aId !== this.state.prevId) {
       this.setState({
@@ -327,8 +336,8 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
 
       this.getRecommentVideos();
       this.getComments();
-      this.props.dispatch(getVideoDetail(aId)).
-        then(() => { this.setInitStatus(); });
+      this.props.dispatch(getVideoDetail(aId))
+        .then(() => { this.setInitStatus(); });
     }
   }
 
@@ -426,7 +435,10 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                 <div className={style.bottomArea}>
                   <div className={style.bottomWrapper} ref={this.bottomWrapperRef}>
                     {/* 推荐列表 */}
-                    <div className={style.recommendList} >
+                    <div
+                      className={style.recommendList}
+                      ref={this.recommendListRef}
+                    >
                       {
                         this.state.recommendVides.map(v => (
                           <div className={style.videoWrapper} key={v.aId}>
@@ -465,7 +477,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                         ))
                       }
                       {
-                        this.state.loading === true ? (
+                        this.state.loading ? (
                           <div className={style.loading}>加载中...</div>
                         ) : null
                       }
@@ -504,10 +516,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                               ))
                             }
                           </div>
-                          <div
-                            className={style.commentsBottom}
-                            ref={this.commentsBottomRef}
-                          >
+                          <div className={style.commentsBottom}                          >
                             {
                               this.state.showLoadMore ? (
                                 <div
