@@ -18,10 +18,13 @@ interface NavProps {
   sendLvTowInx?: any,
 }
 
-function Nav(props: NavProps) {
-  const drawerRef = React.useRef(null);
+const { useState, useRef } = React;
 
-  const [lvTwoTabIndex, setLvTwoTabIndex] = React.useState(props.lvTwoTabIndex);
+function Nav(props: NavProps) {
+
+  const drawerRef = useRef(null);
+
+  const [lvTwoTabIndex, setLvTwoTabIndex] = useState(props.lvTwoTabIndex);
 
   const handleFirstClick = tab => {
     if (tab.id === -1) {

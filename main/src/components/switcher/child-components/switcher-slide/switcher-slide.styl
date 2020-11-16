@@ -1,0 +1,22 @@
+@import "../../../../assets/stylus/px2rem.styl"
+@import "../../../../assets/stylus/1pxborder.styl"
+
+.slide-wrapper
+  overflow: hidden
+  padding-top: px2rem(5)
+  background-color: #f4f4f4
+  .content-wrapper
+    position: relative
+    transition: .5s
+    &>*
+      position: absolute
+      top: 0
+      left: 0
+      right: 0
+      width: 100vw
+      will-change: transform
+      &.current
+        position: relative
+    // &:nth-child({n} + 1)
+    //   transform: translateX ()100vw
+

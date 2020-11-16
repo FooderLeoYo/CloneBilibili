@@ -40,6 +40,7 @@ interface PlayerState {
   gestureType: number; // 手势类型：0：无手势；1：左右滑动；2：右边的上下滑动；3：左边的上下滑动
   isShowCenterVolume: boolean;
   isShowCenterBri: boolean;
+  centerSpeed: number;
 }
 
 class Player extends React.PureComponent<PlayerProps, PlayerState> {
@@ -75,7 +76,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
   // private isIos: boolean;
   // private isAndroid: boolean;
   private isPC: boolean;
-  private centerPlaySpeed: number;
   private speedBtnSuffix: string;
   private progressWidth: number;
   private progressLeft: number;
@@ -115,7 +115,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     // this.isPC = !this.isIos && !this.isAndroid;
     // this.isPC = !(navigator.userAgent.match(/(iPhone|iPad|iPod|iOS|Android)/i) !== null);
     this.isPC = !(/(Safari|iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
-    this.centerPlaySpeed = 1;
     this.speedBtnSuffix = "1";
     this.duration = -1;
     this.lastPlayPos = -1;
@@ -134,7 +133,8 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       isShowCenterSpeed: false,
       gestureType: 0,
       isShowCenterVolume: false,
-      isShowCenterBri: false
+      isShowCenterBri: false,
+      centerSpeed: 1
     };
   }
 
@@ -662,7 +662,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
 
     videoDOM.playbackRate = speed;
 
-    this.centerPlaySpeed = speed;
+    this.setState({ centerSpeed: speed });
     this.setState({ isShowCenterSpeed: true });
     if (this.state.paused) {
       this.showPlayBtn();
@@ -811,36 +811,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const ctrPlayBtnIconName = this.state.paused ? "Play" : "Pause";
     const barrageBtnIconName = this.state.barrageSwitch ? "On" : "Off";
     const videoDOM = this.videoRef.current;
-    const generateLi = () => {
-      let liArr = [];
-
-      for (let i = 0; i < 4; i++) {
-        const speed = (i + 1) * 0.5;
-        liArr.push(
-          <li
-            style={{ color: this.centerPlaySpeed === speed ? "#de698c" : "#ffffff" }}
-            onClick={e => {
-              e.stopPropagation();
-              this.setPlaySpeed(speed);
-              this.setState({ isShowSpeedBar: false });
-            }}
-            key={speed}
-          >{speed}</li>
-        );
-      }
-      liArr.splice(1, 0, <li
-        style={{ color: this.centerPlaySpeed === 0.75 ? "#de698c" : "#ffffff" }}
-        onClick={e => {
-          e.stopPropagation();
-          this.setPlaySpeed(0.75);
-          this.setState({ isShowSpeedBar: false });
-        }}
-        key={0.75}
-      >{0.75}</li>);
-
-      return liArr;
-    }
-    const liElements = generateLi();
 
     return (
       <div className={style.videoPlayer} ref={this.playerRef}>
@@ -909,13 +879,57 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
               <span
                 className={style.centerSpeed}
                 style={centerSpeedStyle}
-              >{`${this.centerPlaySpeed}x`}
+              >{`${this.state.centerSpeed}x`}
               </span>
               <div className={style.speedBarWrapper}>
                 <ul
                   className={style.speedBar} style={speedBarStyle} ref={this.speedBarRef}
                 >
-                  {liElements}
+                  <li
+                    style={{ color: this.state.centerSpeed === 0.5 ? "#de698c" : "#ffffff" }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.setPlaySpeed(0.5);
+                      this.setState({ isShowSpeedBar: false });
+                    }}
+                    key={0.5}
+                  >{0.5}</li>
+                  <li
+                    style={{ color: this.state.centerSpeed === 0.75 ? "#de698c" : "#ffffff" }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.setPlaySpeed(0.75);
+                      this.setState({ isShowSpeedBar: false });
+                    }}
+                    key={0.75}
+                  >{0.75}</li>
+                  <li
+                    style={{ color: this.state.centerSpeed === 1 ? "#de698c" : "#ffffff" }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.setPlaySpeed(1);
+                      this.setState({ isShowSpeedBar: false });
+                    }}
+                    key={1}
+                  >{1}</li>
+                  <li
+                    style={{ color: this.state.centerSpeed === 1.5 ? "#de698c" : "#ffffff" }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.setPlaySpeed(1.5);
+                      this.setState({ isShowSpeedBar: false });
+                    }}
+                    key={1.5}
+                  >{1.5}</li>
+                  <li
+                    style={{ color: this.state.centerSpeed === 2 ? "#de698c" : "#ffffff" }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.setPlaySpeed(2);
+                      this.setState({ isShowSpeedBar: false });
+                    }}
+                    key={2}
+                  >{2}</li>
                 </ul>
               </div>
             </div>

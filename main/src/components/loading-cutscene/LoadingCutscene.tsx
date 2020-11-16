@@ -2,7 +2,7 @@ import * as React from "react";
 
 import style from "./loading-cutscene.styl?css-modules";
 
-const LoadingCutscene = () => {
+function LoadingCutscene() {
   return (
     <div className={style.loadingWrapper}>
       {/* <div className={style.loadingPic}> */}

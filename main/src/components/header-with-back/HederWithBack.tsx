@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import style from "./header-with-back.styl?css-modules";
 
-const HeaderWithBack = () => {
+function HeaderWithBack() {
   return (
     <div className={style.header}>
       <div className={style.backWrapper}>

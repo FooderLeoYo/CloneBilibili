@@ -1,0 +1,21 @@
+@import "../../../../assets/stylus/px2rem.styl"
+@import "../../../../assets/stylus/1pxborder.styl"
+
+.tab-wrapper
+  
+  display: flex
+  position: -webkit-sticky
+  position: sticky
+  top: px2rem(45)
+  z-index: 1
+  justify-content: space-evenly
+  padding: px2rem(8) 0 
+  background-color #f9f9f9
+  color: #212121
+  .switcher-item
+    text-align: center
+    padding-bottom: px2rem(5)
+    font-size: px2rem(17)
+    &.actived
+      color: #fb7299
+      border-bottom: px2rem(2) solid #fb7299

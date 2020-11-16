@@ -145,9 +145,9 @@ function Room(props: RoomProps) {
   }, [wsForClose]);
 
   // 相当于getDerivedStateFromProps
-  if (props.roomData !== preRoomData) {
+  if (roomData !== preRoomData) {
     setInitData();
-    setPreRoomData(props.roomData);
+    setPreRoomData(roomData);
   }
 
   return (

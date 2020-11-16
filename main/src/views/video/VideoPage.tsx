@@ -14,6 +14,7 @@ import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 import HeaderWithBack from "../../components/header-with-back/HederWithBack";
 import LoadingCutscene from "../../components/loading-cutscene/LoadingCutscene";
 import VideoPlayer from "../../components/player/Player";
+import { Switcher } from "../../components/switcher/Switcher";
 
 import { Video, createVideo, UpUser } from "../../class-object-creators";
 import { getPicSuffix } from "../../customed-methods/image";
@@ -35,12 +36,12 @@ interface VideoPageState {
   videoData: any;
   isDataOk: boolean,
   loading: boolean;
-  recommendVides: Video[];
+  recommendVideos: Video[];
   showLoadMore: boolean;
   comments: any;
-  isRecommend: boolean; // 必须设成state而不能是初始化时的一个private变量，否则变化不引发组件更新
   isSwitcherFixed: boolean;
   prevId: number;
+  curInx: number;
 }
 
 class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
@@ -49,24 +50,20 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
   private arrowRef: React.RefObject<HTMLDivElement>;
   private infoContainerRef: React.RefObject<HTMLDivElement>;
   private infoRef: React.RefObject<HTMLDivElement>;
-  private switcherRef: React.RefObject<HTMLDivElement>;
-  private bottomWrapperRef: React.RefObject<HTMLDivElement>;
-  private commentAreaRef: React.RefObject<HTMLDivElement>;
-  private recommendListRef: React.RefObject<HTMLDivElement>;
+  private bottomAreaRef: React.RefObject<HTMLDivElement>;
 
   private infoExpand: boolean;
   private commentPage: { pageNumber: number, pageSize: number, count: number };
   private bottomPos: number;
+  private bottomContent: JSX.Element[];
+
   constructor(props) {
     super(props);
     this.topWrapperRef = React.createRef();
     this.arrowRef = React.createRef();
     this.infoContainerRef = React.createRef();
     this.infoRef = React.createRef();
-    this.switcherRef = React.createRef();
-    this.bottomWrapperRef = React.createRef();
-    this.commentAreaRef = React.createRef();
-    this.recommendListRef = React.createRef();
+    this.bottomAreaRef = React.createRef();
     this.infoExpand = false;
     this.commentPage = {
       pageNumber: 1,
@@ -77,16 +74,18 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
       videoData: {},
       isDataOk: false,
       loading: true,
-      recommendVides: [],
+      recommendVideos: [],
       showLoadMore: true,
       comments: [],
-      isRecommend: true,
       isSwitcherFixed: false,
-      prevId: -999
+      prevId: -999,
+      curInx: 0
     }
   }
 
   /* 以下为自定义方法 */
+
+  /* 数据获取相关 */
   private getPubdate(timestamp) {
     const publicDate = new Date(timestamp * 1000); // unix时间转换成本地时间戳
     let publicDateStr = "";
@@ -122,22 +121,128 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     return publicDateStr;
   }
 
+  private generateBottomTsx = () => {
+    const { recommendVideos, comments } = this.state;
+    if (recommendVideos && comments) {
+      this.bottomContent = [
+        // 推荐列表
+        <div
+          className={style.recommendList}
+          key={"recommendList"}
+        >
+          {
+            this.state.recommendVideos.map(v => (
+              <div className={style.videoWrapper} key={v.aId}>
+                <Link to={"/video/av" + v.aId}>
+                  <div className={style.imageContainer}>
+                    <span className={style.placeholder}>
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#icon-placeholder"></use>
+                      </svg>
+                    </span>
+                    <LazyLoad height="10.575rem">
+                      <img src={this.getPicUrl(v.pic, "@320w_200h")} alt={v.title} />
+                    </LazyLoad>
+                    <div className={style.duration}>{formatDuration(v.duration, "0#:##:##")}</div>
+                  </div>
+                  <div className={style.infoWrapper}>
+                    <div className={style.title}>
+                      {v.title}
+                    </div>
+                    <div className={style.upUser}>
+                      <span onClick={e => {
+                        e.preventDefault();
+                        this.toSpace(v.owner.mId)
+                      }}>
+                        {v.owner.name}
+                      </span>
+                    </div>
+                    <div className={style.videoInfo}>
+                      <span>{formatTenThousand(v.playCount)}次观看</span>
+                      <span>&nbsp;·&nbsp;</span>
+                      <span>{formatTenThousand(v.barrageCount)}弹幕</span>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))
+          }
+          {
+            this.state.loading ? (
+              <div className={style.loading}>加载中...</div>
+            ) : null
+          }
+        </div>,
+        // 评论区
+        this.state.comments.length > 0 ?
+          <div
+            className={style.comment}
+            key={"comment"}
+          >
+            <div className={style.commentList}>
+              {
+                this.state.comments.map((comment, i) => (
+                  <div className={style.commentWrapper} key={i}>
+                    <Link to={"/space/" + comment.user.mId}>
+                      <LazyLoad height="2rem">
+                        <img
+                          className={style.commentUpPic}
+                          src={this.getPicUrl(comment.user.face, "@60w_60h")}
+                          alt={comment.user.name}
+                        />
+                      </LazyLoad>
+                    </Link>
+                    <span className={style.commentTime}>{comment.date}</span>
+                    <div className={style.commentUpUser}>
+                      <Link to={"/space/" + comment.user.mId}>
+                        {comment.user.name}
+                      </Link>
+                    </div>
+                    <div className={style.commentContent}>
+                      {comment.content}
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+            <div className={style.commentsBottom}                          >
+              {
+                this.state.showLoadMore ? (
+                  <div
+                    className={style.loadMore}
+                    onClick={() => { this.loadMoreComment() }}
+                  >
+                    点击加载更多评论
+                  </div>
+                ) : (
+                    <div className={style.noMore}>
+                      没有更多了 ~
+                    </div>
+                  )
+              }
+            </div>
+          </div>
+          : null
+      ];
+    }
+  }
+
   private getRecommentVideos() {
     getRecommendVides(this.props.match.params.aId)
       .then(result => {
         if (result.code === "1") {
-          const recommendVides = result.data.map(item => createVideo(item));
+          const recommendVideos = result.data.map(item => createVideo(item));
           this.setState({
             loading: false,
-            recommendVides
-          });
+            recommendVideos
+          }, () => { this.generateBottomTsx(); });
         }
       });
   }
 
   private getComments() {
     getComments(this.props.match.params.aId, this.commentPage.pageNumber)
-      .then((result) => {
+      .then(result => {
         if (result.code === "1") {
           const page = result.data.page;
           // page.count：总评论数
@@ -166,42 +271,9 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
           this.setState({
             showLoadMore,
             comments: this.state.comments.concat(comments)
-          });
+          }, () => { this.generateBottomTsx(); });
         }
       });
-  }
-
-  //  展开或隐藏全部信息
-  private toggle = () => {
-    const arrowDOM = this.arrowRef.current;
-    const infoContainerDOM = this.infoContainerRef.current; // 显示出来的简介长度
-    const infoDOM = this.infoRef.current; // 简介完整内容长度
-    const titleDOM = infoDOM.getElementsByTagName("div")[0];
-    if (!this.infoExpand) {
-      titleDOM.style.whiteSpace = "normal"; // 若标题太长，收起时不完全显示
-      infoContainerDOM.style.height = infoDOM.offsetHeight + "px";
-      arrowDOM.classList.add(style.rotate);
-      this.infoExpand = true;
-    } else {
-      titleDOM.style.whiteSpace = "nowrap"; // 下拉时显示完整标题
-      infoContainerDOM.style.height = null;
-      arrowDOM.classList.remove(style.rotate);
-      this.infoExpand = false;
-    }
-  }
-
-  // 根据手指滑动距离判断是否切换switcher
-  private shouldSwitch = (fingerMoveDistanceX: number) => {
-    const fingerMoveXAbs = Math.abs(fingerMoveDistanceX);
-    const switchRatio = 0.25; // 手指拖动超过该比例才切换
-    let targetIndex = this.state.isRecommend ? 2 : 1;
-    const isNoContentSide = // 在推荐时手指往右或在评论时手指往左
-      (targetIndex === 2 && fingerMoveDistanceX > 0) || (targetIndex === 1 && fingerMoveDistanceX < 0)
-    if (fingerMoveXAbs === 0 || fingerMoveXAbs < switchRatio * outerWidth || isNoContentSide) {
-      return
-    } else {
-      this.switchBottom(targetIndex);
-    }
   }
 
   private loadMoreComment() {
@@ -226,63 +298,34 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     return `${picURL}?pic=${url}${format + suffix}`;
   }
 
+
+  /* 切换相关 */
+  //  展开或隐藏全部信息
+  private toggle = () => {
+    const arrowDOM = this.arrowRef.current;
+    const infoContainerDOM = this.infoContainerRef.current; // 显示出来的简介长度
+    const infoDOM = this.infoRef.current; // 简介完整内容长度
+    const titleDOM = infoDOM.getElementsByTagName("div")[0];
+    if (!this.infoExpand) {
+      titleDOM.style.whiteSpace = "normal"; // 若标题太长，收起时不完全显示
+      infoContainerDOM.style.height = infoDOM.offsetHeight + "px";
+      arrowDOM.classList.add(style.rotate);
+      this.infoExpand = true;
+    } else {
+      titleDOM.style.whiteSpace = "nowrap"; // 下拉时显示完整标题
+      infoContainerDOM.style.height = null;
+      arrowDOM.classList.remove(style.rotate);
+      this.infoExpand = false;
+    }
+  }
+
   private toSpace(mId) {
     this.props.history.push({
       pathname: "/space/" + mId
     });
   }
 
-  private switchBottom(indx: Number) {
-    const bottomDOM = this.bottomWrapperRef.current;
-    const recDOM = this.recommendListRef.current;
-    const comDOM = this.commentAreaRef.current;
-    switch (indx) {
-      case 1:
-        if (!this.state.isRecommend) {
-          recDOM.classList.add(style.isCurrent);
-          comDOM.classList.remove(style.isCurrent);
-          window.scrollTo(0, this.bottomPos);
-          bottomDOM.style.transform = `translateX(0)`;
-          this.setState({ isRecommend: true });
-        }
-        break;
-      case 2:
-        if (this.state.isRecommend) {
-          comDOM.classList.add(style.isCurrent);
-          recDOM.classList.remove(style.isCurrent);
-          window.scrollTo(0, this.bottomPos);
-          bottomDOM.style.transform = `translateX(-100vw)`;
-          this.setState({ isRecommend: false });
-        }
-        break;
-      default:
-        break;
-    }
-  }
-
-  private setBottomListeners() {
-    // 设置底部切换区域的位置，切换时都跳到这个位置
-    const topWrapperDOM = this.topWrapperRef.current;
-    const switcherDOM = this.switcherRef.current;
-    this.bottomPos = switcherDOM.offsetTop - topWrapperDOM.offsetHeight;
-
-    // 拖动底部区域切换推荐/评论
-    const bottomDOM = this.bottomWrapperRef.current;
-    let initX = 0;
-    let fingerMoveDistanceX = 0;
-    bottomDOM.addEventListener("touchstart", e => {
-      e.stopPropagation();
-      initX = e.touches[0].pageX;
-    });
-    bottomDOM.addEventListener("touchmove", e => {
-      let curX = e.touches[0].pageX;
-      fingerMoveDistanceX = curX - initX;
-    });
-    bottomDOM.addEventListener("touchend", () => {
-      this.shouldSwitch(fingerMoveDistanceX);
-    });
-  }
-
+  /* 设置状态相关 */
   // 记录浏览历史信息
   private saveHistory(video) {
     storage.setViewHistory({
@@ -301,28 +344,26 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
 
     this.saveHistory(this.state.videoData);
 
+    // 设置底部切换区域的位置，切换时都跳到这个位置
     // 不放在定时器里会报错找不到相关Dom节点
     setTimeout(() => {
-      this.setBottomListeners();
+      this.bottomPos = this.bottomAreaRef.current.offsetTop -
+        this.topWrapperRef.current.offsetHeight;
     }, 1);
   }
 
   /* 以下为生命周期函数 */
   public componentDidMount() {
-    this.getRecommentVideos();
     this.getComments();
+    this.getRecommentVideos();
 
     if (this.props.shouldLoad) {
-      this.props.dispatch(getVideoDetail(this.props.match.params.aId)).
-        then(() => { this.setInitStatus(); });
+      this.props.dispatch(getVideoDetail(this.props.match.params.aId))
+        .then(() => { this.setInitStatus(); });
     } else {
       this.setInitStatus();
       this.props.dispatch(setShouldLoad(true));
     }
-
-    setTimeout(() => {
-      this.recommendListRef.current.classList.add(style.isCurrent);
-    }, 1000);
   }
 
   public componentDidUpdate() {
@@ -418,124 +459,19 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                     </div>
                   </div>
                 </div>
-                {/* 切换推荐/评论 */}
-                <div
-                  className={style.switcher}
-                  ref={this.switcherRef}
-                >
-                  <span
-                    className={style.switcherItem + (this.state.isRecommend ? " " + style.actived : "")}
-                    onClick={() => { this.switchBottom(1) }}
-                  >相关推荐</span>
-                  <span
-                    className={style.switcherItem + (this.state.isRecommend ? "" : " " + style.actived)}
-                    onClick={() => { this.switchBottom(2) }}
-                  >评论 ({this.commentPage.count})</span>
-                </div>
-                <div className={style.bottomArea}>
-                  <div className={style.bottomWrapper} ref={this.bottomWrapperRef}>
-                    {/* 推荐列表 */}
-                    <div
-                      className={style.recommendList}
-                      ref={this.recommendListRef}
-                    >
-                      {
-                        this.state.recommendVides.map(v => (
-                          <div className={style.videoWrapper} key={v.aId}>
-                            <Link to={"/video/av" + v.aId}>
-                              <div className={style.imageContainer}>
-                                <span className={style.placeholder}>
-                                  <svg className="icon" aria-hidden="true">
-                                    <use href="#icon-placeholder"></use>
-                                  </svg>
-                                </span>
-                                <LazyLoad height="10.575rem">
-                                  <img src={this.getPicUrl(v.pic, "@320w_200h")} alt={v.title} />
-                                </LazyLoad>
-                                <div className={style.duration}>{formatDuration(v.duration, "0#:##:##")}</div>
-                              </div>
-                              <div className={style.infoWrapper}>
-                                <div className={style.title}>
-                                  {v.title}
-                                </div>
-                                <div className={style.upUser}>
-                                  <span onClick={(e) => {
-                                    e.preventDefault();
-                                    this.toSpace(v.owner.mId)
-                                  }}>
-                                    {v.owner.name}
-                                  </span>
-                                </div>
-                                <div className={style.videoInfo}>
-                                  <span>{formatTenThousand(v.playCount)}次观看</span>
-                                  <span>&nbsp;·&nbsp;</span>
-                                  <span>{formatTenThousand(v.barrageCount)}弹幕</span>
-                                </div>
-                              </div>
-                            </Link>
-                          </div>
-                        ))
-                      }
-                      {
-                        this.state.loading ? (
-                          <div className={style.loading}>加载中...</div>
-                        ) : null
-                      }
-                    </div>
-                    {/* 评论区 */}
-                    {
-                      this.state.comments.length > 0 ? (
-                        <div
-                          className={style.comment}
-                          ref={this.commentAreaRef}
-                        >
-
-                          <div className={style.commentList}>
-                            {
-                              this.state.comments.map((comment, i) => (
-                                <div className={style.commentWrapper} key={i}>
-                                  <Link to={"/space/" + comment.user.mId}>
-                                    <LazyLoad height="2rem">
-                                      <img
-                                        className={style.commentUpPic}
-                                        src={this.getPicUrl(comment.user.face, "@60w_60h")}
-                                        alt={comment.user.name}
-                                      />
-                                    </LazyLoad>
-                                  </Link>
-                                  <span className={style.commentTime}>{comment.date}</span>
-                                  <div className={style.commentUpUser}>
-                                    <Link to={"/space/" + comment.user.mId}>
-                                      {comment.user.name}
-                                    </Link>
-                                  </div>
-                                  <div className={style.commentContent}>
-                                    {comment.content}
-                                  </div>
-                                </div>
-                              ))
-                            }
-                          </div>
-                          <div className={style.commentsBottom}                          >
-                            {
-                              this.state.showLoadMore ? (
-                                <div
-                                  className={style.loadMore}
-                                  onClick={() => { this.loadMoreComment() }}
-                                >
-                                  点击加载更多评论
-                                </div>
-                              ) : (
-                                  <div className={style.noMore}>
-                                    没有更多了 ~
-                                  </div>
-                                )
-                            }
-                          </div>
-                        </div>
-                      ) : null
-                    }
-                  </div>
+                <div className={style.bottomArea} ref={this.bottomAreaRef}>
+                  <Switcher
+                    tabTitle={["相关推荐", `评论 (${this.commentPage.count})`]}
+                    setFatherCurInx={curInx => {
+                      this.setState({ curInx },
+                        // () => { console.log(this.state.curInx); }
+                      );
+                    }}
+                    slideData={this.bottomContent}
+                    curFatherInx={this.state.curInx}
+                    scrollToWhenSwitch={this.bottomPos}
+                    switchRatio={0.25}
+                  />
                 </div>
               </div>
               <ScrollToTop />
