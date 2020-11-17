@@ -6,27 +6,29 @@ import style from "./stylus/switcher.styl?css-modules";
 
 interface SwitcherProps {
   tabTitle: Array<string>,
-  setFatherCurInx: Function
   slideData: JSX.Element[],
-  curFatherInx: number,
+  switchRatio: number,
   scrollToWhenSwitch?: number,
-  switchRatio: number
 }
 
+const { useState } = React;
+
 function Switcher(props: SwitcherProps) {
-  const { tabTitle, setFatherCurInx, slideData, curFatherInx, scrollToWhenSwitch, switchRatio } = props;
+  const { tabTitle, slideData, scrollToWhenSwitch, switchRatio } = props;
+  const [curInx, setCurInx] = useState(0);
 
   return (
     <div className={style.switcherWrapper}>
       <SwitcherTab
         tabTitle={tabTitle}
-        setFatherCurInx={setFatherCurInx}
+        setFatherCurInx={setCurInx}
+        curFatherInx={curInx}
       />
       <SwitcherSlide
         slideData={slideData}
-        curFatherInx={curFatherInx}
+        curFatherInx={curInx}
         scrollToWhenSwitch={scrollToWhenSwitch}
-        setFatherCurInx={setFatherCurInx}
+        setFatherCurInx={setCurInx}
         switchRatio={switchRatio}
       />
     </div>

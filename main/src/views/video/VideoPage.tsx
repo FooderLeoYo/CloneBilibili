@@ -41,7 +41,6 @@ interface VideoPageState {
   comments: any;
   isSwitcherFixed: boolean;
   prevId: number;
-  curInx: number;
 }
 
 class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
@@ -79,7 +78,6 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
       comments: [],
       isSwitcherFixed: false,
       prevId: -999,
-      curInx: 0
     }
   }
 
@@ -462,15 +460,9 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                 <div className={style.bottomArea} ref={this.bottomAreaRef}>
                   <Switcher
                     tabTitle={["相关推荐", `评论 (${this.commentPage.count})`]}
-                    setFatherCurInx={curInx => {
-                      this.setState({ curInx },
-                        // () => { console.log(this.state.curInx); }
-                      );
-                    }}
                     slideData={this.bottomContent}
-                    curFatherInx={this.state.curInx}
-                    scrollToWhenSwitch={this.bottomPos}
                     switchRatio={0.25}
+                    scrollToWhenSwitch={this.bottomPos}
                   />
                 </div>
               </div>

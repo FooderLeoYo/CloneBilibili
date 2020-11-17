@@ -4,17 +4,25 @@ import style from "./switcher-tab.styl?css-modules";
 interface SwitcherTabProps {
   tabTitle: Array<string>,
   setFatherCurInx: Function,
+  curFatherInx: number,
 }
 
 const { useState } = React;
 
 function SwitcherTab(props: SwitcherTabProps) {
-  const { tabTitle, setFatherCurInx } = props;
+  const { tabTitle, setFatherCurInx, curFatherInx } = props;
   const [curTab, setCurTab] = useState(0);
+  const [preFatherInx, setPreFatherInx] = useState(0);
+
 
   function switchTab(index) {
     setCurTab(index);
     setFatherCurInx(index);
+  }
+
+  if (curFatherInx !== preFatherInx) {
+    setCurTab(curFatherInx);
+    setPreFatherInx(curFatherInx);
   }
 
   return (
