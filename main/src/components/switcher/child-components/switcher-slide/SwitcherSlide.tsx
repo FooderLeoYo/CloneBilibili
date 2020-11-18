@@ -15,9 +15,15 @@ function SwitcherSlide(props: SwitcherSlideProps) {
   const { slideData, curFatherInx, scrollToWhenSwitch, setFatherCurInx, switchRatio } = props;
   const switchThreshold = switchRatio * outerWidth;
   const contentWrapperRef = useRef(null);
-
   const [preFatherInx, setPreFatherInx] = useState(0);
-  const [curSlideInx, setCurSlideInx] = useState(0);
+
+  const [curInx, setCurInx] = useState(0);
+  // 解决state closure问题
+  const curInxRef = useRef(curInx);
+  useEffect((() => {
+    curInxRef.current = curInx;
+  }), [curInx]);
+
 
   function switchSlide(indx) {
     const slideDOM = contentWrapperRef.current;
@@ -42,30 +48,23 @@ function SwitcherSlide(props: SwitcherSlideProps) {
     const slideItems = slideDOM.children;
     const slideLen = slideItems.length;
     const fingerMoveXAbs = Math.abs(fingerMoveDistanceX);
+    // 不能直接用curInx，否则会因为state closure，永远只能拿到curSlideInx的初始值
+    const curI = curInxRef.current;
 
     // 在推荐时手指往右或在评论时手指往左
-    const isNoContentSide = (curSlideInx === slideLen - 1 && fingerMoveDistanceX < 0) || (curSlideInx === 0 && fingerMoveDistanceX > 0)
+    const isNoContentSide = (curI === slideLen - 1 && fingerMoveDistanceX < 0) || (curI === 0 && fingerMoveDistanceX > 0)
 
     if (fingerMoveXAbs === 0 || fingerMoveXAbs < switchThreshold || isNoContentSide) {
-      if (isNoContentSide) {
-        //   console.log("slideLen:" + slideLen)
-        // console.log("curSlideInx:" + curSlideInx)
-        //   console.log("fingerMoveDistanceX:" + fingerMoveDistanceX);
-      }
-      //  else {
-      //   console.log("fingerMoveXAbs:" + fingerMoveXAbs);
-      //   console.log("fingerMoveXAbs < switchThreshold:" + (fingerMoveXAbs < switchThreshold));
-      // }
       return
     } else {
       let inx;
       if (fingerMoveDistanceX < 0) {
-        inx = curSlideInx + 1
+        inx = curI + 1;
       } else {
-        inx = curSlideInx - 1
+        inx = curI - 1;
       }
       switchSlide(inx);
-      setCurSlideInx(inx);
+      setCurInx(inx);
       setFatherCurInx(inx);
     }
   }
@@ -91,30 +90,23 @@ function SwitcherSlide(props: SwitcherSlideProps) {
   useEffect((() => {
     const slideDOM = contentWrapperRef.current;
     const slideItems = slideDOM.children;
-
     // 避免slideDOM.children取值较慢时slideItems为空，slideItems[0]
     if (slideItems.length > 0) {
       slideItems[0].classList.add(style.current);
       setSlideListeners(slideDOM);
     }
-  }), [curSlideInx]);
+  }), []);
 
-  // 监听curTabInx，发生变化时进行切换
+  // 当curFatherInx发生变化时进行切换
   if (curFatherInx !== preFatherInx) {
     switchSlide(curFatherInx);
     setPreFatherInx(curFatherInx);
-    setCurSlideInx(curFatherInx);
+    setCurInx(curFatherInx);
   }
-
-  // if (curSlideInx)
-  // useEffect(() => {
-  //   console.log(curSlideInx)
-  //   switchSlide(curSlideInx);
-  // }, [curSlideInx]);
 
   return (
     <div className={style.slideWrapper} >
-      <button onClick={() => { console.log(curSlideInx) }}>点击</button>
+      <button onClick={() => { console.log(curInx) }}>点击</button>
       <div className={style.contentWrapper} ref={contentWrapperRef}>
         {slideData}
       </div>
