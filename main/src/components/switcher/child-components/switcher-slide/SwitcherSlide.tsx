@@ -71,7 +71,7 @@ function SwitcherSlide(props: SwitcherSlideProps) {
     let initX = 0;
     let fingerMoveDistanceX = 0;
 
-    // 拖动底部区域切换推荐/评论
+    // 拖动底部区域时切换推荐/评论
     slideDOM.addEventListener("touchstart", e => {
       initX = e.touches[0].pageX;
       slideDOM.classList.remove(style.moving);
