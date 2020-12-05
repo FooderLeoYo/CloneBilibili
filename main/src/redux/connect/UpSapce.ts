@@ -1,5 +1,5 @@
 import { connect } from "react-redux";
-import UpUser from "../../views/space/UpUser";
+import UpUser from "../../views/space/UpSapce";
 
 const mapStateToProps = state => ({
   shouldLoad: state.shouldLoad,

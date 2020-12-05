@@ -13,24 +13,24 @@ const { useState, useRef, useEffect } = React;
 
 function SwitcherSlide(props: SwitcherSlideProps) {
   const { slideData, curFatherInx, scrollToWhenSwitch, setFatherCurInx, switchRatio } = props;
-  const switchThreshold = switchRatio * outerWidth;
-  const contentWrapperRef = useRef(null);
   const [preFatherInx, setPreFatherInx] = useState(0);
+  const switchThreshold: number = switchRatio * outerWidth;
+  const contentWrapperRef: React.RefObject<HTMLDivElement> = useRef(null);
 
+  // 解决闭包旧数据问题
   const [curInx, setCurInx] = useState(0);
-  // 解决state closure问题
-  const curInxRef = useRef(curInx);
-  useEffect((() => {
+  const curInxRef: React.MutableRefObject<number> = useRef(curInx);
+  if (curInxRef.current !== curInx) {
     curInxRef.current = curInx;
-  }), [curInx]);
-
+  }
 
   function switchSlide(indx) {
-    const slideDOM = contentWrapperRef.current;
-    const slideItems = slideDOM.children;
-    const slideLen = slideItems.length;
+    const slideDOM: HTMLDivElement = contentWrapperRef.current;
+    const slideItems: HTMLCollection = slideDOM.children;
+    const slideLen: number = slideItems.length;
 
-    slideDOM.style.transform = `translateX(-${indx * 100}vw)`;
+    slideDOM.classList.add(style.moving);
+    slideDOM.style.transform = `translate3d(-${indx * 100}vw, 0, 0)`;
     for (let i = 0; i < slideLen; i++) {
       const div = slideItems[i];
       if (i !== indx) {
@@ -39,25 +39,22 @@ function SwitcherSlide(props: SwitcherSlideProps) {
         div.classList.add(style.current);
       }
     }
-    scrollTo(0, scrollToWhenSwitch);
   }
 
   // 根据手指滑动距离判断是否切换switcher
   function shouldSwitch(fingerMoveDistanceX: number) {
-    const slideDOM = contentWrapperRef.current;
-    const slideItems = slideDOM.children;
-    const slideLen = slideItems.length;
-    const fingerMoveXAbs = Math.abs(fingerMoveDistanceX);
+    const slideLen: number = contentWrapperRef.current.children.length;
+    const fingerMoveXAbs: number = Math.abs(fingerMoveDistanceX);
     // 不能直接用curInx，否则会因为state closure，永远只能拿到curSlideInx的初始值
-    const curI = curInxRef.current;
+    const curI: number = curInxRef.current;
+    const isNoContentSide: boolean = (curI === slideLen - 1 && fingerMoveDistanceX < 0) || (curI === 0 && fingerMoveDistanceX > 0)
 
-    // 在推荐时手指往右或在评论时手指往左
-    const isNoContentSide = (curI === slideLen - 1 && fingerMoveDistanceX < 0) || (curI === 0 && fingerMoveDistanceX > 0)
-
-    if (fingerMoveXAbs === 0 || fingerMoveXAbs < switchThreshold || isNoContentSide) {
-      return
+    if (fingerMoveXAbs === 0) {
+      return;
+    } else if (fingerMoveXAbs < switchThreshold || isNoContentSide) {
+      switchSlide(curI);
     } else {
-      let inx;
+      let inx: number;
       if (fingerMoveDistanceX < 0) {
         inx = curI + 1;
       } else {
@@ -66,6 +63,7 @@ function SwitcherSlide(props: SwitcherSlideProps) {
       switchSlide(inx);
       setCurInx(inx);
       setFatherCurInx(inx);
+      scrollTo(0, scrollToWhenSwitch);
     }
   }
 
@@ -75,12 +73,13 @@ function SwitcherSlide(props: SwitcherSlideProps) {
 
     // 拖动底部区域切换推荐/评论
     slideDOM.addEventListener("touchstart", e => {
-      e.stopPropagation();
       initX = e.touches[0].pageX;
+      slideDOM.classList.remove(style.moving);
     });
     slideDOM.addEventListener("touchmove", e => {
-      let curX = e.touches[0].pageX;
-      fingerMoveDistanceX = curX - initX;
+      fingerMoveDistanceX = e.touches[0].pageX - initX;
+      const curPos = -outerWidth * curInxRef.current + fingerMoveDistanceX;
+      slideDOM.style.transform = `translate3d(${curPos}px, 0, 0)`;
     });
     slideDOM.addEventListener("touchend", () => {
       shouldSwitch(fingerMoveDistanceX);
@@ -88,8 +87,9 @@ function SwitcherSlide(props: SwitcherSlideProps) {
   }
 
   useEffect((() => {
-    const slideDOM = contentWrapperRef.current;
-    const slideItems = slideDOM.children;
+    const slideDOM: HTMLDivElement = contentWrapperRef.current;
+    const slideItems: HTMLCollection = slideDOM.children;
+
     // 避免slideDOM.children取值较慢时slideItems为空，slideItems[0]
     if (slideItems.length > 0) {
       slideItems[0].classList.add(style.current);
@@ -106,7 +106,6 @@ function SwitcherSlide(props: SwitcherSlideProps) {
 
   return (
     <div className={style.slideWrapper} >
-      <button onClick={() => { console.log(curInx) }}>点击</button>
       <div className={style.contentWrapper} ref={contentWrapperRef}>
         {slideData}
       </div>

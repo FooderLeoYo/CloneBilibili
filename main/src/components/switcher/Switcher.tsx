@@ -2,7 +2,6 @@ import * as React from "react";
 
 import SwitcherTab from "./child-components/switcher-tab/SwitcherTab";
 import SwitcherSlide from "./child-components/switcher-slide/SwitcherSlide";
-import style from "./stylus/switcher.styl?css-modules";
 
 interface SwitcherProps {
   tabTitle: Array<string>,
@@ -18,7 +17,7 @@ function Switcher(props: SwitcherProps) {
   const [curInx, setCurInx] = useState(0);
 
   return (
-    <div className={style.switcherWrapper}>
+    <>
       <SwitcherTab
         tabTitle={tabTitle}
         setFatherCurInx={setCurInx}
@@ -31,7 +30,7 @@ function Switcher(props: SwitcherProps) {
         setFatherCurInx={setCurInx}
         switchRatio={switchRatio}
       />
-    </div>
+    </>
   );
 }
 

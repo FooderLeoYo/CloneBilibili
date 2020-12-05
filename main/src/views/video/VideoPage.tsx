@@ -124,10 +124,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     if (recommendVideos && comments) {
       this.bottomContent = [
         // 推荐列表
-        <div
-          className={style.recommendList}
-          key={"recommendList"}
-        >
+        <div className={style.recommendList} key={"recommendList"}>
           {
             this.state.recommendVideos.map(v => (
               <div className={style.videoWrapper} key={v.aId}>
@@ -173,10 +170,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
         </div>,
         // 评论区
         this.state.comments.length > 0 ?
-          <div
-            className={style.comment}
-            key={"comment"}
-          >
+          <div className={style.comment} key={"comment"}>
             <div className={style.commentList}>
               {
                 this.state.comments.map((comment, i) => (

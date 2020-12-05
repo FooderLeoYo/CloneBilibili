@@ -16,7 +16,7 @@ interface HistoryState {
   noHistory: boolean;
 }
 
-class History extends React.Component<null, HistoryState> {
+class MySpace extends React.Component<null, HistoryState> {
   /* 以下为初始化 */
   constructor(props) {
     super(props);
@@ -156,8 +156,8 @@ class History extends React.Component<null, HistoryState> {
                 {/* item[0]是map的键，item[1]是值 */}
                 <div className={style.itemTitle}>{item[0]}</div>
                 {
-                  item[1].map(history => (
-                    <div className={style.itemWrapper} key={history.aId}>
+                  item[1].map((history, i) => (
+                    <div className={style.itemWrapper} key={i}>
                       <Link to={"/video/av" + history.aId}>
                         <div className={style.imgContainer}>
                           <span className={style.placeholder}>
@@ -209,4 +209,4 @@ class History extends React.Component<null, HistoryState> {
   }
 }
 
-export default History;
+export default MySpace;

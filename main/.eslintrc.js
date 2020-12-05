@@ -12,7 +12,7 @@ module.exports = {
   ],
   plugins: [
     "@typescript-eslint",
-    "react-hooks"
+    "react-hooks",
   ],
   parserOptions: {
     sourceType: "module",
@@ -27,7 +27,9 @@ module.exports = {
     "no-console": "off",
     "no-undef": "off",
     "no-restricted-globals": "off",
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "react-hooks/rules-of-hooks": "error",
+    // "react-hooks/exhaustive-deps": "warn"
   },
   settings: {
     react: {

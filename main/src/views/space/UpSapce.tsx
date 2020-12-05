@@ -33,7 +33,7 @@ interface UpUserState {
   videos: Video[];
 }
 
-class UpUser extends React.Component<UpUserProps, UpUserState> {
+class UpSapce extends React.Component<UpUserProps, UpUserState> {
   /* 以下为初始化 */
   private arrowRef: React.RefObject<HTMLDivElement>; // 展开个人简介箭头
   private introduceRef: React.RefObject<HTMLDivElement>; // up主个人信息区
@@ -307,6 +307,6 @@ class UpUser extends React.Component<UpUserProps, UpUserState> {
   }
 }
 
-UpUser.contextType = Context;
+UpSapce.contextType = Context;
 
-export default UpUser;
+export default UpSapce;

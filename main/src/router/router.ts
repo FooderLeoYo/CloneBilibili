@@ -58,12 +58,12 @@ const router = [
     routes: [
       {
         path: "/space",
-        component: loadable(() => import(/* webpackChunkName: 'history' */ "../views/space/History")),
+        component: loadable(() => import(/* webpackChunkName: 'history' */ "../views/space/MySpace")),
         exact: true
       },
       {
         path: "/space/:mId",
-        component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../redux/connect/UpUser")),
+        component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../redux/connect/UpSapce")),
         asyncData: (store, param) => {
           return store.dispatch(getUpUserInfo(param.mId));
         }

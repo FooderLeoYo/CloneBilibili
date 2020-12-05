@@ -6,7 +6,7 @@ import { NestedRoute } from "../../router/router";
 import banner from "../../assets/images/banner-top.png";
 import style from "./stylus/space.styl?css-modules";
 
-const Space = props => {
+function Space(props) {
   return (
     <div className="space">
       <div className={style.topWrapper}>
@@ -27,6 +27,6 @@ const Space = props => {
     </div>
   )
 
-};
+}
 
 export default Space;

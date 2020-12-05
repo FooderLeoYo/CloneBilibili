@@ -14,7 +14,6 @@ function SwitcherTab(props: SwitcherTabProps) {
   const [curTab, setCurTab] = useState(0);
   const [preFatherInx, setPreFatherInx] = useState(0);
 
-
   function switchTab(index) {
     setCurTab(index);
     setFatherCurInx(index);
