@@ -377,7 +377,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const barrageContainerDOM = this.barrageContainerRef.current;
     const barrageWidth = barrageContainerDOM.getBoundingClientRect().width;
     const barrageHeight = barrageContainerDOM.getBoundingClientRect().height;
-    const distanceToTop = barrageContainerDOM.getBoundingClientRect().top + window.scrollY;
     const videoDOM = this.videoRef.current;
     let initVolume: number;
     let initTime: number;
@@ -396,7 +395,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
         this.setState({ gestureType: 0 });
         startPos = {
           x: e.targetTouches[0].pageX,
-          y: e.targetTouches[0].pageY - distanceToTop
+          y: e.targetTouches[0].pageY
         };
         initVolume = videoDOM.volume;
         initTime = videoDOM.currentTime;
@@ -404,21 +403,21 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       });
 
       barrageContainerDOM.addEventListener("touchmove", e => {
+        // 防止滑动拖动整个videoPage
+        e.preventDefault();
+        e.stopPropagation();
+
         const curPos = {
           x: e.targetTouches[0].pageX,
-          y: e.targetTouches[0].pageY - distanceToTop
+          y: e.targetTouches[0].pageY
         };
         const moveRatio = {
           x: (curPos.x - startPos.x) / barrageWidth,
           y: (curPos.y - startPos.y) / barrageHeight
         };
 
-        // 防止滑动拖动整个videoPage
-        e.preventDefault();
-        e.stopPropagation();
-
         // 判断this.state.gestureType === 1目的是：
-        // 在本次touch中，如果手势之前已经处于“上下滑动”状态，则不会进入“左右滑动”
+        // 在本次touch中，如果手势之前已经处于“左右滑动”状态，则不会进入“上下滑动”
         if (this.state.gestureType === 1 || (this.state.gestureType === 0 &&
           Math.abs(moveRatio.x) > Math.abs(moveRatio.y))) { // 左右滑动
           const progressDOM = this.progressRef.current;

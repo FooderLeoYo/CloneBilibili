@@ -17,11 +17,16 @@ function SwitcherSlide(props: SwitcherSlideProps) {
   const switchThreshold: number = switchRatio * outerWidth;
   const contentWrapperRef: React.RefObject<HTMLDivElement> = useRef(null);
 
-  // 解决闭包旧数据问题
   const [curInx, setCurInx] = useState(0);
   const curInxRef: React.MutableRefObject<number> = useRef(curInx);
   if (curInxRef.current !== curInx) {
     curInxRef.current = curInx;
+  }
+
+  const [gestureType, setGestureType] = useState(-1); // 0代表上下滑动，1代表左右滑动
+  const gesRef: React.MutableRefObject<number> = useRef(gestureType);
+  if (gesRef.current !== gestureType) {
+    gesRef.current = gestureType;
   }
 
   function switchSlide(indx) {
@@ -42,20 +47,20 @@ function SwitcherSlide(props: SwitcherSlideProps) {
   }
 
   // 根据手指滑动距离判断是否切换switcher
-  function shouldSwitch(fingerMoveDistanceX: number) {
+  function shouldSwitch(moveDistanceX: number) {
     const slideLen: number = contentWrapperRef.current.children.length;
-    const fingerMoveXAbs: number = Math.abs(fingerMoveDistanceX);
+    const moveXAbs: number = Math.abs(moveDistanceX);
     // 不能直接用curInx，否则会因为state closure，永远只能拿到curSlideInx的初始值
     const curI: number = curInxRef.current;
-    const isNoContentSide: boolean = (curI === slideLen - 1 && fingerMoveDistanceX < 0) || (curI === 0 && fingerMoveDistanceX > 0)
+    const isNoContentSide: boolean = (curI === slideLen - 1 && moveDistanceX < 0) || (curI === 0 && moveDistanceX > 0)
 
-    if (fingerMoveXAbs === 0) {
+    if (moveXAbs === 0) {
       return;
-    } else if (fingerMoveXAbs < switchThreshold || isNoContentSide) {
+    } else if (moveXAbs < switchThreshold || isNoContentSide) {
       switchSlide(curI);
     } else {
       let inx: number;
-      if (fingerMoveDistanceX < 0) {
+      if (moveDistanceX < 0) {
         inx = curI + 1;
       } else {
         inx = curI - 1;
@@ -63,26 +68,57 @@ function SwitcherSlide(props: SwitcherSlideProps) {
       switchSlide(inx);
       setCurInx(inx);
       setFatherCurInx(inx);
-      scrollTo(0, scrollToWhenSwitch);
+      // scrollTo(0, scrollToWhenSwitch);
+    }
+  }
+
+  // 保证手指拖动时只沿x或y滑动
+  function avoidSway(moveDistance, DOM, e) {
+    const curGes = gesRef.current;
+
+    if (curGes === 0 || (curGes === -1 && Math.abs(moveDistance.x) < Math.abs(moveDistance.y))) {
+      if (gestureType !== 0) {
+        setGestureType(0);
+      }
+      return;
+    } else {
+      e.preventDefault();
+      if (gestureType !== 1) {
+        setGestureType(1);
+      }
+      DOM.style.transform =
+        `translate3d(${-outerWidth * curInxRef.current + moveDistance.x}px, 0, 0)`;
     }
   }
 
   function setSlideListeners(slideDOM) {
-    let initX = 0;
-    let fingerMoveDistanceX = 0;
+    let startPos = {
+      x: 0,
+      y: 0
+    };
+    let moveDistance = {
+      x: 0,
+      y: 0
+    };
 
     // 拖动底部区域时切换推荐/评论
     slideDOM.addEventListener("touchstart", e => {
-      initX = e.touches[0].pageX;
+      setGestureType(-1);
+      startPos = {
+        x: e.touches[0].pageX,
+        y: e.targetTouches[0].pageY
+      };
       slideDOM.classList.remove(style.moving);
     });
     slideDOM.addEventListener("touchmove", e => {
-      fingerMoveDistanceX = e.touches[0].pageX - initX;
-      const curPos = -outerWidth * curInxRef.current + fingerMoveDistanceX;
-      slideDOM.style.transform = `translate3d(${curPos}px, 0, 0)`;
+      moveDistance = {
+        x: e.touches[0].pageX - startPos.x,
+        y: e.touches[0].pageY - startPos.y
+      };
+      avoidSway(moveDistance, slideDOM, e);
     });
     slideDOM.addEventListener("touchend", () => {
-      shouldSwitch(fingerMoveDistanceX);
+      shouldSwitch(moveDistance.x);
     });
   }
 
