@@ -29,6 +29,12 @@ function SwitcherSlide(props: SwitcherSlideProps) {
     gesRef.current = gestureType;
   }
 
+  const [preY, setPreY] = useState(0);
+  const preYRef: React.MutableRefObject<number> = useRef(preY);
+  if (preYRef.current !== preY) {
+    preYRef.current = preY;
+  }
+
   function switchSlide(indx) {
     const slideDOM: HTMLDivElement = contentWrapperRef.current;
     const slideItems: HTMLCollection = slideDOM.children;
@@ -53,6 +59,7 @@ function SwitcherSlide(props: SwitcherSlideProps) {
     // 不能直接用curInx，否则会因为state closure，永远只能拿到curSlideInx的初始值
     const curI: number = curInxRef.current;
     const isNoContentSide: boolean = (curI === slideLen - 1 && moveDistanceX < 0) || (curI === 0 && moveDistanceX > 0)
+    const prePos = preYRef.current;
 
     if (moveXAbs === 0) {
       return;
@@ -68,7 +75,10 @@ function SwitcherSlide(props: SwitcherSlideProps) {
       switchSlide(inx);
       setCurInx(inx);
       setFatherCurInx(inx);
-      // scrollTo(0, scrollToWhenSwitch);
+      // 跳转到之前浏览的位置
+      const y = pageYOffset;
+      scrollTo(0, prePos);
+      setPreY(y);
     }
   }
 
@@ -124,12 +134,18 @@ function SwitcherSlide(props: SwitcherSlideProps) {
 
   useEffect((() => {
     const slideDOM: HTMLDivElement = contentWrapperRef.current;
-    const slideItems: HTMLCollection = slideDOM.children;
+    const slideItems: any = slideDOM.children;
+    const slideLen = slideItems.length;
 
+    // slideDOM.style.setProperty('--n', '4');
     // 避免slideDOM.children取值较慢时slideItems为空，slideItems[0]
-    if (slideItems.length > 0) {
+    if (slideLen > 0) {
+      for (let i = 1; i < slideLen; i++) {
+        slideItems[i].style.transform = `translate3d(${i * 100}vw, 0, 0)`;
+      }
       slideItems[0].classList.add(style.current);
       setSlideListeners(slideDOM);
+      setPreY(slideDOM.getBoundingClientRect().top);
     }
   }), []);
 
