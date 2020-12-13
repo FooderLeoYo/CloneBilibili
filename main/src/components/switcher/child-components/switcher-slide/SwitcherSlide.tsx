@@ -4,15 +4,15 @@ import style from "./switcher-slide.styl?css-modules";
 interface SwitcherSlideProps {
   slideData: JSX.Element[],
   curFatherInx: number,
-  scrollToWhenSwitch?: number,
   setFatherCurInx: Function,
   switchRatio: number, // 手指拖动超过该比例才切换
+  doSthWithNewInx?: Function
 }
 
 const { useState, useRef, useEffect } = React;
 
 function SwitcherSlide(props: SwitcherSlideProps) {
-  const { slideData, curFatherInx, scrollToWhenSwitch, setFatherCurInx, switchRatio } = props;
+  const { slideData, curFatherInx, setFatherCurInx, switchRatio, doSthWithNewInx } = props;
   const [preFatherInx, setPreFatherInx] = useState(0);
   const switchThreshold: number = switchRatio * outerWidth;
   const contentWrapperRef: React.RefObject<HTMLDivElement> = useRef(null);
@@ -72,6 +72,7 @@ function SwitcherSlide(props: SwitcherSlideProps) {
       } else {
         inx = curI - 1;
       }
+
       switchSlide(inx);
       setCurInx(inx);
       setFatherCurInx(inx);
@@ -79,6 +80,8 @@ function SwitcherSlide(props: SwitcherSlideProps) {
       const y = pageYOffset;
       scrollTo(0, prePos);
       setPreY(y);
+      // 父组件回调
+      doSthWithNewInx(inx);
     }
   }
 
@@ -137,7 +140,6 @@ function SwitcherSlide(props: SwitcherSlideProps) {
     const slideItems: any = slideDOM.children;
     const slideLen = slideItems.length;
 
-    // slideDOM.style.setProperty('--n', '4');
     // 避免slideDOM.children取值较慢时slideItems为空，slideItems[0]
     if (slideLen > 0) {
       for (let i = 1; i < slideLen; i++) {

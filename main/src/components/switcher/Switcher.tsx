@@ -7,13 +7,13 @@ interface SwitcherProps {
   tabTitle: Array<string>,
   slideData: JSX.Element[],
   switchRatio: number,
-  scrollToWhenSwitch?: number,
+  doSthWithNewInx?: Function
 }
 
 const { useState } = React;
 
 function Switcher(props: SwitcherProps) {
-  const { tabTitle, slideData, scrollToWhenSwitch, switchRatio } = props;
+  const { tabTitle, slideData, switchRatio, doSthWithNewInx } = props;
   const [curInx, setCurInx] = useState(0);
 
   return (
@@ -22,13 +22,14 @@ function Switcher(props: SwitcherProps) {
         tabTitle={tabTitle}
         setFatherCurInx={setCurInx}
         curFatherInx={curInx}
+        doSthWithNewInx={doSthWithNewInx}
       />
       <SwitcherSlide
         slideData={slideData}
         curFatherInx={curInx}
-        scrollToWhenSwitch={scrollToWhenSwitch}
         setFatherCurInx={setCurInx}
         switchRatio={switchRatio}
+        doSthWithNewInx={doSthWithNewInx}
       />
     </>
   );

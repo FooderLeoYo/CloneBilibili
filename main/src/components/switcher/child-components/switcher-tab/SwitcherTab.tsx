@@ -5,18 +5,22 @@ interface SwitcherTabProps {
   tabTitle: Array<string>,
   setFatherCurInx: Function,
   curFatherInx: number,
+  doSthWithNewInx?: Function
 }
 
 const { useState } = React;
 
 function SwitcherTab(props: SwitcherTabProps) {
-  const { tabTitle, setFatherCurInx, curFatherInx } = props;
+  const { tabTitle, setFatherCurInx, curFatherInx, doSthWithNewInx } = props;
   const [curTab, setCurTab] = useState(0);
   const [preFatherInx, setPreFatherInx] = useState(0);
 
   function switchTab(index) {
-    setCurTab(index);
-    setFatherCurInx(index);
+    if (index !== curTab) {
+      setCurTab(index);
+      setFatherCurInx(index);
+      doSthWithNewInx(index);
+    }
   }
 
   if (curFatherInx !== preFatherInx) {
@@ -31,7 +35,7 @@ function SwitcherTab(props: SwitcherTabProps) {
           return (
             <span
               className={style.switcherItem + (curTab === index ? " " + style.actived : "")}
-              onClick={() => { switchTab(index) }}
+              onClick={() => { switchTab(index); }}
               key={index}
             >{title}</span>
           );

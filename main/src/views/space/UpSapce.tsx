@@ -16,7 +16,7 @@ import { formatTenThousand } from "../../customed-methods/string";
 import { getPicSuffix } from "../../customed-methods/image";
 
 import tips from "../../assets/images/nocontent.png";
-import style from "./stylus/up-user.styl?css-modules";
+import style from "./stylus/up-space.styl?css-modules";
 
 interface UpUserProps {
   shouldLoad: boolean;
@@ -166,7 +166,7 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
     const { upUser } = this.props;
 
     return (
-      <div className="up-user">
+      <div className={style.upSapce}>
         {
           upUser ? (
             <Helmet>

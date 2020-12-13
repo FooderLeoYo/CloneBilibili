@@ -53,7 +53,6 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
 
   private infoExpand: boolean;
   private commentPage: { pageNumber: number, pageSize: number, count: number };
-  private bottomPos: number;
   private bottomContent: JSX.Element[];
 
   constructor(props) {
@@ -169,54 +168,50 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
           }
         </div>,
         // 评论区
-        this.state.comments.length > 0 ?
-          <div className={style.comment} key={"comment"}>
-            <div className={style.commentList}>
-              {
-                this.state.comments.map((comment, i) => (
-                  <div className={style.commentWrapper} key={i}>
+        <div className={style.comment} key={"comment"}>
+          <div className={style.commentList}>
+            {
+              this.state.comments.map((comment, i) => (
+                <div className={style.commentWrapper} key={i}>
+                  <Link to={"/space/" + comment.user.mId}>
+                    <LazyLoad height="2rem">
+                      <img
+                        className={style.commentUpPic}
+                        src={this.getPicUrl(comment.user.face, "@60w_60h")}
+                        alt={comment.user.name}
+                      />
+                    </LazyLoad>
+                  </Link>
+                  <span className={style.commentTime}>{comment.date}</span>
+                  <div className={style.commentUpUser}>
                     <Link to={"/space/" + comment.user.mId}>
-                      <LazyLoad height="2rem">
-                        <img
-                          className={style.commentUpPic}
-                          src={this.getPicUrl(comment.user.face, "@60w_60h")}
-                          alt={comment.user.name}
-                        />
-                      </LazyLoad>
+                      {comment.user.name}
                     </Link>
-                    <span className={style.commentTime}>{comment.date}</span>
-                    <div className={style.commentUpUser}>
-                      <Link to={"/space/" + comment.user.mId}>
-                        {comment.user.name}
-                      </Link>
-                    </div>
-                    <div className={style.commentContent}>
-                      {comment.content}
-                    </div>
                   </div>
-                ))
-              }
-            </div>
-            <div className={style.commentsBottom}                          >
-              {
-                this.state.showLoadMore ? (
-                  <div
-                    className={style.loadMore}
-                    onClick={() => { this.loadMoreComment() }}
-                  >
-                    点击加载更多评论
+                  <div className={style.commentContent}>
+                    {comment.content}
                   </div>
-                ) : (
-                    <div className={style.noMore}>
-                      没有更多了 ~
-                    </div>
-                  )
-              }
-            </div>
+                </div>
+              ))
+            }
           </div>
-          : null,
-        <div key={3}>333333333333333333333</div>,
-        <div key={4}>4444444444444444444444</div>
+          <div className={style.commentsBottom}>
+            {
+              this.state.showLoadMore ? (
+                <div
+                  className={style.loadMore}
+                  onClick={() => { this.loadMoreComment() }}
+                >
+                  点击加载更多评论
+                </div>
+              ) : (
+                  <div className={style.noMore}>
+                    没有更多了 ~
+                  </div>
+                )
+            }
+          </div>
+        </div>
       ];
     }
   }
@@ -337,13 +332,6 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     });
 
     this.saveHistory(this.state.videoData);
-
-    // 设置底部切换区域的位置，切换时都跳到这个位置
-    // 不放在定时器里会报错找不到相关Dom节点
-    setTimeout(() => {
-      this.bottomPos = this.bottomAreaRef.current.offsetTop -
-        this.topWrapperRef.current.offsetHeight;
-    }, 1);
   }
 
   /* 以下为生命周期函数 */
@@ -457,8 +445,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                   <Switcher
                     tabTitle={["相关推荐", `评论 (${this.commentPage.count})`]}
                     slideData={this.bottomContent}
-                    switchRatio={0.25}
-                    scrollToWhenSwitch={this.bottomPos}
+                    switchRatio={0.15}
                   />
                 </div>
               </div>

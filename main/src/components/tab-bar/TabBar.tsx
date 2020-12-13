@@ -64,7 +64,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
 
   // 路由跳转时更新state进而触发页面更新，否则路由跳转时路径变化无法触发页面更新
   public static getDerivedStateFromProps(props, state) {
-    if (props.currentIndex !== undefined) {
+    if (props.currentIndex) {
       if (props.currentIndex !== state.currentIndex) {
         return {
           currentIndex: props.currentIndex

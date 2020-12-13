@@ -2,18 +2,19 @@ import * as React from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
+import { Switcher } from "../../components/switcher/Switcher";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 
 import storage, { ViewHistory } from "../../customed-methods/storage";
 
 import { formatDate } from "../../customed-methods/datetime";
-import style from "./stylus/history.styl?css-modules";
+import style from "./stylus/my-space.styl?css-modules";
 import tips from "../../assets/images/nocontent.png";
 
 interface HistoryState {
-  itemIndex: number;
   histories: Array<[string, ViewHistory[]]>;
   noHistory: boolean;
+  tabInx: number;
 }
 
 class MySpace extends React.Component<null, HistoryState> {
@@ -21,9 +22,9 @@ class MySpace extends React.Component<null, HistoryState> {
   constructor(props) {
     super(props);
     this.state = {
-      itemIndex: 0,
       histories: [],
-      noHistory: false
+      noHistory: false,
+      tabInx: 0
     }
   }
 
@@ -125,32 +126,12 @@ class MySpace extends React.Component<null, HistoryState> {
 
   /* 以下为渲染部分 */
   public render() {
-    return (
-      <div className="history">
-        <Helmet>
-          <title>个人空间</title>
-        </Helmet>
-        {/* tabbar */}
-        <div className={style.tabWrapper}>
-          <div
-            className={style.tabItem + (this.state.itemIndex === 0 ? " " + style.current : "")}
-            onClick={() => { this.setState({ itemIndex: 0 }) }}
-          >
-            <span>历史记录</span>
-          </div>
-          <div
-            className={style.tabItem + (this.state.itemIndex === 1 ? " " + style.current : "")}
-            onClick={() => { this.setState({ itemIndex: 1 }) }}
-          >
-            <span>我的投稿</span>
-          </div>
-        </div>
-        {/* 播放历史记录 */}
-        <div
-          className={style.history}
-          style={{ display: this.state.itemIndex === 0 ? "block" : "none" }}
-        >
-          {
+    const hasHistory = this.state.histories.length !== 0
+    const slideData = [
+      // 历史记录
+      <div className={style.history} key={"history"}>
+        {
+          hasHistory ? (
             this.state.histories.map((item, i) => (
               <div className={style.historyItem} key={i}>
                 {/* item[0]是map的键，item[1]是值 */}
@@ -179,31 +160,45 @@ class MySpace extends React.Component<null, HistoryState> {
                 }
               </div>
             ))
-          }
-          { // 无播放记录时
-            this.state.histories.length === 0 ? (
+          ) : (
               <div className={style.tips}>
                 <img src={tips} />
                 <div className={style.text}>你还没有历史记录</div>
                 <div className={style.text}>快去发现&nbsp;<Link to="/index">新内容</Link>&nbsp;吧！</div>
               </div>
-            ) : (
-                <span className={style.clearHistory} onClick={this.clearHistory}>
-                  <svg className="icon" aria-hidden="true">
-                    <use href="#icon-clean"></use>
-                  </svg>
-                </span>
-              )
-          }
-        </div>
-        {/* 我的投稿 */}
-        <div style={{ display: this.state.itemIndex === 1 ? "block" : "none" }}>
-          <div className={style.tips}>
-            <img src={tips} />
-            <div className={style.text}>小哔睡着了~</div>
-          </div>
+            )
+        }
+      </div>,
+      // 个人投稿
+      <div key={"myVideos"} className={style.myVideos}>
+        <img src={tips} />
+        <div className={style.text}>小哔睡着了~</div>
+      </div>
+    ];
+    const showClean = hasHistory && this.state.tabInx === 0;
+
+    return (
+      <div className={style.mySpace}>
+        <Helmet>
+          <title>个人空间</title>
+        </Helmet>
+        <div className={style.switcherArea}>
+          < Switcher
+            tabTitle={["历史记录", "我的投稿"]}
+            slideData={slideData}
+            switchRatio={0.15}
+            doSthWithNewInx={tabInx => { this.setState({ tabInx }); }}
+          />
         </div>
         <ScrollToTop />
+        {
+          showClean ? <div className={style.clearHistory} onClick={this.clearHistory}>
+            <svg className="icon" aria-hidden="true">
+              <use href="#icon-clean"></use>
+            </svg>
+          </div> : null
+        }
+
       </div>
     );
   }
