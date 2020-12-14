@@ -7,14 +7,16 @@ interface SwitcherProps {
   tabTitle: Array<string>,
   slideData: JSX.Element[],
   switchRatio: number,
+  scrollToAtFirstSwitch?: number,
   doSthWithNewInx?: Function
 }
 
 const { useState } = React;
 
 function Switcher(props: SwitcherProps) {
-  const { tabTitle, slideData, switchRatio, doSthWithNewInx } = props;
+  const { tabTitle, slideData, switchRatio, scrollToAtFirstSwitch, doSthWithNewInx } = props;
   const [curInx, setCurInx] = useState(0);
+  const [switchType, setSwitchType] = useState(0); // 切换类型：0、滑动；1、tab
 
   return (
     <>
@@ -22,6 +24,8 @@ function Switcher(props: SwitcherProps) {
         tabTitle={tabTitle}
         setFatherCurInx={setCurInx}
         curFatherInx={curInx}
+        switchType={switchType}
+        setSwitchType={setSwitchType}
         doSthWithNewInx={doSthWithNewInx}
       />
       <SwitcherSlide
@@ -29,6 +33,9 @@ function Switcher(props: SwitcherProps) {
         curFatherInx={curInx}
         setFatherCurInx={setCurInx}
         switchRatio={switchRatio}
+        switchType={switchType}
+        setSwitchType={setSwitchType}
+        scrollToAtFirstSwitch={scrollToAtFirstSwitch}
         doSthWithNewInx={doSthWithNewInx}
       />
     </>

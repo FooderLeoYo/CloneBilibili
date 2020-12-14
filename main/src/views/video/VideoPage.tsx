@@ -54,6 +54,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
   private infoExpand: boolean;
   private commentPage: { pageNumber: number, pageSize: number, count: number };
   private bottomContent: JSX.Element[];
+  private bottomPos: number;
 
   constructor(props) {
     super(props);
@@ -332,6 +333,13 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     });
 
     this.saveHistory(this.state.videoData);
+
+    // 设置底部切换区域的位置，首次切换时都跳到这个位置
+    // 不放在定时器里会报错找不到相关Dom节点
+    setTimeout(() => {
+      this.bottomPos = this.bottomAreaRef.current.offsetTop -
+        this.topWrapperRef.current.offsetHeight;
+    }, 1);
   }
 
   /* 以下为生命周期函数 */
@@ -446,6 +454,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                     tabTitle={["相关推荐", `评论 (${this.commentPage.count})`]}
                     slideData={this.bottomContent}
                     switchRatio={0.15}
+                    scrollToAtFirstSwitch={this.bottomPos}
                   />
                 </div>
               </div>

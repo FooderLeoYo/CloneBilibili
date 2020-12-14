@@ -19,8 +19,15 @@ interface HistoryState {
 
 class MySpace extends React.Component<null, HistoryState> {
   /* 以下为初始化 */
+  private myspaceRef: React.RefObject<HTMLDivElement>;
+  private switcherRef: React.RefObject<HTMLDivElement>;
+  private bottomPos: number;
+
   constructor(props) {
     super(props);
+    this.myspaceRef = React.createRef();
+    this.switcherRef = React.createRef();
+
     this.state = {
       histories: [],
       noHistory: false,
@@ -122,6 +129,9 @@ class MySpace extends React.Component<null, HistoryState> {
 
       this.setState({ histories: [...historyMap] });
     }
+
+    const navDOM: any = this.myspaceRef.current.parentElement.firstElementChild
+    this.bottomPos = this.switcherRef.current.offsetTop - navDOM.offsetHeight;
   }
 
   /* 以下为渲染部分 */
@@ -178,15 +188,16 @@ class MySpace extends React.Component<null, HistoryState> {
     const showClean = hasHistory && this.state.tabInx === 0;
 
     return (
-      <div className={style.mySpace}>
+      <div className={style.mySpace} ref={this.myspaceRef} >
         <Helmet>
           <title>个人空间</title>
         </Helmet>
-        <div className={style.switcherArea}>
+        <div className={style.switcherArea} ref={this.switcherRef}>
           < Switcher
             tabTitle={["历史记录", "我的投稿"]}
             slideData={slideData}
             switchRatio={0.15}
+            scrollToAtFirstSwitch={this.bottomPos}
             doSthWithNewInx={tabInx => { this.setState({ tabInx }); }}
           />
         </div>
