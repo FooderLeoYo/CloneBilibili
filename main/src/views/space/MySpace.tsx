@@ -137,7 +137,7 @@ class MySpace extends React.Component<null, HistoryState> {
   /* 以下为渲染部分 */
   public render() {
     const hasHistory = this.state.histories.length !== 0
-    const slideData = [
+    const sliderData = [
       // 历史记录
       <div className={style.history} key={"history"}>
         {
@@ -195,7 +195,7 @@ class MySpace extends React.Component<null, HistoryState> {
         <div className={style.switcherArea} ref={this.switcherRef}>
           < Switcher
             tabTitle={["历史记录", "我的投稿"]}
-            slideData={slideData}
+            sliderData={sliderData}
             switchRatio={0.15}
             scrollToAtFirstSwitch={this.bottomPos}
             doSthWithNewInx={tabInx => { this.setState({ tabInx }); }}

@@ -1,11 +1,11 @@
 import * as React from "react";
 
 import SwitcherTab from "./child-components/switcher-tab/SwitcherTab";
-import SwitcherSlide from "./child-components/switcher-slide/SwitcherSlide";
+import SwitcherSlider from "./child-components/switcher-slider/SwitcherSlider";
 
 interface SwitcherProps {
   tabTitle: Array<string>,
-  slideData: JSX.Element[],
+  sliderData: JSX.Element[],
   switchRatio: number,
   scrollToAtFirstSwitch?: number,
   doSthWithNewInx?: Function
@@ -14,7 +14,7 @@ interface SwitcherProps {
 const { useState } = React;
 
 function Switcher(props: SwitcherProps) {
-  const { tabTitle, slideData, switchRatio, scrollToAtFirstSwitch, doSthWithNewInx } = props;
+  const { tabTitle, sliderData, switchRatio, scrollToAtFirstSwitch, doSthWithNewInx } = props;
   const [curInx, setCurInx] = useState(0);
   const [switchType, setSwitchType] = useState(0); // 切换类型：0、滑动；1、tab
 
@@ -28,8 +28,8 @@ function Switcher(props: SwitcherProps) {
         setSwitchType={setSwitchType}
         doSthWithNewInx={doSthWithNewInx}
       />
-      <SwitcherSlide
-        slideData={slideData}
+      <SwitcherSlider
+        sliderData={sliderData}
         curFatherInx={curInx}
         setFatherCurInx={setCurInx}
         switchRatio={switchRatio}
@@ -42,4 +42,4 @@ function Switcher(props: SwitcherProps) {
   );
 }
 
-export { Switcher, SwitcherTab, SwitcherSlide };
+export { Switcher, SwitcherTab, SwitcherSlider };

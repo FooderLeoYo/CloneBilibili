@@ -21,9 +21,8 @@ interface NavProps {
 const { useState, useRef } = React;
 
 function Nav(props: NavProps) {
-
+  const { firstTabBarData, secondTabBarData } = props;
   const drawerRef = useRef(null);
-
   const [lvTwoTabIndex, setLvTwoTabIndex] = useState(props.lvTwoTabIndex);
 
   const handleFirstClick = tab => {
@@ -47,7 +46,7 @@ function Nav(props: NavProps) {
     if (tab.id === 0) {
       // window.location.href = "/live";
       props.history.push({ pathname: "/live" });
-    } else if (tab.id === 9) {
+    } else if (tab.id === 7) {
       // window.location.href = `/live/list` +
       //   `?parent_area_id=0` +
       //   `&parent_area_name=全部直播` +
@@ -88,7 +87,7 @@ function Nav(props: NavProps) {
       <div className={style.partition}>
         <div className={style.tabBar}>
           <TabBar
-            data={props.firstTabBarData}
+            data={firstTabBarData}
             type={"indicate"}
             onClick={handleFirstClick}
             currentIndex={14}
@@ -104,7 +103,7 @@ function Nav(props: NavProps) {
       {/* 抽屉 */}
       <div className={style.drawerPosition}>
         <Drawer
-          data={props.firstTabBarData}
+          data={firstTabBarData}
           ref={drawerRef}
           onClick={handleFirstClick}
           currentIndex={14}
@@ -114,7 +113,7 @@ function Nav(props: NavProps) {
       {
         <div className={style.secondTabBar}>
           <TabBar
-            data={props.secondTabBarData}
+            data={secondTabBarData}
             type={"hightlight"}
             currentIndex={lvTwoTabIndex}
             onClick={handleSecondClick}

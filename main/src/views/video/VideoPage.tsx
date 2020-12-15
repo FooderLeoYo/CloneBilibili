@@ -452,7 +452,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                 <div className={style.bottomArea} ref={this.bottomAreaRef}>
                   <Switcher
                     tabTitle={["相关推荐", `评论 (${this.commentPage.count})`]}
-                    slideData={this.bottomContent}
+                    sliderData={this.bottomContent}
                     switchRatio={0.15}
                     scrollToAtFirstSwitch={this.bottomPos}
                   />

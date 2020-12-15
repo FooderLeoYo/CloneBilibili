@@ -35,13 +35,10 @@ interface ListProps {
   location: Location;
   dispatch: (action: any) => Promise<void>;
   history: History;
-  oneLevelPartitions: PartitionType[];
+  lvOnePartitions: PartitionType[];
 }
 
-const {
-  useState,
-  useEffect
-} = React;
+const { useState, useEffect, useMemo } = React;
 
 const livePage: { pageNumber: number, pageSize: number, totalPage: number } = {
   // 首次点击“加载更多”调用getLives时，就要根据pageNumber获取数据
@@ -60,32 +57,61 @@ function List(props: ListProps) {
   const [isLoadMore, setIsLoadMore] = useState(false);
   const [prevSearch, setPrevSearch] = useState(props.location.search);
 
-  let firstRender: boolean = true;
   // 第一次render
+  let firstRender: boolean = true;
   if (firstRender) {
     livePage.totalPage = Math.ceil(liveListData.total / livePage.pageSize);
     firstRender = false;
   }
 
   /* 导航栏数据 */
-  // 一级导航栏数据
-  const { oneLevelPartitions } = props;
-  const firstTabBarData = [{ id: 0, name: "首页" } as PartitionType].concat(oneLevelPartitions);
-  firstTabBarData.push(new PartitionType(-1, "直播"));
+  const { lvOnePartitions } = props;
+  // 一级导航栏
+  const lvOneTabBarData: PartitionType[] = useMemo(() => {
+    let temp: PartitionType[] = [{ id: 0, name: "首页" } as PartitionType].concat(lvOnePartitions);
+    temp.push(new PartitionType(-1, "直播"));
 
-  // 二级导航栏数据
+    return temp;
+  }, []);
   const { itemList } = props.liveData;
-  const twoLevelPartitions = itemList.map((item, i) =>
-    new PartitionType(i + 1, item.title)
-  );
-  const secondTabBarData = [{ id: 0, name: "直播首页" } as PartitionType].concat(twoLevelPartitions);
-  secondTabBarData.push(new PartitionType(9, "全部直播"));
-  const secondQueryPar = itemList.map(item =>
-    new LiveSecQueryParType(item.parentAreaId, item.parentAreaName, item.areaId, item.areaName)
-  );
-  const lvTwoInx = secondTabBarData.findIndex(parittion =>
-    parittion.name === query.parent_area_name
-  );
+  // 二级导航栏
+  const lvTwoPartitions: PartitionType[] = useMemo(() => {
+    if (itemList.length > 0) {
+      // 这里用map而不用forEach是因为forEach没有返回值而是直接修改原数组
+      const temp = itemList.map((item, i) =>
+        new PartitionType(i + 1, item.title)
+      );
+
+      return temp;
+    }
+  }, [itemList]);
+  const lvTwoTabBarData: PartitionType[] = useMemo(() => {
+    if (lvTwoPartitions) {
+      const temp = [{ id: 0, name: "直播首页" } as PartitionType].concat(lvTwoPartitions);
+      temp.push(new PartitionType(7, "所有直播"));
+
+      return temp;
+    }
+  }, [lvTwoPartitions]);
+  const secondQueryPar: LiveSecQueryParType[] = useMemo(() => {
+    if (itemList.length > 0) {
+      const temp = itemList.map(item =>
+        new LiveSecQueryParType(item.parentAreaId, item.parentAreaName, item.areaId, item.areaName)
+      );
+
+      return temp;
+    }
+  }, [itemList]);
+  const parentName = query.parent_area_name;
+  const lvTwoInx: number = useMemo(() => {
+    if (lvTwoTabBarData) {
+      const temp = lvTwoTabBarData.findIndex(parittion =>
+        parittion.name === parentName
+      );
+
+      return temp;
+    }
+  }, [parentName]);
 
   /* 以下为自定义方法 */
   const getLives = () => {
@@ -148,8 +174,8 @@ function List(props: ListProps) {
             <div className={style.head}>
               <Nav
                 history={props.history}
-                firstTabBarData={firstTabBarData}
-                secondTabBarData={secondTabBarData}
+                firstTabBarData={lvOneTabBarData}
+                secondTabBarData={lvTwoTabBarData}
                 secondQueryPar={secondQueryPar}
                 lvTwoTabIndex={lvTwoInx}
               />

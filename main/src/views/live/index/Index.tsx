@@ -2,7 +2,6 @@ import * as React from "react";
 import { History } from "history";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
-import { forceCheck } from "react-lazyload";
 
 import Context from "../../../context";
 import getLiveData from "../../../redux/async-action-creators/live/index";
@@ -32,10 +31,10 @@ interface IndexProps {
     }>,
   },
   history: History,
-  oneLevelPartitions: PartitionType[],
+  lvOnePartitions: PartitionType[],
 }
 
-const { useEffect, useState } = React;
+const { useEffect, useState, useMemo } = React;
 
 function Index(props: IndexProps) {
   /* 以下为初始化 */
@@ -43,21 +42,44 @@ function Index(props: IndexProps) {
   const { shouldLoad, dispatch } = props;
   // 轮播图和直播类型数据
   const { bannerList, itemList } = props.liveData;
+
   // 导航栏数据
-  // 一级导航栏数据
-  const { oneLevelPartitions } = props;
-  const firstTabBarData = [{ id: 0, name: "首页" } as PartitionType].concat(oneLevelPartitions);
-  firstTabBarData.push(new PartitionType(-1, "直播"));
-  // 二级导航栏数据
-  // 这里用map而不用forEach是因为forEach没有返回值而是直接修改原数组
-  const twoLevelPartitions = itemList.map((item, i) =>
-    new PartitionType(i + 1, item.title)
-  );
-  const secondTabBarData = [{ id: 0, name: "直播首页" } as PartitionType].concat(twoLevelPartitions);
-  secondTabBarData.push(new PartitionType(9, "所有直播"));
-  const secondQueryPar = itemList.map(item =>
-    new LiveSecQueryParType(item.parentAreaId, item.parentAreaName, item.areaId, item.areaName)
-  );
+  // 一级导航栏
+  const { lvOnePartitions } = props;
+  const lvOneTabBarData: PartitionType[] = useMemo(() => {
+    let temp: PartitionType[] = [{ id: 0, name: "首页" } as PartitionType].concat(lvOnePartitions);
+    temp.push(new PartitionType(-1, "直播"));
+
+    return temp;
+  }, []);
+  // 二级导航栏
+  const lvTwoPartitions: PartitionType[] = useMemo(() => {
+    if (itemList.length > 0) {
+      // 这里用map而不用forEach是因为forEach没有返回值而是直接修改原数组
+      const temp = itemList.map((item, i) =>
+        new PartitionType(i + 1, item.title)
+      );
+
+      return temp;
+    }
+  }, [itemList]);
+  const lvTwoTabBarData: PartitionType[] = useMemo(() => {
+    if (lvTwoPartitions) {
+      const temp = [{ id: 0, name: "直播首页" } as PartitionType].concat(lvTwoPartitions);
+      temp.push(new PartitionType(7, "所有直播"));
+
+      return temp;
+    }
+  }, [lvTwoPartitions]);
+  const secondQueryPar: LiveSecQueryParType[] = useMemo(() => {
+    if (itemList.length > 0) {
+      const temp = itemList.map(item =>
+        new LiveSecQueryParType(item.parentAreaId, item.parentAreaName, item.areaId, item.areaName)
+      );
+
+      return temp;
+    }
+  }, [itemList]);
 
   useEffect(() => {
     const Swiper = require("swiper");
@@ -79,7 +101,7 @@ function Index(props: IndexProps) {
       setIsDataOk(true);
       dispatch(setShouldLoad(true));
     }
-  }, []);  // 传入空数组，组件第一次挂载后调用，组件更新不回调
+  }, []);
 
   /* 以下为渲染部分 */
   return (
@@ -92,8 +114,8 @@ function Index(props: IndexProps) {
           <div>
             <Nav
               history={props.history}
-              firstTabBarData={firstTabBarData}
-              secondTabBarData={secondTabBarData}
+              firstTabBarData={lvOneTabBarData}
+              secondTabBarData={lvTwoTabBarData}
               lvTwoTabIndex={0}
               secondQueryPar={secondQueryPar}
             />

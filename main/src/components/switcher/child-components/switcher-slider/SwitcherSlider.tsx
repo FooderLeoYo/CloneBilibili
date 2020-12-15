@@ -1,8 +1,8 @@
 import * as React from "react";
-import style from "./switcher-slide.styl?css-modules";
+import style from "./switcher-slider.styl?css-modules";
 
-interface SwitcherSlideProps {
-  slideData: JSX.Element[],
+interface SwitcherSliderProps {
+  sliderData: JSX.Element[],
   curFatherInx: number,
   setFatherCurInx: Function,
   switchRatio: number, // 手指拖动超过该比例才切换
@@ -14,11 +14,10 @@ interface SwitcherSlideProps {
 
 const { useState, useRef, useEffect } = React;
 
-function SwitcherSlide(props: SwitcherSlideProps) {
+function SwitcherSlider(props: SwitcherSliderProps) {
   /* 以下为初始化 */
-  const { slideData, curFatherInx, setFatherCurInx, switchRatio, switchType, setSwitchType, scrollToAtFirstSwitch, doSthWithNewInx } = props;
+  const { sliderData, curFatherInx, setFatherCurInx, switchRatio, switchType, setSwitchType, scrollToAtFirstSwitch, doSthWithNewInx } = props;
   const switchThreshold: number = switchRatio * outerWidth;
-  const slideWrapperRef: React.RefObject<HTMLDivElement> = useRef(null);
   const contentWrapperRef: React.RefObject<HTMLDivElement> = useRef(null);
 
   /* 解决事件回调中的闭包问题 */
@@ -38,54 +37,52 @@ function SwitcherSlide(props: SwitcherSlideProps) {
   if (switchTypeRef.current !== switchType) { switchTypeRef.current = switchType; }
 
   /* 以下为自定义方法 */
-  function switchSlide(indx) {
-    const slideDOM: HTMLDivElement = contentWrapperRef.current;
-    const slideItems: HTMLCollection = slideDOM.children;
-    const slideLen: number = slideItems.length;
+  function switchSlider(indx) {
+    const sliderDOM: HTMLDivElement = contentWrapperRef.current;
+    const sliderItems: HTMLCollection = sliderDOM.children;
+    const sliderLen: number = sliderItems.length;
 
-    slideDOM.classList.add(style.moving);
-    slideDOM.style.transform = `translate3d(-${indx * 100}vw, 0, 0)`;
+    sliderDOM.classList.add(style.moving);
+    sliderDOM.style.transform = `translate3d(-${indx * 100}vw, 0, 0)`;
 
-    for (let i = 0; i < slideLen; i++) {
-      const div = slideItems[i];
-      if (i !== indx) {
-        div.classList.remove(style.current);
-      } else {
-        div.classList.add(style.current);
-      }
+    for (let i = 0; i < sliderLen; i++) {
+      const div = sliderItems[i];
+
+      if (i !== indx) { div.classList.remove(style.current); }
+      else { div.classList.add(style.current); }
     }
   }
 
   function scrollToLastPos() {
-    const y = pageYOffset;
+    const leaveY = pageYOffset;
+    const jumpTo = preYRef.current;
 
-    scrollTo(0, preYRef.current);
-    setPreY(y);
+    // 放在延迟中是因为要等切换到的slide添加style.current，不然slide高度为0
+    // 由于加了延迟，所以这里不能直接用preYRef.current，否则拿到的就是下面setPreY以后的新值
+    // 而是改为利用闭包拿到旧值
+    setTimeout(() => { scrollTo(0, jumpTo); }, 1);
+    setPreY(leaveY);
   }
 
   // 根据手指滑动距离判断是否切换switcher
   function shouldSwitch(moveDistanceX: number) {
-    const slideLen: number = contentWrapperRef.current.children.length;
+    const sliderLen: number = contentWrapperRef.current.children.length;
     const moveXAbs: number = Math.abs(moveDistanceX);
-    // 不能直接用curInx，否则会因为state closure，永远只能拿到curSlideInx的初始值
+    // 不能直接用curInx，否则会因为state closure，永远只能拿到curSliderInx的初始值
     const curI: number = curInxRef.current;
-    const isNoContentSide: boolean = (curI === slideLen - 1 && moveDistanceX < 0) || (curI === 0 && moveDistanceX > 0)
+    const isNoContentSide: boolean = (curI === sliderLen - 1 && moveDistanceX < 0) || (curI === 0 && moveDistanceX > 0)
 
-    if (moveXAbs === 0) {
-      return;
-    } else if (moveXAbs < switchThreshold || isNoContentSide) {
-      switchSlide(curI);
+    if (moveXAbs === 0) { return; }
+    else if (moveXAbs < switchThreshold || isNoContentSide) {
+      switchSlider(curI);
     } else {
       let inx: number;
-      if (moveDistanceX < 0) {
-        inx = curI + 1;
-      } else {
-        inx = curI - 1;
-      }
+      if (moveDistanceX < 0) { inx = curI + 1; }
+      else { inx = curI - 1; }
 
       if (switchTypeRef.current === 1) { setSwitchType(0); }
       scrollToLastPos();
-      switchSlide(inx);
+      switchSlider(inx);
       setFatherCurInx(inx);
       setCurInx(inx);
       // 父组件回调
@@ -108,7 +105,7 @@ function SwitcherSlide(props: SwitcherSlideProps) {
     }
   }
 
-  function setSlideListeners(slideDOM) {
+  function setSliderListeners(sliderDOM) {
     let startPos = {
       x: 0,
       y: 0
@@ -119,38 +116,36 @@ function SwitcherSlide(props: SwitcherSlideProps) {
     };
 
     // 拖动底部区域时切换推荐/评论
-    slideDOM.addEventListener("touchstart", e => {
+    sliderDOM.addEventListener("touchstart", e => {
       setGestureType(-1);
       startPos = {
         x: e.touches[0].pageX,
         y: e.targetTouches[0].pageY
       };
-      slideDOM.classList.remove(style.moving);
+      sliderDOM.classList.remove(style.moving);
     });
-    slideDOM.addEventListener("touchmove", e => {
+    sliderDOM.addEventListener("touchmove", e => {
       moveDistance = {
         x: e.touches[0].pageX - startPos.x,
         y: e.touches[0].pageY - startPos.y
       };
-      avoidSway(moveDistance, slideDOM, e);
+      avoidSway(moveDistance, sliderDOM, e);
     });
-    slideDOM.addEventListener("touchend", () => {
-      shouldSwitch(moveDistance.x);
-    });
+    sliderDOM.addEventListener("touchend", () => { shouldSwitch(moveDistance.x); });
   }
 
   useEffect((() => {
-    const slideDOM: HTMLDivElement = contentWrapperRef.current;
-    const slideItems: any = slideDOM.children;
-    const slideLen = slideItems.length;
+    const sliderDOM: HTMLDivElement = contentWrapperRef.current;
+    const sliderItems: any = sliderDOM.children;
+    const sliderLen = sliderItems.length;
 
-    // 避免slideDOM.children取值较慢时slideItems为空，slideItems[0]
-    if (slideLen > 0) {
-      for (let i = 1; i < slideLen; i++) {
-        slideItems[i].style.transform = `translate3d(${i * 100}vw, 0, 0)`;
+    // 避免sliderDOM.children取值较慢时sliderItems为空，sliderItems[0]
+    if (sliderLen > 0) {
+      for (let i = 1; i < sliderLen; i++) {
+        sliderItems[i].style.transform = `translate3d(${i * 100}vw, 0, 0)`;
       }
-      slideItems[0].classList.add(style.current);
-      setSlideListeners(slideDOM);
+      sliderItems[0].classList.add(style.current);
+      setSliderListeners(sliderDOM);
     }
   }), []);
 
@@ -161,18 +156,18 @@ function SwitcherSlide(props: SwitcherSlideProps) {
   useEffect(() => {
     if (switchType === 1) {
       scrollToLastPos();
-      switchSlide(curFatherInx);
+      switchSlider(curFatherInx);
       setCurInx(curFatherInx);
     }
   }, [curFatherInx]);
 
   return (
-    <div className={style.slideWrapper} ref={slideWrapperRef}>
+    <div className={style.sliderWrapper} >
       <div className={style.contentWrapper} ref={contentWrapperRef}>
-        {slideData}
+        {sliderData}
       </div>
     </div>
   );
 }
 
-export default SwitcherSlide;
+export default SwitcherSlider;

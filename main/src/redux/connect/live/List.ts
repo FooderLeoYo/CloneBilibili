@@ -4,7 +4,7 @@ import List from "../../../views/live/list/List";
 const mapStateToProps = state => ({
   shouldLoad: state.shouldLoad,
   liveListData: state.liveListData,
-  oneLevelPartitions: state.oneLevelPartitions,
+  lvOnePartitions: state.oneLevelPartitions,
   liveData: state.liveData
 });
 
