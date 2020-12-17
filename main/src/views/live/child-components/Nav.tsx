@@ -13,7 +13,7 @@ interface NavProps {
   history: History,
   firstTabBarData: PartitionType[],
   secondTabBarData: PartitionType[],
-  lvTwoTabIndex: number,
+  lvTwoInx: number,
   secondQueryPar: LiveSecQueryParType[],
   sendLvTowInx?: any,
 }
@@ -21,9 +21,9 @@ interface NavProps {
 const { useState, useRef } = React;
 
 function Nav(props: NavProps) {
-  const { firstTabBarData, secondTabBarData } = props;
+  const { firstTabBarData, secondTabBarData, lvTwoInx } = props;
   const drawerRef = useRef(null);
-  const [lvTwoTabIndex, setLvTwoTabIndex] = useState(props.lvTwoTabIndex);
+  const [lvTwoTabIndex, setLvTwoTabIndex] = useState(lvTwoInx);
 
   const handleFirstClick = tab => {
     if (tab.id === -1) {

@@ -1,10 +1,21 @@
 import * as React from "react";
+import { History } from "history";
+import { Video } from "../../../class-object-creators";
 
 import VideoItem from "../../../components/video-item/VideoItem";
-
 import style from "./stylus/partition.styl?css-modules";
 
-const Partition = props => {
+interface PartitionProps {
+  data: {
+    id: number,
+    name: string,
+    videos: Video[]
+  },
+  history: History,
+  getPicUrl: Function,
+}
+
+function Partition(props: PartitionProps) {
   const { data, history, getPicUrl } = props;
 
   return (

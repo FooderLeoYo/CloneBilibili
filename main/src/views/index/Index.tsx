@@ -198,7 +198,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       <div className="index">
         {
           !this.state.isDataOk ? <LoadingCutscene /> :
-            <div>
+            <>
               <div className={style.topWrapper}>
                 {/* 顶部工具栏 */}
                 <Header />
@@ -248,7 +248,7 @@ class Index extends React.Component<IndexProps, IndexState> {
                 </div>
               </div>
               <ScrollToTop />
-            </div>
+            </>
         }
 
       </div>

@@ -4,6 +4,7 @@ import LazyLoad, { forceCheck } from "react-lazyload";
 import { History } from "history";
 import { Link, match } from "react-router-dom";
 
+import Header from "./child-components/header/Header"
 import TabBar from "../../components/tab-bar/TabBar";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 
@@ -37,7 +38,7 @@ class Ranking extends React.Component<RankingProps, RankingState> {
     super(props);
     const { shouldLoad } = props;
     this.state = {
-      currentTabIndex: -9,
+      currentTabIndex: 0,
       loading: shouldLoad
     }
   }
@@ -49,9 +50,8 @@ class Ranking extends React.Component<RankingProps, RankingState> {
     if (process.env.REACT_ENV === "server") {
       // 服务端获取图片后缀
       suffix = this.props.staticContext.picSuffix;
-    } else {
-      suffix = getPicSuffix();
-    }
+    } else { suffix = getPicSuffix(); }
+
     return `${picURL}?pic=${url}${format + suffix}`;
   }
 
@@ -81,12 +81,9 @@ class Ranking extends React.Component<RankingProps, RankingState> {
           });
           this.setState({ loading: false });
         });
-    } else {
-      this.props.dispatch(setShouldLoad(true));
-    }
-    setTimeout(() => {
-      forceCheck();
-    }, 10);
+    } else { this.props.dispatch(setShouldLoad(true)); }
+
+    setTimeout(() => { forceCheck(); }, 10);
   }
 
   public getSnapshotBeforeUpdate() {
@@ -94,9 +91,7 @@ class Ranking extends React.Component<RankingProps, RankingState> {
   }
 
   public componentDidUpdate(prevProps, prevState, scroll) {
-    if (scroll) {
-      window.scrollTo(0, 0);
-    }
+    if (scroll) { scrollTo(0, 0); }
   }
 
   /* 以下为渲染部分 */
@@ -113,18 +108,8 @@ class Ranking extends React.Component<RankingProps, RankingState> {
           ) : null
         }
         <div className={style.topWrapper}>
-          {/* 头部 */}
-          <div className={style.header}>
-            <span
-              onClick={() => { window.history.back(); }}
-              className={style.backBtn}
-            >
-              <svg className="icon" aria-hidden="true">
-                <use href="#icon-back"></use>
-              </svg>
-            </span>
-            <span>排行榜</span>
-          </div>
+          {/* header */}
+          <Header />
           {/* tabbar */}
           <TabBar
             data={rankingPartitions}

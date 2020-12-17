@@ -65,16 +65,16 @@ function List(props: ListProps) {
   }
 
   /* 导航栏数据 */
-  const { lvOnePartitions } = props;
   // 一级导航栏
+  const { lvOnePartitions } = props;
   const lvOneTabBarData: PartitionType[] = useMemo(() => {
     let temp: PartitionType[] = [{ id: 0, name: "首页" } as PartitionType].concat(lvOnePartitions);
     temp.push(new PartitionType(-1, "直播"));
 
     return temp;
   }, []);
-  const { itemList } = props.liveData;
   // 二级导航栏
+  const { itemList } = props.liveData;
   const lvTwoPartitions: PartitionType[] = useMemo(() => {
     if (itemList.length > 0) {
       // 这里用map而不用forEach是因为forEach没有返回值而是直接修改原数组
@@ -88,7 +88,7 @@ function List(props: ListProps) {
   const lvTwoTabBarData: PartitionType[] = useMemo(() => {
     if (lvTwoPartitions) {
       const temp = [{ id: 0, name: "直播首页" } as PartitionType].concat(lvTwoPartitions);
-      temp.push(new PartitionType(7, "所有直播"));
+      temp.push(new PartitionType(7, "全部直播"));
 
       return temp;
     }
@@ -108,7 +108,6 @@ function List(props: ListProps) {
       const temp = lvTwoTabBarData.findIndex(parittion =>
         parittion.name === parentName
       );
-
       return temp;
     }
   }, [parentName]);
@@ -170,14 +169,14 @@ function List(props: ListProps) {
       </Helmet>
       {
         !isDataOk ? <LoadingCutscene /> :
-          <div>
+          <>
             <div className={style.head}>
               <Nav
                 history={props.history}
                 firstTabBarData={lvOneTabBarData}
                 secondTabBarData={lvTwoTabBarData}
                 secondQueryPar={secondQueryPar}
-                lvTwoTabIndex={lvTwoInx}
+                lvTwoInx={lvTwoInx}
               />
             </div>
             <Context.Consumer>
@@ -227,7 +226,7 @@ function List(props: ListProps) {
                         }}>
                           {!isLoadMore ?
                             (livePage.pageNumber <= livePage.totalPage ?
-                              "请给我更多！" : "没有更多了！")
+                              "请给我更多！" : "没有更多了")
                             : "加载中..."}
                         </div>
                       </div>
@@ -237,7 +236,7 @@ function List(props: ListProps) {
               )}
             </Context.Consumer>
             <ScrollToTop />
-          </div>
+          </>
       }
     </div>
   );

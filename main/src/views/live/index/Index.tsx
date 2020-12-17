@@ -66,7 +66,7 @@ function Index(props: IndexProps) {
   const lvTwoTabBarData: PartitionType[] = useMemo(() => {
     if (lvTwoPartitions) {
       const temp = [{ id: 0, name: "直播首页" } as PartitionType].concat(lvTwoPartitions);
-      temp.push(new PartitionType(7, "所有直播"));
+      temp.push(new PartitionType(7, "全部直播"));
 
       return temp;
     }
@@ -111,12 +111,12 @@ function Index(props: IndexProps) {
       </Helmet>
       {
         !isDataOk ? <LoadingCutscene /> :
-          <div>
+          <>
             <Nav
               history={props.history}
               firstTabBarData={lvOneTabBarData}
               secondTabBarData={lvTwoTabBarData}
-              lvTwoTabIndex={0}
+              lvTwoInx={0}
               secondQueryPar={secondQueryPar}
             />
             <Context.Consumer>
@@ -206,7 +206,7 @@ function Index(props: IndexProps) {
                   </section>
                 )}
             </Context.Consumer>
-          </div>
+          </>
       }
     </div>
   );

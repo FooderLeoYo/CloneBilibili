@@ -55,27 +55,26 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
   }
 
   /* 以下为生命周期函数 */
+  // 等待父组件初始化数据（有些初始化依赖异步数据，如Raking的currentTabIndex）后再执行
   public componentDidMount() {
-    // 等待父组件初始化数据（有些初始化依赖异步数据，如Raking的currentTabIndex）后再执行
-    setTimeout(() => { this.resetScroll(); }, 100);
+    this.resetScroll();
   }
 
   // 路由跳转时更新state进而触发页面更新，否则路由跳转时路径变化无法触发页面更新
-  public static getDerivedStateFromProps(props, state) {
-    if (props.currentIndex) {
-      if (props.currentIndex !== state.currentIndex) {
-        return { currentIndex: props.currentIndex }
-      }
-    }
-    return state;
-  }
+  // public static getDerivedStateFromProps(props, state) {
+  //   if (props.currentIndex) {
+  //     if (props.currentIndex !== state.curInx) {
+  //       return { curInx: props.currentIndex }
+  //     }
+  //   }
+  //   return state;
+  // }
 
-  // 当在路由跳转下的点击切换tab后，如果当前tab超出了tabbar的可视范围，则将其滚动到tabbar的第二个位置
-  public componentDidUpdate(prevProps, prevState) {
-    if (prevProps.currentIndex !== this.state.curInx) {
-      this.resetScroll();
-    }
-  }
+  // public componentDidUpdate(prevProps, prevState) {
+  //   if (prevProps.currentIndex !== this.state.curInx) {
+  //     this.resetScroll();
+  //   }
+  // }
 
   /* 以下为渲染部分 */
   public render() {

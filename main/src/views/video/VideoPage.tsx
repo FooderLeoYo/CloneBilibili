@@ -391,7 +391,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
         </Helmet>
         {
           !isDataOk ? <LoadingCutscene /> :
-            <div>
+            <>
               <div className={style.topWrapper} ref={this.topWrapperRef}>
                 <HeaderWithBack />
               </div>
@@ -459,7 +459,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                 </div>
               </div>
               <ScrollToTop />
-            </div>
+            </>
         }
       </div>
     );

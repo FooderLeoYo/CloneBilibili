@@ -366,7 +366,7 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
         </Helmet>
         {
           !this.state.isDataOk ? <LoadingCutscene /> :
-            <div>
+            <>
               {/* 顶部 */}
               <div className={style.topWrapper}>
                 <Header />
@@ -465,7 +465,7 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
                 }
               </div>
               <ScrollToTop />
-            </div>
+            </>
         }
       </div>
     );
