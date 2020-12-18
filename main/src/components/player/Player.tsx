@@ -591,13 +591,13 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const progressBtnDOM = this.progressBtnRef.current;
     const currentTimeDOM = this.currentTimeRef.current;
 
-
     let rate = -1; // 拖拽进度比例
 
     // 触碰进度条时，设置width和left
     progressBtnDOM.addEventListener("touchstart", e => {
       e.stopPropagation();
-      clearTimeout(this.ctrBarTimer);
+      if (this.ctrBarTimer !== 0) { clearTimeout(this.ctrBarTimer); }
+      if (this.easeTimer !== 0) { clearTimeout(this.easeTimer); }
       videoDOM.removeEventListener("timeupdate", this.setTimeupdateListener);
     });
 
@@ -609,18 +609,16 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       const touch = e.touches[0];
       rate = (touch.pageX - this.progressLeft) / this.progressWidth;
       // 手指点在进度条以外
-      if (rate > 1) {
-        rate = 1;
-      } else if (rate < 0) {
-        rate = 0;
-      }
-      const currentTime = videoDOM.duration * rate;
-      progressDOM.style.width = `${rate * 100}%`;
-      currentTimeDOM.innerHTML = formatDuration(currentTime, "0#:##");
+      if (rate > 1) { rate = 1; }
+      else if (rate < 0) { rate = 0; }
+      // 进度条以内
+      else {
+        const currentTime = videoDOM.duration * rate;
+        progressDOM.style.width = `${rate * 100}%`;
+        currentTimeDOM.innerHTML = formatDuration(currentTime, "0#:##");
 
-      this.controlBarRef.current.classList.remove(style.graduallyHide);
-      clearTimeout(this.ctrBarTimer);
-      clearTimeout(this.easeTimer);
+        this.controlBarRef.current.classList.remove(style.graduallyHide);
+      }
     });
 
     progressBtnDOM.addEventListener("touchend", e => {

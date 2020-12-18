@@ -16,7 +16,7 @@ interface PartitionProps {
 }
 
 function Partition(props: PartitionProps) {
-  const { data, history, getPicUrl } = props;
+  const { data, getPicUrl, history } = props;
 
   return (
     <div className={style.partition}>

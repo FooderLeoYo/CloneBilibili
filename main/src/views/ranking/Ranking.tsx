@@ -40,7 +40,7 @@ class Ranking extends React.Component<RankingProps, RankingState> {
     this.state = {
       currentTabIndex: 0,
       loading: shouldLoad
-    }
+    };
   }
 
   /* 以下为自定义方法 */
@@ -56,16 +56,17 @@ class Ranking extends React.Component<RankingProps, RankingState> {
   }
 
   public handleClick = tab => {
+    const tabID = tab.id;
     const currentTabIndex = this.props.rankingPartitions.findIndex(parittion =>
-      parittion.id === parseInt(tab.id, 10)
+      parittion.id === parseInt(tabID, 10)
     );
-    // 将this.state.currentTabIndex改成当前点击项
     this.setState({
       currentTabIndex,
       loading: true
     });
-    // 获取currentTabIndex对应的展示数据并保存到store中
-    this.props.dispatch(getVideoList(tab.id))
+    // 这里不用history.push是因为按返回时需要回到channhel
+    // 如果用了push那么返回的将是前一个点击的tab
+    this.props.dispatch(getVideoList(tabID))
       .then(() => { this.setState({ loading: false }); });
   }
 
@@ -76,8 +77,7 @@ class Ranking extends React.Component<RankingProps, RankingState> {
         .then(() => {
           this.setState({
             currentTabIndex: this.props.rankingPartitions.findIndex(parittion =>
-              parittion.id === parseInt(this.props.match.params.rId, 10)
-            )
+              parittion.id === parseInt(this.props.match.params.rId, 10))
           });
           this.setState({ loading: false });
         });
@@ -116,6 +116,7 @@ class Ranking extends React.Component<RankingProps, RankingState> {
             type={"indicate"}
             currentIndex={this.state.currentTabIndex}
             onClick={this.handleClick}
+            needForcedUpdate={true}
           />
         </div>
         <div className={style.topBottom} />

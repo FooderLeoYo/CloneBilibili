@@ -4,14 +4,15 @@ import style from "./tab-bar.styl?css-modules";
 import { PartitionType } from "../../class-object-creators";
 
 interface TabBarProps {
-  type: string;
-  data: PartitionType[];
-  onClick?: any;
-  currentIndex?: number;
+  type: string,
+  data: PartitionType[],
+  onClick?: any,
+  currentIndex?: number,
+  needForcedUpdate?: boolean
 }
 
 interface TabBarState {
-  curInx: number;
+  curInx: number
 }
 
 class TabBar extends React.Component<TabBarProps, TabBarState> {
@@ -60,21 +61,21 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     this.resetScroll();
   }
 
-  // 路由跳转时更新state进而触发页面更新，否则路由跳转时路径变化无法触发页面更新
-  // public static getDerivedStateFromProps(props, state) {
-  //   if (props.currentIndex) {
-  //     if (props.currentIndex !== state.curInx) {
-  //       return { curInx: props.currentIndex }
-  //     }
-  //   }
-  //   return state;
-  // }
+  public static getDerivedStateFromProps(props, state) {
+    const curInx = props.currentIndex;
+    if (props.needForcedUpdate && curInx) {
+      if (curInx !== state.curInx) {
+        return { curInx };
+      }
+    }
+    return state;
+  }
 
-  // public componentDidUpdate(prevProps, prevState) {
-  //   if (prevProps.currentIndex !== this.state.curInx) {
-  //     this.resetScroll();
-  //   }
-  // }
+  public componentDidUpdate(prevProps, prevState) {
+    if (this.props.needForcedUpdate && prevProps.currentIndex !== this.state.curInx) {
+      this.resetScroll();
+    }
+  }
 
   /* 以下为渲染部分 */
   public render() {

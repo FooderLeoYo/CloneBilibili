@@ -57,11 +57,18 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
   private drawerRef: React.RefObject<Drawer>;
   private videoLatestId: number;
   private rankingPartitions: PartitionType[]; // 用于获取点击“排行榜”后，跳转到的url中最后的id
+  private history: History;
+  private shouldLoad: boolean;
+  private dispatch: (action: any) => Promise<void>;
+
 
   constructor(props) {
     super(props);
     this.drawerRef = React.createRef();
     this.prevLvTwoTabIndex = 0;
+    this.history = props.history;
+    this.shouldLoad = props.shouldLoad;
+    this.dispatch = props.dispatch;
 
     this.state = {
       isDataOk: false,
@@ -147,7 +154,7 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
       if (this.rankingPartitions.findIndex(partition =>
         partition.id === lvOnePartition.id) !== -1) {
         // window.location.href = "/ranking/" + lvOnePartition.id
-        this.props.history.push({ pathname: "/ranking/" + lvOnePartition.id });
+        this.history.push({ pathname: "/ranking/" + lvOnePartition.id });
       } else {
         // 如果一级分类中没有，则从二级分类中查找
         const partitionType = this.rankingPartitions.find(partition =>
@@ -155,7 +162,7 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
             p.id === partition.id) !== -1
         );
         // window.location.href = "/ranking/" + partitionType.id
-        this.props.history.push({ pathname: "/ranking/" + partitionType.id });
+        this.history.push({ pathname: "/ranking/" + partitionType.id });
       }
     }
   }
@@ -165,20 +172,20 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
       // 当前分类为直播
       if (tab.id === -1) {
         // window.location.href = "/live";
-        this.props.history.push({
+        this.history.push({
           pathname: "/live"
         });
         return;
       }
       if (tab.id === 0) {
         // window.location.href = "/index";
-        this.props.history.push({
+        this.history.push({
           pathname: "/index"
         });
       } else {
         this.setState({ isDataOk: false });
 
-        this.props.history.push({
+        this.history.push({
           pathname: "/channel/" + tab.id
         });
         // 这里如果不放到延时里，setAllData里的方法调用时，tab.id还没来得及变
@@ -200,7 +207,7 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     if (this.prevLvTwoTabIndex !== this.curLvTwoTabIndex) {
       this.setState({ isDataOk: false });
 
-      this.props.history.push({
+      this.history.push({
         pathname: "/channel/" + tab.id
       });
       setTimeout(() => {
@@ -310,12 +317,12 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
 
   /* 以下为生命周期函数 */
   public componentDidMount() {
-    if (this.props.shouldLoad) {
-      this.props.dispatch(getPartitionList())
+    if (this.shouldLoad) {
+      this.dispatch(getPartitionList())
         .then(() => { this.setInitData(); })
     } else {
       this.setInitData();
-      this.props.dispatch(setShouldLoad(true));
+      this.dispatch(setShouldLoad(true));
     }
 
     setTimeout(() => {
@@ -453,8 +460,9 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
                     this.state.lvTwoParHotVideos.map(partition =>
                       <Partition
                         data={partition}
-                        key={partition.id}
+                        history={this.history}
                         getPicUrl={(url, format) => this.getPicUrl(url, format)}
+                        key={partition.id}
                       />
                     ) :
                     // 当前二级分类为非“推荐”或一级分类只有一个二级分类，则显示最新视频

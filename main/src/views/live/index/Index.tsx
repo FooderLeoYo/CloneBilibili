@@ -39,7 +39,7 @@ const { useEffect, useState, useMemo } = React;
 function Index(props: IndexProps) {
   /* 以下为初始化 */
   const [isDataOk, setIsDataOk] = useState(false);
-  const { shouldLoad, dispatch } = props;
+  const { shouldLoad, dispatch, history } = props;
   // 轮播图和直播类型数据
   const { bannerList, itemList } = props.liveData;
 
@@ -113,7 +113,7 @@ function Index(props: IndexProps) {
         !isDataOk ? <LoadingCutscene /> :
           <>
             <Nav
-              history={props.history}
+              history={history}
               firstTabBarData={lvOneTabBarData}
               secondTabBarData={lvTwoTabBarData}
               lvTwoInx={0}
