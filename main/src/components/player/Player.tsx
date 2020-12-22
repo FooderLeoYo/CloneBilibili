@@ -378,6 +378,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const barrageWidth = barrageContainerDOM.getBoundingClientRect().width;
     const barrageHeight = barrageContainerDOM.getBoundingClientRect().height;
     const videoDOM = this.videoRef.current;
+    const curBrightnessDOM = this.curBrightnessRef.current;
+    const curVolumeDOM = this.curVolumeRef.current;
+
     let initVolume: number;
     let initTime: number;
     let timeAfterChange: number;
@@ -388,6 +391,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       x: 0,
       y: 0
     };
+
+    curBrightnessDOM.style.width = `100%`;
+    curVolumeDOM.style.width = `100%`;
 
     if (!this.props.isLive) {
       barrageContainerDOM.addEventListener("touchstart", e => {
@@ -422,7 +428,7 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           Math.abs(moveRatio.x) > Math.abs(moveRatio.y))) { // 左右滑动
           const progressDOM = this.progressRef.current;
           const currentTimeDOM = this.currentTimeRef.current;
-          const progressAfterChange = initProgress + moveRatio.x;
+          let progressAfterChange = initProgress + moveRatio.x;
 
           if (this.state.gestureType !== 1) {
             this.setState({ gestureType: 1 });
@@ -430,55 +436,37 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
           videoDOM.removeEventListener("timeupdate", this.setTimeupdateListener);
           this.showControls();
 
-          timeAfterChange = initTime + videoDOM.duration * moveRatio.x;
-          if (timeAfterChange >= videoDOM.duration) {
-            currentTimeDOM.innerHTML = formatDuration(videoDOM.duration, "0#:##");
-            progressDOM.style.width = "100%";
-          } else if (timeAfterChange <= 0) {
-            currentTimeDOM.innerHTML = formatDuration(0, "0#:##");
-            progressDOM.style.width = "0%";
-          } else {
+          if (progressAfterChange > 1 || progressAfterChange < 0) { return; }
+          else {
+            timeAfterChange = initTime + videoDOM.duration * moveRatio.x;
             currentTimeDOM.innerHTML = formatDuration(timeAfterChange, "0#:##");
             progressDOM.style.width = `${progressAfterChange * 100}%`;
           }
         } else if (this.state.gestureType === 2 || (this.state.gestureType === 0 &&
           curPos.x > barrageWidth / 2)) { // 右边的上下滑动
-          const curVolumeDOM = this.curVolumeRef.current;
           if (this.state.gestureType !== 2) {
             this.setState({ gestureType: 2 });
           }
           this.setState({ isShowCenterVolume: true });
 
           let volumeAfterChange = initVolume - moveRatio.y; // y轴向下为正，因此取反
-          if (volumeAfterChange <= 0) {
-            curVolumeDOM.style.width = `0%`;
-            volumeAfterChange = 0;
-            return;
-          } else if (volumeAfterChange >= 1) {
-            curVolumeDOM.style.width = `100%`;
-            volumeAfterChange = 1;
-            return;
-          } else {
+          if (volumeAfterChange < 0 || volumeAfterChange > 1) { return; }
+          else {
             curVolumeDOM.style.width = `${volumeAfterChange * 100}%`;
             videoDOM.volume = volumeAfterChange;
           }
         } else { // 左边的上下滑动
-          const curBrightnessDOM = this.curBrightnessRef.current;
           if (this.state.gestureType !== 3) {
             this.setState({ gestureType: 3 });
           }
           this.setState({ isShowCenterBri: true });
 
           briAfterChange = initBrightness - moveRatio.y;
-          if (briAfterChange <= 0) {
-            curBrightnessDOM.style.width = `0%`;
-            briAfterChange = 0;
-            return;
-          } else if (briAfterChange >= 1) {
-            curBrightnessDOM.style.width = `100%`;
-            briAfterChange = 1;
-            return;
-          } else {
+          // 这个重置必须有，否则下次滑动时，briAfterChange将是负数
+          // 而进度和音量不用重置，是因为它们本来就被限定在0~1之间，而亮度则可以大于1和取负数
+          if (briAfterChange < 0) { briAfterChange = 0; }
+          else if (briAfterChange > 1) { briAfterChange = 1; }
+          else {
             curBrightnessDOM.style.width = `${briAfterChange * 100}%`;
             videoDOM.style.filter = `brightness(${briAfterChange})`;
           }
@@ -591,6 +579,9 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
     const progressBtnDOM = this.progressBtnRef.current;
     const currentTimeDOM = this.currentTimeRef.current;
 
+    this.progressWidth = progressWrapperDOM.offsetWidth;
+    this.progressLeft = progressWrapperDOM.getBoundingClientRect().left;
+
     let rate = -1; // 拖拽进度比例
 
     // 触碰进度条时，设置width和left
@@ -606,18 +597,16 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       e.preventDefault(); // 阻止屏幕被拖动
 
       // 计算拖拽进度比例
-      const touch = e.touches[0];
-      rate = (touch.pageX - this.progressLeft) / this.progressWidth;
+      rate = (e.touches[0].pageX - this.progressLeft) / this.progressWidth;
       // 手指点在进度条以外
       if (rate > 1) { rate = 1; }
       else if (rate < 0) { rate = 0; }
       // 进度条以内
       else {
-        const currentTime = videoDOM.duration * rate;
-        progressDOM.style.width = `${rate * 100}%`;
-        currentTimeDOM.innerHTML = formatDuration(currentTime, "0#:##");
-
         this.controlBarRef.current.classList.remove(style.graduallyHide);
+
+        progressDOM.style.width = `${rate * 100}%`;
+        currentTimeDOM.innerHTML = formatDuration(videoDOM.duration * rate, "0#:##");
       }
     });
 
@@ -627,9 +616,6 @@ class Player extends React.PureComponent<PlayerProps, PlayerState> {
       videoDOM.addEventListener("timeupdate", this.setTimeupdateListener);
       this.showControlsTemporally();
     });
-
-    this.progressWidth = progressWrapperDOM.offsetWidth;
-    this.progressLeft = progressWrapperDOM.getBoundingClientRect().left;
   }
 
   private changePlayPosition(e) {
