@@ -14,7 +14,7 @@ import { formatTenThousand } from "../../../customed-methods/string";
 
 import LoadingCutscene from "../../../components/loading-cutscene/LoadingCutscene";
 import HeaderWithBack from "../../../components/header-with-back/HederWithBack";
-import VideoPlayer from "../../../components/player/Player";
+import { Player, sendBarrage } from "../../../components/player/Player";
 import BottomArea, { sendMsg } from "./BottomArea";
 import ChatWebSocket, { Events } from "./ChatWS";
 
@@ -56,7 +56,6 @@ function Room(props: RoomProps) {
   const [wsForClose, setWsForClose] = useState<ChatWebSocket>();
 
   const onlineNumRef: React.Ref<HTMLSpanElement> = useRef(null);
-  const videoPlayerRef: React.Ref<VideoPlayer> = useRef(null);
 
   // 获取up主数据，然后保存到state中
   const setUpInfo = () => {
@@ -107,7 +106,7 @@ function Room(props: RoomProps) {
                 color: "#" + Number(item.info[0][3]).toString(16),
                 content: item.info[1]
               };
-              videoPlayerRef.current.sendBarrage(barragData);
+              sendBarrage(barragData);
             }
           });
         });
@@ -166,7 +165,7 @@ function Room(props: RoomProps) {
                 context => (
                   <section className={style.main}>
                     <div className={style.liveContainer}>
-                      <VideoPlayer
+                      <Player
                         isLive={true}
                         isStreaming={live.isLive === 1}
                         // getTime()返回liveTime距 1970 年 1 月 1 日之间的毫秒数
@@ -179,7 +178,6 @@ function Room(props: RoomProps) {
                           duration: 0,
                           url: live.playUrl
                         }}
-                        ref={videoPlayerRef}
                       />
                     </div>
                     {/* up主信息 */}

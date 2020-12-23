@@ -13,7 +13,7 @@ import { setShouldLoad } from "../../redux/action-creators";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 import HeaderWithBack from "../../components/header-with-back/HederWithBack";
 import LoadingCutscene from "../../components/loading-cutscene/LoadingCutscene";
-import VideoPlayer from "../../components/player/Player";
+import { Player } from "../../components/player/Player";
 import { Switcher } from "../../components/switcher/Switcher";
 
 import { Video, createVideo, UpUser } from "../../class-object-creators";
@@ -399,14 +399,17 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
               <div className={style.contentWrapper}>
                 {/* 播放器 */}
                 <div className={style.videoContainer}>
-                  <VideoPlayer video={{
-                    aId: video.aId,
-                    cId: video.cId,
-                    title: video.title,
-                    cover: video.pic,
-                    duration: video.duration,
-                    url: video.url
-                  }} />
+                  <Player
+                    video={{
+                      aId: video.aId,
+                      cId: video.cId,
+                      title: video.title,
+                      cover: video.pic,
+                      duration: video.duration,
+                      url: video.url
+                    }}
+                    isLive={false}
+                  />
                 </div>
                 {/* 视频信息 */}
                 <div className={style.videoInfoContainer} ref={this.infoContainerRef}>

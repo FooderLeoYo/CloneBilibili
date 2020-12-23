@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getTransitionEndName } from "../../../customed-methods/compatible";
+import { getTransitionEndName } from "../../../../customed-methods/compatible";
 
 /**
  * 弹幕类型

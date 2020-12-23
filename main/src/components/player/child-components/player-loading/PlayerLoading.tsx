@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import style from "./stylus/player-loading.styl?css-modules";
+import style from "./player-loading.styl?css-modules";
 
 function PlayerLoading() {
   return (

@@ -134,7 +134,7 @@ function SwitcherSlider(props: SwitcherSliderProps) {
     sliderDOM.addEventListener("touchend", () => { shouldSwitch(moveDistance.x); });
   }
 
-  useEffect((() => {
+  useEffect(() => {
     const sliderDOM: HTMLDivElement = contentWrapperRef.current;
     const sliderItems: any = sliderDOM.children;
     const sliderLen = sliderItems.length;
@@ -147,7 +147,7 @@ function SwitcherSlider(props: SwitcherSliderProps) {
       sliderItems[0].classList.add(style.current);
       setSliderListeners(sliderDOM);
     }
-  }), []);
+  }, []);
 
   useEffect(() => {
     if (scrollToAtFirstSwitch) { setPreY(scrollToAtFirstSwitch); }
