@@ -1,0 +1,43 @@
+@import "../../../../assets/stylus/px2rem.styl"
+
+.speed-wrapper
+  position: relative
+  height: 100%
+  width: 100%
+  .center-speed
+    position: absolute
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%)
+    width: px2rem(40)
+    height: px2rem(30)
+    border-radius: 10%
+    line-height: @height
+    text-align: center
+    font-size: px2rem(10)
+    background-color: rgba(0, 0, 0, .4)
+    color: #ffffff
+    z-index: 2
+  .speed-bar-wrapper
+    position: absolute
+    right: 0
+    width: px2rem(70)
+    height: 100%
+    z-index: 2
+    background: linear-gradient(to right, rgba(0,0,0,0),rgba(0,0,0,1))
+    .speed-bar
+      position: absolute
+      top: 50%
+      left: 50%
+      transform: translate(-50%, -50%)
+      width: px2rem(60)
+      margin: 0
+      padding: px2rem(5) 
+      list-style-type: none
+      color: #ffffff
+      font-size: px2rem(15)
+      text-align: center
+      li
+        margin: px2rem(7)
+      &.gradually-hide
+        gradually-hide-style(500)

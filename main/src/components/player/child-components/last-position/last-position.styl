@@ -1,1 +1,16 @@
 @import "../../../../assets/stylus/px2rem.styl"
+
+.last-pos-wrapper
+  position: absolute
+  bottom: px2rem(40)
+  z-index: 2
+  padding: px2rem(3) px2rem(5)
+  background-color: rgba(0, 0, 0, .4)
+  font-size: px2rem(10)
+  .last-pos
+    color: #ffffff
+  .jump-to-pos
+    margin-left: px2rem(10)
+    color: #de698c
+  &.gradually-hide
+    gradually-hide-style(500)

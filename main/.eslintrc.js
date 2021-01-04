@@ -21,13 +21,13 @@ module.exports = {
     }
   },
   rules: {
-    "no-unused-vars": 0,
-    "react/display-name": 0,
-    "react/prop-types": 0,
-    "no-console": "off",
     "no-undef": "off",
     "no-restricted-globals": "off",
-    "no-unused-vars": "off",
+    "no-unused-vars": "warn",
+    "no-unused-labels": "warn",
+    "react/display-name": "off",
+    "react/prop-types": "off",
+    "no-console": "off",
     "react-hooks/rules-of-hooks": "error",
     // "react-hooks/exhaustive-deps": "warn"
   },
