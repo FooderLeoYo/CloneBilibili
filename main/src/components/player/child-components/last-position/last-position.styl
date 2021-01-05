@@ -1,5 +1,19 @@
 @import "../../../../assets/stylus/px2rem.styl"
 
+@keyframes hide {
+  0% {opacity: 1;} 
+  100% {opacity: 0;}
+}
+@-webkit-keyframes hide {
+  0% {opacity: 1;} 
+  100% {opacity: 0;}
+}
+gradually-hide-style(hideTime)
+  animation: hide (hideTime)ms ease-in;
+  -webkit-animation: hide (hideTime)ms ease-in;
+  animation-fill-mode:forwards;
+  -webkit-animation-fill-mode: forwards;
+
 .last-pos-wrapper
   position: absolute
   bottom: px2rem(40)

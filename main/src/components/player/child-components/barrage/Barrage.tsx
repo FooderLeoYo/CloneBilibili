@@ -1,5 +1,6 @@
 import * as React from "react";
 import { getTransitionEndName } from "../../../../customed-methods/compatible";
+import { formatDuration } from "../../../../customed-methods/string";
 
 /**
  * 弹幕类型
@@ -18,9 +19,30 @@ interface BarrageData {
 }
 
 interface BarrageProps {
-  fontSize?: string;
-  opacity?: number;
-  barrages?: BarrageData[];
+  isLive: boolean,
+  refProps: {
+    videoRef: React.RefObject<HTMLVideoElement>,
+    curBrightnessRef: React.RefObject<HTMLDivElement>,
+    curVolumeRef: React.RefObject<HTMLSpanElement>,
+    gesRef: React.MutableRefObject<number>,
+    progressRef: React.RefObject<HTMLDivElement>,
+    currentTimeRef: React.RefObject<HTMLSpanElement>,
+    showCtrBarRef: React.MutableRefObject<boolean>,
+  },
+  setStateProps: {
+    setGestureType: React.Dispatch<React.SetStateAction<number>>,
+    setIsShowCenterVolume: React.Dispatch<React.SetStateAction<boolean>>,
+    setIsShowCenterBri: React.Dispatch<React.SetStateAction<boolean>>,
+    setIsShowControlBar: React.Dispatch<React.SetStateAction<boolean>>,
+  },
+  methods: {
+    setTimeupdateListener: () => void,
+    showControls: () => void,
+    showControlsTemporally: () => void,
+  },
+  fontSize?: string,
+  opacity?: number,
+  barrages?: BarrageData[]
 }
 
 /**
@@ -36,6 +58,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
   private fixedTop: number = 0; // 固定弹幕距离弹幕区域顶端的竖直距离
   private fontSize: string;
   private opacity: number;
+
   constructor(props) {
     super(props);
     this.barrageRef = React.createRef();
@@ -74,7 +97,6 @@ class Barrage extends React.PureComponent<BarrageProps> {
     // 如果父组件有弹幕传递过来，则显示这些弹幕（一般没有）
     const { barrages } = this.props;
     if (barrages) {
-      console.log(111);
       for (const barrage of barrages) {
         this.send(barrage);
       }
@@ -192,6 +214,122 @@ class Barrage extends React.PureComponent<BarrageProps> {
     for (const child of Array.from(children)) {
       barrageDOM.removeChild(child);
     }
+  }
+
+  public setFingerListener() {
+    // 用barrageContainerDOM而不是videoAreaDOM的原因，见player.styl中各DOM的层级关系
+    const barrageContainerDOM = this.barrageRef.current;
+    const videoDOM = this.props.refProps.videoRef.current;
+    const gesRef = this.props.refProps.gesRef.current;
+    const setGestureType = this.props.setStateProps.setGestureType;
+
+    let barrageWidth = 0;
+    let barrageHeight = 0;
+    let initVolume: number;
+    let initTime: number;
+    let timeAfterChange: number;
+    let initProgress: number;
+    let initBrightness: number = 1;
+    let briAfterChange: number;
+    let startPos = {
+      x: 0,
+      y: 0
+    };
+
+    this.props.refProps.curBrightnessRef.current.style.width = `100%`;
+    this.props.refProps.curVolumeRef.current.style.width = `100%`;
+
+    barrageContainerDOM.addEventListener("touchstart", e => {
+      // 设置触摸事件的初始值
+      setGestureType(0);
+      startPos = {
+        x: e.targetTouches[0].pageX,
+        y: e.targetTouches[0].pageY
+      };
+      initVolume = videoDOM.volume;
+      initTime = videoDOM.currentTime;
+      initProgress = initTime / videoDOM.duration;
+      // 这两个求长度不能提到外面，因为横屏、全屏后会变
+      barrageWidth = barrageContainerDOM.getBoundingClientRect().width;
+      barrageHeight = barrageContainerDOM.getBoundingClientRect().height;
+    });
+
+    barrageContainerDOM.addEventListener("touchmove", e => {
+      // 防止滑动拖动整个videoPage
+      e.preventDefault();
+      e.stopPropagation();
+
+      const curPos = {
+        x: e.targetTouches[0].pageX,
+        y: e.targetTouches[0].pageY
+      };
+      const moveRatio = {
+        x: (curPos.x - startPos.x) / barrageWidth,
+        y: (curPos.y - startPos.y) / barrageHeight
+      };
+
+      // 判断gestureType === 1目的是：
+      // 在本次touch中，如果手势之前已经处于“左右滑动”状态，则不会进入“上下滑动”
+      if (!this.props.isLive && gesRef === 1 || (gesRef === 0 &&
+        Math.abs(moveRatio.x) > Math.abs(moveRatio.y))) { // 左右滑动
+        const progressDOM = this.props.refProps.progressRef.current;
+        const currentTimeDOM = this.props.refProps.currentTimeRef.current;
+        let progressAfterChange = initProgress + moveRatio.x;
+
+        if (gesRef !== 1) { setGestureType(1); }
+        videoDOM.removeEventListener("timeupdate", this.props.methods.setTimeupdateListener);
+        this.props.methods.showControls();
+
+        if (progressAfterChange > 1 || progressAfterChange < 0) { return; }
+        else {
+          timeAfterChange = initTime + videoDOM.duration * moveRatio.x;
+          currentTimeDOM.innerHTML = formatDuration(timeAfterChange, "0#:##");
+          progressDOM.style.width = `${progressAfterChange * 100}%`;
+        }
+      } else if (gesRef === 2 || (gesRef === 0 &&
+        curPos.x > barrageWidth / 2)) { // 右边的上下滑动
+        if (gesRef !== 2) { setGestureType(2); }
+        this.props.setStateProps.setIsShowCenterVolume(true);
+
+        let volumeAfterChange = initVolume - moveRatio.y; // y轴向下为正，因此取反
+        if (volumeAfterChange < 0 || volumeAfterChange > 1) { return; }
+        else {
+          this.props.refProps.curVolumeRef.current.style.width = `${volumeAfterChange * 100}%`;
+          videoDOM.volume = volumeAfterChange;
+        }
+      } else { // 左边的上下滑动
+        if (gesRef !== 3) { setGestureType(3); }
+        this.props.setStateProps.setIsShowCenterBri(true);
+
+        briAfterChange = initBrightness - moveRatio.y;
+        // 这个重置必须有，否则下次滑动时，briAfterChange将是负数
+        // 而进度和音量不用重置，是因为它们本来就被限定在0~1之间，而亮度则可以大于1和取负数
+        if (briAfterChange < 0) { briAfterChange = 0; }
+        else if (briAfterChange > 1) { briAfterChange = 1; }
+        else {
+          this.props.refProps.curBrightnessRef.current.style.width = `${briAfterChange * 100}%`;
+          videoDOM.style.filter = `brightness(${briAfterChange})`;
+        }
+      }
+    });
+
+    barrageContainerDOM.addEventListener("touchend", e => {
+      e.stopPropagation();
+
+      if (gesRef === 0) {
+        if (!this.props.refProps.showCtrBarRef.current) { this.props.methods.showControlsTemporally(); }
+        else { this.props.setStateProps.setIsShowControlBar(false); }
+      } else if (gesRef === 1) {
+        videoDOM.currentTime = timeAfterChange;
+        videoDOM.addEventListener("timeupdate", this.props.methods.setTimeupdateListener);
+        this.props.methods.showControlsTemporally();
+      } else if (gesRef === 2) {
+        setTimeout(() => { this.props.setStateProps.setIsShowCenterVolume(false); }, 200);
+      } else {
+        initBrightness = briAfterChange;
+        setTimeout(() => { this.props.setStateProps.setIsShowCenterBri(false); }, 200);
+      }
+    });
   }
 
   /* 以下为渲染部分 */

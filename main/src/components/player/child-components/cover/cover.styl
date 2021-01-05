@@ -1,0 +1,37 @@
+@import "../../../../assets/stylus/px2rem.styl"
+
+.title
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  text-align: center
+  line-height: px2rem(32)
+  z-index: 1
+.pic
+  position: absolute
+  width: 100%
+  height: @width
+  opacity: .85
+  border-style: none
+.pre-play
+  position absolute
+  left: 0
+  right: 0
+  bottom: px2rem(14)
+  .duration
+    display: inline-block
+    padding: 0 px2rem(8)
+    margin-left: px2rem(12)
+    font-size: px2rem(12)
+    line-height: px2rem(20)
+    border: px2rem(1) solid hsla(0, 0%, 100%, .6)
+    background-color: hsla(0, 0%, 100%, .2)
+    border-radius: px2rem(2)
+  .preview
+    position: absolute
+    top: px2rem(-30)
+    right: px2rem(12)
+    width: px2rem(46)
+    height: px2rem(46)
+    font-size: px2rem(46)

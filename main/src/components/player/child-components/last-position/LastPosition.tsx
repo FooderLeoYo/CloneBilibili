@@ -16,30 +16,30 @@ interface LastPositionProps {
   videoRef: React.RefObject<HTMLVideoElement>
 }
 
-const { useEffect, useRef, useState } = React;
+const { useEffect, useRef, useState, forwardRef, useImperativeHandle } = React;
 
-function LastPosition(props: LastPositionProps) {
+function LastPosition(props: LastPositionProps, ref: React.MutableRefObject<any>) {
   const { video, videoRef } = props;
-  const videoDOM = videoRef.current;
 
   const lastPosWrapperRef: React.RefObject<HTMLDivElement> = useRef(null);
   const jumpRef: React.RefObject<HTMLDivElement> = useRef(null);
   const [lastPlayPos, setLastPlayPos] = useState(0);
+  const videoDOM = videoRef.current;
 
-  function getLastPlayPos() {
-    const targetHistory = storage.getPlayPositionHistory().
-      find(v => v.aId === video.aId);
-
-    // 如果是不是第一次打开该视频，才执行相关操作
-    if (targetHistory) {
-      setLastPlayPos(targetHistory.position);
+  useImperativeHandle(ref, () => ({
+    hideLastPos: () => {
       setTimeout(() => {
         lastPosWrapperRef.current.classList.add(style.graduallyHide);
       }, 5000);
     }
-  }
+  }), [])
 
-  // useEffect(() => { getLastPlayPos(); }, []);
+  useEffect(() => {
+    const targetHistory = storage.getPlayPositionHistory().
+      find(v => v.aId === video.aId);
+    // 如果是不是第一次打开该视频，才执行相关操作
+    if (targetHistory) { setLastPlayPos(targetHistory.position); }
+  }, []);
 
   const jumpDOM = jumpRef.current;
   useEffect(() => {
@@ -80,4 +80,4 @@ function LastPosition(props: LastPositionProps) {
   )
 }
 
-export default LastPosition;
+export default forwardRef(LastPosition);

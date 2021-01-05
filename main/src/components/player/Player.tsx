@@ -6,8 +6,10 @@ import { getBarrages } from "../../api/video";
 
 import Speed from "./child-components/speed/Speed"
 import LastPosition from "./child-components/last-position/LastPosition"
+import Cover from "./child-components/cover/Cover"
+import Replay from "./child-components/replay/Replay"
 import Barrage, { BarrageType } from "./child-components/barrage/Barrage";
-import PlayerLoading from "./child-components/player-loading/PlayerLoading"
+import Loading from "./child-components/loading/Loading"
 import { formatDuration } from "../../customed-methods/string";
 
 import style from "./stylus/player.styl?css-modules";
@@ -31,6 +33,9 @@ let sendBarrage: Function;
 
 function Player(props: PlayerProps) {
   /* 以下为初始化 */
+  const { isLive, video } = props;
+  const context = useContext(myContext);
+
   const [waiting, setWaiting] = useState(false);
   const [barrageSwitch, setBarrageSwitch] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -46,7 +51,6 @@ function Player(props: PlayerProps) {
   const playerWrapperRef: React.RefObject<HTMLDivElement> = useRef(null);
   const videoRef: React.RefObject<HTMLVideoElement> = useRef(null);
   const videoAreaRef: React.RefObject<HTMLDivElement> = useRef(null);
-  const barrageContainerRef: React.RefObject<HTMLDivElement> = useRef(null);
   const barrageRef: React.RefObject<Barrage> = useRef(null);
   const controlBarRef: React.RefObject<HTMLDivElement> = useRef(null);
   const currentTimeRef: React.RefObject<HTMLSpanElement> = useRef(null);
@@ -60,35 +64,50 @@ function Player(props: PlayerProps) {
   const curVolumeRef: React.RefObject<HTMLSpanElement> = useRef(null);
   const progressWrapperRef: React.RefObject<HTMLDivElement> = useRef(null);
   const curBrightnessRef: React.RefObject<HTMLDivElement> = useRef(null);
+  const playBtnTimerRef = useRef(0);
+  const lastPosRef = useRef(null);
+  const speedRef = useRef(null);
 
-  const [isShowControlBar, setIsShowControlBar] = useState(true);
-  const showCtrBarRef = useRef(isShowControlBar);
-  if (showCtrBarRef.current !== isShowControlBar) {
-    showCtrBarRef.current = isShowControlBar;
-  }
+  const ctrBarRef = useRef(null);
+  const setIsShowControlBar = ctrBarRef.current.setIsShowControlBar;
 
-  const [paused, setPaused] = useState(true);
-  const pausedRef = useRef(paused);
-  if (pausedRef.current !== paused) { pausedRef.current = paused; }
+  // const [paused, setPaused] = useState(true);
+  const pausedRef = useRef(true);
+  // if (pausedRef.current !== paused) { pausedRef.current = paused; }
 
   const [gestureType, setGestureType] = useState(0); // 手势类型：0：无手势；1：左右滑动；2：右边的上下滑动；3：左边的上下滑动
   const gestureTypeRef = useRef(gestureType);
   if (gestureTypeRef.current !== gestureType) { gestureTypeRef.current = gestureType; }
 
-  const speedRef = useRef(null);
-
-  const { isLive, video } = props;
-  const context = useContext(myContext);
-
   const videoCoverStyle = { display: isShowCover ? "none" : "block" };
   const coverStyle = { display: isShowCover ? "block" : "none" };
-  const controlBarStyle = { display: isShowControlBar ? "block" : "none" };
-  const playBtnStyle = { display: isShowPlayBtn ? "block" : "none" };
-  const centerVolumeStyle = { display: isShowCenterVolume ? "block" : "none" };
-  const centerBriStyle = { display: isShowCenterBri ? "block" : "none" };
-  const playBtnIconName = paused ? "play" : "pause";
-  const ctrPlayBtnIconName = paused ? "Play" : "Pause";
+  const playBtnStyle: React.CSSProperties = { visibility: isShowPlayBtn ? "visible" : "hidden" };
+  const centerVolumeStyle: React.CSSProperties = { visibility: isShowCenterVolume ? "visible" : "hidden" };
+  const centerBriStyle: React.CSSProperties = { visibility: isShowCenterBri ? "visible" : "hidden" };
+  const playBtnIconName = pausedRef.current ? "play" : "pause";
+  const ctrPlayBtnIconName = pausedRef.current ? "Play" : "Pause";
   const barrageBtnIconName = barrageSwitch ? "On" : "Off";
+
+  const refProps = {
+    videoRef: videoRef,
+    curBrightnessRef: curBrightnessRef,
+    curVolumeRef: curVolumeRef,
+    gesRef: gestureTypeRef,
+    progressRef: progressRef,
+    currentTimeRef: currentTimeRef,
+    showCtrBarRef: showCtrBarRef
+  };
+  const setStateProps = {
+    setGestureType: setGestureType,
+    setIsShowCenterVolume: setIsShowCenterVolume,
+    setIsShowCenterBri: setIsShowCenterBri,
+    setIsShowControlBar: setIsShowControlBar
+  };
+  const methods = {
+    setTimeupdateListener: setTimeupdateListener,
+    showControls: showControls,
+    showControlsTemporally: showControlsTemporally
+  };
 
   let initBarrages: Array<any>; // 拿到数据时的初始格式，供slice后生成barrages
   let barrages: Array<any>; // 真正发送到播放器中的弹幕
@@ -96,19 +115,12 @@ function Player(props: PlayerProps) {
   let easeTimer: number;
   let isPC: boolean = !(/(Safari|iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
   let duration: number = -1;
-  const playBtnTimerRef = useRef(0);
   // const isIos: boolean;
   // const isAndroid: boolean;
   // isIos = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // 只写一个!会报错
   // isAndroid = navigator.userAgent.indexOf('Android') > -1 || navigator.userAgent.indexOf('Adr') > -1;
   // isPC = !isIos && !isAndroid;
   // isPC = !(navigator.userAgent.match(/(iPhone|iPad|iPod|iOS|Android)/i) !== null);
-  // public static defaultProps = {
-  //   isLive: false,
-  //   isStreaming: false,
-  //   liveTime: 0
-  // };
-
 
   /* 以下为自定义方法 */
 
@@ -124,17 +136,17 @@ function Player(props: PlayerProps) {
 
   function playOrPause() {
     const videoDOM = videoRef.current;
-    if (paused) {
+    if (pausedRef.current) {
       videoDOM.play();
       showControlsTemporally();
       playBtnTimerRef.current = setTimeout(() => { setIsShowPlayBtn(false); }, 800);
-      setPaused(false);
+      pausedRef.current = false;
       setFinish(false);
     } else {
       videoDOM.pause();
       showControlsTemporally();
       clearTimeout(playBtnTimerRef.current);
-      setPaused(true);
+      pausedRef.current = true;
       setIsShowPlayBtn(true);
     }
   }
@@ -142,15 +154,15 @@ function Player(props: PlayerProps) {
   function setThumbnailListener() {
     const videoDOM = videoRef.current;
 
-    if (props.isLive) { showControlsTemporally(); }
+    if (isLive) { showControlsTemporally(); }
     function setPlayState() {
       setIsShowCover(false);
-      setPaused(false);
+      pausedRef.current = false;
       setWaiting(false);
     }
 
     // "play"是HTML DOM 事件onplay的事件类型，而不是一个自定义名称
-    if (!props.isLive) { videoDOM.addEventListener("play", setPlayState); }
+    if (!isLive) { videoDOM.addEventListener("play", setPlayState); }
     videoDOM.addEventListener("playing", setPlayState);
     videoDOM.addEventListener("waiting", () => { setWaiting(true); });
   }
@@ -165,7 +177,7 @@ function Player(props: PlayerProps) {
     videoDOM.addEventListener("ended", () => {
       currentTimeRef.current.innerHTML = "00:00";
       progressRef.current.style.width = "0";
-      setPaused(true);
+      pausedRef.current = true;
       setFinish(true);
       // 重新赋值弹幕列表
       barrages = initBarrages.slice();
@@ -201,7 +213,7 @@ function Player(props: PlayerProps) {
 
   /* 弹幕相关 */
   function setBarrages() {
-    getBarrages(props.video.cId).then(result => {
+    getBarrages(video.cId).then(result => {
       let temp = [];
       if (result.code === "1") {
         result.data.forEach(data => {
@@ -265,7 +277,7 @@ function Player(props: PlayerProps) {
     setActivedColor(ctrPlayBtnRef.current);
     setActivedColor(barrageBtnRef.current);
     setActivedColor(fullscreenBtnRef.current);
-    if (!props.isLive) { setActivedColor(speedBtnRef.current); }
+    if (!isLive) { setActivedColor(speedBtnRef.current); }
   }
 
   function setGraduallyHide(DOM, startTime) {
@@ -290,126 +302,6 @@ function Player(props: PlayerProps) {
     showControls();
     setGraduallyHide(controlBarDOM, 2000);
     ctrBarTimer = setTimeout(() => { setIsShowControlBar(false); }, 2500);
-  }
-
-  function setFingerListener() {
-    // 用barrageContainerDOM而不是videoAreaDOM的原因，见player.styl中各DOM的层级关系
-    const barrageContainerDOM = barrageContainerRef.current;
-    const videoDOM = videoRef.current;
-    const curBrightnessDOM = curBrightnessRef.current;
-    const curVolumeDOM = curVolumeRef.current;
-    const gesRef = gestureTypeRef.current;
-
-    let barrageWidth = 0;
-    let barrageHeight = 0;
-    let initVolume: number;
-    let initTime: number;
-    let timeAfterChange: number;
-    let initProgress: number;
-    let initBrightness: number = 1;
-    let briAfterChange: number;
-    let startPos = {
-      x: 0,
-      y: 0
-    };
-
-    curBrightnessDOM.style.width = `100%`;
-    curVolumeDOM.style.width = `100%`;
-
-    if (!props.isLive) {
-      barrageContainerDOM.addEventListener("touchstart", e => {
-        // 设置触摸事件的初始值
-        setGestureType(0);
-        startPos = {
-          x: e.targetTouches[0].pageX,
-          y: e.targetTouches[0].pageY
-        };
-        initVolume = videoDOM.volume;
-        initTime = videoDOM.currentTime;
-        initProgress = initTime / videoDOM.duration;
-        // 这两个求长度不能提到外面，因为横屏、全屏后会变
-        barrageWidth = barrageContainerDOM.getBoundingClientRect().width;
-        barrageHeight = barrageContainerDOM.getBoundingClientRect().height;
-      });
-
-      barrageContainerDOM.addEventListener("touchmove", e => {
-        // 防止滑动拖动整个videoPage
-        e.preventDefault();
-        e.stopPropagation();
-
-        const curPos = {
-          x: e.targetTouches[0].pageX,
-          y: e.targetTouches[0].pageY
-        };
-        const moveRatio = {
-          x: (curPos.x - startPos.x) / barrageWidth,
-          y: (curPos.y - startPos.y) / barrageHeight
-        };
-
-        // 判断gestureType === 1目的是：
-        // 在本次touch中，如果手势之前已经处于“左右滑动”状态，则不会进入“上下滑动”
-        if (gesRef === 1 || (gesRef === 0 &&
-          Math.abs(moveRatio.x) > Math.abs(moveRatio.y))) { // 左右滑动
-          const progressDOM = progressRef.current;
-          const currentTimeDOM = currentTimeRef.current;
-          let progressAfterChange = initProgress + moveRatio.x;
-
-          if (gesRef !== 1) { setGestureType(1); }
-          videoDOM.removeEventListener("timeupdate", setTimeupdateListener);
-          showControls();
-
-          if (progressAfterChange > 1 || progressAfterChange < 0) { return; }
-          else {
-            timeAfterChange = initTime + videoDOM.duration * moveRatio.x;
-            currentTimeDOM.innerHTML = formatDuration(timeAfterChange, "0#:##");
-            progressDOM.style.width = `${progressAfterChange * 100}%`;
-          }
-        } else if (gesRef === 2 || (gesRef === 0 &&
-          curPos.x > barrageWidth / 2)) { // 右边的上下滑动
-          if (gesRef !== 2) { setGestureType(2); }
-          setIsShowCenterVolume(true);
-
-          let volumeAfterChange = initVolume - moveRatio.y; // y轴向下为正，因此取反
-          if (volumeAfterChange < 0 || volumeAfterChange > 1) { return; }
-          else {
-            curVolumeDOM.style.width = `${volumeAfterChange * 100}%`;
-            videoDOM.volume = volumeAfterChange;
-          }
-        } else { // 左边的上下滑动
-          if (gesRef !== 3) { setGestureType(3); }
-          setIsShowCenterBri(true);
-
-          briAfterChange = initBrightness - moveRatio.y;
-          // 这个重置必须有，否则下次滑动时，briAfterChange将是负数
-          // 而进度和音量不用重置，是因为它们本来就被限定在0~1之间，而亮度则可以大于1和取负数
-          if (briAfterChange < 0) { briAfterChange = 0; }
-          else if (briAfterChange > 1) { briAfterChange = 1; }
-          else {
-            curBrightnessDOM.style.width = `${briAfterChange * 100}%`;
-            videoDOM.style.filter = `brightness(${briAfterChange})`;
-          }
-        }
-      });
-    }
-
-    barrageContainerDOM.addEventListener("touchend", e => {
-      const gesRef = gestureTypeRef.current;
-      e.stopPropagation();
-
-      if (gesRef === 0) {
-        if (!showCtrBarRef.current) { showControlsTemporally(); }
-        else { setIsShowControlBar(false); }
-      } else if (gesRef === 1) {
-        videoDOM.currentTime = timeAfterChange;
-        videoDOM.addEventListener("timeupdate", setTimeupdateListener);
-        showControlsTemporally();
-      } else if (gesRef === 2) {
-        setTimeout(() => { setIsShowCenterVolume(false); }, 200);
-      } else {
-        initBrightness = briAfterChange;
-        setTimeout(() => { setIsShowCenterBri(false); }, 200);
-      }
-    });
   }
 
   function setMouseListener() {
@@ -617,7 +509,7 @@ function Player(props: PlayerProps) {
     setThumbnailListener();
     setElesActivedColor();
     if (isPC) { setMouseListener(); }
-    else { setFingerListener(); }
+    else { barrageRef.current.setFingerListener(); }
 
     if (!isLive) { // 非直播时处理
       setSpeedListener();
@@ -630,6 +522,13 @@ function Player(props: PlayerProps) {
   /* 以下为渲染部分 */
   return (
     <div className={style.videoPlayer} ref={playerRef}>
+      <div
+        className={style.check}
+        onClick={() => {
+          // console.log(showCtrBarRef.current)
+          // console.log(controlBarStyle)
+        }}
+      >点击</div>
       {/* 视频区域 */}
       <div className={style.playerWrapper} ref={playerWrapperRef}>
         <div className={style.videoArea} ref={videoAreaRef}>
@@ -651,8 +550,15 @@ function Player(props: PlayerProps) {
         {/* 不把Barrage放进videoArea中是因为： */}
         {/*   如果Barrage成为videoArea的子元素，那么Barrage的事件会冒泡到videoArea */}
         {/*   这样就还要阻止Barrage的事件冒泡，所以不如将其放在外面 */}
-        <div className={style.barrage} ref={barrageContainerRef}>
-          <Barrage opacity={isLive ? 1 : 0.75} ref={barrageRef} />
+        <div className={style.barrage}>
+          <Barrage
+            isLive={isLive}
+            refProps={refProps}
+            setStateProps={setStateProps}
+            methods={methods}
+            opacity={isLive ? 1 : 0.75}
+            ref={barrageRef}
+          />
         </div>
         <div className={style.controlContainer}>
           {/* 是否跳转到上次播放位置 */}
@@ -660,6 +566,7 @@ function Player(props: PlayerProps) {
             !isLive && <LastPosition
               video={video}
               videoRef={videoRef}
+              ref={lastPosRef}
             />
           }
           {/* 调节音量后显示当前音量 */}
@@ -684,7 +591,7 @@ function Player(props: PlayerProps) {
           <div className={style.speedContainer}>
             <Speed
               videoDOM={videoRef.current}
-              paused={paused}
+              paused={pausedRef.current}
               playBtnTimer={playBtnTimerRef.current}
               isShowPlayBtn={isShowPlayBtn}
               setIsShowPlayBtn={setIsShowPlayBtn}
@@ -710,172 +617,21 @@ function Player(props: PlayerProps) {
             </div>
           }
           {/* 控制栏 */}
-          <div
-            className={style.controlBar + (isLive ? " " + style.liveControl : "")}
-            style={controlBarStyle}
-            ref={controlBarRef}
-          >
-            {/* 控制栏播放按钮 */}
-            <div
-              className={style.controlBarPlayBtn}
-              ref={ctrPlayBtnRef}
-              onClick={e => {
-                e.stopPropagation();
-                playOrPause();
-              }}
-            >
-              <svg className="icon" aria-hidden="true">
-                <use href={`#icon-ctr${ctrPlayBtnIconName}`}></use>
-              </svg>
-            </div>
-            {
-              !isLive ? (
-                // React.Fragment和空的div类似，都是在最外层起到包裹的作用
-                // 区别是React.Fragment不会真实的html元素，这样就减轻了浏览器渲染压力
-                <React.Fragment>
-                  {/* 当前时间、视频总时长 */}
-                  <div className={style.left}>
-                    <span className={style.time} ref={currentTimeRef}>00:00</span>
-                    <span className={style.split}>/</span>
-                    <span className={style.totalDuration}>
-                      {formatDuration(video.duration, "0#:##")}
-                    </span>
-                  </div>
-                  {/* 进度条 */}
-                  <div className={style.center}>
-                    <div
-                      className={style.progressWrapper}
-                      ref={progressWrapperRef}
-                    >
-                      <div className={style.progress} ref={progressRef} >
-                        <span className={style.progressBtn} ref={progressBtnRef} />
-                      </div>
-                    </div>
-                  </div>
-                </React.Fragment>
-              ) : ( // 直播时为直播时长
-                  <div className={style.left} ref={liveDurationRef}></div>
-                )
-            }
-            <div className={style.right}>
-              {/* 调节播放速度 */}
-              {
-                !props.isLive &&
-                <div className={style.speedBtn} ref={speedBtnRef} >
-                  <svg className="icon" aria-hidden="true">
-                    <use href={`#icon-speed${speedBtnSuffix}`}></use>
-                  </svg>
-                </div>
-              }
-              {/* 弹幕开关 */}
-              <div
-                className={style.barrageBtn}
-                ref={barrageBtnRef}
-                onClick={e => {
-                  e.stopPropagation();
-                  onOrOff();
-                }}
-              >
-                <svg className="icon" aria-hidden="true">
-                  <use href={`#icon-barrage${barrageBtnIconName}`}></use>
-                </svg>
-              </div>
-              {/* 全屏开关 */}
-              <div
-                className={style.fullscreenBtn}
-                ref={fullscreenBtnRef}
-                onClick={e => {
-                  e.stopPropagation();
-                  entryOrExitFullscreen();
-                }}
-              >
-                <svg className="icon" aria-hidden="true">
-                  <use href="#icon-fullscreenBtn"></use>
-                </svg>
-              </div>
-            </div>
-          </div>
+          <ControlBar ref={ctrBarRef} />
         </div>
         {/* 封面 */}
         <div className={style.cover} style={coverStyle}>
-          {
-            !isLive ? (
-              <>
-                <div className={style.title}>
-                  av{video.aId}
-                </div>
-                <img className={style.pic} src={video.cover} alt={video.title} />
-                <div className={style.prePlay}>
-                  <div className={style.duration}>
-                    {formatDuration(video.duration, "0#:##:##")}
-                  </div>
-                  <div
-                    className={style.preview}
-                    onClick={e => {
-                      e.stopPropagation();
-                      playOrPause();
-                    }}
-                  >
-                    <svg className="icon" aria-hidden="true">
-                      <use href="#icon-play"></use>
-                    </svg>
-                  </div>
-                </div>
-              </>
-            ) : (
-                <>
-                  <img className={style.pic} src={video.cover} alt={video.title} />
-                  <div className={style.prePlay}>
-                    <div
-                      className={style.preview}
-                      onClick={e => {
-                        e.stopPropagation();
-                        playOrPause();
-                      }}
-                    />
-                  </div>
-                </>
-              )
-          }
+          <Cover
+            isLive={isLive}
+            video={video}
+            playOrPause={playOrPause}
+            lastPosRef={lastPosRef}
+          />
         </div>
-        {  // 正在缓冲
-          waiting &&
-          <div className={style.loading}>
-            <div className={style.wrapper}>
-              <span className={style.animation}>
-                {/* <svg className="icon" aria-hidden="true">
-                      <use href="#icon-loading"></use>
-                    </svg> */}
-                <PlayerLoading />
-              </span>
-              <span className={style.text}>
-                {!isLive && "正在缓冲"}
-              </span>
-            </div>
-          </div>
-        }
-        { // 重新播放
-          finish &&
-          <div className={style.finishCover}>
-            <img className={style.coverPic} src={video.cover} alt={video.title} />
-            <div className={style.coverWrapper}>
-              <div
-                className={style.replay}
-                onClick={e => {
-                  e.stopPropagation();
-                  playOrPause();
-                }}
-              >
-                <span className={style.replayIcon}>
-                  <svg className="icon" aria-hidden="true">
-                    <use href="#icon-replay"></use>
-                  </svg>
-                </span>
-                <span className={style.replayWords}>重新播放</span>
-              </div>
-            </div>
-          </div>
-        }
+        {/* 正在缓冲 */}
+        {waiting && <Loading isLive={isLive} />}
+        {/* 重新播放 */}
+        {finish && <Replay video={video} playOrPause={playOrPause} />}
         { // 直播时，主播不在
           isLive && !isStreaming &&
           <div className={style.noticeCover}>
