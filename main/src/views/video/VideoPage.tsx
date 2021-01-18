@@ -13,7 +13,7 @@ import { setShouldLoad } from "../../redux/action-creators";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 import HeaderWithBack from "../../components/header-with-back/HederWithBack";
 import LoadingCutscene from "../../components/loading-cutscene/LoadingCutscene";
-import { Player } from "../../components/player/Player";
+import Player from "../../components/player/Player";
 import { Switcher } from "../../components/switcher/Switcher";
 
 import { Video, createVideo, UpUser } from "../../class-object-creators";

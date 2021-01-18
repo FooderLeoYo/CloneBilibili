@@ -20,7 +20,8 @@ interface BarrageData {
 
 interface BarrageProps {
   isLive: boolean,
-  refProps: {
+  ctrBarTimer: number,
+  barrageRefs: {
     videoRef: React.RefObject<HTMLVideoElement>,
     curBrightnessRef: React.RefObject<HTMLDivElement>,
     curVolumeRef: React.RefObject<HTMLSpanElement>,
@@ -28,14 +29,15 @@ interface BarrageProps {
     progressRef: React.RefObject<HTMLDivElement>,
     currentTimeRef: React.RefObject<HTMLSpanElement>,
     showCtrBarRef: React.MutableRefObject<boolean>,
+    controlBarRef: React.RefObject<HTMLDivElement>
   },
-  setStateProps: {
+  barrageSetState: {
     setGestureType: React.Dispatch<React.SetStateAction<number>>,
     setIsShowCenterVolume: React.Dispatch<React.SetStateAction<boolean>>,
     setIsShowCenterBri: React.Dispatch<React.SetStateAction<boolean>>,
     setIsShowControlBar: React.Dispatch<React.SetStateAction<boolean>>,
   },
-  methods: {
+  barrageMethods: {
     setTimeupdateListener: () => void,
     showControls: () => void,
     showControlsTemporally: () => void,
@@ -58,21 +60,15 @@ class Barrage extends React.PureComponent<BarrageProps> {
   private fixedTop: number = 0; // 固定弹幕距离弹幕区域顶端的竖直距离
   private fontSize: string;
   private opacity: number;
+  private isPC: boolean;
 
   constructor(props) {
     super(props);
     this.barrageRef = React.createRef();
     this.fontSize = props.fontSize || "0.8rem";
     this.opacity = props.opacity || 1;
-  }
+    this.isPC = !(/(Safari|iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
 
-  /* 以下为生命周期函数 */
-  public componentDidMount() {
-    this.init();
-  }
-
-  public componentWillUnmount() {
-    this.clear();
   }
 
   /* 以下为自定义方法 */
@@ -217,11 +213,17 @@ class Barrage extends React.PureComponent<BarrageProps> {
   }
 
   public setFingerListener() {
+    const { isLive } = this.props;
+    const { setGestureType, setIsShowControlBar, setIsShowCenterVolume,
+      setIsShowCenterBri } = this.props.barrageSetState;
+    const { showControlsTemporally, setTimeupdateListener, showControls } = this.props.barrageMethods;
+    const { videoRef, gesRef, curBrightnessRef, curVolumeRef, progressRef,
+      currentTimeRef, showCtrBarRef } = this.props.barrageRefs;
+    const videoDOM = videoRef.current;
+    const gesRefVal = gesRef.current;
+
     // 用barrageContainerDOM而不是videoAreaDOM的原因，见player.styl中各DOM的层级关系
     const barrageContainerDOM = this.barrageRef.current;
-    const videoDOM = this.props.refProps.videoRef.current;
-    const gesRef = this.props.refProps.gesRef.current;
-    const setGestureType = this.props.setStateProps.setGestureType;
 
     let barrageWidth = 0;
     let barrageHeight = 0;
@@ -236,10 +238,11 @@ class Barrage extends React.PureComponent<BarrageProps> {
       y: 0
     };
 
-    this.props.refProps.curBrightnessRef.current.style.width = `100%`;
-    this.props.refProps.curVolumeRef.current.style.width = `100%`;
+    curBrightnessRef.current.style.width = `100%`;
+    curVolumeRef.current.style.width = `100%`;
 
     barrageContainerDOM.addEventListener("touchstart", e => {
+
       // 设置触摸事件的初始值
       setGestureType(0);
       startPos = {
@@ -270,15 +273,15 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
       // 判断gestureType === 1目的是：
       // 在本次touch中，如果手势之前已经处于“左右滑动”状态，则不会进入“上下滑动”
-      if (!this.props.isLive && gesRef === 1 || (gesRef === 0 &&
+      if (!isLive && gesRefVal === 1 || (gesRefVal === 0 &&
         Math.abs(moveRatio.x) > Math.abs(moveRatio.y))) { // 左右滑动
-        const progressDOM = this.props.refProps.progressRef.current;
-        const currentTimeDOM = this.props.refProps.currentTimeRef.current;
+        const progressDOM = progressRef.current;
+        const currentTimeDOM = currentTimeRef.current;
         let progressAfterChange = initProgress + moveRatio.x;
 
-        if (gesRef !== 1) { setGestureType(1); }
-        videoDOM.removeEventListener("timeupdate", this.props.methods.setTimeupdateListener);
-        this.props.methods.showControls();
+        if (gesRefVal !== 1) { setGestureType(1); }
+        videoDOM.removeEventListener("timeupdate", setTimeupdateListener);
+        showControls();
 
         if (progressAfterChange > 1 || progressAfterChange < 0) { return; }
         else {
@@ -286,20 +289,20 @@ class Barrage extends React.PureComponent<BarrageProps> {
           currentTimeDOM.innerHTML = formatDuration(timeAfterChange, "0#:##");
           progressDOM.style.width = `${progressAfterChange * 100}%`;
         }
-      } else if (gesRef === 2 || (gesRef === 0 &&
+      } else if (gesRefVal === 2 || (gesRefVal === 0 &&
         curPos.x > barrageWidth / 2)) { // 右边的上下滑动
-        if (gesRef !== 2) { setGestureType(2); }
-        this.props.setStateProps.setIsShowCenterVolume(true);
+        if (gesRefVal !== 2) { setGestureType(2); }
+        setIsShowCenterVolume(true);
 
         let volumeAfterChange = initVolume - moveRatio.y; // y轴向下为正，因此取反
         if (volumeAfterChange < 0 || volumeAfterChange > 1) { return; }
         else {
-          this.props.refProps.curVolumeRef.current.style.width = `${volumeAfterChange * 100}%`;
+          curVolumeRef.current.style.width = `${volumeAfterChange * 100}%`;
           videoDOM.volume = volumeAfterChange;
         }
       } else { // 左边的上下滑动
-        if (gesRef !== 3) { setGestureType(3); }
-        this.props.setStateProps.setIsShowCenterBri(true);
+        if (gesRefVal !== 3) { setGestureType(3); }
+        setIsShowCenterBri(true);
 
         briAfterChange = initBrightness - moveRatio.y;
         // 这个重置必须有，否则下次滑动时，briAfterChange将是负数
@@ -307,7 +310,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
         if (briAfterChange < 0) { briAfterChange = 0; }
         else if (briAfterChange > 1) { briAfterChange = 1; }
         else {
-          this.props.refProps.curBrightnessRef.current.style.width = `${briAfterChange * 100}%`;
+          curBrightnessRef.current.style.width = `${briAfterChange * 100}%`;
           videoDOM.style.filter = `brightness(${briAfterChange})`;
         }
       }
@@ -316,20 +319,74 @@ class Barrage extends React.PureComponent<BarrageProps> {
     barrageContainerDOM.addEventListener("touchend", e => {
       e.stopPropagation();
 
-      if (gesRef === 0) {
-        if (!this.props.refProps.showCtrBarRef.current) { this.props.methods.showControlsTemporally(); }
-        else { this.props.setStateProps.setIsShowControlBar(false); }
-      } else if (gesRef === 1) {
+      if (gesRefVal === 0) {
+        if (!showCtrBarRef.current) { showControlsTemporally(); }
+        else { setIsShowControlBar(false); }
+      } else if (gesRefVal === 1) {
         videoDOM.currentTime = timeAfterChange;
-        videoDOM.addEventListener("timeupdate", this.props.methods.setTimeupdateListener);
-        this.props.methods.showControlsTemporally();
-      } else if (gesRef === 2) {
-        setTimeout(() => { this.props.setStateProps.setIsShowCenterVolume(false); }, 200);
+        videoDOM.addEventListener("timeupdate", setTimeupdateListener);
+        showControlsTemporally();
+      } else if (gesRefVal === 2) {
+        setTimeout(() => { setIsShowCenterVolume(false); }, 200);
       } else {
         initBrightness = briAfterChange;
-        setTimeout(() => { this.props.setStateProps.setIsShowCenterBri(false); }, 200);
+        setTimeout(() => { setIsShowCenterBri(false); }, 200);
       }
     });
+  }
+
+  public setMouseListener() {
+    const { setIsShowControlBar } = this.props.barrageSetState;
+    const controlBarDOM = this.props.barrageRefs.controlBarRef.current;
+    const showControlsTemporally = this.props.barrageMethods.showControlsTemporally;
+    const ctrBarTimer = this.props.ctrBarTimer;
+
+    const barrageContainerDOM = this.barrageRef.current;
+    // click事件不能正常显示/隐藏控制器，且会影响其他控制器子组件的点击
+    // barrageContainerDOM.addEventListener("click", (e) => {
+    //   e.stopPropagation();
+    //   e.preventDefault();
+    //   clearTimeout(timer);
+    //   if (!isShowControlBar) {
+    //     showControlsTemporally();
+    //   } else {
+    //     hideControls();
+    //   }
+    // });
+
+    // 鼠标移入视频区则显示控制器，2秒后隐藏
+    barrageContainerDOM.addEventListener("mouseover", e => {
+      e.stopPropagation();
+      showControlsTemporally();
+    });
+    // 鼠标移动过程中一直显示控制器
+    barrageContainerDOM.addEventListener("mousemove", e => {
+      e.stopPropagation();
+      clearTimeout(ctrBarTimer);
+      showControlsTemporally();
+    });
+    // 鼠标移出视频区立即隐藏控制器
+    barrageContainerDOM.addEventListener("mouseout", e => {
+      e.stopPropagation();
+      clearTimeout(ctrBarTimer);
+      setIsShowControlBar(false);
+    });
+    // 鼠标停留在控制器上时，一直显示控制器
+    // 这里不绑定mouseover事件，是因为：
+    //   触发mouseover后马上又触发barrageContainerDOM的mousemove，进而调用showControlsTemporally
+    //   这样控制器就会2秒后隐藏，而不是一直显示
+    controlBarDOM.addEventListener("mousemove", e => {
+      e.stopPropagation();
+      clearTimeout(ctrBarTimer);
+      showControlsTemporally();
+    });
+  }
+
+  /* 以下为生命周期函数 */
+  public componentDidMount() {
+    this.init();
+    if (this.isPC) { this.setMouseListener(); }
+    else { setTimeout(() => { this.setFingerListener(); }, 1); }
   }
 
   /* 以下为渲染部分 */

@@ -1,2 +1,110 @@
 @import "../../../../assets/stylus/px2rem.styl"
 
+@keyframes hide {
+  0% {opacity: 1;} 
+  100% {opacity: 0;}
+}
+@-webkit-keyframes hide {
+  0% {opacity: 1;} 
+  100% {opacity: 0;}
+}
+gradually-hide-style(hideTime)
+  animation: hide (hideTime)ms ease-in;
+  -webkit-animation: hide (hideTime)ms ease-in;
+  animation-fill-mode:forwards;
+  -webkit-animation-fill-mode: forwards;
+
+.control-bar
+  position absolute
+  bottom: 0
+  width: 100%
+  height: px2rem(44)
+  background: linear-gradient(rgba(0,0,0,0),rgba(0,0,0,1))
+  z-index: 2
+  &.gradually-hide
+    gradually-hide-style(500)
+  .control-bar-play-btn
+    display: inline-block
+    position: absolute
+    left: px2rem(5)
+    top: px2rem(9)
+    width:px2rem(25)
+    height: px2rem(25)
+    opacity: .85
+    svg
+      font-size: px2rem(25)
+      height: 100%
+      line-height: @height 
+    color: #ffffff
+  &.live-control
+    background-color: transparent
+    background-image: linear-gradient(180deg, transparent, rgba(0, 0, 0, .7))
+    .left
+      margin-left: px2rem(12)
+  .left
+    display: inline-block
+    position: absolute
+    left: px2rem(26)
+    top: px2rem(5)
+    line-height: px2rem(34)
+    opacity: .85
+    color: #ffffff
+    font-size: px2rem(12)
+    font-family: arial, sans-serif
+    & > span
+      display: inline-block
+    .time, .total-duration
+      width: px2rem(40)
+    .time
+      text-align: right
+    .split
+      width: px2rem(7.6)
+      text-align: center
+    .total-duration
+      text-align: left
+  .center
+    position: absolute
+    left: px2rem(110)
+    top: px2rem(21)
+    right: px2rem(115)
+    height: px2rem(2)
+    .progress-wrapper
+      position: relative
+      height: 100%
+      background-color: #4c4c4c
+      .progress
+        position: absolute
+        top: 0
+        left: 0
+        height: 100%
+        background-color: #de698c
+        .progress-btn
+          position: absolute
+          top: px2rem(-6.6)
+          right: px2rem(-14)
+          width: px2rem(14)
+          height: px2rem(14)
+          background-image: url("../../../../assets/images/progress-btn.svg")
+  .right
+    float: right
+    margin-right: px2rem(10)
+    display:flex
+    align-items: center
+    opacity: .85
+    .speed-btn,
+    .barrage-btn,
+    .fullscreen-btn
+      display: inline-block
+      position: absolute
+      top: 50%;
+      transform:translateY(-50%);
+      right: px2rem(78)
+      width: px2rem(24)
+      height: @width
+      line-height: @height
+      font-size: px2rem(24)
+      color: #ffffff
+    .barrage-btn
+      right: px2rem(44)
+    .fullscreen-btn
+      right: px2rem(10)

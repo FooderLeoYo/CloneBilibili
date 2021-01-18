@@ -1,5 +1,19 @@
 @import "../../../../assets/stylus/px2rem.styl"
 
+@keyframes hide {
+  0% {opacity: 1;} 
+  100% {opacity: 0;}
+}
+@-webkit-keyframes hide {
+  0% {opacity: 1;} 
+  100% {opacity: 0;}
+}
+gradually-hide-style(hideTime)
+  animation: hide (hideTime)ms ease-in;
+  -webkit-animation: hide (hideTime)ms ease-in;
+  animation-fill-mode:forwards;
+  -webkit-animation-fill-mode: forwards;
+
 .speed-wrapper
   position: relative
   height: 100%
@@ -37,7 +51,7 @@
       color: #ffffff
       font-size: px2rem(15)
       text-align: center
-      li
-        margin: px2rem(7)
       &.gradually-hide
         gradually-hide-style(500)
+      li
+        margin: px2rem(7)

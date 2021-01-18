@@ -15,14 +15,42 @@ interface CoverProps {
     url: string
   },
   playOrPause: () => void,
-  lastPosRef: React.MutableRefObject<any>
+  lastPosRef: React.MutableRefObject<any>,
+  setWaiting: React.Dispatch<React.SetStateAction<boolean>>,
+  videoRef: React.RefObject<HTMLVideoElement>,
+  pausedRef: React.MutableRefObject<boolean>
 }
 
-function Cover(props: CoverProps) {
-  const { isLive, video, playOrPause, lastPosRef } = props;
+const { useState, useEffect } = React;
+
+function Cover(props: CoverProps, ref) {
+  const { isLive, video, playOrPause, lastPosRef, setWaiting,
+    videoRef, pausedRef } = props;
+
+  const [isShowCover, setIsShowCover] = useState(true);
+
+  const coverStyle = { display: isShowCover ? "block" : "none" };
+
+  function setThumbnailListener() {
+    const videoDOM = videoRef.current;
+    function setPlayState() {
+      setIsShowCover(false);
+      pausedRef.current = false;
+      setWaiting(false);
+    }
+
+    // "play"是HTML DOM 事件onplay的事件类型，而不是一个自定义名称
+    if (!isLive) { videoDOM.addEventListener("play", setPlayState); }
+    videoDOM.addEventListener("playing", setPlayState);
+    videoDOM.addEventListener("waiting", () => { setWaiting(true); });
+  }
+
+  useEffect(() => {
+    setThumbnailListener();
+  }, []);
 
   return (
-    <>
+    <div className={style.cover} style={coverStyle}>
       {
         !isLive ? (
           <>
@@ -63,7 +91,7 @@ function Cover(props: CoverProps) {
             </>
           )
       }
-    </>
+    </div>
   )
 }
 

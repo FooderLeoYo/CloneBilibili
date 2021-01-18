@@ -24,8 +24,7 @@ function LiveInfo(props: LiveInfoProps) {
           </span>
           {/* offset={100}表示当框进入屏幕100px以后，才加载图片 */}
           <LazyLoad height={"100%"} offset={100}>
-            <img src={data.cover} alt={data.title} onLoad={e => {
-            }} />
+            <img src={data.cover} alt={data.title} />
           </LazyLoad>
         </div>
         <span className={style.name}>{data.upUser.name}</span>

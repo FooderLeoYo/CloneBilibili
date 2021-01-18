@@ -71,7 +71,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     return state;
   }
 
-  public componentDidUpdate(prevProps, prevState) {
+  public componentDidUpdate(prevProps) {
     if (this.props.needForcedUpdate && prevProps.currentIndex !== this.state.curInx) {
       this.resetScroll();
     }

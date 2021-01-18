@@ -23,7 +23,7 @@ module.exports = {
   rules: {
     "no-undef": "off",
     "no-restricted-globals": "off",
-    "no-unused-vars": "warn",
+    "no-unused-vars": "off",
     "no-unused-labels": "warn",
     "react/display-name": "off",
     "react/prop-types": "off",

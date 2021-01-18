@@ -8,15 +8,13 @@ interface SpeedProps {
   isShowPlayBtn: boolean,
   setIsShowPlayBtn: Function,
   setSpeedBtnSuffix: Function,
-  easeTimer: number,
-  setGraduallyHide: Function,
 }
 
 const { useState, useRef, useImperativeHandle, forwardRef } = React;
 
 const Speed = forwardRef((props: SpeedProps, ref: React.MutableRefObject<any>) => {
   const { videoDOM, paused, playBtnTimer, isShowPlayBtn, setIsShowPlayBtn,
-    setSpeedBtnSuffix, easeTimer, setGraduallyHide } = props;
+    setSpeedBtnSuffix } = props;
 
   const [showCenterSpeed, setShowCenterSpeed] = useState(false);
   const [showSpeedBar, setShowSpeedBar] = useState(false);
@@ -28,6 +26,8 @@ const Speed = forwardRef((props: SpeedProps, ref: React.MutableRefObject<any>) =
   // 注意这里设置显示不能是block，因为会覆盖掉css中的grid
   // 所以直接设成grid，css还可以省去display: grid
   const speedBarStyle: React.CSSProperties = { display: showSpeedBar ? "grid" : "none" };
+
+  let SpeedEaseTimer: number;
 
   function showPlayBtn() {
     if (playBtnTimer !== 0) { clearTimeout(playBtnTimer); }
@@ -62,9 +62,18 @@ const Speed = forwardRef((props: SpeedProps, ref: React.MutableRefObject<any>) =
     }
   }
 
+  function setGraduallyHide(DOM, startTime) {
+    SpeedEaseTimer = setTimeout(() => {
+      DOM.classList.add(style.graduallyHide);
+    }, startTime);
+    setTimeout(() => {
+      DOM.classList.remove(style.graduallyHide);
+    }, startTime + 500);
+  }
+
   useImperativeHandle(ref, () => ({
     showSpeedBarTemporally: () => {
-      clearTimeout(easeTimer);
+      clearTimeout(SpeedEaseTimer);
       setShowSpeedBar(true);
       setGraduallyHide(speedBarRef.current, 2000);
       setTimeout(() => { setShowSpeedBar(false); }, 2500);
