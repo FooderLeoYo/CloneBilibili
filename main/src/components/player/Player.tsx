@@ -102,7 +102,8 @@ function Player(props: PlayerProps, ref) {
 
   let initBarrages: Array<any>; // 拿到数据时的初始格式，供slice后生成barrages
   let barrages: Array<any>; // 真正发送到播放器中的弹幕
-  let ctrBarTimer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
+  // let ctrBarTimer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
+  const [ctrBarTimer, setCtrBarTimer] = useState(0);
   const ctrBarStatus = {
     isLive: isLive,
     isShowControlBar: isShowControlBar,

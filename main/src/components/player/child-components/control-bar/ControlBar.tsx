@@ -65,23 +65,8 @@ function ControlBar(props: ControlBarProps, ref) {
   const speedBtnRef: React.RefObject<HTMLDivElement> = useRef(null);
 
   const controlBarStyle: React.CSSProperties = { visibility: isShowControlBar ? "visible" : "hidden" };
-  const [showBarrage, setShowBarrage] = useState(true);
-  let ctrPlayBtnIconName = pausedRef.current ? "Play" : "Pause";
-  let barrageBtnIconName = showBarrage ? "On" : "Off";
 
   let easeTimer: number;
-
-  useImperativeHandle(ref, () => ({
-    setGraduallyHide: (DOM, startTime) => {
-      easeTimer = setTimeout(() => {
-        DOM.classList.add(style.graduallyHide);
-      }, startTime);
-      setTimeout(() => {
-        DOM.classList.remove(style.graduallyHide);
-      }, startTime + 500);
-    },
-    showBarrage: showBarrage
-  }), []);
 
   function changePlayPosition(e) {
     const progressWrapperDOM = progressRef.current.parentElement;
@@ -99,12 +84,26 @@ function ControlBar(props: ControlBarProps, ref) {
     showControlsTemporally();
   }
 
-  // 开启或关闭弹幕
+  // 弹幕开关
+  const [showBarr, setShowBarr] = useState(true);
+  const showBarrRef = useRef(showBarr);
+  useEffect(() => { showBarrRef.current = showBarr; }, [showBarr]);
+  const barrageBtnIconName = showBarr ? "On" : "Off";
   function onOrOff() {
-    if (showBarrage) {
-      barrageRef.current.clear();
-      setShowBarrage(false);
-    } else { setShowBarrage(true); }
+    if (showBarrRef.current) { barrageRef.current.clear(); }
+  }
+
+  // 播放开关
+  const [stop, setStop] = useState(true);
+  const stopRef = useRef(stop);
+  useEffect(() => {
+    setShowBarr(pausedRef.current);
+    stopRef.current = stop;
+  }, [pausedRef.current]);
+  const ctrPlayBtnIconName = !stop ? "Play" : "Pause";
+  function playOrStop() {
+    setStop(!stopRef.current);
+    playOrPause();
   }
 
   function entryOrExitFullscreen() {
@@ -206,7 +205,7 @@ function ControlBar(props: ControlBarProps, ref) {
   function setBtnsListener() {
     ctrPlayBtnRef.current.addEventListener("click", e => {
       e.stopPropagation();
-      playOrPause();
+      playOrStop();
     });
     barrageBtnRef.current.addEventListener("click", e => {
       e.stopPropagation();
@@ -226,6 +225,18 @@ function ControlBar(props: ControlBarProps, ref) {
       setIsShowPlayBtn(false);
     })
   }
+
+  useImperativeHandle(ref, () => ({
+    setGraduallyHide: (DOM, startTime) => {
+      easeTimer = setTimeout(() => {
+        DOM.classList.add(style.graduallyHide);
+      }, startTime);
+      setTimeout(() => {
+        DOM.classList.remove(style.graduallyHide);
+      }, startTime + 500);
+    },
+    showBarrage: showBarr
+  }), [showBarr])
 
   useEffect(() => {
     setElesActivedColor();
