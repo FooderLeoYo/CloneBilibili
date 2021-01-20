@@ -18,16 +18,18 @@ interface CoverProps {
   lastPosRef: React.MutableRefObject<any>,
   setWaiting: React.Dispatch<React.SetStateAction<boolean>>,
   videoRef: React.RefObject<HTMLVideoElement>,
-  pausedRef: React.MutableRefObject<boolean>
+  setPaused: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const { useState, useEffect } = React;
+const { useState, useEffect, useRef, forwardRef, useImperativeHandle } = React;
 
 function Cover(props: CoverProps, ref) {
   const { isLive, video, playOrPause, lastPosRef, setWaiting,
-    videoRef, pausedRef } = props;
+    videoRef, setPaused } = props;
 
   const [isShowCover, setIsShowCover] = useState(true);
+  const notLiveCoverRef: React.RefObject<HTMLDivElement> = useRef(null);
+  const liveCoverRef: React.RefObject<HTMLDivElement> = useRef(null);
 
   const coverStyle = { display: isShowCover ? "block" : "none" };
 
@@ -35,15 +37,31 @@ function Cover(props: CoverProps, ref) {
     const videoDOM = videoRef.current;
     function setPlayState() {
       setIsShowCover(false);
-      pausedRef.current = false;
+      setPaused(false);
       setWaiting(false);
     }
 
-    // "play"是HTML DOM 事件onplay的事件类型，而不是一个自定义名称
-    if (!isLive) { videoDOM.addEventListener("play", setPlayState); }
     videoDOM.addEventListener("playing", setPlayState);
     videoDOM.addEventListener("waiting", () => { setWaiting(true); });
+    // "play"是HTML DOM 事件onplay的事件类型，而不是一个自定义名称
+    if (!isLive) {
+      videoDOM.addEventListener("play", setPlayState);
+      notLiveCoverRef.current.addEventListener("click", e => {
+        e.stopPropagation();
+        playOrPause();
+        lastPosRef.current.hideLastPos();
+      });
+    } else {
+      liveCoverRef.current.addEventListener("click", e => {
+        e.stopPropagation();
+        playOrPause();
+      });
+    }
   }
+
+  useImperativeHandle(ref, () => ({
+    isShowCover: isShowCover
+  }), [isShowCover])
 
   useEffect(() => {
     setThumbnailListener();
@@ -62,14 +80,7 @@ function Cover(props: CoverProps, ref) {
               <div className={style.duration}>
                 {formatDuration(video.duration, "0#:##:##")}
               </div>
-              <div
-                className={style.preview}
-                onClick={e => {
-                  e.stopPropagation();
-                  playOrPause();
-                  lastPosRef.current.hideLastPos();
-                }}
-              >
+              <div className={style.preview} ref={notLiveCoverRef}>
                 <svg className="icon" aria-hidden="true">
                   <use href="#icon-play"></use>
                 </svg>
@@ -80,13 +91,7 @@ function Cover(props: CoverProps, ref) {
             <>
               <img className={style.pic} src={video.cover} alt={video.title} />
               <div className={style.prePlay}>
-                <div
-                  className={style.preview}
-                  onClick={e => {
-                    e.stopPropagation();
-                    playOrPause();
-                  }}
-                />
+                <div className={style.preview} ref={liveCoverRef} />
               </div>
             </>
           )
@@ -95,4 +100,4 @@ function Cover(props: CoverProps, ref) {
   )
 }
 
-export default Cover;
+export default forwardRef(Cover);

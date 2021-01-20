@@ -13,20 +13,24 @@ interface ReplayProps {
   playOrPause: () => void,
 }
 
+const { useEffect, useRef } = React;
+
 function Replay(props: ReplayProps) {
   const { video, playOrPause } = props;
+
+  const coverRef: React.RefObject<HTMLDivElement> = useRef(null);
+  useEffect(() => {
+    coverRef.current.addEventListener("click", e => {
+      e.stopPropagation();
+      playOrPause();
+    });
+  }, []);
 
   return (
     <div className={style.finishCover}>
       <img className={style.coverPic} src={video.cover} alt={video.title} />
       <div className={style.coverWrapper}>
-        <div
-          className={style.replay}
-          onClick={e => {
-            e.stopPropagation();
-            playOrPause();
-          }}
-        >
+        <div className={style.replay} ref={coverRef}>
           <span className={style.replayIcon}>
             <svg className="icon" aria-hidden="true">
               <use href="#icon-replay"></use>

@@ -10,6 +10,7 @@ interface ControlBarProps {
     isLive: boolean,
     isShowControlBar: boolean,
     speedBtnSuffix: string,
+    paused: boolean
   },
   ctrBarData: {
     video: {
@@ -22,11 +23,13 @@ interface ControlBarProps {
     },
     initBarrages: any[],
     ctrBarTimer: number,
+    liveTime: number
   },
   ctrBarMethods: {
     playOrPause: () => void,
     changeBar: Function,
     showControlsTemporally: Function,
+    clearCtrTimer: () => void,
     setTimeupdateListener: () => void,
     setIsShowControlBar: React.Dispatch<React.SetStateAction<boolean>>,
     setIsShowPlayBtn: React.Dispatch<React.SetStateAction<boolean>>
@@ -34,14 +37,12 @@ interface ControlBarProps {
   ctrBarRefs: {
     controlBarRef: React.RefObject<HTMLDivElement>,
     ctrPlayBtnRef: React.RefObject<HTMLDivElement>,
-    pausedRef: React.MutableRefObject<boolean>,
     currentTimeRef: React.RefObject<HTMLSpanElement>,
     progressRef: React.RefObject<HTMLDivElement>,
     videoRef: React.RefObject<HTMLVideoElement>,
     barrageRef: React.RefObject<Barrage>,
     playerRef: React.RefObject<HTMLDivElement>,
     speedRef: React.MutableRefObject<any>,
-    liveDurationRef: React.RefObject<HTMLDivElement>
   },
 }
 
@@ -49,22 +50,26 @@ const { useState, useEffect, useRef, forwardRef, useImperativeHandle } = React;
 
 function ControlBar(props: ControlBarProps, ref) {
   const { ctrBarStatus, ctrBarData, ctrBarMethods, ctrBarRefs } = props;
-  const { isLive, isShowControlBar, speedBtnSuffix } = ctrBarStatus;
-  const { video, initBarrages, ctrBarTimer } = ctrBarData;
-  const { playOrPause, changeBar, showControlsTemporally,
+  const { isLive, isShowControlBar, speedBtnSuffix, paused } = ctrBarStatus;
+  const { video, initBarrages, ctrBarTimer, liveTime } = ctrBarData;
+  const { playOrPause, changeBar, showControlsTemporally, clearCtrTimer,
     setTimeupdateListener, setIsShowControlBar, setIsShowPlayBtn } = ctrBarMethods;
-  const { controlBarRef, ctrPlayBtnRef, pausedRef, currentTimeRef, progressRef,
-    videoRef, barrageRef, playerRef, speedRef, liveDurationRef } = ctrBarRefs;
+  const { controlBarRef, ctrPlayBtnRef, currentTimeRef, progressRef,
+    videoRef, barrageRef, playerRef, speedRef } = ctrBarRefs;
 
-
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const progressWrapperRef: React.RefObject<HTMLDivElement> = useRef(null);
   const progressBtnRef: React.RefObject<HTMLDivElement> = useRef(null);
   const barrageBtnRef: React.RefObject<HTMLDivElement> = useRef(null);
   const fullscreenBtnRef: React.RefObject<HTMLDivElement> = useRef(null);
   const speedBtnRef: React.RefObject<HTMLDivElement> = useRef(null);
+  const liveDurationRef: React.RefObject<HTMLDivElement> = useRef(null);
+
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const isFullRef = useRef(isFullscreen);
+  if (isFullRef.current !== isFullscreen) { isFullRef.current = isFullscreen; }
 
   const controlBarStyle: React.CSSProperties = { visibility: isShowControlBar ? "visible" : "hidden" };
+  const ctrPlayBtnIconName = paused ? "Play" : "Pause";
 
   let easeTimer: number;
 
@@ -79,7 +84,7 @@ function ControlBar(props: ControlBarProps, ref) {
     // 清除跳转前的弹幕
     barrageRef.current.clear();
 
-    if (ctrBarTimer !== 0) { clearTimeout(ctrBarTimer); }
+    if (ctrBarTimer !== 0) { clearCtrTimer(); }
     if (easeTimer !== 0) { clearTimeout(easeTimer); }
     showControlsTemporally();
   }
@@ -91,19 +96,7 @@ function ControlBar(props: ControlBarProps, ref) {
   const barrageBtnIconName = showBarr ? "On" : "Off";
   function onOrOff() {
     if (showBarrRef.current) { barrageRef.current.clear(); }
-  }
-
-  // 播放开关
-  const [stop, setStop] = useState(true);
-  const stopRef = useRef(stop);
-  useEffect(() => {
-    setShowBarr(pausedRef.current);
-    stopRef.current = stop;
-  }, [pausedRef.current]);
-  const ctrPlayBtnIconName = !stop ? "Play" : "Pause";
-  function playOrStop() {
-    setStop(!stopRef.current);
-    playOrPause();
+    setShowBarr(!showBarrRef.current);
   }
 
   function entryOrExitFullscreen() {
@@ -111,7 +104,7 @@ function ControlBar(props: ControlBarProps, ref) {
     // const videoDOM: any = videoRef.current;
     // const videoAreaWrapperDOM = videoAreaWrapperRef.current;
 
-    if (isFullscreen) {
+    if (isFullRef.current) {
       const doc: any = document;
 
       setIsFullscreen(false);
@@ -162,7 +155,7 @@ function ControlBar(props: ControlBarProps, ref) {
       e.stopPropagation();
       progressWidth = progressWrapperDOM.offsetWidth;
       progressLeft = progressWrapperDOM.getBoundingClientRect().left;
-      if (ctrBarTimer !== 0) { clearTimeout(ctrBarTimer); }
+      if (ctrBarTimer !== 0) { clearCtrTimer(); }
       if (easeTimer !== 0) { clearTimeout(easeTimer); }
       videoDOM.removeEventListener("timeupdate", setTimeupdateListener);
     });
@@ -205,7 +198,7 @@ function ControlBar(props: ControlBarProps, ref) {
   function setBtnsListener() {
     ctrPlayBtnRef.current.addEventListener("click", e => {
       e.stopPropagation();
-      playOrStop();
+      playOrPause();
     });
     barrageBtnRef.current.addEventListener("click", e => {
       e.stopPropagation();
@@ -226,6 +219,16 @@ function ControlBar(props: ControlBarProps, ref) {
     })
   }
 
+  function setLiveDurationDOM() {
+    const liveDurationDOM = liveDurationRef.current;
+    let liveDuration = (new Date().getTime() - liveTime) / 1000;
+    liveDurationDOM.innerHTML = formatDuration(liveDuration, "0#:##:##");
+    setInterval(() => {
+      liveDuration += 1;
+      liveDurationDOM.innerHTML = formatDuration(liveDuration, "0#:##:##");
+    }, 1000);
+  }
+
   useImperativeHandle(ref, () => ({
     setGraduallyHide: (DOM, startTime) => {
       easeTimer = setTimeout(() => {
@@ -235,7 +238,10 @@ function ControlBar(props: ControlBarProps, ref) {
         DOM.classList.remove(style.graduallyHide);
       }, startTime + 500);
     },
-    showBarrage: showBarr
+    showBarrage: showBarr,
+    clearEaseTimer: () => {
+      clearTimeout(easeTimer);
+    }
   }), [showBarr])
 
   useEffect(() => {
@@ -244,7 +250,7 @@ function ControlBar(props: ControlBarProps, ref) {
     if (!isLive) {
       setProgressDOM();
       setSpeedBtnListener();
-    }
+    } else { if (liveTime) { setLiveDurationDOM(); } }
   }, []);
 
   return (

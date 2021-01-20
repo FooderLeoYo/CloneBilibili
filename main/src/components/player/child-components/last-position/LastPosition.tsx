@@ -24,7 +24,7 @@ function LastPosition(props: LastPositionProps, ref: React.MutableRefObject<any>
   const lastPosWrapperRef: React.RefObject<HTMLDivElement> = useRef(null);
   const jumpRef: React.RefObject<HTMLDivElement> = useRef(null);
   const [lastPlayPos, setLastPlayPos] = useState(0);
-  const videoDOM = videoRef.current;
+  const videoDOM: HTMLVideoElement = videoRef.current;
 
   useImperativeHandle(ref, () => ({
     hideLastPos: () => {
