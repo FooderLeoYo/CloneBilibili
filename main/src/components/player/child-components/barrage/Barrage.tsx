@@ -2,6 +2,8 @@ import * as React from "react";
 import { getTransitionEndName } from "../../../../customed-methods/compatible";
 import { formatDuration } from "../../../../customed-methods/string";
 
+import style from "./barrage.styl?css-modules";
+
 /**
  * 弹幕类型
  * RANDOM: 随机位置
@@ -51,7 +53,6 @@ interface BarrageProps {
  * 使用纯组件，不发生update，发射弹幕采用DOM操作
  */
 class Barrage extends React.PureComponent<BarrageProps> {
-  /* 以下为初始化 */
   public viewWidth: number; // 弹幕区域的宽度
   public viewHeight: number; // 弹幕区域的高度
   private barrageRef: React.RefObject<HTMLDivElement>;
@@ -68,47 +69,16 @@ class Barrage extends React.PureComponent<BarrageProps> {
     this.fontSize = props.fontSize || "0.8rem";
     this.opacity = props.opacity || 1;
     this.isPC = !(/(Safari|iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
-
   }
 
-  /* 以下为自定义方法 */
-  // 初始化弹幕区域大小和contentHeight
-  private init() {
-    this.initBarrageDomSize();
-    // 初始化contentHeight
-    // this.fontSize由于类型原因，不能直接赋值给this.contentHeight
-    // 因此要建一个临时的div并应用该contentHeight
-    // 然后再将div.offsetHeight赋值给this.contentHeight
-    const div = document.createElement("div");
-    div.innerHTML = "div";
-    div.style.fontSize = this.fontSize;
-    // 末尾加[0]的原因是：getElementsByTagName返回的是一个数组
-    // 因此即使只有一个元素，也要用[0]才能取到
-    const body = document.getElementsByTagName("body")[0];
-    body.appendChild(div);
-    // 弹幕内容高度
-    this.contentHeight = div.offsetHeight;
-    body.removeChild(div);
-
-    // 如果父组件有弹幕传递过来，则显示这些弹幕（一般没有）
-    const { barrages } = this.props;
-    if (barrages) {
-      for (const barrage of barrages) {
-        this.send(barrage);
-      }
-    }
+  public initBarrAreaSize = () => {
+    setTimeout(() => { // 用定时器是因为屏幕旋转有延时，要等屏幕转完再测距
+      const barrageDOM = this.barrageRef.current;
+      this.viewWidth = barrageDOM.offsetWidth;
+      this.viewHeight = barrageDOM.offsetHeight;
+    }, 1000);
   }
 
-  //  初始化弹幕容器宽高
-  public initBarrageDomSize() {
-    const barrageDOM = this.barrageRef.current;
-    // 弹幕区域宽
-    this.viewWidth = barrageDOM.offsetWidth;
-    // 弹幕区域高
-    this.viewHeight = barrageDOM.offsetHeight;
-  }
-
-  //  创建弹幕元素
   private createBarrageElem(barrage: BarrageData) {
     const div = document.createElement("div");
     div.innerHTML = barrage.content;
@@ -170,7 +140,6 @@ class Barrage extends React.PureComponent<BarrageProps> {
     return div;
   }
 
-  //  发送弹幕
   public send(barrage: BarrageData) {
     const barrageDOM = this.barrageRef.current;
     const barrageElem = this.createBarrageElem(barrage);
@@ -179,8 +148,6 @@ class Barrage extends React.PureComponent<BarrageProps> {
     if (barrage.type !== BarrageType.FIXED) {
       const x = - (this.viewWidth + barrageElem.offsetWidth);
       setTimeout(() => {
-        // transition是过渡，transform是具体的变化
-        barrageElem.style.webkitTransform = `translate3d(${x}px, 0, 0)`;
         barrageElem.style.transform = `translate3d(${x}px, 0, 0)`;
       }, 10); // 这里的10不是动画时间，而是等待组件加载，然后才添加style
     } else {
@@ -200,7 +167,6 @@ class Barrage extends React.PureComponent<BarrageProps> {
     }
   }
 
-  //  清除弹幕
   public clear() {
     this.randomTop = 0;
     this.fixedTop = 0;
@@ -210,6 +176,33 @@ class Barrage extends React.PureComponent<BarrageProps> {
     for (const child of Array.from(children)) {
       barrageDOM.removeChild(child);
     }
+  }
+
+  private init() {
+    /* 将contentHeight初始化为fontSize */
+    // this.fontSize由于类型原因，不能直接赋值给this.contentHeight
+    // 因此要建一个临时的div并应用该fontSize
+    // 然后再将div.offsetHeight赋值给this.contentHeight
+    const div = document.createElement("div");
+    div.innerHTML = "tmp";
+    div.style.fontSize = this.fontSize;
+    // 末尾加[0]的原因是：getElementsByTagName返回的是一个数组
+    // 因此即使只有一个元素，也要用[0]才能取到
+    const body = document.getElementsByTagName("body")[0];
+    body.appendChild(div);
+    this.contentHeight = div.offsetHeight;
+    body.removeChild(div);
+
+    /* 首次加载及屏幕旋转时更新弹幕区域大小 */
+    this.initBarrAreaSize();
+    // initBarrAreaSize要不用箭头函数（this永远指向上一层），要不用bind(this)处理，因为：
+    // addEventListener的调用者是window，因此this.initBarrAreaSize的this就是window；
+    // 那么触发orientationchange时，initBarrAreaSize中的this也将是window，但应该是Barrage
+    addEventListener("orientationchange", this.initBarrAreaSize);
+
+    /* 如果父组件有弹幕传递过来，则显示这些弹幕（一般没有） */
+    const { barrages } = this.props;
+    if (barrages) { for (const barrage of barrages) { this.send(barrage); } }
   }
 
   public setFingerListener() {
@@ -380,27 +373,23 @@ class Barrage extends React.PureComponent<BarrageProps> {
     });
   }
 
-  /* 以下为生命周期函数 */
   public componentDidMount() {
     this.init();
     if (this.isPC) { this.setMouseListener(); }
     else { setTimeout(() => { this.setFingerListener(); }, 1); }
   }
 
+  public componentWillUnmount() {
+    removeEventListener("orientationchange", this.initBarrAreaSize);
+  }
+
   /* 以下为渲染部分 */
   public render() {
-    const style: any = {
-      position: "relative",
-      width: "100%",
-      height: "100%",
-      overflow: "hidden"
-    };
     return (
-      <div style={style} ref={this.barrageRef} />
+      <div className={style.barrContainer} ref={this.barrageRef} />
     );
   }
 }
 
 export { BarrageType };
-
 export default Barrage;

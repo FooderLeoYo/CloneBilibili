@@ -26,13 +26,13 @@ interface ControlBarProps {
     liveTime: number
   },
   ctrBarMethods: {
+    setIsShowControlBar: React.Dispatch<React.SetStateAction<boolean>>,
+    setIsShowPlayBtn: React.Dispatch<React.SetStateAction<boolean>>,
     playOrPause: () => void,
     changeBar: Function,
     showControlsTemporally: Function,
     clearCtrTimer: () => void,
     setTimeupdateListener: () => void,
-    setIsShowControlBar: React.Dispatch<React.SetStateAction<boolean>>,
-    setIsShowPlayBtn: React.Dispatch<React.SetStateAction<boolean>>
   },
   ctrBarRefs: {
     controlBarRef: React.RefObject<HTMLDivElement>,
@@ -52,8 +52,8 @@ function ControlBar(props: ControlBarProps, ref) {
   const { ctrBarStatus, ctrBarData, ctrBarMethods, ctrBarRefs } = props;
   const { isLive, isShowControlBar, speedBtnSuffix, paused } = ctrBarStatus;
   const { video, initBarrages, ctrBarTimer, liveTime } = ctrBarData;
-  const { playOrPause, changeBar, showControlsTemporally, clearCtrTimer,
-    setTimeupdateListener, setIsShowControlBar, setIsShowPlayBtn } = ctrBarMethods;
+  const { setIsShowControlBar, setIsShowPlayBtn, playOrPause, changeBar, showControlsTemporally, clearCtrTimer,
+    setTimeupdateListener } = ctrBarMethods;
   const { controlBarRef, ctrPlayBtnRef, currentTimeRef, progressRef,
     videoRef, barrageRef, playerRef, speedRef } = ctrBarRefs;
 

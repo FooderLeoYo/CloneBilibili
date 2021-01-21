@@ -23,9 +23,7 @@ const Speed = forwardRef((props: SpeedProps, ref: React.MutableRefObject<any>) =
   const speedBarRef: React.RefObject<HTMLUListElement> = useRef(null);
 
   const centerSpeedStyle: React.CSSProperties = { visibility: showCenterSpeed ? "visible" : "hidden" };
-  // 注意这里设置显示不能是block，因为会覆盖掉css中的grid
-  // 所以直接设成grid，css还可以省去display: grid
-  const speedBarStyle: React.CSSProperties = { display: showSpeedBar ? "grid" : "none" };
+  const speedBarStyle: React.CSSProperties = { visibility: showSpeedBar ? "visible" : "hidden" };
 
   let SpeedEaseTimer: number;
 
@@ -76,7 +74,7 @@ const Speed = forwardRef((props: SpeedProps, ref: React.MutableRefObject<any>) =
       clearTimeout(SpeedEaseTimer);
       setShowSpeedBar(true);
       setGraduallyHide(speedBarRef.current, 2000);
-      setTimeout(() => { setShowSpeedBar(false); }, 2500);
+      setTimeout(() => { setShowSpeedBar(false); }, 2000);
     }
   }), []);
 
@@ -87,8 +85,8 @@ const Speed = forwardRef((props: SpeedProps, ref: React.MutableRefObject<any>) =
         style={centerSpeedStyle}
       >{`${centerSpeed}x`}
       </span>
-      <div className={style.speedBarWrapper}>
-        <ul className={style.speedBar} style={speedBarStyle} ref={speedBarRef}>
+      <div className={style.speedBarWrapper} style={speedBarStyle}>
+        <ul className={style.speedBar} ref={speedBarRef}>
           <li
             style={{ color: centerSpeed === 0.5 ? "#de698c" : "#ffffff" }}
             onClick={e => {

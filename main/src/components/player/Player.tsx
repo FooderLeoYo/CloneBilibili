@@ -135,7 +135,7 @@ function Player(props: PlayerProps, ref) {
     clearCtrTimer: clearCtrTimer,
     setTimeupdateListener: setTimeupdateListener,
     setIsShowControlBar: setIsShowControlBar,
-    setIsShowPlayBtn: setIsShowPlayBtn
+    setIsShowPlayBtn: setIsShowPlayBtn,
   };
   const ctrBarRefs = {
     controlBarRef: controlBarRef,
