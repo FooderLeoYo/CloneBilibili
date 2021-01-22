@@ -343,7 +343,6 @@ function Player(props: PlayerProps, ref) {
       {/* 视频区域 */}
       <div className={style.playerWrapper} ref={playerWrapperRef}>
         <div className={style.videoArea} ref={videoAreaRef}>
-          {/* 播放速度选择及当前所选速度 */}
           <video
             height="100%"
             width="100%"

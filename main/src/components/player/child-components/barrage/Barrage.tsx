@@ -217,6 +217,11 @@ class Barrage extends React.PureComponent<BarrageProps> {
     // 用barrageContainerDOM而不是videoAreaDOM的原因，见player.styl中各DOM的层级关系
     const barrageContainerDOM: HTMLDivElement = this.barrageRef.current;
 
+    const isIos = ['iPad Simulator', 'iPhone Simulator', 'iPod Simulator',
+      'iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) !== -1 ||
+      // iPad on iOS 13 detection
+      (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+
     let barrageWidth: number = 0;
     let barrageHeight: number = 0;
     let initVolume: number;
@@ -287,10 +292,11 @@ class Barrage extends React.PureComponent<BarrageProps> {
         setIsShowCenterVolume(true);
 
         let volumeAfterChange = initVolume - moveRatio.y; // y轴向下为正，因此取反
-        if (volumeAfterChange < 0 || volumeAfterChange > 1) { return; }
+        if (isIos) { alert("IOS不允许我改音量啊! o(TヘTo)"); }
+        else if (volumeAfterChange > 1) { return; } // 不判断<0是因为有些设备手指滑动灵敏度较低，判断<0就没法进else
         else {
           curVolumeRef.current.style.width = `${volumeAfterChange * 100}%`;
-          videoDOM.volume = volumeAfterChange;
+          videoDOM.volume = volumeAfterChange > 0 ? volumeAfterChange : 0;
         }
       } else { // 左边的上下滑动
         if (gesRef.current !== 3) { setGestureType(3); }

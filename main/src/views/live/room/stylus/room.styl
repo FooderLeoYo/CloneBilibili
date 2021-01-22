@@ -2,64 +2,62 @@
 
 html, body, :global(#app), :global(.view), :global(.live-room)
   height: 100%
-.room-wrapper
+.header
+  position: fixed
+  top: 0
+  left: 0
+  z-index: 10
+  width: 100%
+  height: px2rem(45)
+  line-height: @height
+  border-bottom: 1px solid #e7e7e7
+.main
+  width: 100%
   height: 100%
-  .header
-    position: fixed
-    top: 0
-    left: 0
-    z-index: 10
-    width: 100%
-    height: px2rem(45)
-    line-height: @height
-    border-bottom: 1px solid #e7e7e7
-  .main
-    width: 100%
-    height: 100%
-    padding-top: px2rem(45)
+  padding-top: px2rem(45)
+  box-sizing: border-box
+  display: flex
+  flex-direction: column
+  .player-container
+    position: relative
+    height: px2rem(211)
+  .up-container
+    height: px2rem(63)
+    padding: px2rem(14)
     box-sizing: border-box
-    display: flex
-    flex-direction: column
-    .live-container
-      position: relative
-      height: px2rem(211)
-    .up-container
-      height: px2rem(63)
-      padding: px2rem(14)
-      box-sizing: border-box
-      border-bottom: 1px solid #eee
-      position: relative
-      .face
-        position: absolute
-        top: px2rem(7.5)
-        left: px2rem(12)
-        width: px2rem(45)
-        height : @width
-        border-radius: 50%
-        background-color: #dddddd
+    border-bottom: 1px solid #eee
+    position: relative
+    .face
+      position: absolute
+      top: px2rem(7.5)
+      left: px2rem(12)
+      width: px2rem(45)
+      height : @width
+      border-radius: 50%
+      background-color: #dddddd
+      overflow: hidden
+      img
+        width: 100%
+        height: 100%
+    .info-wrapper
+      margin-left: px2rem(50)
+      .anchor, .count
+        white-space: nowrap
         overflow: hidden
-        img
-          width: 100%
-          height: 100%
-      .info-wrapper
-        margin-left: px2rem(50)
-        .anchor, .count
-          white-space: nowrap
-          overflow: hidden
-          text-overflow: ellipsis
-        .anchor
-          margin: 0
-          line-height: px2rem(15)
-          font-weight: 400
-          font-size: px2rem(14)
-          color: #212121
-        .count
-          margin-top: px2rem(4)
-          line-height: px2rem(14)
-          font-size: px2rem(12)
-          color: #999999
-          .fans
-            margin-left: px2rem(12)
-    .tab-container
-      // 如果不设置flex:1，则当没评论的时候没法把tab-container撑开，而给定高度又不好适配
-      flex: 1
+        text-overflow: ellipsis
+      .anchor
+        margin: 0
+        line-height: px2rem(15)
+        font-weight: 400
+        font-size: px2rem(14)
+        color: #212121
+      .count
+        margin-top: px2rem(4)
+        line-height: px2rem(14)
+        font-size: px2rem(12)
+        color: #999999
+        .fans
+          margin-left: px2rem(12)
+  .bottom-container
+    // 如果不设置flex:1，则当没评论的时候没法把tab-container撑开，而给定高度又不好适配
+    flex: 1

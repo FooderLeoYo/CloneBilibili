@@ -138,9 +138,7 @@ function Room(props: RoomProps) {
     if (wsForClose) {
       // 不能把return放到模拟componentDidMount的useEffect中，因为：
       // 不给useEffect第二个参数传[wsForClose]的话，拿到的wsForClose永远是初始的“undefined”
-      return () => {
-        wsForClose.webSocket.close();
-      }
+      return () => { wsForClose.webSocket.close(); }
     }
   }, [wsForClose]);
 
@@ -157,7 +155,7 @@ function Room(props: RoomProps) {
       </Helmet>
       {
         !isDataOk ? <LoadingCutscene /> :
-          <div className={style.roomWrapper}>
+          <>
             <header className={style.header}>
               <HeaderWithBack />
             </header>
@@ -165,7 +163,7 @@ function Room(props: RoomProps) {
               {
                 context => (
                   <section className={style.main}>
-                    <div className={style.liveContainer}>
+                    <div className={style.playerContainer}>
                       <Player
                         isLive={true}
                         isStreaming={live.isLive === 1}
@@ -187,14 +185,10 @@ function Room(props: RoomProps) {
                       {/* up主头像 */}
                       <div className={style.face}>
                         <Link to={"/space/" + roomData.uId}>
-                          {
-                            anchor.face ? (
-                              <img src={context.picURL + "?pic=" + anchor.face} alt={anchor.name} />
-                            ) : null
-                          }
+                          {anchor.face && <img src={context.picURL + "?pic=" + anchor.face} alt={anchor.name} />}
                         </Link>
                       </div>
-                      {/* up主名字、人气、粉丝数 */}
+                      {/* up主文字信息 */}
                       <div className={style.infoWrapper}>
                         <p className={style.anchor}>主播：<span>{anchor.name}</span></p>
                         <p className={style.count}>
@@ -205,14 +199,13 @@ function Room(props: RoomProps) {
                         </p>
                       </div>
                     </div>
-                    {/* 直播间简介 */}
-                    <div className={style.tabContainer}>
+                    <div className={style.bottomContainer}>
                       <BottomArea description={roomData.description} />
                     </div>
                   </section>
                 )}
             </Context.Consumer>
-          </div>
+          </>
       }
     </div>
   );

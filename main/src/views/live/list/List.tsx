@@ -202,11 +202,7 @@ function List(props: ListProps) {
                             // >
                             //   <LiveInfo data={data} />
                             // </a>
-                            <Link
-                              className={style.roomWrapper}
-                              key={data.roomId}
-                              to={`/live/${data.roomId}`}
-                            >
+                            <Link className={style.roomWrapper} key={data.roomId} to={`/live/${data.roomId}`}>
                               <LiveInfo data={data} />
                             </Link>
                           )
@@ -216,21 +212,20 @@ function List(props: ListProps) {
                   </div>
                   {/* 加载更多 */}
                   {
-                    lives.length > 0 && livePage.totalPage > 1 ? (
-                      <div className={style.loadMore}>
-                        <div className={style.loadBtn} onClick={() => {
-                          if (livePage.pageNumber <= livePage.totalPage) {
-                            setIsLoadMore(true);
-                            getLives();
-                          }
-                        }}>
-                          {!isLoadMore ?
-                            (livePage.pageNumber <= livePage.totalPage ?
-                              "请给我更多！" : "没有更多了")
-                            : "加载中..."}
-                        </div>
+                    lives.length > 0 && livePage.totalPage > 1 &&
+                    <div className={style.loadMore}>
+                      <div className={style.loadBtn} onClick={() => {
+                        if (livePage.pageNumber <= livePage.totalPage) {
+                          setIsLoadMore(true);
+                          getLives();
+                        }
+                      }}>
+                        {
+                          !isLoadMore ? (livePage.pageNumber <= livePage.totalPage ?
+                            "请给我更多！" : "没有更多了") : "加载中..."
+                        }
                       </div>
-                    ) : null
+                    </div>
                   }
                 </section>
               )}

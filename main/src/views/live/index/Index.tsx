@@ -95,9 +95,8 @@ function Index(props: IndexProps) {
     // 此时有服务端的预取数据，页面使用预取数据即可而无需调用getLives
     // 但是预取数据仅仅是当前页面，因此要setShouldLoad(true)
     // 因为路由跳转切换下一个页面时，下一个页面将没有对应的预取数据，需要自己获取
-    if (shouldLoad) {
-      dispatch(getLiveData()).then(() => { setIsDataOk(true); });
-    } else {
+    if (shouldLoad) { dispatch(getLiveData()).then(() => { setIsDataOk(true); }); }
+    else {
       setIsDataOk(true);
       dispatch(setShouldLoad(true));
     }
@@ -122,34 +121,28 @@ function Index(props: IndexProps) {
             <Context.Consumer>
               {
                 context => (
-                  // 这里用section是为了语义化，因为其内有标题（h1~6）
                   <section className={style.main}>
                     {/* 轮播图 */}
                     <div className={style.banner}>
                       {
-                        bannerList.length > 0 ? (
-                          <div className="swiper-container">
-                            <div className="swiper-wrapper">
-                              {
-                                bannerList.map(banner => (
-                                  <div className="swiper-slide" key={banner.id}>
-                                    <a href={banner.link}>
-                                      <img
-                                        src={`${context.picURL}?pic=${banner.pic}`}
-                                        width="100%"
-                                        height="100%"
-                                      />
-                                    </a>
-                                  </div>
-                                ))
-                              }
-                            </div>
-                            <div className="swiper-pagination clear" />
+                        bannerList.length > 0 &&
+                        <div className="swiper-container">
+                          <div className="swiper-wrapper">
+                            {
+                              bannerList.map(banner => (
+                                <div className="swiper-slide" key={banner.id}>
+                                  <a href={banner.link}>
+                                    <img src={`${context.picURL}?pic=${banner.pic}`} width="100%" height="100%" />
+                                  </a>
+                                </div>
+                              ))
+                            }
                           </div>
-                        ) : null
+                          <div className="swiper-pagination clear" />
+                        </div>
                       }
                     </div>
-                    {
+                    { // 主体部分
                       itemList.map((item, i) => (
                         <div className={style.roomContainer} key={i}>
                           {/* 分区标题及进去看看 */}
@@ -189,11 +182,7 @@ function Index(props: IndexProps) {
                                   // >
                                   //   <LiveInfo data={data} />
                                   // </a>
-                                  <Link
-                                    className={style.roomWrapper}
-                                    key={data.roomId}
-                                    to={`/live/${data.roomId}`}
-                                  >
+                                  <Link className={style.roomWrapper} key={data.roomId} to={`/live/${data.roomId}`}>
                                     <LiveInfo data={data} />
                                   </Link>
                                 )

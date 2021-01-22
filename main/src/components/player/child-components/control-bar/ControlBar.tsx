@@ -163,13 +163,10 @@ function ControlBar(props: ControlBarProps, ref) {
     progressBtnDOM.addEventListener("touchmove", e => {
       e.stopPropagation();
       e.preventDefault(); // 阻止屏幕被拖动
-
       // 计算拖拽进度比例
-      rate = (e.touches[0].pageX - progressLeft) / progressWidth;
+      rate = (e.targetTouches[0].pageX - progressLeft) / progressWidth;
       if (rate > 1 || rate < 0) { return; } // 滑动到了进度条以外
       else { // 进度条以内
-        controlBarRef.current.classList.remove(style.graduallyHide);
-
         progressDOM.style.width = `${rate * 100}%`;
         currentTimeDOM.innerHTML = formatDuration(videoDOM.duration * rate, "0#:##");
       }

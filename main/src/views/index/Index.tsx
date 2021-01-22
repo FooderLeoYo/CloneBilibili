@@ -205,11 +205,7 @@ class Index extends React.Component<IndexProps, IndexState> {
                 <div className={style.partition}>
                   {/* tabbar */}
                   <div className={style.tabBar}>
-                    <TabBar
-                      data={tabBarData}
-                      type={"indicate"}
-                      onClick={this.handleClick}
-                    />
+                    <TabBar data={tabBarData} type={"indicate"} onClick={this.handleClick} />
                   </div>
                   {/* 打开抽屉箭头 */}
                   <div className={style.switch} onClick={this.handleSwitchClick}>
@@ -221,26 +217,23 @@ class Index extends React.Component<IndexProps, IndexState> {
                 {/* 抽屉 */}
                 <div className={style.drawerPosition}>
                   {/* data是自定义属性，会作为props传递给子组件Drawer */}
-                  <Drawer
-                    data={tabBarData} ref={this.drawerRef} onClick={this.handleClick}
-                  />
+                  <Drawer data={tabBarData} ref={this.drawerRef} onClick={this.handleClick} />
                 </div>
               </div>
               <div className={style.contentWrapper}>
                 {/* 轮播图 */}
                 {
-                  this.props.banners.length > 0 ? (
-                    <div className={style.bannerSlider}>
-                      <div className="swiper-container">
-                        <div className="swiper-wrapper">
-                          {bannerElements}
-                        </div>
-                        <div className="swiper-pagination-wrapper">
-                          <div className="swiper-pagination clear" />
-                        </div>
+                  this.props.banners.length > 0 &&
+                  <div className={style.bannerSlider}>
+                    <div className="swiper-container">
+                      <div className="swiper-wrapper">
+                        {bannerElements}
+                      </div>
+                      <div className="swiper-pagination-wrapper">
+                        <div className="swiper-pagination clear" />
                       </div>
                     </div>
-                  ) : null
+                  </div>
                 }
                 {/* 视频 */}
                 <div className={style.videoList + " clear"}>

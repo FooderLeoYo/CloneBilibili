@@ -365,11 +365,12 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
     return (
       <div className="channel">
         <Helmet>
-          <title>{
-            this.lvOnePartition ?
-              this.lvOnePartition.name + (this.lvTwoPartition ? "-" +
-                this.lvTwoPartition.name : "") : null
-          }</title>
+          <title>
+            {
+              this.lvOnePartition &&
+              this.lvOnePartition.name + (this.lvTwoPartition ? "-" + this.lvTwoPartition.name : "")
+            }
+          </title>
         </Helmet>
         {
           !this.state.isDataOk ? <LoadingCutscene /> :
@@ -404,41 +405,40 @@ class Channel extends React.Component<ChannelProps, ChannelState> {
                 </div>
                 {/* 二级分类Tab */}
                 {
-                  this.lvOnePartition.children.length > 1 ? (
-                    <div className={style.secondTabBar}>
-                      <TabBar
-                        data={this.lvTwoTabData}
-                        type={"hightlight"}
-                        currentIndex={this.curLvTwoTabIndex}
-                        onClick={this.handleSecondClick}
-                      />
-                    </div>
-                  ) : null
+                  this.lvOnePartition.children.length > 1 &&
+                  <div className={style.secondTabBar}>
+                    <TabBar
+                      data={this.lvTwoTabData}
+                      type={"hightlight"}
+                      currentIndex={this.curLvTwoTabIndex}
+                      onClick={this.handleSecondClick}
+                    />
+                  </div>
                 }
               </div>
-              <div className={this.lvOnePartition.children.length > 1 ?
-                style.specialLine1 : style.specialLine2} />
+              {/* 是否留出二级tab的位置 */}
+              <div className={this.lvOnePartition.children.length > 1 ? style.specialLine1 : style.specialLine2} />
+              {/* 主体部分 */}
               <div className={style.partitionWrapper}>
                 {/* 热门推荐 */}
                 <div className={style.recommend}>
                   <div className={style.title}>热门推荐</div>
                   { // 排行榜
-                    this.isRecAndChildrenGtTwo ?
-                      <div
-                        className={style.ranking}
-                        onClick={() => { this.handleRankingClick(this.lvOnePartition) }}
-                      >
+                    this.isRecAndChildrenGtTwo &&
+                    <div
+                      className={style.ranking}
+                      onClick={() => { this.handleRankingClick(this.lvOnePartition) }}
+                    >
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#icon-ranking"></use>
+                      </svg>
+                      <span className={style.text}>排行榜</span>
+                      <span className={style.more}>
                         <svg className="icon" aria-hidden="true">
-                          <use href="#icon-ranking"></use>
+                          <use href="#icon-back"></use>
                         </svg>
-                        <span className={style.text}>排行榜</span>
-                        <span className={style.more}>
-                          <svg className="icon" aria-hidden="true">
-                            <use href="#icon-back"></use>
-                          </svg>
-                        </span>
-                      </div>
-                      : null
+                      </span>
+                    </div>
                   }
                   {/* 4个热门推荐视频 */}
                   <div className={style.recommendContent + " clear"}>
