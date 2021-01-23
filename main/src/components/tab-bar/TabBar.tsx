@@ -6,7 +6,7 @@ import { PartitionType } from "../../class-object-creators";
 interface TabBarProps {
   type: string,
   data: PartitionType[],
-  onClick?: any,
+  clickMethod?: Function,
   currentIndex?: number,
   needForcedUpdate?: boolean
 }
@@ -16,7 +16,6 @@ interface TabBarState {
 }
 
 class TabBar extends React.Component<TabBarProps, TabBarState> {
-  /* 以下为初始化 */
   private tabBarRef: React.RefObject<HTMLDivElement>;
   constructor(props) {
     super(props);
@@ -26,7 +25,6 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     }
   }
 
-  /* 以下为自定义方法 */
   // 如果当前tab超出了tabbar的可视范围，则将其滚动到tabbar的第二个位置
   // 比如当通过drawer点击了当前tabbar可视区之外的标签
   private resetScroll() {
@@ -50,12 +48,11 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
 
   private handleClick(tab, index) {
     this.setState({ curInx: index });
-    if (this.props.onClick) {
-      this.props.onClick(tab);
+    if (this.props.clickMethod) {
+      this.props.clickMethod(tab);
     }
   }
 
-  /* 以下为生命周期函数 */
   // 等待父组件初始化数据（有些初始化依赖异步数据，如Raking的currentTabIndex）后再执行
   public componentDidMount() {
     this.resetScroll();

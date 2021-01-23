@@ -205,7 +205,7 @@ class Index extends React.Component<IndexProps, IndexState> {
                 <div className={style.partition}>
                   {/* tabbar */}
                   <div className={style.tabBar}>
-                    <TabBar data={tabBarData} type={"indicate"} onClick={this.handleClick} />
+                    <TabBar data={tabBarData} type={"indicate"} clickMethod={this.handleClick} />
                   </div>
                   {/* 打开抽屉箭头 */}
                   <div className={style.switch} onClick={this.handleSwitchClick}>

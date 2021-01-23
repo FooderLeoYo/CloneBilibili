@@ -1,13 +1,13 @@
 import * as React from "react";
 
-import { getRankingArchive } from "../../../api/ranking";
+import { getRankingArchive } from "../../../../api/ranking";
 
-import VideoItem from "../../../components/video-item/VideoItem";
+import VideoItem from "../../../../components/video-item/VideoItem";
 
-import { Video, createVideoByLatest } from "../../../class-object-creators";
+import { Video, createVideoByLatest } from "../../../../class-object-creators";
 
-import style from "./stylus/video-latest.styl?css-modules";
-import tips from "../../../assets/images/tips.png";
+import style from "./video-latest.styl?css-modules";
+import tips from "../../../../assets/images/tips.png";
 
 interface VideoLatestProps {
   id: number;
@@ -21,7 +21,7 @@ interface VideoLatestState {
 }
 
 class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
-  /* 以下为初始化 */
+  private loadMoreRef: React.RefObject<HTMLDivElement> = React.createRef();
   constructor(props) {
     super(props);
     this.state = {
@@ -31,7 +31,6 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
     }
   }
 
-  /* 以下为自定义方法 */
   private loadLatestData(id, p) {
     this.setState({ loading: true });
 
@@ -51,13 +50,13 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
 
   private handleClick() {
     const currentPage = this.state.currentPage + 1;
-    if (currentPage <= 4) {
-      this.loadLatestData(this.props.id, currentPage);
-    }
+    if (currentPage <= 4) { this.loadLatestData(this.props.id, currentPage); }
   }
-  /* 以下为生命周期函数 */
   public componentDidMount() {
     this.loadLatestData(this.props.id, 1);
+    this.loadMoreRef.current.addEventListener("click", () => {
+      this.handleClick()
+    });
   }
 
   public static getDerivedStateFromProps(props, state) {
@@ -72,12 +71,9 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
   }
 
   public componentDidUpdate(prevProps) {
-    if (this.props.id !== prevProps.id) {
-      this.loadLatestData(this.props.id, 1);
-    }
+    if (this.props.id !== prevProps.id) { this.loadLatestData(this.props.id, 1); }
   }
 
-  /* 以下为渲染部分 */
   public render() {
     return (
       <div className={style.videoLatest}>
@@ -88,26 +84,15 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
               if (item.pic && item.pic.indexOf("@320w_200h") === -1) {
                 item.pic = this.props.getPicUrl(item.pic, "@320w_200h");
               }
-              return <VideoItem
-                video={item} key={i} showStatistics={true} lazyOffset={100}
-              />
+              return <VideoItem video={item} key={i} showStatistics={true} lazyOffset={100} />
             })
           }
         </div>
         { // 拉到底部可加载更多，但最多只加载4页视频数据
           this.state.currentPage < 4 ? (
-            this.state.loading ? (
-              <div className={style.loading}>
-                加载中...
-              </div>
-            ) : (
-                <div
-                  className={style.loadMore}
-                  onClick={() => { this.handleClick() }}
-                >
-                  点击加载更多
-                </div>
-              )) : (
+            this.state.loading ? <div className={style.loading}>Loading...</div> :
+              <div className={style.loadMore} ref={this.loadMoreRef}>点击加载更多</div>) :
+            (
               <div className={style.tips}>
                 <img src={tips} />
                 <span className={style.text}>只能到这里了 ~</span>

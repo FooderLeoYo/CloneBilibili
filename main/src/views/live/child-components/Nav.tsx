@@ -89,7 +89,7 @@ function Nav(props: NavProps) {
           <TabBar
             data={firstTabBarData}
             type={"indicate"}
-            onClick={handleFirstClick}
+            clickMethod={handleFirstClick}
             currentIndex={14}
           />
         </div>
@@ -116,7 +116,7 @@ function Nav(props: NavProps) {
             data={secondTabBarData}
             type={"hightlight"}
             currentIndex={lvTwoTabIndex}
-            onClick={handleSecondClick}
+            clickMethod={handleSecondClick}
           />
         </div>
       }

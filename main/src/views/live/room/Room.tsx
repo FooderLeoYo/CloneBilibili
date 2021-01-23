@@ -15,8 +15,8 @@ import { formatTenThousand } from "../../../customed-methods/string";
 import LoadingCutscene from "../../../components/loading-cutscene/LoadingCutscene";
 import HeaderWithBack from "../../../components/header-with-back/HederWithBack";
 import Player from "../../../components/player/Player";
-import BottomArea, { sendMsg } from "./BottomArea";
-import ChatWebSocket, { Events } from "./ChatWS";
+import BottomArea from "./child-components/bottom-area/BottomArea";
+import ChatWebSocket, { Events } from "./child-components/ChatWS";
 
 import style from "./stylus/room.styl?css-modules";
 
@@ -36,11 +36,7 @@ interface RoomProps {
   }
 }
 
-const {
-  useState,
-  useEffect,
-  useRef
-} = React;
+const { useState, useEffect, useRef } = React;
 
 function Room(props: RoomProps) {
   const { shouldLoad, dispatch, roomData } = props;
@@ -55,11 +51,12 @@ function Room(props: RoomProps) {
   // 就无法在new后拿到ChatWebSocket实例，在组件卸载时执行.close()就会报错未定义
   const [wsForClose, setWsForClose] = useState<ChatWebSocket>();
 
-  const onlineNumRef: React.Ref<HTMLSpanElement> = useRef(null);
-  const playerRef: React.Ref<any> = useRef(null);
+  const onlineNumRef: React.RefObject<HTMLSpanElement> = useRef(null);
+  const playerRef: React.RefObject<any> = useRef(null);
+  const bottomRef: React.RefObject<any> = useRef(null);
 
   // 获取up主数据，然后保存到state中
-  const setUpInfo = () => {
+  function setUpInfo() {
     getUserInfo(roomData.uId).then(result => {
       if (result.code === "1") {
         const data = result.data;
@@ -81,7 +78,7 @@ function Room(props: RoomProps) {
   // 获取直播间host url；
   // 指定收到的响应为HEARTBEAT_REPLY和MESSAGE_RECEIVE时的callback
   // callback被调用后更新人气值或聊天内容
-  const setDanmu = () => {
+  function setDanmu() {
     getDanMuConfig(roomData.live.roomId).then(result => {
       if (result.code === "1") {
         const url = `wss://${result.data.host}/sub`;
@@ -99,7 +96,7 @@ function Room(props: RoomProps) {
         chatWebSocket.on(Events.MESSAGE_RECEIVE, data => {
           data.forEach(item => {
             // 底部互动发送弹幕
-            sendMsg(item);
+            bottomRef.current.sendMsg(item);
 
             // 播放器中发送弹幕
             if (item.cmd === "DANMU_MSG") {
@@ -115,7 +112,7 @@ function Room(props: RoomProps) {
     });
   }
 
-  const setInitData = () => {
+  function setInitData() {
     setDanmu();
     setUpInfo();
     setIsDataOk(true);
@@ -200,7 +197,7 @@ function Room(props: RoomProps) {
                       </div>
                     </div>
                     <div className={style.bottomContainer}>
-                      <BottomArea description={roomData.description} />
+                      <BottomArea description={roomData.description} ref={bottomRef} />
                     </div>
                   </section>
                 )}

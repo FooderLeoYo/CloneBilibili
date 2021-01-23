@@ -1,9 +1,9 @@
 import * as React from "react";
 import { History } from "history";
-import { Video } from "../../../class-object-creators";
+import { Video } from "../../../../class-object-creators";
 
-import VideoItem from "../../../components/video-item/VideoItem";
-import style from "./stylus/partition.styl?css-modules";
+import VideoItem from "../../../../components/video-item/VideoItem";
+import style from "./partition.styl?css-modules";
 
 interface PartitionProps {
   data: {
@@ -15,19 +15,23 @@ interface PartitionProps {
   getPicUrl: Function,
 }
 
+const { useRef, useEffect } = React;
+
 function Partition(props: PartitionProps) {
   const { data, getPicUrl, history } = props;
+
+  const moreRef: React.RefObject<HTMLSpanElement> = useRef(null);
+  useEffect(() => {
+    moreRef.current.addEventListener("click", () => {
+      history.push({ pathname: "/channel/" + data.id })
+    })
+  }, []);
 
   return (
     <div className={style.partition}>
       <div className={style.title}>{data.name}</div>
       <div className={style.ranking}>
-        <span
-          className={style.more}
-          onClick={() => { history.push({ pathname: "/channel/" + data.id }) }}
-        >
-          查看更多
-        </span>
+        <span className={style.more} ref={moreRef}>查看更多</span>
         <i className={`${style.iconRight} icon-arrow-right`} />
       </div>
       <div className={style.partitionContent + " clear"}>
@@ -36,9 +40,7 @@ function Partition(props: PartitionProps) {
             if (item.pic && item.pic.indexOf("@320w_200h") === -1) {
               item.pic = getPicUrl(item.pic, "@320w_200h");
             }
-            return <VideoItem
-              video={item} key={i} showStatistics={true} lazyOffset={100}
-            />
+            return <VideoItem video={item} key={i} showStatistics={true} lazyOffset={100} />
           })
         }
       </div>
@@ -46,5 +48,4 @@ function Partition(props: PartitionProps) {
   );
 }
 
-// withRouter：在不是通过路由切换过来的组件中，将react-router 的 history、location、match 三个对象传入props对象上
 export default Partition;
