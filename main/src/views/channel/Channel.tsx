@@ -30,7 +30,7 @@ interface ChannelProps {
   dispatch: (action: any) => Promise<void>,
 }
 
-const { useState, useContext, useEffect } = React;
+const { useState, useContext, useEffect, useRef } = React;
 
 function Channel(props: ChannelProps) {
   const { history, shouldLoad, dispatch, staticContext, match } = props;
@@ -47,11 +47,14 @@ function Channel(props: ChannelProps) {
   const [lvTwoParHotVideos, setLvTwoParHotVideos] = useState([]);
   const [prevId, setPrevId] = useState(-999);
 
-  let lvOnePartition: PartitionType; // 当前一级分类
-  let curLvTwoTabIndex: number;
-  let lvTwoPartition: PartitionType;
+  const HeadRef: React.RefObject<any> = useRef();
+  const HeadDOM = HeadRef.current;
+  const curLvTwoTabIndex: number = HeadDOM ? HeadDOM.curLvTwoTabIndex : 0;
+  const lvOnePartition: PartitionType = HeadDOM ? HeadDOM.lvOnePartition : [];
+  const lvTwoPartition: PartitionType = HeadDOM ? HeadDOM.lvTwoPartition : [];
+  const videoLatestId: number = HeadDOM ? HeadDOM.videoLatestId : 0;
+
   let isRecAndChildrenGtTwo: boolean;
-  let videoLatestId: number;
   let rankingPartitions: PartitionType[]; // 用于获取点击“排行榜”后，跳转到的url中最后的id
 
   /* 获取数据相关 */
@@ -79,28 +82,30 @@ function Channel(props: ChannelProps) {
   }
 
   function loadAllSecRecVideos() {
-    const lvTwoPartitions = lvOnePartition.children;
-    const promises = lvTwoPartitions.map(partition =>
-      getRankingRegion({ rId: partition.id, day: 7 })
-    );
+    if (lvOnePartition.children) {
+      const lvTwoPartitions: PartitionType[] = lvOnePartition.children;
+      const promises = lvTwoPartitions.map(partition =>
+        getRankingRegion({ rId: partition.id, day: 7 })
+      );
 
-    Promise.all(promises).then(results => {
-      const partitions = [];
-      for (let i = 0; i < results.length; i++) {
-        const result = results[i];
-        // result.code是express发送的res中附带的一个自定义属性，规定1表示成功
-        if (result.code === "1") {
-          const partition = lvTwoPartitions[i];
-          partitions.push({
-            id: partition.id,
-            name: partition.name,
-            videos: result.data.splice(0, 4).map(data => createVideoByRanking(data))
-          });
+      Promise.all(promises).then(results => {
+        const partitions = [];
+        for (let i = 0; i < results.length; i++) {
+          const result = results[i];
+          // result.code是express发送的res中附带的一个自定义属性，规定1表示成功
+          if (result.code === "1") {
+            const partition = lvTwoPartitions[i];
+            partitions.push({
+              id: partition.id,
+              name: partition.name,
+              videos: result.data.splice(0, 4).map(data => createVideoByRanking(data))
+            });
+          }
         }
-      }
 
-      setLvTwoParHotVideos(partitions);
-    })
+        setLvTwoParHotVideos(partitions);
+      })
+    }
   }
 
   /* 点击相关 */
@@ -125,7 +130,9 @@ function Channel(props: ChannelProps) {
 
   /* 设置其他数据相关 */
   function setParOrLatest() {
-    isRecAndChildrenGtTwo = curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1;
+    if (lvOnePartition && Object.keys(lvOnePartition).length !== 0) {
+      isRecAndChildrenGtTwo = curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1;
+    }
   }
 
   // 获取排行榜分类的信息，包含name和id
@@ -201,11 +208,13 @@ function Channel(props: ChannelProps) {
                 match={match}
                 setIsDataOk={setIsDataOk}
                 history={history}
-
+                setAllData={setAllData}
+                isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}
+                ref={HeadRef}
               />
             </div>
             {/* 是否留出二级tab的位置 */}
-            <div className={lvOnePartition.children.length > 1 ? style.specialLine1 : style.specialLine2} />
+            <div className={lvOnePartition?.children?.length > 1 ? style.specialLine1 : style.specialLine2} />
             {/* 主体部分 */}
             <div className={style.partitionWrapper}>
               {/* 热门推荐 */}
