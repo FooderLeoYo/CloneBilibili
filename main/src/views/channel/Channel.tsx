@@ -50,12 +50,14 @@ function Channel(props: ChannelProps) {
   const HeadRef: React.RefObject<any> = useRef();
   const HeadDOM = HeadRef.current;
   const curLvTwoTabIndex: number = HeadDOM ? HeadDOM.curLvTwoTabIndex : 0;
-  const lvOnePartition: PartitionType = HeadDOM ? HeadDOM.lvOnePartition : [];
   const lvTwoPartition: PartitionType = HeadDOM ? HeadDOM.lvTwoPartition : [];
   const videoLatestId: number = HeadDOM ? HeadDOM.videoLatestId : 0;
 
-  let isRecAndChildrenGtTwo: boolean;
-  let rankingPartitions: PartitionType[]; // 用于获取点击“排行榜”后，跳转到的url中最后的id
+  const lvOnePartition: PartitionType = HeadDOM ? HeadDOM.lvOnePartition : [];
+
+
+  const [isRecAndChildrenGtTwo, setRecGtTwo] = useState(true);
+  const rankParRef = useRef(null); // 用于获取点击“排行榜”后，跳转到的url中最后的id
 
   /* 获取数据相关 */
   function getPicUrl(url, format) {
@@ -68,8 +70,10 @@ function Channel(props: ChannelProps) {
     return `${picURL}?pic=${url}${format + suffix}`;
   }
 
-  function loadSecRecVideos() {
-    const rId = match.params.rId;
+  const rIdRef = useRef(match.params.rId)
+  if (rIdRef.current !== match.params.rId) { rIdRef.current = match.params.rId }
+  function loadHotVideos() {
+    const rId = rIdRef.current;
     getRankingRegion({ rId, day: 7 }).then(result => {
       if (result.code === "1") {
         setHotVideos(
@@ -82,9 +86,9 @@ function Channel(props: ChannelProps) {
   }
 
   function loadAllSecRecVideos() {
-    if (lvOnePartition.children) {
+    if (Object.keys(lvOnePartition).length !== 0) {
       const lvTwoPartitions: PartitionType[] = lvOnePartition.children;
-      const promises = lvTwoPartitions.map(partition =>
+      const promises = lvTwoPartitions?.map(partition =>
         getRankingRegion({ rId: partition.id, day: 7 })
       );
 
@@ -110,15 +114,15 @@ function Channel(props: ChannelProps) {
 
   /* 点击相关 */
   function handleRankingClick(lvOnePartition) {
-    if (rankingPartitions.length > 0) {
+    if (rankParRef.current.length > 0) {
       // 从一级分类中查找与当前ranking分类相同的ranking分类
-      if (rankingPartitions.findIndex(partition =>
+      if (rankParRef.current.findIndex(partition =>
         partition.id === lvOnePartition.id) !== -1) {
         // window.location.href = "/ranking/" + lvOnePartition.id
         history.push({ pathname: "/ranking/" + lvOnePartition.id });
       } else {
         // 如果一级分类中没有，则从二级分类中查找
-        const partitionType = rankingPartitions.find(partition =>
+        const partitionType = rankParRef.current.find(partition =>
           lvOnePartition.children.findIndex(p =>
             p.id === partition.id) !== -1
         );
@@ -131,25 +135,19 @@ function Channel(props: ChannelProps) {
   /* 设置其他数据相关 */
   function setParOrLatest() {
     if (lvOnePartition && Object.keys(lvOnePartition).length !== 0) {
-      isRecAndChildrenGtTwo = curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1;
+      setRecGtTwo(curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1);
     }
   }
 
   // 获取排行榜分类的信息，包含name和id
   function setrankingPartitions() {
     getRankingPartitions().then(result => {
-      if (result.code === "1") { rankingPartitions = createPartitionTypes(result.data); }
+      if (result.code === "1") { rankParRef.current = createPartitionTypes(result.data); }
     });
   }
 
-  function setVideoData() {
-    loadSecRecVideos();
-    if (curLvTwoTabIndex === 0) { loadAllSecRecVideos(); } // 如果二级tab是“推荐”
-  }
-
-  async function setAllData() {
-    await setVideoData();
-    await setParOrLatest();
+  function setAllData() {
+    loadHotVideos();
     setTimeout(() => { setIsDataOk(true); }, 1);
   }
 
@@ -169,6 +167,14 @@ function Channel(props: ChannelProps) {
     // 强制检查懒加载组件是否出现在屏幕上
     setTimeout(() => { forceCheck(); }, 10);
   }, []);
+
+  useEffect(() => {
+    setParOrLatest();
+  }, [curLvTwoTabIndex, lvOnePartition]);
+
+  useEffect(() => {
+    if (curLvTwoTabIndex === 0) { loadAllSecRecVideos(); } // 如果二级tab是“推荐”
+  }, [lvOnePartition])
 
   // 如果不用这个进行清空，在切换时之前的内容会短暂停留
   const rId = parseInt(match.params.rId, 10);
@@ -193,7 +199,7 @@ function Channel(props: ChannelProps) {
       <Helmet>
         <title>
           {
-            lvOnePartition &&
+            lvOnePartition.name &&
             lvOnePartition.name + (lvTwoPartition ? "-" + lvTwoPartition.name : "")
           }
         </title>

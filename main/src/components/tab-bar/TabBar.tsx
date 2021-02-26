@@ -33,15 +33,13 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     if (children.length > 0) {
       const currentTabDOM = children[this.state.curInx];
       // 若currentTabDOM在tabBarDOM可视区之外
-      // 即currentTabDOM在tabBarDOM可视区的右边
-      if (currentTabDOM.offsetLeft >
-        tabBarDOM.clientWidth + tabBarDOM.scrollLeft
+      if (currentTabDOM && tabBarDOM &&
+        // 即currentTabDOM在tabBarDOM可视区的右边
+        currentTabDOM.offsetLeft > tabBarDOM.clientWidth + tabBarDOM.scrollLeft
         || // 或左边
-        tabBarDOM.scrollLeft >
-        currentTabDOM.offsetLeft + currentTabDOM.clientWidth) {
+        tabBarDOM.scrollLeft > currentTabDOM.offsetLeft + currentTabDOM.clientWidth) {
         // 则滚动currentTabDOM到tabBarDOM中的第二个位置
-        tabBarDOM.scrollLeft =
-          currentTabDOM.offsetLeft - currentTabDOM.offsetWidth;
+        tabBarDOM.scrollLeft = currentTabDOM.offsetLeft - currentTabDOM.offsetWidth;
       }
     }
   }
@@ -61,9 +59,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
   public static getDerivedStateFromProps(props, state) {
     const curInx = props.currentIndex;
     if (props.needForcedUpdate && curInx) {
-      if (curInx !== state.curInx) {
-        return { curInx };
-      }
+      if (curInx !== state.curInx) { return { curInx }; }
     }
     return state;
   }
