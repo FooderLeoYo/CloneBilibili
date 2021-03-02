@@ -18,26 +18,40 @@ interface HeadProps {
   setAllData: () => void,
   isRecAndChildrenGtTwo: boolean,
   lvOnePartition: PartitionType,
-  setLvOnePartition: React.Dispatch<React.SetStateAction<PartitionType>>
+  setLvOnePartition: React.Dispatch<React.SetStateAction<PartitionType>>,
+  setLvTwoPartition: React.Dispatch<React.SetStateAction<PartitionType>>,
+  curLvTwoTabIndex: number,
+  setCurLvTwoTabIndex: React.Dispatch<React.SetStateAction<number>>,
+  setVideoLatestId: React.Dispatch<React.SetStateAction<number>>
 }
 
-const { useState, useEffect, useRef, forwardRef, useImperativeHandle } = React;
+const { useEffect, useRef } = React;
 
 function Head(props: HeadProps, ref) {
   const { partitions, match, setIsDataOk, history, setAllData,
-    isRecAndChildrenGtTwo, lvOnePartition, setLvOnePartition } = props;
+    isRecAndChildrenGtTwo, lvOnePartition, setLvOnePartition,
+    setLvTwoPartition, curLvTwoTabIndex, setCurLvTwoTabIndex,
+    setVideoLatestId } = props;
 
   const drawerRef: React.RefObject<any> = useRef(null);
 
   const lvOneDataRef = useRef([]);
   const curOneInxRef = useRef(null);
-  const [oneParFlag, setOneParFlag] = useState(1);
 
   const lvTwoDataRef = useRef([]);
-  const curTwoInxRef = useRef(0);
-  const twoParrRef = useRef(null);
 
-  const latestIdRef = useRef();
+  function setOneInxByTwo(id) {
+    let tmp = 0;
+    curOneInxRef.current = lvOneDataRef.current.findIndex(parittion => {
+      tmp = parittion.children.findIndex(child =>
+        child.id === parseInt(id, 10)
+      );
+      return tmp !== -1;
+    });
+    setLvOnePartition(lvOneDataRef.current[curOneInxRef.current]);
+
+    setCurLvTwoTabIndex(++tmp);
+  }
 
   function handleClick(tab) {
     if (tab.id !== lvOneDataRef.current[curOneInxRef.current].id) {
@@ -52,6 +66,8 @@ function Head(props: HeadProps, ref) {
         history.push({ pathname: "/channel/" + tab.id });
         // 如果不延时，则调用setAllData时rId还未改变
         setTimeout(() => { setAllData(); }, 1);
+        setCurLvTwoTabIndex(0);
+        setLvTwoPartition(null);
         // 如果是通过drawer点击的分类，则点击后隐藏drawer
         if (drawerRef.current.pull) { drawerRef.current.hide(); }
       }
@@ -63,7 +79,7 @@ function Head(props: HeadProps, ref) {
   }
 
   function handleSecondClick(tab) {
-    if (tab.id !== lvTwoDataRef.current[curTwoInxRef.current].id) {
+    if (tab.id !== lvTwoDataRef.current[curLvTwoTabIndex].id) {
       setIsDataOk(false);
       history.push({ pathname: "/channel/" + tab.id });
       setOneInxByTwo(tab.id);
@@ -71,37 +87,26 @@ function Head(props: HeadProps, ref) {
     }
   }
 
-  function setOneInxByTwo(id) {
-    curOneInxRef.current = lvOneDataRef.current.findIndex(parittion => {
-      curTwoInxRef.current = parittion.children.findIndex(child =>
-        child.id === parseInt(id, 10)
-      );
-      return curTwoInxRef.current !== -1;
-    });
-    setLvOnePartition(lvOneDataRef.current[curOneInxRef.current]);
-
-    curTwoInxRef.current += 1;
-  }
-
-  function setTabIndexAndLvOnePar() {
+  function setInxAndOnePar() {
     // 一级tab添加“首页”和“直播”
     let tmpData = [{ id: 0, name: "首页", children: [] } as PartitionType].concat(partitions);
     tmpData.push(new PartitionType(-1, "直播"));
     lvOneDataRef.current = tmpData;
 
-    // 当前m.params.rId是一级分类的，即此时的二级分类为“推荐”
-    // 设置这种情况下的curLvOneTabIndex、lvOnePartition
     curOneInxRef.current = lvOneDataRef.current.findIndex(parittion =>
       parittion.id === parseInt(match.params.rId, 10)
     );
-    setLvOnePartition(lvOneDataRef.current[curOneInxRef.current]);
-    setOneParFlag(-oneParFlag);
 
-    // 当前m.params.rId是二级分类的，即此时的二级分类非“推荐”
-    // 设置这种情况下的curLvOneTabIndex、lvOnePartition，以及
-    // 设置curLvTwoTabIndex
-    curTwoInxRef.current = 0;
-    if (curOneInxRef.current === -1) { setOneInxByTwo(match.params.rId); } // 根据二级分类查找对应一级分类
+    if (curOneInxRef.current !== -1) {
+      // 当前m.params.rId是一级分类的，即此时的二级分类为“推荐”
+      // 设置这种情况下的curLvOneTabIndex、lvOnePartition
+      setLvOnePartition(lvOneDataRef.current[curOneInxRef.current]);
+    } else {
+      // 当前m.params.rId是二级分类的，即此时的二级分类非“推荐”
+      // 设置这种情况下的curLvOneTabIndex、lvOnePartition，以及
+      // 设置curLvTwoTabIndex
+      setOneInxByTwo(match.params.rId);
+    }
   }
 
   function setLvTwoTabDataAndPar() {
@@ -112,30 +117,29 @@ function Head(props: HeadProps, ref) {
       lvTwoDataRef.current = tmpData;
 
       // 如果此时的二级分类非“推荐”
-      if (curTwoInxRef.current !== 0) {
-        twoParrRef.current = lvTwoDataRef.current[curTwoInxRef.current];
+      if (curLvTwoTabIndex !== 0) {
+        setLvTwoPartition(lvTwoDataRef.current[curLvTwoTabIndex]);
       }
     }
   }
 
-  function setvideoLatestId() {
-    const { match: m } = props;
-    latestIdRef.current = isRecAndChildrenGtTwo ?
-      m.params.rId :  // 当前的二级分类为“推荐”，且二级分类有两个或以上
+  function setLatestId() {
+    const tmp = isRecAndChildrenGtTwo ?
+      props.match.params.rId :  // 当前的二级分类为“推荐”，且二级分类有两个或以上
       lvOnePartition.children.length > 1 ? // 如果此时的二级分类非“推荐”
-        lvOnePartition.children[curTwoInxRef.current - 1].id : // 二级分类有两个或以上取当前二级分类
+        lvOnePartition.children[curLvTwoTabIndex - 1].id : // 二级分类有两个或以上取当前二级分类
         lvOnePartition.children[0].id; // 只有一个二级分类取第一个
+
+    setVideoLatestId(tmp);
   }
 
-  useImperativeHandle(ref, () => ({
-    curLvTwoTabIndex: curTwoInxRef.current,
-    lvTwoPartition: twoParrRef.current,
-    videoLatestId: latestIdRef.current
-  }), [curTwoInxRef.current, twoParrRef.current, latestIdRef.current]);
+  // useImperativeHandle(ref, () => ({
+  //   curLvTwoTabIndex: curTwoInxRef.current,
+  // }), [curTwoInxRef.current]);
 
   useEffect(() => {
-    setTabIndexAndLvOnePar();
-    if (curTwoInxRef.current !== 0) { setvideoLatestId(); } // 非“推荐”时才需要加载最新视频数据
+    setInxAndOnePar();
+    if (curLvTwoTabIndex !== 0) { setLatestId(); } // 非“推荐”时才需要加载最新视频数据
   }, []);
 
   useEffect(() => {
@@ -182,7 +186,7 @@ function Head(props: HeadProps, ref) {
           <TabBar
             data={lvTwoDataRef.current}
             type={"hightlight"}
-            currentIndex={curTwoInxRef.current}
+            currentIndex={curLvTwoTabIndex}
             clickMethod={handleSecondClick}
             needForcedUpdate={true}
           />
@@ -192,4 +196,4 @@ function Head(props: HeadProps, ref) {
   );
 }
 
-export default forwardRef(Head);
+export default Head;

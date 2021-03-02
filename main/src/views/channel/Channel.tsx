@@ -33,7 +33,7 @@ interface ChannelProps {
 const { useState, useContext, useEffect, useRef } = React;
 
 function Channel(props: ChannelProps) {
-  const { history, shouldLoad, dispatch, staticContext, match } = props;
+  const { history, shouldLoad, dispatch, staticContext, match, partitions } = props;
   const context = useContext(myContext);
 
   // 数据还未加载前，推荐视频VideoItem的默认值
@@ -48,13 +48,12 @@ function Channel(props: ChannelProps) {
   const [prevId, setPrevId] = useState(-999);
 
   const HeadRef: React.RefObject<any> = useRef();
-  const HeadDOM = HeadRef.current;
-  const curLvTwoTabIndex: number = HeadDOM ? HeadDOM.curLvTwoTabIndex : 0;
-  const lvTwoPartition: PartitionType = HeadDOM ? HeadDOM.lvTwoPartition : [];
-  const videoLatestId: number = HeadDOM ? HeadDOM.videoLatestId : 0;
 
   const [lvOnePartition, setLvOnePartition] = useState<PartitionType>(null);
+  const [lvTwoPartition, setLvTwoPartition] = useState<PartitionType>(null);
+  const [curLvTwoTabIndex, setCurLvTwoTabIndex] = useState(0);
 
+  const [videoLatestId, setVideoLatestId] = useState(0);
 
   const [isRecAndChildrenGtTwo, setIsRecAndChildrenGtTwo] = useState(true);
   const rankParRef = useRef(null); // 用于获取点击“排行榜”后，跳转到的url中最后的id
@@ -211,7 +210,7 @@ function Channel(props: ChannelProps) {
             {/* 顶部 */}
             <div className={style.topWrapper}>
               <Head
-                partitions={props.partitions}
+                partitions={partitions}
                 match={match}
                 setIsDataOk={setIsDataOk}
                 history={history}
@@ -219,7 +218,10 @@ function Channel(props: ChannelProps) {
                 isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}
                 lvOnePartition={lvOnePartition}
                 setLvOnePartition={setLvOnePartition}
-                ref={HeadRef}
+                setLvTwoPartition={setLvTwoPartition}
+                curLvTwoTabIndex={curLvTwoTabIndex}
+                setCurLvTwoTabIndex={setCurLvTwoTabIndex}
+                setVideoLatestId={setVideoLatestId}
               />
             </div>
             {/* 是否留出二级tab的位置 */}
