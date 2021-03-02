@@ -53,10 +53,10 @@ function Channel(props: ChannelProps) {
   const lvTwoPartition: PartitionType = HeadDOM ? HeadDOM.lvTwoPartition : [];
   const videoLatestId: number = HeadDOM ? HeadDOM.videoLatestId : 0;
 
-  const lvOnePartition: PartitionType = HeadDOM ? HeadDOM.lvOnePartition : [];
+  const [lvOnePartition, setLvOnePartition] = useState<PartitionType>(null);
 
 
-  const [isRecAndChildrenGtTwo, setRecGtTwo] = useState(true);
+  const [isRecAndChildrenGtTwo, setIsRecAndChildrenGtTwo] = useState(true);
   const rankParRef = useRef(null); // 用于获取点击“排行榜”后，跳转到的url中最后的id
 
   /* 获取数据相关 */
@@ -86,7 +86,8 @@ function Channel(props: ChannelProps) {
   }
 
   function loadAllSecRecVideos() {
-    if (Object.keys(lvOnePartition).length !== 0) {
+    // if (Object.keys(lvOnePartition).length !== 0) {
+    if (lvOnePartition) {
       const lvTwoPartitions: PartitionType[] = lvOnePartition.children;
       const promises = lvTwoPartitions?.map(partition =>
         getRankingRegion({ rId: partition.id, day: 7 })
@@ -133,9 +134,9 @@ function Channel(props: ChannelProps) {
   }
 
   /* 设置其他数据相关 */
-  function setParOrLatest() {
-    if (lvOnePartition && Object.keys(lvOnePartition).length !== 0) {
-      setRecGtTwo(curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1);
+  function setRecGtTwo() {
+    if (lvOnePartition) {
+      setIsRecAndChildrenGtTwo(curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1);
     }
   }
 
@@ -169,12 +170,12 @@ function Channel(props: ChannelProps) {
   }, []);
 
   useEffect(() => {
-    setParOrLatest();
+    setRecGtTwo();
   }, [curLvTwoTabIndex, lvOnePartition]);
 
   useEffect(() => {
     if (curLvTwoTabIndex === 0) { loadAllSecRecVideos(); } // 如果二级tab是“推荐”
-  }, [lvOnePartition])
+  }, [lvOnePartition, curLvTwoTabIndex])
 
   // 如果不用这个进行清空，在切换时之前的内容会短暂停留
   const rId = parseInt(match.params.rId, 10);
@@ -199,7 +200,7 @@ function Channel(props: ChannelProps) {
       <Helmet>
         <title>
           {
-            lvOnePartition.name &&
+            lvOnePartition &&
             lvOnePartition.name + (lvTwoPartition ? "-" + lvTwoPartition.name : "")
           }
         </title>
@@ -216,6 +217,8 @@ function Channel(props: ChannelProps) {
                 history={history}
                 setAllData={setAllData}
                 isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}
+                lvOnePartition={lvOnePartition}
+                setLvOnePartition={setLvOnePartition}
                 ref={HeadRef}
               />
             </div>
