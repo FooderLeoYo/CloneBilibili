@@ -58,6 +58,11 @@ function Channel(props: ChannelProps) {
   const [isRecAndChildrenGtTwo, setIsRecAndChildrenGtTwo] = useState(true);
   const rankParRef = useRef(null); // 用于获取点击“排行榜”后，跳转到的url中最后的id
 
+  const rIdRef = useRef(match.params.rId)
+  useEffect(() => {
+    rIdRef.current = match.params.rId;
+  }, [match.params.rId]);
+
   /* 获取数据相关 */
   function getPicUrl(url, format) {
     const { picURL } = context;
@@ -69,8 +74,6 @@ function Channel(props: ChannelProps) {
     return `${picURL}?pic=${url}${format + suffix}`;
   }
 
-  const rIdRef = useRef(match.params.rId)
-  if (rIdRef.current !== match.params.rId) { rIdRef.current = match.params.rId }
   function loadHotVideos() {
     const rId = rIdRef.current;
     getRankingRegion({ rId, day: 7 }).then(result => {
@@ -85,7 +88,6 @@ function Channel(props: ChannelProps) {
   }
 
   function loadAllSecRecVideos() {
-    // if (Object.keys(lvOnePartition).length !== 0) {
     if (lvOnePartition) {
       const lvTwoPartitions: PartitionType[] = lvOnePartition.children;
       const promises = lvTwoPartitions?.map(partition =>
@@ -146,14 +148,10 @@ function Channel(props: ChannelProps) {
     });
   }
 
-  function setAllData() {
-    loadHotVideos();
-    setTimeout(() => { setIsDataOk(true); }, 1);
-  }
-
   function setInitData() {
     setrankingPartitions();
-    setAllData();
+    loadHotVideos();
+    setTimeout(() => { setIsDataOk(true); }, 1);
   }
 
   useEffect(() => {
@@ -185,14 +183,6 @@ function Channel(props: ChannelProps) {
     setPrevId(rId);
   }
 
-  // function getSnapshotBeforeUpdate() {
-  //   return document.documentElement.scrollTop || document.body.scrollTop > 0
-  // }
-  // 若组件更新后窗口发生滚动不处于顶端，则将其调整到最顶端
-  // function componentDidUpdate(prevProps, prevState, scroll) {
-  //   if (scroll) { window.scrollTo(0, 0); }
-  // }
-
   /* 以下为渲染部分 */
   return (
     <div className="channel">
@@ -214,7 +204,7 @@ function Channel(props: ChannelProps) {
                 match={match}
                 setIsDataOk={setIsDataOk}
                 history={history}
-                setAllData={setAllData}
+                loadHotVideos={loadHotVideos}
                 isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}
                 lvOnePartition={lvOnePartition}
                 setLvOnePartition={setLvOnePartition}
@@ -222,6 +212,7 @@ function Channel(props: ChannelProps) {
                 curLvTwoTabIndex={curLvTwoTabIndex}
                 setCurLvTwoTabIndex={setCurLvTwoTabIndex}
                 setVideoLatestId={setVideoLatestId}
+                loadAllSecRecVideos={loadAllSecRecVideos}
               />
             </div>
             {/* 是否留出二级tab的位置 */}

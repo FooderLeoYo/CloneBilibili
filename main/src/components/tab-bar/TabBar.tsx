@@ -60,9 +60,8 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
   }
 
   public static getDerivedStateFromProps(props, state) {
-    const curInx = props.currentIndex;
-    if (props.needForcedUpdate && curInx) {
-      if (curInx !== state.curInx) { return { curInx }; }
+    if (props.needForcedUpdate && props.currentIndex !== state.curInx) {
+      return { curInx: props.currentIndex };
     }
     return state;
   }
