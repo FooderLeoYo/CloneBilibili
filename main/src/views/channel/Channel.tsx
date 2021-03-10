@@ -59,9 +59,7 @@ function Channel(props: ChannelProps) {
   const rankParRef = useRef(null); // 用于获取点击“排行榜”后，跳转到的url中最后的id
 
   const rIdRef = useRef(match.params.rId)
-  useEffect(() => {
-    rIdRef.current = match.params.rId;
-  }, [match.params.rId]);
+  useEffect(() => { rIdRef.current = match.params.rId; }, [match.params.rId]);
 
   /* 获取数据相关 */
   function getPicUrl(url, format) {
@@ -172,7 +170,7 @@ function Channel(props: ChannelProps) {
 
   useEffect(() => {
     if (curLvTwoTabIndex === 0) { loadAllSecRecVideos(); } // 如果二级tab是“推荐”
-  }, [lvOnePartition, curLvTwoTabIndex])
+  }, [lvOnePartition])
 
   // 如果不用这个进行清空，在切换时之前的内容会短暂停留
   const rId = parseInt(match.params.rId, 10);

@@ -26,48 +26,48 @@ interface HeadProps {
   setVideoLatestId: React.Dispatch<React.SetStateAction<number>>
 }
 
-const { useEffect, useRef } = React;
+const { useState, useEffect, useRef } = React;
 
 function Head(props: HeadProps) {
   const { partitions, match, history, loadHotVideos, loadAllSecRecVideos,
     isRecAndChildrenGtTwo, lvOnePartition, curLvTwoTabIndex, setLvOnePartition,
-    setLvTwoPartition, setCurLvTwoTabIndex,
-    setVideoLatestId } = props;
+    setLvTwoPartition, setCurLvTwoTabIndex, setVideoLatestId } = props;
 
   const drawerRef: React.RefObject<any> = useRef(null);
 
   const lvOneDataRef = useRef([]);
 
-  const [oneInx, setOneInx] = React.useState(-9);
+  const [oneInx, setOneInx] = useState(-9);
   const curOneInxRef = useRef(null);
-  useEffect(() => {
-    curOneInxRef.current = oneInx;
-  }, [oneInx]);
+  useEffect(() => { curOneInxRef.current = oneInx; }, [oneInx]);
 
   const lvTwoDataRef = useRef([]);
 
   const rIdRef = useRef(match.params.rId);
-  useEffect(() => {
-    rIdRef.current = match.params.rId;
-  }, [match.params.rId]);
+  useEffect(() => { rIdRef.current = match.params.rId; }, [match.params.rId]);
 
-  // const [twoIndx, setTwoIndx] = React.useState(0);
   const twoInxRef = useRef(props.curLvTwoTabIndex);
-  useEffect(() => {
-    twoInxRef.current = props.curLvTwoTabIndex;
-  }, [props.curLvTwoTabIndex]);
+  useEffect(() => { twoInxRef.current = props.curLvTwoTabIndex; }, [props.curLvTwoTabIndex]);
 
-  function setOneInxByTwo(id) {
-    let tmp = 0;
-    setOneInx(lvOneDataRef.current.findIndex(parittion => {
-      tmp = parittion.children.findIndex(child =>
+  function setOneByTwo(id) {
+    let tmpTwoInx = 0;
+    const tmpOneInx = lvOneDataRef.current.findIndex(parittion => {
+      tmpTwoInx = parittion.children.findIndex(child =>
         child.id === parseInt(id, 10)
       );
-      return tmp !== -1;
-    }));
-    setLvOnePartition(lvOneDataRef.current[oneInx]);
+      return tmpTwoInx !== -1;
+    });
 
-    setCurLvTwoTabIndex(++tmp);
+    if (tmpOneInx !== -1) { // 二级tab为非推荐时
+      setOneInx(tmpOneInx);
+    } else { // 二级tab为推荐时
+      setOneInx(lvOneDataRef.current.findIndex(parittion =>
+        parittion.id === parseInt(rIdRef.current, 10)
+      ));
+    }
+
+    setLvOnePartition(lvOneDataRef.current[oneInx]);
+    setCurLvTwoTabIndex(++tmpTwoInx);
   }
 
   function setOneTabData() {
@@ -77,7 +77,7 @@ function Head(props: HeadProps) {
     lvOneDataRef.current = tmpData;
   }
 
-  function setInxAndOnePar() {
+  function setOneInxAndPar() {
     const tmpInx = lvOneDataRef.current.findIndex(parittion =>
       parittion.id === parseInt(rIdRef.current, 10)
     );
@@ -91,7 +91,7 @@ function Head(props: HeadProps) {
       // 当前m.params.rId是二级分类的，即此时的二级分类非“推荐”
       // 设置这种情况下的curLvOneTabIndex、lvOnePartition，以及
       // 设置curLvTwoTabIndex
-      setOneInxByTwo(match.params.rId);
+      setOneByTwo(match.params.rId);
     }
   }
 
@@ -129,19 +129,19 @@ function Head(props: HeadProps) {
         history.push({ pathname: "/index" });
       } else {
         history.push({ pathname: "/channel/" + tab.id });
+        scrollTo(0, 0);
+
         setCurLvTwoTabIndex(0);
         setLvTwoPartition(null);
         setTimeout(() => { // 如果不延时，则调用下列方法时rId还未改变
-          setInxAndOnePar();
+          setOneInxAndPar();
           loadHotVideos();
           loadAllSecRecVideos();
         });
-        // 如果是通过drawer点击的分类，则点击后隐藏drawer
-        if (drawerRef.current.pull) { drawerRef.current.hide(); }
+        if (drawerRef.current.pull) { drawerRef.current.hide(); } // 如果是通过drawer点击的分类，则点击后隐藏drawer
       }
     }
   }
-
 
   function handleSwitchClick() {
     drawerRef.current.show();
@@ -150,10 +150,18 @@ function Head(props: HeadProps) {
   function handleSecondClick(tab) {
     if (tab.id !== lvTwoDataRef.current[curLvTwoTabIndex].id) {
       history.push({ pathname: "/channel/" + tab.id });
+      scrollTo(0, 0);
+
       rIdRef.current = tab.id;
-      setOneInxByTwo(tab.id);
+      setOneByTwo(tab.id);
       setTimeout(() => {
-        setLatestId();
+        if (twoInxRef.current !== 0) { // 二级tab为非推荐时
+          setLatestId();
+          setLvTwoPartition(lvTwoDataRef.current[twoInxRef.current]);
+        } else { // 二级tab为推荐时
+          setLvTwoPartition(null);
+          loadAllSecRecVideos();
+        }
         loadHotVideos();
       });
     }
@@ -161,19 +169,17 @@ function Head(props: HeadProps) {
 
   useEffect(() => {
     setOneTabData();
-    setInxAndOnePar();
+    setOneInxAndPar();
     if (curLvTwoTabIndex !== 0) { setLatestId(); } // 非“推荐”时才需要加载最新视频数据
   }, []);
 
-  useEffect(() => {
-    setLvTwoTabDataAndPar();
-  }, [lvOnePartition]);
+  useEffect(() => { setLvTwoTabDataAndPar(); }, [lvOnePartition]);
 
   return (
     <>
       <Header />
-      {/* 一级分类Tab */}
       <div className={style.partition}>
+        {/* 一级分类Tab */}
         <div className={style.tabBar}>
           {
             <TabBar
@@ -185,6 +191,7 @@ function Head(props: HeadProps) {
             />
           }
         </div>
+        {/* 抽屉展开箭头 */}
         <div className={style.switch} onClick={handleSwitchClick}>
           <svg className="icon" aria-hidden="true">
             <use href="#icon-arrowDownBig"></use>

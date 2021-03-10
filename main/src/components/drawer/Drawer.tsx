@@ -28,9 +28,7 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
     super(props);
     this.drawerWrapperRef = React.createRef();
     this.pull = false;
-    this.state = {
-      currentIndex: 0
-    }
+    this.state = { currentIndex: 0 }
   }
 
   /* 以下为生命周期函数 */
@@ -42,23 +40,15 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
       const { onPush, onPullDown } = this.props;
       if (this.pull === false) {
         drawerWrapperDOM.style.display = "none";
-        if (onPush) {
-          onPush();
-        }
-      } else {
-        if (onPullDown) {
-          onPullDown();
-        }
-      }
+        if (onPush) { onPush(); }
+      } else { if (onPullDown) { onPullDown(); } }
     });
   }
 
   public static getDerivedStateFromProps(props, state) {
     if (props.currentIndex !== undefined) {
       if (props.currentIndex !== state.currentIndex) {
-        return {
-          currentIndex: props.currentIndex
-        }
+        return { currentIndex: props.currentIndex }
       }
     }
     return state;
@@ -66,12 +56,8 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
 
   /* 以下为自定义方法 */
   private handleClick(item, index) {
-    this.setState({
-      currentIndex: index
-    });
-    if (this.props.onClick) {
-      this.props.onClick(item);
-    }
+    this.setState({ currentIndex: index });
+    if (this.props.onClick) { this.props.onClick(item); }
   }
 
   private setTranslateY(y) {
@@ -87,9 +73,7 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
     const drawerWrapperDOM = this.drawerWrapperRef.current;
     drawerWrapperDOM.style.display = "block";
     // 这里要将y设为0的原因是隐藏时，hide方法会将y设为-100%
-    setTimeout(() => {
-      this.setTranslateY(0);
-    }, 10);
+    setTimeout(() => { this.setTranslateY(0); }, 10);
   }
 
   public hide() {

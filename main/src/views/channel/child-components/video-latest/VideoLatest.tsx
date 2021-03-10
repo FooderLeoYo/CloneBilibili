@@ -43,6 +43,8 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
           currentPage: p,
           latestVideos: this.state.latestVideos.concat(latestVideos),
           loading: false
+        }, () => {
+          // console.log(this.state.latestVideos)
         });
       }
     });
@@ -52,8 +54,8 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
     const currentPage = this.state.currentPage + 1;
     if (currentPage <= 4) { this.loadLatestData(this.props.id, currentPage); }
   }
+
   public componentDidMount() {
-    this.loadLatestData(this.props.id, 1);
     this.loadMoreRef.current.addEventListener("click", () => {
       this.handleClick()
     });
@@ -61,7 +63,6 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
 
   public static getDerivedStateFromProps(props, state) {
     if (props.id !== state.id) {
-      // 组件render前，如果id变更清除数据
       return {
         id: props.id,
         latestVideos: []
@@ -71,7 +72,9 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
   }
 
   public componentDidUpdate(prevProps) {
-    if (this.props.id !== prevProps.id) { this.loadLatestData(this.props.id, 1); }
+    if (this.props.id !== prevProps.id) {
+      this.loadLatestData(this.props.id, 1);
+    }
   }
 
   public render() {
