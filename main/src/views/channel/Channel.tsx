@@ -10,14 +10,14 @@ import getPartitionList from "../../redux/async-action-creators/channel";
 import { getRankingRegion } from "../../api/ranking";
 import { getRankingPartitions } from "../../api/partitions";
 
-import { PartitionType, createPartitionTypes, Video, createVideoByRanking } from "../../class-object-creators";
 import LoadingCutscene from "../../components/loading-cutscene/LoadingCutscene";
-import VideoItem from "../../components/video-item/VideoItem";
-import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
+import Head from "./child-components/head/Head"
+import Hot from "./child-components/hot/Hot"
 import Partition from "./child-components/partition/Partition";
 import VideoLatest from "./child-components/video-latest/VideoLatest";
-import Head from "./child-components/head/Head"
+import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 
+import { PartitionType, createPartitionTypes, Video, createVideoByRanking } from "../../class-object-creators";
 import { getPicSuffix } from "../../customed-methods/image";
 import style from "./stylus/channel.styl?css-modules";
 
@@ -110,26 +110,6 @@ function Channel(props: ChannelProps) {
     }
   }
 
-  /* 点击相关 */
-  function handleRankingClick(lvOnePartition) {
-    if (rankParRef.current.length > 0) {
-      // 从一级分类中查找与当前ranking分类相同的ranking分类
-      if (rankParRef.current.findIndex(partition =>
-        partition.id === lvOnePartition.id) !== -1) {
-        // window.location.href = "/ranking/" + lvOnePartition.id
-        history.push({ pathname: "/ranking/" + lvOnePartition.id });
-      } else {
-        // 如果一级分类中没有，则从二级分类中查找
-        const partitionType = rankParRef.current.find(partition =>
-          lvOnePartition.children.findIndex(p =>
-            p.id === partition.id) !== -1
-        );
-        // window.location.href = "/ranking/" + partitionType.id
-        history.push({ pathname: "/ranking/" + partitionType.id });
-      }
-    }
-  }
-
   /* 设置其他数据相关 */
   function setRecGtTwo() {
     if (lvOnePartition) {
@@ -217,35 +197,14 @@ function Channel(props: ChannelProps) {
             <div className={style.partitionWrapper}>
               {/* 热门推荐 */}
               <div className={style.recommend}>
-                <div className={style.title}>热门推荐</div>
-                { // 排行榜
-                  isRecAndChildrenGtTwo &&
-                  <div
-                    className={style.ranking}
-                    onClick={() => { handleRankingClick(lvOnePartition) }}
-                  >
-                    <svg className="icon" aria-hidden="true">
-                      <use href="#icon-ranking"></use>
-                    </svg>
-                    <span className={style.text}>排行榜</span>
-                    <span className={style.more}>
-                      <svg className="icon" aria-hidden="true">
-                        <use href="#icon-back"></use>
-                      </svg>
-                    </span>
-                  </div>
-                }
-                {/* 4个热门推荐视频 */}
-                <div className={style.recommendContent + " clear"}>
-                  {
-                    hotVideos.map((video, i) => {
-                      if (video.pic && video.pic.indexOf("@320w_200h") === -1) {
-                        video.pic = getPicUrl(video.pic, "@320w_200h");
-                      }
-                      return <VideoItem video={video} key={i} showStatistics={true} lazyOffset={100} />
-                    })
-                  }
-                </div>
+                <Hot
+                  rankParRef={rankParRef}
+                  isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}
+                  lvOnePartition={lvOnePartition}
+                  hotVideos={hotVideos}
+                  getPicUrl={getPicUrl}
+                  history={history}
+                />
               </div>
               { // 分类推荐视频或最新视频
                 isRecAndChildrenGtTwo ?
