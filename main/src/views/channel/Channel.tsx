@@ -47,8 +47,6 @@ function Channel(props: ChannelProps) {
   const [lvTwoParHotVideos, setLvTwoParHotVideos] = useState([]);
   const [prevId, setPrevId] = useState(-999);
 
-  const HeadRef: React.RefObject<any> = useRef();
-
   const [lvOnePartition, setLvOnePartition] = useState<PartitionType>(null);
   const [lvTwoPartition, setLvTwoPartition] = useState<PartitionType>(null);
   const [curLvTwoTabIndex, setCurLvTwoTabIndex] = useState(0);
@@ -263,6 +261,7 @@ function Channel(props: ChannelProps) {
                   // 当前二级分类为非“推荐”或一级分类只有一个二级分类，则显示最新视频
                   <VideoLatest
                     id={videoLatestId}
+                    curLvTwoTabIndex={curLvTwoTabIndex}
                     getPicUrl={(url, format) => getPicUrl(url, format)}
                   />
               }

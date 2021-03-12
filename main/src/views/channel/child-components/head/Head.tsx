@@ -35,39 +35,31 @@ function Head(props: HeadProps) {
 
   const drawerRef: React.RefObject<any> = useRef(null);
 
-  const lvOneDataRef = useRef([]);
+  const rIdRef = useRef(match.params.rId);
+  useEffect(() => { rIdRef.current = match.params.rId; }, [match.params.rId]);
 
+  const lvOneDataRef = useRef([]);
   const [oneInx, setOneInx] = useState(-9);
   const curOneInxRef = useRef(null);
   useEffect(() => { curOneInxRef.current = oneInx; }, [oneInx]);
 
   const lvTwoDataRef = useRef([]);
-
-  const rIdRef = useRef(match.params.rId);
-  useEffect(() => { rIdRef.current = match.params.rId; }, [match.params.rId]);
-
   const twoInxRef = useRef(props.curLvTwoTabIndex);
   useEffect(() => { twoInxRef.current = props.curLvTwoTabIndex; }, [props.curLvTwoTabIndex]);
 
-  function setOneByTwo(id) {
+  function setNotRecStatus(id) {
     let tmpTwoInx = 0;
-    const tmpOneInx = lvOneDataRef.current.findIndex(parittion => {
-      tmpTwoInx = parittion.children.findIndex(child =>
+    const tmpOneInx = lvOneDataRef.current.findIndex(partition => {
+      tmpTwoInx = partition.children.findIndex(child =>
         child.id === parseInt(id, 10)
       );
       return tmpTwoInx !== -1;
     });
 
-    if (tmpOneInx !== -1) { // 二级tab为非推荐时
-      setOneInx(tmpOneInx);
-    } else { // 二级tab为推荐时
-      setOneInx(lvOneDataRef.current.findIndex(parittion =>
-        parittion.id === parseInt(rIdRef.current, 10)
-      ));
-    }
-
-    setLvOnePartition(lvOneDataRef.current[oneInx]);
-    setCurLvTwoTabIndex(++tmpTwoInx);
+    setOneInx(tmpOneInx);
+    setLvOnePartition(lvOneDataRef.current[tmpOneInx]);
+    setLatestId();
+    setCurLvTwoTabIndex(tmpTwoInx + 1);
   }
 
   function setOneTabData() {
@@ -78,20 +70,15 @@ function Head(props: HeadProps) {
   }
 
   function setOneInxAndPar() {
-    const tmpInx = lvOneDataRef.current.findIndex(parittion =>
-      parittion.id === parseInt(rIdRef.current, 10)
+    const tmpOneInx = lvOneDataRef.current.findIndex(partition =>
+      partition.id === parseInt(rIdRef.current, 10)
     );
-    setOneInx(tmpInx);
 
-    if (tmpInx !== -1) {
-      // 当前m.params.rId是一级分类的，即此时的二级分类为“推荐”
-      // 设置这种情况下的curLvOneTabIndex、lvOnePartition
-      setLvOnePartition(lvOneDataRef.current[tmpInx]);
-    } else {
-      // 当前m.params.rId是二级分类的，即此时的二级分类非“推荐”
-      // 设置这种情况下的curLvOneTabIndex、lvOnePartition，以及
-      // 设置curLvTwoTabIndex
-      setOneByTwo(match.params.rId);
+    if (tmpOneInx !== -1) { // 发生在channle首次加载及点击一级tab后，此时的二级分类为“推荐”
+      setOneInx(tmpOneInx);
+      setLvOnePartition(lvOneDataRef.current[tmpOneInx]);
+    } else {  // 发生在从Video页面返回时，二级分类非“推荐”
+      setNotRecStatus(match.params.rId);
     }
   }
 
@@ -150,10 +137,12 @@ function Head(props: HeadProps) {
   function handleSecondClick(tab) {
     if (tab.id !== lvTwoDataRef.current[curLvTwoTabIndex].id) {
       history.push({ pathname: "/channel/" + tab.id });
+      rIdRef.current = tab.id;
       scrollTo(0, 0);
 
-      rIdRef.current = tab.id;
-      setOneByTwo(tab.id);
+      setCurLvTwoTabIndex(lvTwoDataRef.current.findIndex(partition =>
+        partition.id === parseInt(tab.id, 10)
+      ));
       setTimeout(() => {
         if (twoInxRef.current !== 0) { // 二级tab为非推荐时
           setLatestId();
@@ -170,10 +159,11 @@ function Head(props: HeadProps) {
   useEffect(() => {
     setOneTabData();
     setOneInxAndPar();
-    if (curLvTwoTabIndex !== 0) { setLatestId(); } // 非“推荐”时才需要加载最新视频数据
   }, []);
 
-  useEffect(() => { setLvTwoTabDataAndPar(); }, [lvOnePartition]);
+  useEffect(() => {
+    setLvTwoTabDataAndPar();
+  }, [lvOnePartition]);
 
   return (
     <>

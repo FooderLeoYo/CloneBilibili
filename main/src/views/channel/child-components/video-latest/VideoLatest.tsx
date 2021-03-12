@@ -10,14 +10,16 @@ import style from "./video-latest.styl?css-modules";
 import tips from "../../../../assets/images/tips.png";
 
 interface VideoLatestProps {
-  id: number;
-  getPicUrl: (url: string, format: string) => string;
+  id: number,
+  curLvTwoTabIndex: number,
+  getPicUrl: (url: string, format: string) => string
 }
 
 interface VideoLatestState {
-  currentPage: number;
-  latestVideos: Video[];
-  loading: boolean;
+  id: number,
+  currentPage: number,
+  latestVideos: Video[],
+  loading: boolean
 }
 
 class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
@@ -25,6 +27,7 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
   constructor(props) {
     super(props);
     this.state = {
+      id: -99,
       currentPage: 1,
       latestVideos: [],
       loading: false
@@ -43,8 +46,6 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
           currentPage: p,
           latestVideos: this.state.latestVideos.concat(latestVideos),
           loading: false
-        }, () => {
-          // console.log(this.state.latestVideos)
         });
       }
     });
@@ -59,6 +60,10 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
     this.loadMoreRef.current.addEventListener("click", () => {
       this.handleClick()
     });
+
+    if (this.props.curLvTwoTabIndex !== 0) {
+      this.loadLatestData(this.props.id, 1);
+    }
   }
 
   public static getDerivedStateFromProps(props, state) {
