@@ -7,7 +7,7 @@ const {
 const router = express.Router();
 
 router.get("/search/hotword", (req, res, next) => {
-  fetchHotWord().then((data) => {
+  fetchHotWord().then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -19,12 +19,17 @@ router.get("/search/hotword", (req, res, next) => {
       resData.msg = "fail";
     }
     res.send(resData);
-  }).catch(next);
+  }).catch(
+    () => {
+      console.log(111)
+      next
+    }
+  );
 });
 
 router.get("/search/suggest", (req, res, next) => {
   const w = encodeURI(req.query.w);
-  fetchSuggest(w).then((data) => {
+  fetchSuggest(w).then(data => {
     let resData = {
       code: "1",
       msg: "success"

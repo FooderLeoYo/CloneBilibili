@@ -134,7 +134,11 @@ class Search extends React.Component<any, SearchState> {
         {/* 搜索框 */}
         <div className={style.searchTop}>
           <div className={style.boxWrapper}>
-            <i className="icon-search" />
+            <span className={style.searchIcon}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-search"></use>
+              </svg>
+            </span>
             <input
               type="search"
               autoComplete="off"
@@ -152,7 +156,7 @@ class Search extends React.Component<any, SearchState> {
             {
               this.state.searchValue ? (
                 <span
-                  className={style.searchClose}
+                  className={style.cleanContent}
                   onClick={() => { this.clearSearch(); }}
                 >
                   <svg className="icon" aria-hidden="true">
@@ -174,71 +178,71 @@ class Search extends React.Component<any, SearchState> {
               <Result keyword={this.state.keyword} />
             </div>
           ) : ( // 用户未确认最终要搜索的关键词
-              <div>
-                {/* 大家都在搜 */}
-                <div className={style.words}>
-                  <div className={style.wordTitle}>大家都在搜</div>
-                  <div className={style.wordWrapper + " clear"}>
-                    {
-                      this.state.words.map((word, i) => (
-                        <div
-                          className={style.wordItem}
-                          key={"word" + i}
-                          onClick={() => { this.setKeyword(word) }}
-                        >{word}</div>
-                      ))
-                    }
-                  </div>
+            <div>
+              {/* 大家都在搜 */}
+              <div className={style.words}>
+                <div className={style.wordTitle}>大家都在搜</div>
+                <div className={style.wordWrapper + " clear"}>
+                  {
+                    this.state.words.map((word, i) => (
+                      <div
+                        className={style.wordItem}
+                        key={"word" + i}
+                        onClick={() => { this.setKeyword(word) }}
+                      >{word}</div>
+                    ))
+                  }
                 </div>
-                { // 根据用户输入内容智能推荐
-                  this.state.suggestList.length > 0 ? (
-                    <div className={style.suggest}>
-                      {
-                        this.state.suggestList.map((suggest, i) => (
-                          <div className={style.suggestItem} key={"suggest" + i}>
-                            <p
-                              // 这里使用dangerouslySetInnerHTML是因为拿到的数据suggest.name就是个html元素而不是字符串
-                              dangerouslySetInnerHTML={{ __html: suggest.name }}
-                              onClick={() => { this.setKeyword(suggest.value) }}
-                            />
-                          </div>
-                        ))
-                      }
-                    </div>
-                  ) : null
-                }
-                {/* 历史搜索 */}
-                <div className={style.history}>
-                  <div className={style.historyTitle}>历史搜索</div>
-                  <div className={style.historyList}>
+              </div>
+              { // 根据用户输入内容智能推荐
+                this.state.suggestList.length > 0 ? (
+                  <div className={style.suggest}>
                     {
-                      this.state.searchHistories.map((history, i) => (
-                        <div
-                          className={style.historyItem}
-                          key={i}
-                          onClick={() => { this.setKeyword(history.value); }}
-                        >
-                          <span className={style.historyIcon} >
-                            <svg className="icon" aria-hidden="true">
-                              <use href="#icon-history"></use>
-                            </svg>
-                          </span>
-                          <div className={style.name}>{history.value}</div>
+                      this.state.suggestList.map((suggest, i) => (
+                        <div className={style.suggestItem} key={"suggest" + i}>
+                          <p
+                            // 这里使用dangerouslySetInnerHTML是因为拿到的数据suggest.name就是个html元素而不是字符串
+                            dangerouslySetInnerHTML={{ __html: suggest.name }}
+                            onClick={() => { this.setKeyword(suggest.value) }}
+                          />
                         </div>
                       ))
                     }
                   </div>
-                  { // 清空历史记录
-                    this.state.searchHistories.length > 0 ? (
+                ) : null
+              }
+              {/* 历史搜索 */}
+              <div className={style.history}>
+                <div className={style.historyTitle}>历史搜索</div>
+                <div className={style.historyList}>
+                  {
+                    this.state.searchHistories.map((history, i) => (
                       <div
-                        className={style.historyClear}
-                        onClick={() => { this.clearSearchHistory(); }}
-                      >清除历史记录</div>
-                    ) : null
+                        className={style.historyItem}
+                        key={i}
+                        onClick={() => { this.setKeyword(history.value); }}
+                      >
+                        <span className={style.historyIcon} >
+                          <svg className="icon" aria-hidden="true">
+                            <use href="#icon-history"></use>
+                          </svg>
+                        </span>
+                        <div className={style.name}>{history.value}</div>
+                      </div>
+                    ))
                   }
                 </div>
+                { // 清空历史记录
+                  this.state.searchHistories.length > 0 ? (
+                    <div
+                      className={style.historyClear}
+                      onClick={() => { this.clearSearchHistory(); }}
+                    >清除历史记录</div>
+                  ) : null
+                }
               </div>
-            )
+            </div>
+          )
         }
       </div>
     );

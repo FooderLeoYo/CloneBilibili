@@ -241,7 +241,6 @@ class Index extends React.Component<IndexProps, IndexState> {
               <ScrollToTop />
             </>
         }
-
       </div>
     );
   }

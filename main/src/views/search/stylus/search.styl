@@ -5,6 +5,8 @@ html, body, :global(#app), :global(.view), :global(.search)
 :global(.search)
   position: relative
 .search-top
+  display: grid
+  grid-template-columns: 88% 12%
   position: fixed
   top: 0
   left: 0
@@ -13,42 +15,38 @@ html, body, :global(#app), :global(.view), :global(.search)
   z-index: 10
   background-color: #ffffff
   .box-wrapper
-    position: relative
-    display: inline-block
-    width: 82%
+    display: grid
+    grid-template-columns: 11% 79% 10%
     height: 1.5rem
     margin-top: .35rem
     margin-left: .625rem
     border: .025rem solid #e7e7e7
     background-color: #f4f4f4
     border-radius: .2rem
-    i:first-child
-      position: absolute
-      top: .28rem
-      left: .6rem
+    .search-icon,
+    .search-box,
+    .clean-content
+      align-self: center
+    .search-icon
+      padding-left: .6rem
       font-size: .9rem
+      color: rgb(160, 160, 160)
     .search-box
-      display: block
       width: 100%
       height: @width
-      padding-left: 1.95rem
       background: none
       border: none
       color: #505050
       font-size: .65rem
       outline: none
       appearance: none
-    .search-close
-      position: absolute
-      top: 0
-      right: 0
+    .clean-content
       width: 1.5rem
       height: 1.5rem
       color: rgb(204, 204, 204)
   .cancel
-    float: right
-    margin-top: .7rem
-    margin-right: .625rem
+    align-self: center
+    margin-left: .35rem
     color: #fb7299
     font-size: .7rem
 .words

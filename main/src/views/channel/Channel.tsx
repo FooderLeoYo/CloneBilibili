@@ -113,19 +113,21 @@ function Channel(props: ChannelProps) {
   /* 设置其他数据相关 */
   function setRecGtTwo() {
     if (lvOnePartition) {
-      setIsRecAndChildrenGtTwo(curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1);
+      setIsRecAndChildrenGtTwo(
+        curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1
+      );
     }
   }
 
   // 获取排行榜分类的信息，包含name和id
-  function setrankingPartitions() {
+  function setRankingPartitions() {
     getRankingPartitions().then(result => {
       if (result.code === "1") { rankParRef.current = createPartitionTypes(result.data); }
     });
   }
 
   function setInitData() {
-    setrankingPartitions();
+    setRankingPartitions();
     loadHotVideos();
     setTimeout(() => { setIsDataOk(true); }, 1);
   }
@@ -143,12 +145,12 @@ function Channel(props: ChannelProps) {
   }, []);
 
   useEffect(() => {
-    setRecGtTwo();
-  }, [curLvTwoTabIndex, lvOnePartition]);
-
-  useEffect(() => {
     if (curLvTwoTabIndex === 0) { loadAllSecRecVideos(); } // 如果二级tab是“推荐”
   }, [lvOnePartition])
+
+  useEffect(() => {
+    setRecGtTwo();
+  }, [curLvTwoTabIndex, lvOnePartition]);
 
   // 如果不用这个进行清空，在切换时之前的内容会短暂停留
   const rId = parseInt(match.params.rId, 10);
@@ -207,8 +209,7 @@ function Channel(props: ChannelProps) {
                 />
               </div>
               { // 分类推荐视频或最新视频
-                isRecAndChildrenGtTwo ?
-                  // 当前二级分类为“推荐”，则显示分类推荐视频
+                isRecAndChildrenGtTwo ? // 当前二级分类为“推荐”，则显示分类推荐视频
                   lvTwoParHotVideos.map(partition =>
                     <Partition
                       data={partition}
@@ -216,8 +217,7 @@ function Channel(props: ChannelProps) {
                       getPicUrl={(url, format) => getPicUrl(url, format)}
                       key={partition.id}
                     />
-                  ) :
-                  // 当前二级分类为非“推荐”或一级分类只有一个二级分类，则显示最新视频
+                  ) : // 当前二级分类为非“推荐”或一级分类只有一个二级分类，则显示最新视频
                   <VideoLatest
                     id={videoLatestId}
                     curLvTwoTabIndex={curLvTwoTabIndex}
