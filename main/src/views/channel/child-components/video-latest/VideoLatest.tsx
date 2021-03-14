@@ -78,6 +78,7 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
 
   public componentDidUpdate(prevProps) {
     if (this.props.id !== prevProps.id) {
+      this.setState({ latestVideos: [] });
       this.loadLatestData(this.props.id, 1);
     }
   }

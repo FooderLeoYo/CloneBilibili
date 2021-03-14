@@ -36,30 +36,28 @@ function Channel(props: ChannelProps) {
   const { history, shouldLoad, dispatch, staticContext, match, partitions } = props;
   const context = useContext(myContext);
 
-  // 数据还未加载前，推荐视频VideoItem的默认值
-  const initVideos = [];
-  for (let i = 0; i < 4; i++) {
-    initVideos.push(new Video(0, "加载中...", "", "", 0, 0, 0, 0, 0, ""));
-  }
-
   const [isDataOk, setIsDataOk] = useState(false);
-  const [hotVideos, setHotVideos] = useState(initVideos);
-  const [lvTwoParHotVideos, setLvTwoParHotVideos] = useState([]);
-  const [prevId, setPrevId] = useState(-999);
+  const [hotVideos, setHotVideos] = useState([]);
+  const [videoLatestId, setVideoLatestId] = useState(0);
+  const [isRecAndChildrenGtTwo, setIsRecAndChildrenGtTwo] = useState(true);
+  const rankParRef = useRef(null); // 用于获取点击“排行榜”后，跳转到的url中最后的id
 
   const [lvOnePartition, setLvOnePartition] = useState<PartitionType>(null);
   const [lvTwoPartition, setLvTwoPartition] = useState<PartitionType>(null);
   const [curLvTwoTabIndex, setCurLvTwoTabIndex] = useState(0);
-
-  const [videoLatestId, setVideoLatestId] = useState(0);
-
-  const [isRecAndChildrenGtTwo, setIsRecAndChildrenGtTwo] = useState(true);
-  const rankParRef = useRef(null); // 用于获取点击“排行榜”后，跳转到的url中最后的id
+  const [twoTabData, setTwoTabData] = useState([]);
+  const [lvTwoParHotVideos, setLvTwoParHotVideos] = useState([]);
 
   const rIdRef = useRef(match.params.rId)
   useEffect(() => { rIdRef.current = match.params.rId; }, [match.params.rId]);
 
-  /* 获取数据相关 */
+  // 数据加载过程中，视频封面的placeholder
+  // const initVideos = [];
+  // for (let i = 0; i < 4; i++) {
+  //   initVideos.push(new Video(0, "加载中...", "", "", 0, 0, 0, 0, 0, ""));
+  // }
+
+
   function getPicUrl(url, format) {
     const { picURL } = context;
     let suffix: string = ".webp";
@@ -110,20 +108,25 @@ function Channel(props: ChannelProps) {
     }
   }
 
-  /* 设置其他数据相关 */
-  function setRecGtTwo() {
-    if (lvOnePartition) {
-      setIsRecAndChildrenGtTwo(
-        curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1
-      );
-    }
-  }
-
   // 获取排行榜分类的信息，包含name和id
   function setRankingPartitions() {
     getRankingPartitions().then(result => {
       if (result.code === "1") { rankParRef.current = createPartitionTypes(result.data); }
     });
+  }
+
+  function setLvTwoTabDataAndPar() {
+    if (lvOnePartition) {
+      // 设置lvTwoTabData、lvTwoPartition
+      let tmpData = [{ id: lvOnePartition.id, name: "推荐" } as PartitionType]
+        .concat(lvOnePartition.children);
+      setTwoTabData(tmpData);
+
+      // 如果此时的二级分类非“推荐”
+      if (curLvTwoTabIndex !== 0) {
+        setLvTwoPartition(twoTabData[curLvTwoTabIndex]);
+      }
+    }
   }
 
   function setInitData() {
@@ -145,23 +148,46 @@ function Channel(props: ChannelProps) {
   }, []);
 
   useEffect(() => {
-    if (curLvTwoTabIndex === 0) { loadAllSecRecVideos(); } // 如果二级tab是“推荐”
+    setLvTwoTabDataAndPar();
+    loadAllSecRecVideos();
   }, [lvOnePartition])
 
   useEffect(() => {
-    setRecGtTwo();
+    if (lvOnePartition) {
+      setIsRecAndChildrenGtTwo(
+        curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1
+      );
+    }
   }, [curLvTwoTabIndex, lvOnePartition]);
 
-  // 如果不用这个进行清空，在切换时之前的内容会短暂停留
-  const rId = parseInt(match.params.rId, 10);
-  if (rId !== prevId) {
-    // 则清空之前的state数据
-    setHotVideos(initVideos);
-    setLvTwoParHotVideos([]);
-    setPrevId(rId);
-  }
+  // 解决从二级tab页切换一级tab后再点另一个二级tab时，VideoLatestId未更新的问题
+  // useEffect((() => {
+  //   if (lvOnePartition) {
+  //     const tmpTwoInx = twoTabData.findIndex(partition =>
+  //       partition.id === parseInt(match.params.rId, 10)
+  //     )
+  //     if (tmpTwoInx !== -1) {
+  //       setCurLvTwoTabIndex(tmpTwoInx);
+  //     }
+  //     if (curLvTwoTabIndex > 0) {
+  //       scrollTo(0, 0)
+  //       setIsRecAndChildrenGtTwo(false);
 
-  /* 以下为渲染部分 */
+  //       const tmp = lvOnePartition.children.length > 1 ? // 如果此时的二级分类非“推荐”
+  //         lvOnePartition.children[curLvTwoTabIndex - 1].id : // 二级分类有两个或以上取当前二级分类
+  //         lvOnePartition.children[0].id; // 只有一个二级分类取第一个
+  //       setVideoLatestId(tmp);
+  //     }
+  //   }
+  // }), [match.params.rId, lvOnePartition, curLvTwoTabIndex])
+
+  // 切换tab后，加载过程中显示laceholder图片
+  // useEffect(() => {
+  //   setHotVideos(initVideos);
+  //   setLvTwoParHotVideos([]);
+  // }, [match.params.rId])
+
+
   return (
     <div className="channel">
       <Helmet>
@@ -191,6 +217,8 @@ function Channel(props: ChannelProps) {
                 setCurLvTwoTabIndex={setCurLvTwoTabIndex}
                 setVideoLatestId={setVideoLatestId}
                 loadAllSecRecVideos={loadAllSecRecVideos}
+                rIdRef={rIdRef}
+                twoTabData={twoTabData}
               />
             </div>
             {/* 是否留出二级tab的位置 */}

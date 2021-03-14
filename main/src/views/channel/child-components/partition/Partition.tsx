@@ -1,4 +1,5 @@
 import * as React from "react";
+import { withRouter } from "react-router-dom";
 import { History } from "history";
 import { Video } from "../../../../class-object-creators";
 
@@ -32,7 +33,9 @@ function Partition(props: PartitionProps) {
       <div className={style.title}>{data.name}</div>
       <div className={style.ranking}>
         <span className={style.more} ref={moreRef}>查看更多</span>
-        <i className={`${style.iconRight} icon-arrow-right`} />
+        <svg className="icon" aria-hidden="true">
+          <use href="#icon-moreNoFill"></use>
+        </svg>
       </div>
       <div className={style.partitionContent + " clear"}>
         {
@@ -49,3 +52,4 @@ function Partition(props: PartitionProps) {
 }
 
 export default Partition;
+// export default withRouter(Partition);
