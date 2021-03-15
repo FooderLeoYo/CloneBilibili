@@ -160,26 +160,29 @@ function Channel(props: ChannelProps) {
     }
   }, [curLvTwoTabIndex, lvOnePartition]);
 
-  // 解决从二级tab页切换一级tab后再点另一个二级tab时，VideoLatestId未更新的问题
-  // useEffect((() => {
-  //   if (lvOnePartition) {
-  //     const tmpTwoInx = twoTabData.findIndex(partition =>
-  //       partition.id === parseInt(match.params.rId, 10)
-  //     )
-  //     if (tmpTwoInx !== -1) {
-  //       setCurLvTwoTabIndex(tmpTwoInx);
-  //     }
-  //     if (curLvTwoTabIndex > 0) {
-  //       scrollTo(0, 0)
-  //       setIsRecAndChildrenGtTwo(false);
+  // 使得点击推荐页面下各二级分类的查看更多后，能正常切换
+  useEffect((() => {
+    if (lvOnePartition) {
+      const tmpTwoInx = twoTabData.findIndex(partition =>
+        partition.id === parseInt(match.params.rId, 10)
+      )
+      if (tmpTwoInx !== -1) {
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        setCurLvTwoTabIndex(tmpTwoInx);
+      }
+      if (curLvTwoTabIndex > 0) {
+        scrollTo(0, 0)
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        setIsRecAndChildrenGtTwo(false);
 
-  //       const tmp = lvOnePartition.children.length > 1 ? // 如果此时的二级分类非“推荐”
-  //         lvOnePartition.children[curLvTwoTabIndex - 1].id : // 二级分类有两个或以上取当前二级分类
-  //         lvOnePartition.children[0].id; // 只有一个二级分类取第一个
-  //       setVideoLatestId(tmp);
-  //     }
-  //   }
-  // }), [match.params.rId, lvOnePartition, curLvTwoTabIndex])
+        const tmp = lvOnePartition.children.length > 1 ? // 如果此时的二级分类非“推荐”
+          lvOnePartition.children[curLvTwoTabIndex - 1].id : // 二级分类有两个或以上取当前二级分类
+          lvOnePartition.children[0].id; // 只有一个二级分类取第一个
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        setVideoLatestId(tmp);
+      }
+    }
+  }), [match.params.rId, lvOnePartition, curLvTwoTabIndex])
 
   // 切换tab后，加载过程中显示laceholder图片
   // useEffect(() => {

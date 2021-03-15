@@ -150,7 +150,7 @@ function Head(props: HeadProps) {
       <Header />
       <div className={style.partition}>
         {/* 一级分类Tab */}
-        <div className={style.tabBar}>
+        <div className={style.oneTabBar}>
           {
             <TabBar
               data={lvOneDataRef.current}
@@ -182,7 +182,7 @@ function Head(props: HeadProps) {
       {/* 二级分类Tab */}
       {
         lvOnePartition && lvOnePartition.children.length > 1 &&
-        <div className={style.secondTabBar}>
+        <div className={style.twoTabBar}>
           <TabBar
             data={twoTabData}
             type={"hightlight"}
