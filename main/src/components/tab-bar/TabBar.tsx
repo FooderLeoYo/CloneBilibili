@@ -42,19 +42,20 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
       if (tarTabDOM) {
         const leftTabDOM = this.state.curInx !== 0 ? children[this.state.curInx - 1] : children[this.state.curInx];
         const disBetwTarTabAndWrap = tarTabDOM.getBoundingClientRect().left - this.wrapperOffsetLeft;
+        const leftDOMWidth = leftTabDOM.offsetWidth;
 
-        if (disBetwTarTabAndWrap > leftTabDOM.offsetWidth ||
-          disBetwTarTabAndWrap < leftTabDOM.offsetWidth) { // 保证curTab始终处于第二位
-          const tarPosition = tarTabDOM.offsetLeft - leftTabDOM.offsetWidth;
+        // 保证curTab始终处于第二位
+        if (disBetwTarTabAndWrap > leftDOMWidth || disBetwTarTabAndWrap < leftDOMWidth) {
+          const tarPosition = tarTabDOM.offsetLeft - leftDOMWidth;
 
-          this.tabBarRef.current.classList.add(style.slideAni);
+          tabBarDOM.classList.add(style.slideAni);
           // if判断是为了解决tab右边拖到头了还会继续拖的问题
           if (tarPosition < this.maxTarPosition) { // 未拖到头
             tabBarDOM.style.transform = `translate3d(-${tarPosition}px, 0 ,0)`;
           } else { // 将拖到头，则只拖动可以拖动的距离
-            tabBarDOM.style.transform = `translate3d(-${tabBarDOM.scrollWidth - tabBarDOM.offsetWidth - tabBarDOM.offsetLeft}px, 0 ,0)`;
+            tabBarDOM.style.transform = `translate3d(-${tabBarDOM.scrollWidth - tabBarDOM.offsetWidth}px, 0 ,0)`;
           }
-          setTimeout(() => { this.tabBarRef.current.classList.remove(style.slideAni) }, 350);
+          setTimeout(() => { tabBarDOM.classList.remove(style.slideAni) }, 350);
         }
       }
     }
@@ -78,9 +79,6 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
 
   private handleClick(tab, index) {
     this.setState({ curInx: index });
-    if (this.props.type === "underline") {
-      console.log(this.props.type)
-    }
     if (this.props.clickMethod) {
       this.props.clickMethod(tab);
     }
@@ -107,12 +105,13 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
 
   public componentDidMount() {
     const tabBarDOM = this.tabBarRef.current;
+
     this.wrapperOffsetLeft = tabBarDOM.parentElement.getBoundingClientRect().left;
     this.setListeners();
     if (this.props.type === "underline") {
       this.moveUnderline(this.state.curInx);
     }
-    setTimeout(() => {
+    setTimeout(() => { // 延时是为了获取元素完整加载后的tabBarDOM.scrollWidth
       this.maxTarPosition = tabBarDOM.scrollWidth - tabBarDOM.offsetWidth;
       this.resetScroll();
     });
@@ -149,7 +148,8 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
       <div className={style.tabBarWrapper}>
         <ul className={style.tabBar} ref={this.tabBarRef}>
           {
-            type === "underline" && <span className={style.underline} ref={this.underlineRef}></span>
+            type === "underline" &&
+            <span className={style.underline} ref={this.underlineRef}></span>
           }
           {tabs}
         </ul>
