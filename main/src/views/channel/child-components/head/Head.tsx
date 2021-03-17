@@ -36,7 +36,7 @@ function Head(props: HeadProps) {
     setLvTwoPartition, setCurLvTwoTabIndex, setVideoLatestId, rIdRef, twoTabData } = props;
 
   const lvOneDataRef = useRef([]);
-  const [oneInx, setOneInx] = useState(-9);
+  const [oneInx, setOneInx] = useState(0);
   const curOneInxRef = useRef(null);
   useEffect(() => { curOneInxRef.current = oneInx; }, [oneInx]);
 
@@ -154,7 +154,7 @@ function Head(props: HeadProps) {
           {
             <TabBar
               data={lvOneDataRef.current}
-              type={"indicate"}
+              type={"underline"}
               currentIndex={oneInx}
               clickMethod={handleClick}
               needForcedUpdate={true}
@@ -185,7 +185,7 @@ function Head(props: HeadProps) {
         <div className={style.twoTabBar}>
           <TabBar
             data={twoTabData}
-            type={"hightlight"}
+            type={"noUnderline"}
             currentIndex={curLvTwoTabIndex}
             clickMethod={handleSecondClick}
             needForcedUpdate={true}

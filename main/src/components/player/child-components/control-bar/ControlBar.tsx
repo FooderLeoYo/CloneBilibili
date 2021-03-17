@@ -180,9 +180,9 @@ function ControlBar(props: ControlBarProps, ref) {
     });
   }
 
-  function setActivedColor(dom) {
-    dom.addEventListener("touchstart", () => { dom.style.color = "#de698c"; })
-    dom.addEventListener("touchend", () => { dom.style.color = "#ffffff"; })
+  function setActivedColor(DOM) {
+    DOM.addEventListener("touchstart", () => { DOM.style.color = "#de698c"; })
+    DOM.addEventListener("touchend", () => { DOM.style.color = "#ffffff"; })
   }
 
   function setElesActivedColor() {
@@ -288,8 +288,8 @@ function ControlBar(props: ControlBarProps, ref) {
             </div>
           </React.Fragment>
         ) : ( // 直播时为直播时长
-            <div className={style.left} ref={liveDurationRef}></div>
-          )
+          <div className={style.left} ref={liveDurationRef}></div>
+        )
       }
       <div className={style.right}>
         {/* 调节播放速度 */}

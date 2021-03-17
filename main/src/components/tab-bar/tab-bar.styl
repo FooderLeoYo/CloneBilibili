@@ -8,23 +8,18 @@
     padding: 0
     height: px2rem(40)
     &.slide-ani
-      transition-duration: 600ms
-    &::-webkit-scrollbar
-      display: none
+      transition: all 0.3s ease-out
+    .underline
+      position: absolute
+      left: 0
+      bottom: px2rem(2)
+      border-bottom: px2rem(2.2) solid #fb7299
+      transition: all 0.3s ease-out
     .tab
       flex: 0 0 auto
       padding: 0 px2rem(16)
       user-select: none
       color: #757575
-      &.indicate
-        color: #fb7299
-        // span:after
-        //   position: absolute
-        //   content: ""
-        //   width: 100%
-        //   left: 0
-        //   bottom: px2rem(2)
-        //   border-bottom: px2rem(2.2) solid #fb7299
       &.highlight
         color: #fb7299
       span
@@ -33,14 +28,3 @@
         padding: 0 px2rem(2)
         font-size: px2rem(14)
         line-height: px2rem(40)
-    .underline
-      display: inline-block
-      position: absolute
-      bottom: 0
-      left: 0
-      width: px2rem(20)
-      height: px2rem(5)
-      // background-color: orange
-      border-bottom: px2rem(5) solid orange
-      z-index 999
-      transition: all 0.3s ease-out
