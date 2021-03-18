@@ -8,7 +8,9 @@ interface TabBarProps {
   data: PartitionType[],
   clickMethod?: Function,
   currentIndex?: number,
-  needForcedUpdate?: boolean
+  needForcedUpdate?: boolean,
+  noSlideAni?: boolean, // 直播一级tabBar会在从直播首页切换到别的类别时发生的滚动，因此禁用动画
+  oneInx?: number, // 仅二级tab需要，解决切换二级tab后再切换一级tab时，二级tabBar不会滚到推荐位置
 }
 
 interface TabBarState {
@@ -19,7 +21,6 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
   private tabBarRef: React.RefObject<HTMLUListElement>;
   private underlineRef: React.RefObject<HTMLSpanElement>;
   private wrapperOffsetLeft: number; // 大尺寸下视图未铺满屏幕时有意义
-  private maxTarPosition: number;
   constructor(props) {
     super(props);
     this.tabBarRef = React.createRef();
@@ -40,22 +41,27 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
       const tarTabDOM = children[this.state.curInx];
 
       if (tarTabDOM) {
-        const leftTabDOM = this.state.curInx !== 0 ? children[this.state.curInx - 1] : children[this.state.curInx];
         const disBetwTarTabAndWrap = tarTabDOM.getBoundingClientRect().left - this.wrapperOffsetLeft;
-        const leftDOMWidth = leftTabDOM.offsetWidth;
+        const leftDOMWidth = this.state.curInx !== 0 ? children[this.state.curInx - 1].offsetWidth : 0;
 
-        // 保证curTab始终处于第二位
+        // 保证curTab始终处于第二个位置
         if (disBetwTarTabAndWrap > leftDOMWidth || disBetwTarTabAndWrap < leftDOMWidth) {
           const tarPosition = tarTabDOM.offsetLeft - leftDOMWidth;
 
-          tabBarDOM.classList.add(style.slideAni);
-          // if判断是为了解决tab右边拖到头了还会继续拖的问题
-          if (tarPosition < this.maxTarPosition) { // 未拖到头
+          if (!this.props.noSlideAni) {
+            tabBarDOM.classList.add(style.slideAni);
+            setTimeout(() => { tabBarDOM.classList.remove(style.slideAni) }, 350);
+          }
+
+          // if (this.state.curInx === 0) { // 拖动了二级tab后切换一级tab
+          //   tabBarDOM.classList.remove(style.slideAni);
+          //   tabBarDOM.style.transform = `translate3d(-${tarPosition}px, 0 ,0)`;
+          // } 
+          if (tarPosition < tabBarDOM.scrollWidth - tabBarDOM.offsetWidth) { // 未拖到头
             tabBarDOM.style.transform = `translate3d(-${tarPosition}px, 0 ,0)`;
-          } else { // 将拖到头，则只拖动可以拖动的距离
+          } else { // 将拖到头，则只拖到可以拖动的距离
             tabBarDOM.style.transform = `translate3d(-${tabBarDOM.scrollWidth - tabBarDOM.offsetWidth}px, 0 ,0)`;
           }
-          setTimeout(() => { tabBarDOM.classList.remove(style.slideAni) }, 350);
         }
       }
     }
@@ -68,11 +74,14 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     if (children.length > 0) {
       const currentTabDOM = children[curInx];
       const underlineDOM = this.underlineRef.current;
+      const tabPadding = parseInt(getComputedStyle(currentTabDOM)["paddingLeft"].slice(0, -2));
+      const spanPadding = parseInt(getComputedStyle(currentTabDOM.children[0])["paddingLeft"].slice(0, -2));
 
-      const tabPadding = parseInt(getComputedStyle(currentTabDOM)["paddingLeft"].slice(0, -2))
-      underlineDOM.style.left = `${currentTabDOM.offsetLeft + tabPadding}px`;
+      if (this.props.noSlideAni) {
+        underlineDOM.classList.add(style.noAni);
+      }
 
-      const spanPadding = parseInt(getComputedStyle(currentTabDOM.children[0])["paddingLeft"].slice(0, -2))
+      underlineDOM.style.left = `${currentTabDOM.offsetLeft + tabPadding + spanPadding}px`;
       underlineDOM.style.width = `${currentTabDOM.children[0].clientWidth - 2 * spanPadding}px`;
     }
   }
@@ -86,16 +95,18 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
 
   private setListeners() {
     const tabBarDOM = this.tabBarRef.current;
-    let tabBarStartPos: number = 0;
-    let clickStartPos: number = 0;
+    let maxTarPosition: number;
+    let tabBarStartPos: number;
+    let clickStartPos: number;
 
     tabBarDOM.addEventListener("touchstart", e => {
+      maxTarPosition = tabBarDOM.scrollWidth - tabBarDOM.offsetWidth;
       tabBarStartPos = tabBarDOM.getBoundingClientRect().left - this.wrapperOffsetLeft;
       clickStartPos = e.targetTouches[0].pageX;
     });
     tabBarDOM.addEventListener("touchmove", e => {
       const tarPosition = -(e.targetTouches[0].pageX - clickStartPos + tabBarStartPos);
-      if (tarPosition > this.maxTarPosition || tarPosition < 0) {
+      if (tarPosition > maxTarPosition || tarPosition < 0) {
         return;
       } else {
         tabBarDOM.style.transform = `translate3d(-${tarPosition}px, 0, 0)`;
@@ -108,13 +119,10 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
 
     this.wrapperOffsetLeft = tabBarDOM.parentElement.getBoundingClientRect().left;
     this.setListeners();
+    this.resetScroll();
     if (this.props.type === "underline") {
       this.moveUnderline(this.state.curInx);
     }
-    setTimeout(() => { // 延时是为了获取元素完整加载后的tabBarDOM.scrollWidth
-      this.maxTarPosition = tabBarDOM.scrollWidth - tabBarDOM.offsetWidth;
-      this.resetScroll();
-    });
   }
 
   public static getDerivedStateFromProps(nextProps, prevState) {
@@ -125,7 +133,8 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
   }
 
   public componentDidUpdate(prevProps) {
-    if (this.props.needForcedUpdate && prevProps.currentIndex !== this.state.curInx) {
+    if (this.props.needForcedUpdate && (prevProps.currentIndex !== this.state.curInx ||
+      this.props.oneInx && this.props.oneInx !== prevProps.oneInx)) {
       this.resetScroll();
       if (this.props.type === "underline") { this.moveUnderline(this.state.curInx); }
     }

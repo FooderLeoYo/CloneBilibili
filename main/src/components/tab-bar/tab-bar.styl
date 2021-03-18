@@ -8,13 +8,15 @@
     padding: 0
     height: px2rem(40)
     &.slide-ani
-      transition: all 0.3s ease-out
+      transition: all 300ms ease-out
     .underline
       position: absolute
       left: 0
       bottom: px2rem(2)
       border-bottom: px2rem(2.2) solid #fb7299
-      transition: all 0.3s ease-out
+      transition-duration: 300ms
+      &.no-ani
+        transition-duration: 0ms
     .tab
       flex: 0 0 auto
       padding: 0 px2rem(16)

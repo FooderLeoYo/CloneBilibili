@@ -53,7 +53,7 @@ function List(props: ListProps) {
   const query = parse(location.search);
 
   const [lives, setLives] = useState(liveListData.list);
-  const [isDataOk, setIsDataOk] = useState(false);
+  // const [isDataOk, setIsDataOk] = useState(false);
   const [isLoadMore, setIsLoadMore] = useState(false);
   const [prevSearch, setPrevSearch] = useState(props.location.search);
 
@@ -130,7 +130,7 @@ function List(props: ListProps) {
 
         setLives(lives.concat(list));
         setIsLoadMore(false);
-        setIsDataOk(true);
+        // setIsDataOk(true);
       }
     });
   };
@@ -140,7 +140,7 @@ function List(props: ListProps) {
       livePage.pageNumber = 1;
       getLives();
     } else {
-      setIsDataOk(true);
+      // setIsDataOk(true);
       dispatch(setShouldLoad(true));
     }
   }, []);
@@ -148,7 +148,7 @@ function List(props: ListProps) {
   useEffect(() => {
     const search = props.location.search;
     if (search !== prevSearch) {
-      setIsDataOk(false);
+      // setIsDataOk(false);
       setLives([]);
       setPrevSearch(search);
     }
@@ -168,70 +168,70 @@ function List(props: ListProps) {
         <title>直播-{query.area_name ? query.area_name : query.parent_area_name}</title>
       </Helmet>
       {
-        !isDataOk ? <LoadingCutscene /> :
-          <>
-            <div className={style.head}>
-              <Nav
-                history={props.history}
-                firstTabBarData={lvOneTabBarData}
-                secondTabBarData={lvTwoTabBarData}
-                secondQueryPar={secondQueryPar}
-                lvTwoInx={lvTwoInx}
-              />
-            </div>
-            <Context.Consumer>
-              {context => (
-                <section className={style.main}>
-                  <div className={style.roomContainer}>
-                    {/* 分类名称 */}
-                    <h4 className={style.title}>
-                      {query.area_name ? query.area_name : query.parent_area_name}
-                    </h4>
-                    {/* 房间列表 */}
-                    <div className={style.rooms}>
+        // !isDataOk ? <LoadingCutscene /> :
+        <>
+          <div className={style.head}>
+            <Nav
+              history={props.history}
+              firstTabBarData={lvOneTabBarData}
+              secondTabBarData={lvTwoTabBarData}
+              secondQueryPar={secondQueryPar}
+              lvTwoInx={lvTwoInx}
+            />
+          </div>
+          <Context.Consumer>
+            {context => (
+              <section className={style.main}>
+                <div className={style.roomContainer}>
+                  {/* 分类名称 */}
+                  <h4 className={style.title}>
+                    {query.area_name ? query.area_name : query.parent_area_name}
+                  </h4>
+                  {/* 房间列表 */}
+                  <div className={style.rooms}>
+                    {
+                      lives.map(data => {
+                        if (data.cover.indexOf(context.picURL) === -1) {
+                          data.cover = `${context.picURL}?pic=${data.cover}`;
+                        }
+                        return (
+                          // <a
+                          //   className={style.roomWrapper}
+                          //   key={data.roomId}
+                          //   href={`/live/${data.roomId}`}
+                          // >
+                          //   <LiveInfo data={data} />
+                          // </a>
+                          <Link className={style.roomWrapper} key={data.roomId} to={`/live/${data.roomId}`}>
+                            <LiveInfo data={data} />
+                          </Link>
+                        )
+                      })
+                    }
+                  </div>
+                </div>
+                {/* 加载更多 */}
+                {
+                  lives.length > 0 && livePage.totalPage > 1 &&
+                  <div className={style.loadMore}>
+                    <div className={style.loadBtn} onClick={() => {
+                      if (livePage.pageNumber <= livePage.totalPage) {
+                        setIsLoadMore(true);
+                        getLives();
+                      }
+                    }}>
                       {
-                        lives.map(data => {
-                          if (data.cover.indexOf(context.picURL) === -1) {
-                            data.cover = `${context.picURL}?pic=${data.cover}`;
-                          }
-                          return (
-                            // <a
-                            //   className={style.roomWrapper}
-                            //   key={data.roomId}
-                            //   href={`/live/${data.roomId}`}
-                            // >
-                            //   <LiveInfo data={data} />
-                            // </a>
-                            <Link className={style.roomWrapper} key={data.roomId} to={`/live/${data.roomId}`}>
-                              <LiveInfo data={data} />
-                            </Link>
-                          )
-                        })
+                        !isLoadMore ? (livePage.pageNumber <= livePage.totalPage ?
+                          "请给我更多！" : "没有更多了") : "加载中..."
                       }
                     </div>
                   </div>
-                  {/* 加载更多 */}
-                  {
-                    lives.length > 0 && livePage.totalPage > 1 &&
-                    <div className={style.loadMore}>
-                      <div className={style.loadBtn} onClick={() => {
-                        if (livePage.pageNumber <= livePage.totalPage) {
-                          setIsLoadMore(true);
-                          getLives();
-                        }
-                      }}>
-                        {
-                          !isLoadMore ? (livePage.pageNumber <= livePage.totalPage ?
-                            "请给我更多！" : "没有更多了") : "加载中..."
-                        }
-                      </div>
-                    </div>
-                  }
-                </section>
-              )}
-            </Context.Consumer>
-            <ScrollToTop />
-          </>
+                }
+              </section>
+            )}
+          </Context.Consumer>
+          <ScrollToTop />
+        </>
       }
     </div>
   );

@@ -34,11 +34,10 @@ interface IndexProps {
   lvOnePartitions: PartitionType[],
 }
 
-const { useEffect, useState, useMemo } = React;
+const { useEffect, useMemo } = React;
 
 function Index(props: IndexProps) {
   /* 以下为初始化 */
-  const [isDataOk, setIsDataOk] = useState(false);
   const { shouldLoad, dispatch, history } = props;
   // 轮播图和直播类型数据
   const { bannerList, itemList } = props.liveData;
@@ -52,6 +51,7 @@ function Index(props: IndexProps) {
 
     return temp;
   }, []);
+
   // 二级导航栏
   const lvTwoPartitions: PartitionType[] = useMemo(() => {
     if (itemList.length > 0) {
@@ -95,9 +95,10 @@ function Index(props: IndexProps) {
     // 此时有服务端的预取数据，页面使用预取数据即可而无需调用getLives
     // 但是预取数据仅仅是当前页面，因此要setShouldLoad(true)
     // 因为路由跳转切换下一个页面时，下一个页面将没有对应的预取数据，需要自己获取
-    if (shouldLoad) { dispatch(getLiveData()).then(() => { setIsDataOk(true); }); }
+    if (shouldLoad) {
+      dispatch(getLiveData())
+    }
     else {
-      setIsDataOk(true);
       dispatch(setShouldLoad(true));
     }
   }, []);
@@ -109,93 +110,92 @@ function Index(props: IndexProps) {
         <title>哔哩哔哩直播</title>
       </Helmet>
       {
-        !isDataOk ? <LoadingCutscene /> :
-          <>
-            <Nav
-              history={history}
-              firstTabBarData={lvOneTabBarData}
-              secondTabBarData={lvTwoTabBarData}
-              lvTwoInx={0}
-              secondQueryPar={secondQueryPar}
-            />
-            <Context.Consumer>
-              {
-                context => (
-                  <section className={style.main}>
-                    {/* 轮播图 */}
-                    <div className={style.banner}>
-                      {
-                        bannerList.length > 0 &&
-                        <div className="swiper-container">
-                          <div className="swiper-wrapper">
-                            {
-                              bannerList.map(banner => (
-                                <div className="swiper-slide" key={banner.id}>
-                                  <a href={banner.link}>
-                                    <img src={`${context.picURL}?pic=${banner.pic}`} width="100%" height="100%" />
-                                  </a>
-                                </div>
-                              ))
-                            }
-                          </div>
-                          <div className="swiper-pagination clear" />
+        <>
+          <Nav
+            history={history}
+            firstTabBarData={lvOneTabBarData}
+            secondTabBarData={lvTwoTabBarData}
+            lvTwoInx={0}
+            secondQueryPar={secondQueryPar}
+          />
+          <Context.Consumer>
+            {
+              context => (
+                <section className={style.main}>
+                  {/* 轮播图 */}
+                  <div className={style.banner}>
+                    {
+                      bannerList.length > 0 &&
+                      <div className="swiper-container">
+                        <div className="swiper-wrapper">
+                          {
+                            bannerList.map(banner => (
+                              <div className="swiper-slide" key={banner.id}>
+                                <a href={banner.link}>
+                                  <img src={`${context.picURL}?pic=${banner.pic}`} width="100%" height="100%" />
+                                </a>
+                              </div>
+                            ))
+                          }
                         </div>
-                      }
-                    </div>
-                    { // 主体部分
-                      itemList.map((item, i) => (
-                        <div className={style.roomContainer} key={i}>
-                          {/* 分区标题及进去看看 */}
-                          <h4 className={style.title}>
-                            {item.areaName ? item.areaName : item.parentAreaName}
-                            <span className={style.more} onClick={() => {
-                              window.location.href = `/live/list` +
-                                `?parent_area_id=${item.parentAreaId}` +
-                                `&parent_area_name=${item.parentAreaName}` +
-                                `&area_id=${item.areaId}` +
-                                `&area_name=${item.areaName}`;
-                              // props.history.push({
-                              //   pathname: "/live/list",
-                              //   search: `?parent_area_id=${item.parentAreaId}` +
-                              //     `&parent_area_name=${item.parentAreaName}` +
-                              //     `&area_id=${item.areaId}` +
-                              //     `&area_name=${item.areaName}`
-                              // });
-                            }}>进去看看
-                            <svg className="icon" aria-hidden="true">
-                                <use href="#icon-more"></use>
-                              </svg>
-                            </span>
-                          </h4>
-                          {/* 分区下的4个直播间 */}
-                          <div className={style.rooms}>
-                            {
-                              item.list.map(data => {
-                                if (data.cover.indexOf(context.picURL) === -1) {
-                                  data.cover = `${context.picURL}?pic=${data.cover}`;
-                                }
-                                return (
-                                  // <a
-                                  //   className={style.roomWrapper}
-                                  //   key={data.roomId}
-                                  //   href={`/live/${data.roomId}`}
-                                  // >
-                                  //   <LiveInfo data={data} />
-                                  // </a>
-                                  <Link className={style.roomWrapper} key={data.roomId} to={`/live/${data.roomId}`}>
-                                    <LiveInfo data={data} />
-                                  </Link>
-                                )
-                              })
-                            }
-                          </div>
-                        </div>
-                      ))
+                        <div className="swiper-pagination clear" />
+                      </div>
                     }
-                  </section>
-                )}
-            </Context.Consumer>
-          </>
+                  </div>
+                  { // 主体部分
+                    itemList.map((item, i) => (
+                      <div className={style.roomContainer} key={i}>
+                        {/* 分区标题及进去看看 */}
+                        <h4 className={style.title}>
+                          {item.areaName ? item.areaName : item.parentAreaName}
+                          <span className={style.more} onClick={() => {
+                            window.location.href = `/live/list` +
+                              `?parent_area_id=${item.parentAreaId}` +
+                              `&parent_area_name=${item.parentAreaName}` +
+                              `&area_id=${item.areaId}` +
+                              `&area_name=${item.areaName}`;
+                            // props.history.push({
+                            //   pathname: "/live/list",
+                            //   search: `?parent_area_id=${item.parentAreaId}` +
+                            //     `&parent_area_name=${item.parentAreaName}` +
+                            //     `&area_id=${item.areaId}` +
+                            //     `&area_name=${item.areaName}`
+                            // });
+                          }}>进去看看
+                            <svg className="icon" aria-hidden="true">
+                              <use href="#icon-more"></use>
+                            </svg>
+                          </span>
+                        </h4>
+                        {/* 分区下的4个直播间 */}
+                        <div className={style.rooms}>
+                          {
+                            item.list.map(data => {
+                              if (data.cover.indexOf(context.picURL) === -1) {
+                                data.cover = `${context.picURL}?pic=${data.cover}`;
+                              }
+                              return (
+                                // <a
+                                //   className={style.roomWrapper}
+                                //   key={data.roomId}
+                                //   href={`/live/${data.roomId}`}
+                                // >
+                                //   <LiveInfo data={data} />
+                                // </a>
+                                <Link className={style.roomWrapper} key={data.roomId} to={`/live/${data.roomId}`}>
+                                  <LiveInfo data={data} />
+                                </Link>
+                              )
+                            })
+                          }
+                        </div>
+                      </div>
+                    ))
+                  }
+                </section>
+              )}
+          </Context.Consumer>
+        </>
       }
     </div>
   );

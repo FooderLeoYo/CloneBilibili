@@ -189,6 +189,7 @@ function Head(props: HeadProps) {
             currentIndex={curLvTwoTabIndex}
             clickMethod={handleSecondClick}
             needForcedUpdate={true}
+            oneInx={oneInx}
           />
         </div>
       }

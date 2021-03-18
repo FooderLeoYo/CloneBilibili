@@ -91,6 +91,7 @@ function Nav(props: NavProps) {
             type={"underline"}
             clickMethod={handleFirstClick}
             currentIndex={14}
+            noSlideAni={true}
           />
         </div>
         {/* 点击打开抽屉 */}
@@ -111,12 +112,14 @@ function Nav(props: NavProps) {
       </div>
       {/* 二级分类 */}
       {
+        secondTabBarData &&
         <div className={style.secondTabBar}>
           <TabBar
             data={secondTabBarData}
             type={"noUnderline"}
             currentIndex={lvTwoTabIndex}
             clickMethod={handleSecondClick}
+            needForcedUpdate={true}
           />
         </div>
       }
