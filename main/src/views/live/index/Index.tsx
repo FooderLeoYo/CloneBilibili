@@ -96,7 +96,7 @@ function Index(props: IndexProps) {
     // 但是预取数据仅仅是当前页面，因此要setShouldLoad(true)
     // 因为路由跳转切换下一个页面时，下一个页面将没有对应的预取数据，需要自己获取
     if (shouldLoad) {
-      dispatch(getLiveData())
+      dispatch(getLiveData());
     }
     else {
       dispatch(setShouldLoad(true));

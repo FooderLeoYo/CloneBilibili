@@ -95,7 +95,7 @@ class Ranking extends React.Component<RankingProps, RankingState> {
           <Header />
           <TabBar
             data={rankingPartitions}
-            type={"indicate"}
+            needUnderline={true}
             currentIndex={this.state.currentTabIndex}
             clickMethod={this.handleClick}
             needForcedUpdate={true}

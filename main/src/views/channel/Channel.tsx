@@ -137,7 +137,9 @@ function Channel(props: ChannelProps) {
 
   useEffect(() => {
     if (shouldLoad) {
-      dispatch(getPartitionList()).then(() => { setInitData(); })
+      dispatch(getPartitionList()).then(() => {
+        setInitData();
+      });
     } else {
       setInitData();
       dispatch(setShouldLoad(true));
@@ -147,10 +149,14 @@ function Channel(props: ChannelProps) {
     setTimeout(() => { forceCheck(); }, 10);
   }, []);
 
+  // useEffect(() => {
+
+  // },[props.partitions]);
+
   useEffect(() => {
     setLvTwoTabDataAndPar();
     loadAllSecRecVideos();
-  }, [lvOnePartition])
+  }, [lvOnePartition]);
 
   useEffect(() => {
     if (lvOnePartition) {
@@ -182,13 +188,13 @@ function Channel(props: ChannelProps) {
         setVideoLatestId(tmp);
       }
     }
-  }), [match.params.rId, lvOnePartition, curLvTwoTabIndex])
+  }), [match.params.rId, lvOnePartition, curLvTwoTabIndex]);
 
-  // 切换tab后，加载过程中显示laceholder图片
+  // 切换tab后，加载过程中显示placeholder图片
   // useEffect(() => {
   //   setHotVideos(initVideos);
   //   setLvTwoParHotVideos([]);
-  // }, [match.params.rId])
+  // }, [match.params.rId]);
 
 
   return (
@@ -202,62 +208,62 @@ function Channel(props: ChannelProps) {
         </title>
       </Helmet>
       {
-        !isDataOk ? <LoadingCutscene /> :
-          <>
-            {/* 顶部 */}
-            <div className={style.topWrapper}>
-              <Head
-                partitions={partitions}
-                match={match}
-                setIsDataOk={setIsDataOk}
-                history={history}
-                loadHotVideos={loadHotVideos}
+        // !isDataOk ? <LoadingCutscene /> :
+        <>
+          {/* 顶部 */}
+          <div className={style.topWrapper}>
+            <Head
+              partitions={partitions}
+              match={match}
+              setIsDataOk={setIsDataOk}
+              history={history}
+              loadHotVideos={loadHotVideos}
+              isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}
+              lvOnePartition={lvOnePartition}
+              setLvOnePartition={setLvOnePartition}
+              setLvTwoPartition={setLvTwoPartition}
+              curLvTwoTabIndex={curLvTwoTabIndex}
+              setCurLvTwoTabIndex={setCurLvTwoTabIndex}
+              setVideoLatestId={setVideoLatestId}
+              loadAllSecRecVideos={loadAllSecRecVideos}
+              rIdRef={rIdRef}
+              twoTabData={twoTabData}
+            />
+          </div>
+          {/* 是否留出二级tab的位置 */}
+          <div className={lvOnePartition?.children?.length > 1 ? style.specialLine1 : style.specialLine2} />
+          {/* 主体部分 */}
+          <div className={style.partitionWrapper}>
+            {/* 热门推荐 */}
+            <div className={style.recommend}>
+              <Hot
+                rankParRef={rankParRef}
                 isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}
                 lvOnePartition={lvOnePartition}
-                setLvOnePartition={setLvOnePartition}
-                setLvTwoPartition={setLvTwoPartition}
-                curLvTwoTabIndex={curLvTwoTabIndex}
-                setCurLvTwoTabIndex={setCurLvTwoTabIndex}
-                setVideoLatestId={setVideoLatestId}
-                loadAllSecRecVideos={loadAllSecRecVideos}
-                rIdRef={rIdRef}
-                twoTabData={twoTabData}
+                hotVideos={hotVideos}
+                getPicUrl={getPicUrl}
+                history={history}
               />
             </div>
-            {/* 是否留出二级tab的位置 */}
-            <div className={lvOnePartition?.children?.length > 1 ? style.specialLine1 : style.specialLine2} />
-            {/* 主体部分 */}
-            <div className={style.partitionWrapper}>
-              {/* 热门推荐 */}
-              <div className={style.recommend}>
-                <Hot
-                  rankParRef={rankParRef}
-                  isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}
-                  lvOnePartition={lvOnePartition}
-                  hotVideos={hotVideos}
-                  getPicUrl={getPicUrl}
-                  history={history}
-                />
-              </div>
-              { // 分类推荐视频或最新视频
-                isRecAndChildrenGtTwo ? // 当前二级分类为“推荐”，则显示分类推荐视频
-                  lvTwoParHotVideos.map(partition =>
-                    <Partition
-                      data={partition}
-                      history={history}
-                      getPicUrl={(url, format) => getPicUrl(url, format)}
-                      key={partition.id}
-                    />
-                  ) : // 当前二级分类为非“推荐”或一级分类只有一个二级分类，则显示最新视频
-                  <VideoLatest
-                    id={videoLatestId}
-                    curLvTwoTabIndex={curLvTwoTabIndex}
+            { // 分类推荐视频或最新视频
+              isRecAndChildrenGtTwo ? // 当前二级分类为“推荐”，则显示分类推荐视频
+                lvTwoParHotVideos.map(partition =>
+                  <Partition
+                    data={partition}
+                    history={history}
                     getPicUrl={(url, format) => getPicUrl(url, format)}
+                    key={partition.id}
                   />
-              }
-            </div>
-            <ScrollToTop />
-          </>
+                ) : // 当前二级分类为非“推荐”或一级分类只有一个二级分类，则显示最新视频
+                <VideoLatest
+                  id={videoLatestId}
+                  curLvTwoTabIndex={curLvTwoTabIndex}
+                  getPicUrl={(url, format) => getPicUrl(url, format)}
+                />
+            }
+          </div>
+          <ScrollToTop />
+        </>
       }
     </div>
   );

@@ -88,7 +88,7 @@ function Nav(props: NavProps) {
         <div className={style.tabBar}>
           <TabBar
             data={firstTabBarData}
-            type={"underline"}
+            needUnderline={true}
             clickMethod={handleFirstClick}
             currentIndex={14}
             noSlideAni={true}
@@ -116,7 +116,6 @@ function Nav(props: NavProps) {
         <div className={style.secondTabBar}>
           <TabBar
             data={secondTabBarData}
-            type={"noUnderline"}
             currentIndex={lvTwoTabIndex}
             clickMethod={handleSecondClick}
             needForcedUpdate={true}

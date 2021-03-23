@@ -143,7 +143,7 @@ function Head(props: HeadProps) {
   useEffect(() => {
     setOneTabData();
     setOneInxAndPar();
-  }, []);
+  }, [partitions]);
 
   return (
     <>
@@ -154,7 +154,7 @@ function Head(props: HeadProps) {
           {
             <TabBar
               data={lvOneDataRef.current}
-              type={"underline"}
+              needUnderline={true}
               currentIndex={oneInx}
               clickMethod={handleClick}
               needForcedUpdate={true}
@@ -185,7 +185,6 @@ function Head(props: HeadProps) {
         <div className={style.twoTabBar}>
           <TabBar
             data={twoTabData}
-            type={"noUnderline"}
             currentIndex={curLvTwoTabIndex}
             clickMethod={handleSecondClick}
             needForcedUpdate={true}

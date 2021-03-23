@@ -4,8 +4,8 @@ import style from "./tab-bar.styl?css-modules";
 import { PartitionType } from "../../class-object-creators";
 
 interface TabBarProps {
-  type: string,
   data: PartitionType[],
+  needUnderline?: boolean,
   clickMethod?: Function,
   currentIndex?: number,
   needForcedUpdate?: boolean,
@@ -24,7 +24,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
   constructor(props) {
     super(props);
     this.tabBarRef = React.createRef();
-    if (this.props.type === "underline") {
+    if (this.props.needUnderline) {
       this.underlineRef = React.createRef();
     }
     this.state = {
@@ -71,7 +71,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     const tabBarDOM = this.tabBarRef.current;
     const children = tabBarDOM.getElementsByTagName("a");
 
-    if (children.length > 0) {
+    if (children.length > 2) { // 除了直播、首页外的其他tab也加载了
       const currentTabDOM = children[curInx];
       const underlineDOM = this.underlineRef.current;
       const tabPadding = parseInt(getComputedStyle(currentTabDOM)["paddingLeft"].slice(0, -2));
@@ -120,9 +120,11 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     this.wrapperOffsetLeft = tabBarDOM.parentElement.getBoundingClientRect().left;
     this.setListeners();
     this.resetScroll();
-    if (this.props.type === "underline") {
-      this.moveUnderline(this.state.curInx);
-    }
+    // if (this.props.needUnderline) {
+    //   setTimeout(() => {
+    //     this.moveUnderline(this.state.curInx);
+    //   });
+    // }
   }
 
   public static getDerivedStateFromProps(nextProps, prevState) {
@@ -136,13 +138,13 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     if (this.props.needForcedUpdate && (prevProps.currentIndex !== this.state.curInx ||
       this.props.oneInx && this.props.oneInx !== prevProps.oneInx)) {
       this.resetScroll();
-      if (this.props.type === "underline") { this.moveUnderline(this.state.curInx); }
+      if (this.props.needUnderline) { this.moveUnderline(this.state.curInx); }
     }
   }
 
 
   public render() {
-    const { data, type } = this.props;
+    const { data, needUnderline } = this.props;
     const tabs = data.map((tab, i) => (
       <a
         className={style.tab + (i === this.state.curInx ? " " + style.highlight : "")}
@@ -157,7 +159,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
       <div className={style.tabBarWrapper}>
         <ul className={style.tabBar} ref={this.tabBarRef}>
           {
-            type === "underline" &&
+            needUnderline &&
             <span className={style.underline} ref={this.underlineRef}></span>
           }
           {tabs}
