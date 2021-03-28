@@ -24,6 +24,7 @@ function Nav(props: NavProps) {
   const { firstTabBarData, secondTabBarData, lvTwoInx } = props;
   const drawerRef = useRef(null);
   const [lvTwoTabIndex, setLvTwoTabIndex] = useState(lvTwoInx);
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true); // 从别的页面初次进入channel时不要动画，避免不自然滑动
 
   const handleFirstClick = tab => {
     if (tab.id === -1) {
@@ -78,6 +79,8 @@ function Nav(props: NavProps) {
           `&area_name=${area_name}`
       });
     }
+
+    if (firstTimeLoad) { setFirstTimeLoad(false); }
   }
 
   return (
@@ -118,6 +121,7 @@ function Nav(props: NavProps) {
             data={secondTabBarData}
             currentIndex={lvTwoTabIndex}
             clickMethod={handleSecondClick}
+            noSlideAni={firstTimeLoad}
             needForcedUpdate={true}
           />
         </div>

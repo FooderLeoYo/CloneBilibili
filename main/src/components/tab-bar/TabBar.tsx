@@ -79,6 +79,8 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
 
       if (this.props.noSlideAni) {
         underlineDOM.classList.add(style.noAni);
+      } else {
+        underlineDOM.classList.remove(style.noAni);
       }
 
       underlineDOM.style.left = `${currentTabDOM.offsetLeft + tabPadding + spanPadding}px`;
@@ -120,11 +122,11 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     this.wrapperOffsetLeft = tabBarDOM.parentElement.getBoundingClientRect().left;
     this.setListeners();
     this.resetScroll();
-    // if (this.props.needUnderline) {
-    //   setTimeout(() => {
-    //     this.moveUnderline(this.state.curInx);
-    //   });
-    // }
+    if (this.props.needUnderline) {
+      setTimeout(() => {
+        this.moveUnderline(this.state.curInx);
+      });
+    }
   }
 
   public static getDerivedStateFromProps(nextProps, prevState) {

@@ -45,6 +45,8 @@ function Head(props: HeadProps) {
 
   const drawerRef: React.RefObject<any> = useRef(null);
 
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true); // 从别的页面初次进入channel时不要动画，避免不自然滑动
+
 
   function setLatestId() {
     const tmp = isRecAndChildrenGtTwo ?
@@ -110,6 +112,7 @@ function Head(props: HeadProps) {
           loadHotVideos();
         });
         if (drawerRef.current.pull) { drawerRef.current.hide(); } // 如果是通过drawer点击的分类，则点击后隐藏drawer
+        if (firstTimeLoad) { setFirstTimeLoad(false); }
       }
     }
   }
@@ -123,6 +126,7 @@ function Head(props: HeadProps) {
       history.push({ pathname: "/channel/" + tab.id });
       rIdRef.current = tab.id;
       scrollTo(0, 0);
+      if (firstTimeLoad) { setFirstTimeLoad(false); }
 
       setCurLvTwoTabIndex(twoTabData.findIndex(partition =>
         partition.id === parseInt(tab.id, 10)
@@ -145,6 +149,7 @@ function Head(props: HeadProps) {
     setOneInxAndPar();
   }, [partitions]);
 
+
   return (
     <>
       <Header />
@@ -157,6 +162,7 @@ function Head(props: HeadProps) {
               needUnderline={true}
               currentIndex={oneInx}
               clickMethod={handleClick}
+              noSlideAni={firstTimeLoad}
               needForcedUpdate={true}
             />
           }

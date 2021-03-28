@@ -10,7 +10,6 @@ import { getLiveListData } from "../../../api/live";
 import { setShouldLoad } from "../../../redux/action-creators";
 
 import { Live, UpUser, PartitionType, LiveSecQueryParType } from "../../../class-object-creators";
-import LoadingCutscene from "../../../components/loading-cutscene/LoadingCutscene";
 import Nav from "../child-components/Nav"
 import LiveInfo from "../child-components/LiveInfo";
 import ScrollToTop from "../../../components/scroll-to-top/ScrollToTop";

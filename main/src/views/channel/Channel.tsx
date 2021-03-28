@@ -149,10 +149,6 @@ function Channel(props: ChannelProps) {
     setTimeout(() => { forceCheck(); }, 10);
   }, []);
 
-  // useEffect(() => {
-
-  // },[props.partitions]);
-
   useEffect(() => {
     setLvTwoTabDataAndPar();
     loadAllSecRecVideos();
