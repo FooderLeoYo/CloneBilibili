@@ -110,7 +110,7 @@ function Head(props: HeadProps) {
         setTimeout(() => { // 如果不延时，则调用下列方法时rId还未改变
           setOneInxAndPar();
           loadHotVideos();
-        });
+        }, 100); // 这里给了100ms是因为safari上rIdRef改变的特别慢
         if (drawerRef.current.pull) { drawerRef.current.hide(); } // 如果是通过drawer点击的分类，则点击后隐藏drawer
         if (firstTimeLoad) { setFirstTimeLoad(false); }
       }
@@ -141,14 +141,17 @@ function Head(props: HeadProps) {
         }
         loadHotVideos();
       });
+      if (firstTimeLoad) { setFirstTimeLoad(false); }
     }
   }
 
+  // 从别的页面跳转到channel时，设置一级tabBar
   useEffect(() => {
-    setOneTabData();
-    setOneInxAndPar();
-  }, [partitions]);
-
+    if (partitions.length > 0) {
+      setOneTabData();
+      setOneInxAndPar();
+    }
+  }, [partitions.length]);
 
   return (
     <>
@@ -193,8 +196,9 @@ function Head(props: HeadProps) {
             data={twoTabData}
             currentIndex={curLvTwoTabIndex}
             clickMethod={handleSecondClick}
-            needForcedUpdate={true}
             oneInx={oneInx}
+            noSlideAni={firstTimeLoad}
+            needForcedUpdate={true}
           />
         </div>
       }

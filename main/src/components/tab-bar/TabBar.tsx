@@ -121,12 +121,12 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
 
     this.wrapperOffsetLeft = tabBarDOM.parentElement.getBoundingClientRect().left;
     this.setListeners();
-    this.resetScroll();
-    if (this.props.needUnderline) {
-      setTimeout(() => {
+    setTimeout(() => {
+      this.resetScroll();
+      if (this.props.needUnderline) {
         this.moveUnderline(this.state.curInx);
-      });
-    }
+      }
+    });
   }
 
   public static getDerivedStateFromProps(nextProps, prevState) {
