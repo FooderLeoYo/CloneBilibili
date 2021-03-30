@@ -3,10 +3,12 @@
 .drawer
   overflow: hidden
   .drawer-wrapper
+    position: absolute
+    z-index: 1
     display: none
     padding: 0 px2rem(5)
     background-color: #ffffff
-    transition: transform .4s
+    transition: transform 200ms
     transform: translate3d(0, -100%, 0)
     .drawer-item-container
       display: flex

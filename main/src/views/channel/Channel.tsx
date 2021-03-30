@@ -152,7 +152,7 @@ function Channel(props: ChannelProps) {
   useEffect(() => {
     setLvTwoTabDataAndPar();
     loadAllSecRecVideos();
-  }, [lvOnePartition]);
+  }, [lvOnePartition?.id]);
 
   useEffect(() => {
     if (lvOnePartition) {
@@ -160,7 +160,7 @@ function Channel(props: ChannelProps) {
         curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1
       );
     }
-  }, [curLvTwoTabIndex, lvOnePartition]);
+  }, [curLvTwoTabIndex, lvOnePartition?.id]);
 
   // 使得点击推荐页面下各二级分类的查看更多后，能正常切换
   useEffect((() => {

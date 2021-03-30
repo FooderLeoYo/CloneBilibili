@@ -54,7 +54,7 @@ function List(props: ListProps) {
   const [lives, setLives] = useState(liveListData.list);
   // const [isDataOk, setIsDataOk] = useState(false);
   const [isLoadMore, setIsLoadMore] = useState(false);
-  const [prevSearch, setPrevSearch] = useState(props.location.search);
+  const [firstTimeRender, setFirstTimeRender] = useState(true);
 
   // 第一次render
   let firstRender: boolean = true;
@@ -144,22 +144,22 @@ function List(props: ListProps) {
     }
   }, []);
 
+  // 切换二级tab后清空之前的lives
   useEffect(() => {
-    const search = props.location.search;
-    if (search !== prevSearch) {
+    if (!firstTimeRender) {
       // setIsDataOk(false);
-      setLives([]);
-      setPrevSearch(search);
+      setLives([]); // 这里清空生效太慢加setTimeout都不行，所以只能再用另一个useEffect获取新数据
+    } else {
+      setFirstTimeRender(false);
     }
-  })
-
+  }, [props.location.key]);
+  // 切换二级tab后获取新的lives数据
   useEffect(() => {
-    // 判断的作用是：请求数据后将继续触发该useEffect，形成死循环
-    if (lives.length === 0) {
+    if (lives.length === 0) { // 判断的作用是：getLives后将继续触发该useEffect，形成死循环
       livePage.pageNumber = 1;
       getLives();
     }
-  }, [lives])
+  }, [lives.length])
 
   return (
     <div className="live-list">

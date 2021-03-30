@@ -6,7 +6,7 @@
   left: 0
   width: 100%
   background-color: #ffffff
-  z-index: 10
+  z-index: 4
   padding-bottom: px2rem(2)
   .partition
     position: relative
@@ -24,9 +24,10 @@
     position: absolute
     width: 100%
     top: px2rem(44)
-    z-index: 2
 .content-wrapper
-  padding-top: px2rem(86)
+  position: absolute
+  top: px2rem(86)
+  // padding-top: px2rem(86)
   .banner-slider
     padding: 0 px2rem(12)
     height: px2rem(110)
@@ -37,7 +38,7 @@
     padding-top: px2rem(12)
     padding-left: px2rem(6)
     padding-right: px2rem(6)
-
+    z-index: 0
 // 要想一个类名不需要被css-modules转化，那么可以使用:global(className)来进行包装
 :global(.swiper-pagination-wrapper)
   position: absolute
@@ -45,7 +46,7 @@
   bottom: 0
   width: 100%
   text-align: center
-  z-index: 10
+  // z-index: 10
 :global(.swiper-pagination-wrapper > .swiper-pagination)
   position: relative
   display: inline-block
@@ -53,7 +54,7 @@
   padding: 0 px2rem(7.52)
   border-radius: px2rem(5)
   background-color: rgba(0, 0, 0, .5)
-  z-index: 0
+  // z-index: 0
 :global(.swiper-pagination-bullet)
   float: left
   width: px2rem(5)

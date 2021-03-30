@@ -1,6 +1,7 @@
 import * as React from "react";
 import { getTransitionEndName } from "../../customed-methods/compatible";
 
+import Overlay from "../../components/overlay/Overlay";
 import style from "./drawer.styl?css-modules";
 
 interface DataObj {
@@ -23,38 +24,19 @@ interface DrawerState {
 class Drawer extends React.Component<DrawerProps, DrawerState> {
   /* 以下为初始化 */
   private drawerWrapperRef: React.RefObject<HTMLDivElement>;
+  private switchRef: React.RefObject<HTMLDivElement>;
+  private overlayRef: React.RefObject<HTMLDivElement>;
   public pull: boolean;
   constructor(props) {
     super(props);
     this.drawerWrapperRef = React.createRef();
+    this.switchRef = React.createRef();
+    this.overlayRef = React.createRef();
     this.pull = false;
     this.state = { currentIndex: 0 }
   }
 
-  /* 以下为生命周期函数 */
-  public componentDidMount() {
-    const drawerWrapperDOM = this.drawerWrapperRef.current;
-    this.hide();
-    const transitionEndName = getTransitionEndName(drawerWrapperDOM);
-    drawerWrapperDOM.addEventListener(transitionEndName, () => {
-      const { onPush, onPullDown } = this.props;
-      if (this.pull === false) {
-        drawerWrapperDOM.style.display = "none";
-        if (onPush) { onPush(); }
-      } else { if (onPullDown) { onPullDown(); } }
-    });
-  }
 
-  public static getDerivedStateFromProps(props, state) {
-    if (props.currentIndex !== undefined) {
-      if (props.currentIndex !== state.currentIndex) {
-        return { currentIndex: props.currentIndex }
-      }
-    }
-    return state;
-  }
-
-  /* 以下为自定义方法 */
   private handleClick(item, index) {
     this.setState({ currentIndex: index });
     if (this.props.onClick) { this.props.onClick(item); }
@@ -69,18 +51,49 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
   }
 
   public show() {
-    this.pull = true;
     const drawerWrapperDOM = this.drawerWrapperRef.current;
+    const overlayDOM = this.overlayRef.current;
+
+    this.pull = true;
     drawerWrapperDOM.style.display = "block";
     // 这里要将y设为0的原因是隐藏时，hide方法会将y设为-100%
     setTimeout(() => { this.setTranslateY(0); }, 10);
+
+    overlayDOM.style.display = "block";
   }
 
   public hide() {
     this.pull = false;
     // 这里用setTranslateY而不是直接设display:none，是为了下拉动画效果
     this.setTranslateY("-100%");
+    this.overlayRef.current.style.display = "none";
   }
+
+  public componentDidMount() {
+    const drawerWrapperDOM = this.drawerWrapperRef.current;
+    const transitionEndName = getTransitionEndName(drawerWrapperDOM);
+
+    this.hide();
+    drawerWrapperDOM.addEventListener(transitionEndName, () => {
+      const { onPush, onPullDown } = this.props;
+      if (this.pull === false) {
+        drawerWrapperDOM.style.display = "none";
+        if (onPush) { onPush(); }
+      } else { if (onPullDown) { onPullDown(); } }
+    });
+    this.switchRef.current.addEventListener("click", () => { this.hide(); });
+    this.overlayRef.current.addEventListener("touchmove", e => { e.preventDefault(); });
+  }
+
+  public static getDerivedStateFromProps(props, state) {
+    if (props.currentIndex !== undefined) {
+      if (props.currentIndex !== state.currentIndex) {
+        return { currentIndex: props.currentIndex }
+      }
+    }
+    return state;
+  }
+
 
   /* 以下为渲染部分 */
   public render() {
@@ -105,11 +118,14 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
           <div className={style.drawerItemContainer}>
             {items}
           </div>
-          <div className={style.drawerSwitch} onClick={() => { this.hide(); }}>
+          <div className={style.drawerSwitch} ref={this.switchRef}>
             <svg className="icon" aria-hidden="true">
               <use href="#icon-arrowDownBig"></use>
             </svg>
           </div>
+        </div>
+        <div className={style.overlayWrapper} ref={this.overlayRef}>
+          <Overlay />
         </div>
       </div>
     );
