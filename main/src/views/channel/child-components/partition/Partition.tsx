@@ -3,7 +3,7 @@ import { withRouter } from "react-router-dom";
 import { History } from "history";
 import { Video } from "../../../../class-object-creators";
 
-import VideoItem from "../../../../components/video-item/VideoItem";
+import VideoItem from "../../../../components/video-item-portrait/VideoItemPortrait";
 import style from "./partition.styl?css-modules";
 
 interface PartitionProps {

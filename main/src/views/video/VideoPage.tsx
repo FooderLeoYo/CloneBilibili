@@ -15,11 +15,12 @@ import HeaderWithBack from "../../components/header-with-back/HederWithBack";
 import LoadingCutscene from "../../components/loading-cutscene/LoadingCutscene";
 import Player from "../../components/player/Player";
 import { Switcher } from "../../components/switcher/Switcher";
+import VideoItemLandscape from "../../components/video-item-landscape/VideoItemLandscape";
 
 import { Video, createVideo, UpUser } from "../../class-object-creators";
 import { getPicSuffix } from "../../customed-methods/image";
 import { formatDate } from "../../customed-methods/datetime";
-import { formatTenThousand, formatDuration } from "../../customed-methods/string";
+import { formatTenThousand } from "../../customed-methods/string";
 
 import style from "./stylus/video-page.styl?css-modules";
 
@@ -126,46 +127,22 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
         // 推荐列表
         <div className={style.recommendList} key={"recommendList"}>
           {
-            this.state.recommendVideos.map(v => (
-              <div className={style.videoWrapper} key={v.aId}>
-                <Link to={"/video/av" + v.aId}>
-                  <div className={style.imageContainer}>
-                    <span className={style.placeholder}>
-                      <svg className="icon" aria-hidden="true">
-                        <use href="#icon-placeholder"></use>
-                      </svg>
-                    </span>
-                    <LazyLoad height="10.575rem">
-                      <img src={this.getPicUrl(v.pic, "@320w_200h")} alt={v.title} />
-                    </LazyLoad>
-                    <div className={style.duration}>{formatDuration(v.duration, "0#:##:##")}</div>
-                  </div>
-                  <div className={style.infoWrapper}>
-                    <div className={style.title}>
-                      {v.title}
-                    </div>
-                    <div className={style.upUser}>
-                      <span onClick={e => {
-                        e.preventDefault();
-                        this.toSpace(v.owner.mId)
-                      }}>
-                        {v.owner.name}
-                      </span>
-                    </div>
-                    <div className={style.videoInfo}>
-                      <span>{formatTenThousand(v.playCount)}次观看</span>
-                      <span>&nbsp;·&nbsp;</span>
-                      <span>{formatTenThousand(v.barrageCount)}弹幕</span>
-                    </div>
-                  </div>
-                </Link>
+            this.state.recommendVideos.map(video => (
+              <div className={style.videoWrapper} key={video.aId}>
+                <VideoItemLandscape
+                  videoData={video}
+                  imgParams={{
+                    imgHeight: "10.575rem",
+                    imgSrc: video.pic,
+                    imgFormat: "@320w_200h"
+                  }}
+                />
               </div>
             ))
           }
           {
-            this.state.loading ? (
-              <div className={style.loading}>加载中...</div>
-            ) : null
+            this.state.loading &&
+            <div className={style.loading}>加载中...</div>
           }
         </div>,
         // 评论区
@@ -206,10 +183,10 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                   点击加载更多评论
                 </div>
               ) : (
-                  <div className={style.noMore}>
-                    没有更多了 ~
-                  </div>
-                )
+                <div className={style.noMore}>
+                  没有更多了 ~
+                </div>
+              )
             }
           </div>
         </div>

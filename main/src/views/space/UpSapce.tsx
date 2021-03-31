@@ -11,6 +11,7 @@ import { getUserVideos } from "../../api/up-user";
 import { Video, createVideoByUser } from "../../class-object-creators";
 import { UpUser as Model } from "../../class-object-creators";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
+import VideoItemLandscape from "../../components/video-item-landscape/VideoItemLandscape";
 
 import { formatTenThousand } from "../../customed-methods/string";
 import { getPicSuffix } from "../../customed-methods/image";
@@ -168,11 +169,10 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
     return (
       <div className={style.upSapce}>
         {
-          upUser ? (
-            <Helmet>
-              <title>{upUser.name + "的个人空间"}</title>
-            </Helmet>
-          ) : null
+          upUser &&
+          <Helmet>
+            <title>{upUser.name + "的个人空间"}</title>
+          </Helmet>
         }
         <div className={style.upUserContainer}>
           <div className={style.face}>
@@ -180,8 +180,8 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
               upUser.face ? (
                 <img src={this.getPicUrl(upUser.face, "@160w_160h")} alt={upUser.name} />
               ) : <svg className="icon" aria-hidden="true">
-                  <use href="#icon-avatar"></use>
-                </svg>
+                <use href="#icon-avatar"></use>
+              </svg>
             }
           </div>
           <div className={style.info}>
@@ -192,12 +192,12 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
               </svg>
             </span>
             {
-              upUser.level ?
-                <span className={style.level}>
-                  <svg className="icon" aria-hidden="true">
-                    <use href={`#icon-lv${upUser.level}`}></use>
-                  </svg>
-                </span> : null
+              upUser.level &&
+              <span className={style.level}>
+                <svg className="icon" aria-hidden="true">
+                  <use href={`#icon-lv${upUser.level}`}></use>
+                </svg>
+              </span>
             }
             <span className={style.uid}>UID:{upUser.mId}</span>
           </div>
@@ -205,13 +205,13 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
             <div className={style.stats}>
               <span className={style.follow}>
                 {
-                  upUser.following !== undefined ? formatTenThousand(upUser.following) : "--"
+                  upUser.following ? formatTenThousand(upUser.following) : "--"
                 }&nbsp;
               </span>
               关注
               <span className={style.fans}>
                 {
-                  upUser.follower !== undefined ? formatTenThousand(upUser.follower) : "--"
+                  upUser.follower ? formatTenThousand(upUser.follower) : "--"
                 }&nbsp;
                 </span>
               粉丝
@@ -233,72 +233,41 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
           <div className={style.title}>Ta的投稿</div>
           <div className={style.videoList}>
             {
-              this.state.videos.length === 0 ?
-                (<div></div>) : (
-                  this.state.videos.map(video => (
-                    <div className={style.videoWrapper} key={video.aId}>
-                      <a href={"/video/av" + video.aId}>
-                        <div className={style.imageContainer}>
-                          <span className={style.placeholder}>
-                            <svg className="icon" aria-hidden="true">
-                              <use href="#icon-placeholder"></use>
-                            </svg>
-                          </span>
-                          <LazyLoad height="10.575rem">
-                            <img src={this.getPicUrl("https:" + video.pic, "@200w_125h")} alt={video.title} />
-                          </LazyLoad>
-                          <div className={style.duration}>{video.duration}</div>
-                        </div>
-                        <div className={style.infoWrapper}>
-                          <div className={style.infoTitle}>
-                            {video.title}
-                          </div>
-                          <div className={style.countInfo}>
-                            <span className={style.iconPlay} >
-                              <svg className="icon" aria-hidden="true">
-                                <use href="#icon-playCount"></use>
-                              </svg>
-                            </span>
-                            <span className={style.playCount}>
-                              {formatTenThousand(video.playCount)}
-                            </span>
-                            <span className={style.iconBarrage} >
-                              <svg className="icon" aria-hidden="true">
-                                <use href="#icon-barrageCount"></use>
-                              </svg>
-                            </span>
-                            <span className={style.barrageCount}>
-                              {formatTenThousand(video.barrageCount)}
-                            </span>
-                          </div>
-                        </div>
-                      </a>
-                    </div>
-                  ))
-                )
+              this.state.videos.length !== 0 &&
+              this.state.videos.map(video => (
+                <div className={style.videoWrapper} key={video.aId}>
+                  <VideoItemLandscape
+                    videoData={video}
+                    imgParams={{
+                      imgHeight: "3.654rem",
+                      imgSrc: "https:" + video.pic,
+                      imgFormat: "@200w_125h"
+                    }}
+                    noOwner={true}
+                  />
+                </div>
+              )
+              )
             }
           </div>
           {
-            this.state.videos.length > 0 && this.state.showLoadMore ? (
-              <div className={style.loadMore} onClick={() => { this.loadMoreVideos() }}>
-                刚刚看到这里，点击加载更多~
+            this.state.videos.length > 0 && this.state.showLoadMore &&
+            <div className={style.loadMore} onClick={() => { this.loadMoreVideos() }}>
+              刚刚看到这里，点击加载更多~
               </div>
-            ) : null
           }
           {
-            this.state.loading ? (
-              <div className={style.loading}>
-                加载中...
+            this.state.loading &&
+            <div className={style.loading}>
+              加载中...
               </div>
-            ) : null
           }
           {
-            !this.state.loading && this.state.videos.length === 0 ? (
-              <div className={style.tips}>
-                <img src={tips} />
-                <span className={style.text}>Ta还没有投过稿~</span>
-              </div>
-            ) : null
+            !this.state.loading && this.state.videos.length === 0 &&
+            <div className={style.tips}>
+              <img src={tips} />
+              <span className={style.text}>Ta还没有投过稿~</span>
+            </div>
           }
         </div>
         <ScrollToTop />

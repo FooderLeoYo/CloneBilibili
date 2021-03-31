@@ -2,6 +2,8 @@
 
 .video-wrapper
   margin-top: px2rem(20)
+  &:first-child
+    margin-top: 0
   .ranking
     float: left
     width: px2rem(49.35)
@@ -13,65 +15,7 @@
       vertical-align: middle
       font-size: 1.8rem
   .info
+    position relative
     height: px2rem(73.08)
     margin-left: px2rem(49.35)
     margin-right: px2rem(12)
-    position relative
-    .image-container
-      position: relative
-      float: left
-      width: px2rem(117.5)
-      height: 100%
-      border-radius: px2rem(4)
-      overflow: hidden
-      background-color: #e7e7e7
-      text-align: center
-      .placeholder
-        font-size: px2rem(40)
-        color: rgb(204, 204, 204)
-        svg
-          height: 100%
-      img
-        position: absolute
-        left: 0
-        top: 0
-        width: 100%
-    .info-wrapper
-      position: absolute
-      left: px2rem(130)
-      width: px2rem(180)
-      p
-        margin: 0
-        height: px2rem(32)
-        line-height: px2rem(16)
-        overflow hidden
-        text-align: left
-        font-size: px2rem(14)
-        color: #212121
-        letter-spacing: 0
-        word-break: break-all
-      .owner-wrapper
-        margin-top: px2rem(4)
-        height: px2rem(22)
-        line-height: @height
-        span
-          display: inline-block
-          vertical-align: middle
-          color: #999999
-          font-size: px2rem(16)
-        .owner
-          font-size: px2rem(12)
-          margin-left: px2rem(6)
-      .count-info
-        position: absolute
-        top: px2rem(52)
-        color: #999999
-        span
-          display: inline-block
-          vertical-align: middle
-        .icon-play, .icon-barrage
-          font-size: px2rem(16)
-        .play-count, .barrage-count
-          margin-left: px2rem(6)
-          width: px2rem(56)
-          font-size: px2rem(11)

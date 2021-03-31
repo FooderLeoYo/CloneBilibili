@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { getRankingArchive } from "../../../../api/ranking";
 
-import VideoItem from "../../../../components/video-item/VideoItem";
+import VideoItem from "../../../../components/video-item-portrait/VideoItemPortrait";
 
 import { Video, createVideoByLatest } from "../../../../class-object-creators";
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { getTransitionEndName } from "../../customed-methods/compatible";
 
-import Overlay from "../../components/overlay/Overlay";
+import Overlay from "./child-components/overlay/Overlay";
 import style from "./drawer.styl?css-modules";
 
 interface DataObj {

@@ -12,7 +12,7 @@ import LoadingCutscene from "../../components/loading-cutscene/LoadingCutscene";
 import Header from "../../components/header/Header";
 import TabBar from "../../components/tab-bar/TabBar";
 import Drawer from "../../components/drawer/Drawer";
-import VideoItem from "../../components/video-item/VideoItem";
+import VideoItem from "../../components/video-item-portrait/VideoItemPortrait";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 
 import { getPicSuffix } from "../../customed-methods/image";
