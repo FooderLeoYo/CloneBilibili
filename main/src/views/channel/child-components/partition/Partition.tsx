@@ -1,7 +1,6 @@
 import * as React from "react";
-import { withRouter } from "react-router-dom";
-import { History } from "history";
 import { Video } from "../../../../class-object-creators";
+import { Link } from "react-router-dom";
 
 import VideoItem from "../../../../components/video-item-portrait/VideoItemPortrait";
 import style from "./partition.styl?css-modules";
@@ -12,27 +11,18 @@ interface PartitionProps {
     name: string,
     videos: Video[]
   },
-  history: History,
   getPicUrl: Function,
 }
 
-const { useRef, useEffect } = React;
 
 function Partition(props: PartitionProps) {
-  const { data, getPicUrl, history } = props;
-
-  const moreRef: React.RefObject<HTMLSpanElement> = useRef(null);
-  useEffect(() => {
-    moreRef.current.addEventListener("click", () => {
-      history.push({ pathname: "/channel/" + data.id })
-    })
-  }, []);
+  const { data, getPicUrl } = props;
 
   return (
     <div className={style.partition}>
       <div className={style.title}>{data.name}</div>
       <div className={style.ranking}>
-        <span className={style.more} ref={moreRef}>查看更多</span>
+        <Link className={style.more} to={"/channel/" + data.id}>查看更多</Link>
         <svg className="icon" aria-hidden="true">
           <use href="#icon-moreNoFill"></use>
         </svg>
@@ -52,4 +42,3 @@ function Partition(props: PartitionProps) {
 }
 
 export default Partition;
-// export default withRouter(Partition);

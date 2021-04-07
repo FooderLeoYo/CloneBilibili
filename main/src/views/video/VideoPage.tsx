@@ -136,6 +136,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                     imgSrc: video.pic,
                     imgFormat: "@320w_200h"
                   }}
+                  history={this.props.history}
                 />
               </div>
             ))

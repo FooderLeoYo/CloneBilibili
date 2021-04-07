@@ -1,6 +1,7 @@
 import * as React from "react";
 import LazyLoad from "react-lazyload";
 import { Link } from "react-router-dom";
+import { History } from "history";
 
 import myContext from "../../context";
 import { getPicSuffix } from "../../customed-methods/image";
@@ -17,7 +18,8 @@ interface VideoItemLandscapeProps {
     imgFormat: string,
   },
   picSuffix?: string,
-  noOwner?: boolean
+  noOwner?: boolean,
+  history?: History,
 }
 
 const { useContext, useRef } = React;
@@ -25,7 +27,7 @@ const { useContext, useRef } = React;
 
 function VideoItemLandscape(props: VideoItemLandscapeProps) {
   const context = useContext(myContext);
-  const { videoData, imgParams, picSuffix, noOwner } = props;
+  const { videoData, imgParams, picSuffix, noOwner, history } = props;
   const { imgHeight, imgSrc, imgFormat } = imgParams;
   const duration = typeof (videoData.duration) === "string" ? videoData.duration :
     formatDuration(videoData.duration, "0#:##:##");
@@ -64,7 +66,13 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
           <p dangerouslySetInnerHTML={{ __html: videoData.title }} />
           {
             !noOwner &&
-            <Link to={"/space/" + videoData.owner.mId} className={style.ownerWrapper}>
+            <span
+              className={style.ownerWrapper}
+              onClick={e => {
+                e.preventDefault();
+                props.history.push({ pathname: "/space/" + videoData.owner.mId });
+              }}
+            >
               <span className={style.iconUp} >
                 <svg className="icon" aria-hidden="true">
                   <use href="#icon-uper"></use>
@@ -73,7 +81,7 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
               <span className={style.owner} ref={ownerRef}>
                 {videoData.owner.name}
               </span>
-            </Link>
+            </span>
           }
           <div className={style.countInfo}>
             <span className={style.iconPlay} >

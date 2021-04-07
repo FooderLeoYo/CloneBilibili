@@ -10,7 +10,6 @@ import getPartitionList from "../../redux/async-action-creators/channel";
 import { getRankingRegion } from "../../api/ranking";
 import { getRankingPartitions } from "../../api/partitions";
 
-import LoadingCutscene from "../../components/loading-cutscene/LoadingCutscene";
 import Head from "./child-components/head/Head"
 import Hot from "./child-components/hot/Hot"
 import Partition from "./child-components/partition/Partition";
@@ -204,7 +203,6 @@ function Channel(props: ChannelProps) {
         </title>
       </Helmet>
       {
-        // !isDataOk ? <LoadingCutscene /> :
         <>
           {/* 顶部 */}
           <div className={style.topWrapper}>
@@ -246,7 +244,6 @@ function Channel(props: ChannelProps) {
                 lvTwoParHotVideos.map(partition =>
                   <Partition
                     data={partition}
-                    history={history}
                     getPicUrl={(url, format) => getPicUrl(url, format)}
                     key={partition.id}
                   />

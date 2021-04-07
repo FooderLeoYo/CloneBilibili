@@ -4,7 +4,7 @@ import HederWithBack from "../../components/header-with-back/HederWithBack";
 import { NestedRoute } from "../../router/router";
 
 import banner from "../../assets/images/banner-top.png";
-import style from "./stylus/space.styl?css-modules";
+import style from "./space.styl?css-modules";
 
 function Space(props) {
   return (

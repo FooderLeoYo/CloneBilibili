@@ -58,7 +58,7 @@ const router = [
     routes: [
       {
         path: "/space",
-        component: loadable(() => import(/* webpackChunkName: 'history' */ "../views/space/MySpace")),
+        component: loadable(() => import(/* webpackChunkName: 'history' */ "../views/space/child-components/my-space/MySpace")),
         exact: true
       },
       {
@@ -72,7 +72,7 @@ const router = [
   },
   {
     path: "/search",
-    component: loadable(() => import(/* webpackChunkName: 'search' */ "../views/search/Search"))
+    component: loadable(() => import(/* webpackChunkName: 'search' */ "../views/search/search/Search"))
   },
   {
     path: "/live",

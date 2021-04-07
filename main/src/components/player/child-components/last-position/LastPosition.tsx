@@ -48,7 +48,8 @@ function LastPosition(props: LastPositionProps, ref: React.MutableRefObject<any>
         videoDOM.currentTime = lastPlayPos;
       });
     }
-  }, [jumpDOM]);
+  }, [jumpDOM?.className]);
+
 
   useEffect(() => {
     if (videoDOM) {
@@ -59,7 +60,7 @@ function LastPosition(props: LastPositionProps, ref: React.MutableRefObject<any>
         });
       }
     }
-  }, [videoDOM]);
+  }, [videoDOM?.height]);
 
   return (
     <>

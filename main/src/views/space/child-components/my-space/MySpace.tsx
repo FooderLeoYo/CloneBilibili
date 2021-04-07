@@ -2,14 +2,14 @@ import * as React from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
-import { Switcher } from "../../components/switcher/Switcher";
-import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
+import { Switcher } from "../../../../components/switcher/Switcher";
+import ScrollToTop from "../../../../components/scroll-to-top/ScrollToTop";
 
-import storage, { ViewHistory } from "../../customed-methods/storage";
+import storage, { ViewHistory } from "../../../../customed-methods/storage";
+import { formatDate } from "../../../../customed-methods/datetime";
 
-import { formatDate } from "../../customed-methods/datetime";
-import style from "./stylus/my-space.styl?css-modules";
-import tips from "../../assets/images/nocontent.png";
+import style from "./my-space.styl?css-modules";
+import tips from "../../../../assets/images/nocontent.png";
 
 interface HistoryState {
   histories: Array<[string, ViewHistory[]]>;
@@ -171,12 +171,12 @@ class MySpace extends React.Component<null, HistoryState> {
               </div>
             ))
           ) : (
-              <div className={style.tips}>
-                <img src={tips} />
-                <div className={style.text}>你还没有历史记录</div>
-                <div className={style.text}>快去发现&nbsp;<Link to="/index">新内容</Link>&nbsp;吧！</div>
-              </div>
-            )
+            <div className={style.tips}>
+              <img src={tips} />
+              <div className={style.text}>你还没有历史记录</div>
+              <div className={style.text}>快去发现&nbsp;<Link to="/index">新内容</Link>&nbsp;吧！</div>
+            </div>
+          )
         }
       </div>,
       // 个人投稿

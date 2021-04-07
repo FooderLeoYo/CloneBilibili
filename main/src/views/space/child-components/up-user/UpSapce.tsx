@@ -1,23 +1,22 @@
 import * as React from "react";
 import { match } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import LazyLoad from "react-lazyload";
 
-import Context from "../../context";
-import { setShouldLoad } from "../../redux/action-creators";
-import getUser from "../../redux/async-action-creators/up-user";
-import { getUserVideos } from "../../api/up-user";
+import Context from "../../../../context";
+import { setShouldLoad } from "../../../../redux/action-creators";
+import getUser from "../../../../redux/async-action-creators/up-user";
+import { getUserVideos } from "../../../../api/up-user";
 
-import { Video, createVideoByUser } from "../../class-object-creators";
-import { UpUser as Model } from "../../class-object-creators";
-import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
-import VideoItemLandscape from "../../components/video-item-landscape/VideoItemLandscape";
+import { Video, createVideoByUser } from "../../../../class-object-creators";
+import { UpUser as Model } from "../../../../class-object-creators";
+import ScrollToTop from "../../../../components/scroll-to-top/ScrollToTop";
+import VideoItemLandscape from "../../../../components/video-item-landscape/VideoItemLandscape";
 
-import { formatTenThousand } from "../../customed-methods/string";
-import { getPicSuffix } from "../../customed-methods/image";
+import { formatTenThousand } from "../../../../customed-methods/string";
+import { getPicSuffix } from "../../../../customed-methods/image";
 
-import tips from "../../assets/images/nocontent.png";
-import style from "./stylus/up-space.styl?css-modules";
+import tips from "../../../../assets/images/nocontent.png";
+import style from "./up-space.styl?css-modules";
 
 interface UpUserProps {
   shouldLoad: boolean;

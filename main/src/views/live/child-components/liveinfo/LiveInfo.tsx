@@ -1,10 +1,10 @@
 import * as React from "react";
 import LazyLoad from "react-lazyload";
 
-import { Live } from "../../../class-object-creators";
-import { formatTenThousand } from "../../../customed-methods/string";
+import { Live } from "../../../../class-object-creators";
+import { formatTenThousand } from "../../../../customed-methods/string";
 
-import style from "./stylus/live-info.styl?css-modules";
+import style from "./live-info.styl?css-modules";
 
 interface LiveInfoProps {
   data: Live;

@@ -10,8 +10,8 @@ import { getLiveListData } from "../../../api/live";
 import { setShouldLoad } from "../../../redux/action-creators";
 
 import { Live, UpUser, PartitionType, LiveSecQueryParType } from "../../../class-object-creators";
-import Nav from "../child-components/Nav"
-import LiveInfo from "../child-components/LiveInfo";
+import Nav from "../child-components/nav/Nav"
+import LiveInfo from "../child-components/liveinfo/LiveInfo";
 import ScrollToTop from "../../../components/scroll-to-top/ScrollToTop";
 
 import style from "./list.styl?css-modules";

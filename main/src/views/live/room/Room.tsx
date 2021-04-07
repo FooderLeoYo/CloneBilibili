@@ -42,7 +42,6 @@ function Room(props: RoomProps) {
   const { shouldLoad, dispatch, roomData } = props;
   const { live } = roomData;
 
-  const [preRoomData, setPreRoomData] = useState(roomData);
   const [isDataOk, setIsDataOk] = useState(false);
   const [anchor, setAnchor] = useState(new UpUser(0, "", ""));
   // 这里将setDanmu中new的chatWebSocket又赋给一个state变量wsForClose，
@@ -137,13 +136,12 @@ function Room(props: RoomProps) {
       // 不给useEffect第二个参数传[wsForClose]的话，拿到的wsForClose永远是初始的“undefined”
       return () => { wsForClose.webSocket.close(); }
     }
-  }, [wsForClose]);
+  }, [wsForClose?.roomId]);
 
   // 相当于getDerivedStateFromProps
-  if (roomData !== preRoomData) {
-    setInitData();
-    setPreRoomData(roomData);
-  }
+  useEffect(() => {
+    if (roomData) { setInitData(); }
+  }, [roomData?.parentAreaId]);
 
   return (
     <div className="live-room">

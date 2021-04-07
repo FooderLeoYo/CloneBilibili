@@ -9,8 +9,8 @@ import { setShouldLoad } from "../../../redux/action-creators";
 
 import { PartitionType, Live, LiveSecQueryParType } from "../../../class-object-creators";
 
-import Nav from "../child-components/Nav"
-import LiveInfo from "../child-components/LiveInfo";
+import Nav from "../child-components/nav/Nav"
+import LiveInfo from "../child-components/liveinfo/LiveInfo";
 
 import "swiper/dist/css/swiper.css";
 import style from "./index.styl?css-modules";

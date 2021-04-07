@@ -1,11 +1,11 @@
 import * as React from "react";
 import { Helmet } from "react-helmet";
 
-import Result from "./Result";
-import { getHotwords, getSuggests } from "../../api/search";
-import storage, { SearcHistory } from "../../customed-methods/storage";
+import Result from "../result/Result";
+import { getHotwords, getSuggests } from "../../../api/search";
+import storage, { SearcHistory } from "../../../customed-methods/storage";
 
-import style from "./stylus/search.styl?css-modules";
+import style from "./search.styl?css-modules";
 
 interface SearchState {
   searchValue: string; // 用户输入过程中的搜索框中的值

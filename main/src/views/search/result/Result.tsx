@@ -1,17 +1,17 @@
 import * as React from "react";
 import LazyLoad from "react-lazyload";
 
-import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
+import ScrollToTop from "../../../components/scroll-to-top/ScrollToTop";
 
-import { getSearchResult } from "../../api/search";
-import Context from "../../context";
-import { Video, UpUser, createVideoBySearch } from "../../class-object-creators";
-import { getPicSuffix } from "../../customed-methods/image";
+import { getSearchResult } from "../../../api/search";
+import Context from "../../../context";
+import { Video, UpUser, createVideoBySearch } from "../../../class-object-creators";
+import { getPicSuffix } from "../../../customed-methods/image";
 
-import VideoItemLandscape from "../../components/video-item-landscape/VideoItemLandscape";
-import tips from "../../assets/images/tips.png";
+import VideoItemLandscape from "../../../components/video-item-landscape/VideoItemLandscape";
+import tips from "../../../assets/images/tips.png";
 
-import style from "./stylus/result.styl?css-modules";
+import style from "./result.styl?css-modules";
 
 interface ResultProps {
   keyword: string;

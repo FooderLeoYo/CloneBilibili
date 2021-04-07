@@ -1,13 +1,13 @@
 import * as React from "react";
 import { History } from "history";
 
-import { PartitionType, LiveSecQueryParType } from "../../../class-object-creators";
+import { PartitionType, LiveSecQueryParType } from "../../../../class-object-creators";
 
-import Header from "../../../components/header/Header";
-import TabBar from "../../../components/tab-bar/TabBar";
-import Drawer from "../../../components/drawer/Drawer";
+import Header from "../../../../components/header/Header";
+import TabBar from "../../../../components/tab-bar/TabBar";
+import Drawer from "../../../../components/drawer/Drawer";
 
-import style from "./stylus/nav.styl?css-modules";
+import style from "./nav.styl?css-modules";
 
 interface NavProps {
   history: History,
