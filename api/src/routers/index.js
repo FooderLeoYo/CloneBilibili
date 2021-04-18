@@ -6,6 +6,7 @@ const upUserRouter = require("./up-user");
 const searchRouter = require("./search");
 const transferRouter = require("./transfer");
 const liveRouter = require("./live");
+const loginRouter = require("./login");
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.use(upUserRouter);
 router.use(searchRouter);
 router.use(transferRouter);
 router.use(liveRouter);
+router.use(loginRouter);
 
 module.exports = router;

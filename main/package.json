@@ -17,6 +17,7 @@
     "cross-fetch": "^2.2.3",
     "express": "^4.16.4",
     "hls.js": "^0.12.4",
+    "jsencrypt": "^3.1.0",
     "pako": "^1.0.10",
     "query-string": "^6.5.0",
     "react": "^16.13.1",

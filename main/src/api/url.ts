@@ -36,6 +36,11 @@ const URL_LIVE_ROOM_GIFT = prefix + "/live/room/gifts";
 const URL_LIVE_PLAY_URL = prefix + "/live/room/play_url";
 const URL_LIVE_DANMU_CONFIG = prefix + "/live/room/danmu_config";
 
+const URL_LOGIN_GT_CAPTCHA = prefix + "/login/getgtcaptcha";
+const URL_LOGIN_PW_KEYHASH = prefix + "/login/getpwkeyhash";
+const URL_LOGIN_PW_VERIFY = prefix + "/login/verifypassword";
+
+
 export {
   URL_INDEX,
   URL_ROUND_SOWING,
@@ -60,5 +65,8 @@ export {
   URL_LIVE_ROOM_INFO,
   URL_LIVE_ROOM_GIFT,
   URL_LIVE_PLAY_URL,
-  URL_LIVE_DANMU_CONFIG
+  URL_LIVE_DANMU_CONFIG,
+  URL_LOGIN_GT_CAPTCHA,
+  URL_LOGIN_PW_KEYHASH,
+  URL_LOGIN_PW_VERIFY
 }

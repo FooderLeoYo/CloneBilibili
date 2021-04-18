@@ -100,6 +100,10 @@ const router = [
     asyncData: (store, param) => {
       return store.dispatch(getRoomData(param.roomId));
     }
+  },
+  {
+    path: "/login",
+    component: loadable(() => import(/* webpackChunkName: 'login' */ "../views/login/Index")),
   }
 ];
 

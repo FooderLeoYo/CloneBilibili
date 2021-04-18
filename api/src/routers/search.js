@@ -19,12 +19,7 @@ router.get("/search/hotword", (req, res, next) => {
       resData.msg = "fail";
     }
     res.send(resData);
-  }).catch(
-    () => {
-      console.log(111)
-      next
-    }
-  );
+  }).catch(next);
 });
 
 router.get("/search/suggest", (req, res, next) => {
@@ -52,7 +47,7 @@ router.post("/search", (req, res, next) => {
     searchType: req.body.searchType,
     order: req.body.order,
   }
-  fetchSearchContent(param).then((data) => {
+  fetchSearchContent(param).then(data => {
     let resData = {
       code: "1",
       msg: "success",

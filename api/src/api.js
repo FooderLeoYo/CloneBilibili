@@ -48,6 +48,12 @@ const URL_ROOM_INFO = "https://api.live.bilibili.com/room/v1/Room/get_info?devic
 // 弹幕配置
 const URL_DANMMU_CONFIG = "https://api.live.bilibili.com/room/v1/Danmu/getConf?room_id={roomid}&platform=h5";
 
+// 申请人机验证码参数
+const URL_GT_CAPTCHA = "http://passport.bilibili.com/web/captcha/combine?plat=6";
+// 获取加密公钥及密码盐值
+const URL_PW_KEYHASH = "http://passport.bilibili.com/login?act=getkey";
+// 将账号密码等信息发送后台验证
+const URL_PW_VERIFY = "http://passport.bilibili.com/web/login/v2";
 
 const userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) " +
   "AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
@@ -138,7 +144,7 @@ const fetchUserVideo = param => {
 const fetchHotWord = () => {
   return fetch(URL_HOT_WORD)
     .then(res => res.json())
-    .then(json => json)
+    .then(json => json);
 }
 
 const fetchSuggest = w => {
@@ -154,7 +160,7 @@ const fetchSuggest = w => {
   ];
   return fetch(URL_SUGGEST + "?" + params.join("&"))
     .then(res => res.json())
-    .then(json => json)
+    .then(json => json);
 }
 
 const fetchSearchContent = param => {
@@ -167,33 +173,32 @@ const fetchSearchContent = param => {
   };
   return fetch(URL_SEARCH + `?${querystring.stringify(param)}`, {
     method: "get"
-  })
-    .then(res => res.json())
-    .then(json => json)
+  }).then(res => res.json())
+    .then(json => json);
 }
 
 const fetchLiveList = () => {
   return fetch(URL_LIVE_INDEX)
     .then(res => res.json())
-    .then(json => json)
+    .then(json => json);
 }
 
 const fetchLiveArea = () => {
   return fetch(URL_LIVE_AREA)
     .then(res => res.json())
-    .then(json => json)
+    .then(json => json);
 }
 
 const fetchLiveUrl = roomId => {
   return fetch(URL_LIVE_URL.replace("{roomid}", roomId))
     .then(res => res.json())
-    .then(json => json)
+    .then(json => json);
 }
 
 const fetchLiveGift = () => {
   return fetch(URL_LIVE_GIFT)
     .then(res => res.json())
-    .then(json => json)
+    .then(json => json);
 }
 
 const fetchRoomList = data => {
@@ -210,19 +215,40 @@ const fetchRoomList = data => {
   ];
   return fetch(URL_ROOM_LIST + "?" + params.join("&"))
     .then(res => res.json())
-    .then(json => json)
+    .then(json => json);
 }
 
 const fetchRoomInfo = roomId => {
   return fetch(URL_ROOM_INFO.replace("{roomid}", roomId))
     .then(res => res.json())
-    .then(json => json)
+    .then(json => json);
 }
 
 const fetchDanMuConfig = roomId => {
   return fetch(URL_DANMMU_CONFIG.replace("{roomid}", roomId))
     .then(res => res.json())
-    .then(json => json)
+    .then(json => json);
+}
+
+const fetchGTCaptcha = () => {
+  return fetch(URL_GT_CAPTCHA)
+    .then(res => res.json())
+    .then(json => json);
+}
+
+const fetchPWKeyAndHash = () => {
+  return fetch(URL_PW_KEYHASH)
+    .then(res => res.json())
+    .then(json => json);
+}
+
+const fetchLoginVerifyInfo = reqBody => {
+  return fetch(URL_PW_VERIFY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: JSON.stringify(reqBody),
+  }).then(res => res.json())
+    .then(json => json);
 }
 
 module.exports = {
@@ -246,5 +272,8 @@ module.exports = {
   fetchLiveGift,
   fetchRoomList,
   fetchRoomInfo,
-  fetchDanMuConfig
+  fetchDanMuConfig,
+  fetchGTCaptcha,
+  fetchPWKeyAndHash,
+  fetchLoginVerifyInfo
 }

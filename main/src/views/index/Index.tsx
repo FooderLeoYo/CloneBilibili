@@ -67,14 +67,10 @@ class Index extends React.Component<IndexProps, IndexState> {
       return;
     } else if (tab.id === -1) {
       // window.location.href = "/live";
-      this.props.history.push({
-        pathname: "/live"
-      });
+      this.props.history.push({ pathname: "/live" });
     } else {
       // window.location.href = "/channel/" + tab.id;
-      this.props.history.push({
-        pathname: "/channel/" + tab.id
-      });
+      this.props.history.push({ pathname: "/channel/" + tab.id });
     }
   }
 
@@ -233,6 +229,11 @@ class Index extends React.Component<IndexProps, IndexState> {
                     </div>
                   </div>
                 }
+                <div onClick={() => {
+                  this.props.history.push({ pathname: "/login/" });
+                }}>
+                  登录！！！！！！！！！！
+            </div>
                 {/* 视频 */}
                 <div className={style.videoList + " clear"}>
                   {videoElements}
