@@ -1,7 +1,9 @@
 import * as React from "react";
 import JSEncrypt from 'jsencrypt'
+import axios from "axios";
+import qs from "qs";
 
-import { getGTCaptcha, getPWKeyAndHash, getSearchResult } from "../../api/login";
+import { getGTCaptcha, getPWKeyAndHash, getLoginVerifyInfo } from "../../api/login";
 
 import style from "./index.styl?css-modules";
 
@@ -33,10 +35,17 @@ function Index(props: IndexProps) {
 
       getPWKeyAndHash().then(pwRes => {
         const { key, hash } = pwRes.data;
+        // let ketTest = "-----BEGIN PUBLIC KEY-----" +
+        //   "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDjb4V7EidX/ym28t2ybo0U6t0n" +
+        //   "6p4ej8VjqKHg100va6jkNbNTrLQqMCQCAYtXMXXp2Fwkk6WR+12N9zknLjf+C9sx" +
+        //   "/+l48mjUU8RqahiFD1XT/u2e0m2EN029OhCgkHx3Fc/KlFSIbak93EH/XlYis0w+" +
+        //   "Xl69GV6klzgxW6d2xQIDAQAB" +
+        //   "-----END PUBLIC KEY-----";
 
         const encryptor = new JSEncrypt({});  // 创建加密对象实例
         encryptor.setPublicKey(key);//设置公钥
-        const rsaPassWord = encryptor.encrypt(hash.concat(passwordRef.current.value));  // 对内容进行加密
+        const rsaPassWord = encryptor.encrypt(hash + passwordRef.current.value);  // 对内容进行加密
+        // const rsaPassWord = "YgpjxAQ22pKa9socHIKPCZX0a/NS6Ng9Zzy+rp16b0LJGT6RHw2ERs3+ijCpG96PKTY1Baavwf0xgotmNvpl25l1KO5y4AjcqeWTzNTSVn6ejonBXGmBMybHHYawJ0aMPn1eDGpKrbI91mrF+h2x+fsnnpuZ1gheiYGzFmtshUc="
 
         const param = {
           captchaType: 6,
@@ -46,9 +55,21 @@ function Index(props: IndexProps) {
           key: key,
           challenge: challengeValue,
           validate: geetest_validate,
-          seccode: geetest_seccode
+          seccode: geetest_seccode,
         }
-        getSearchResult(param)
+        // const param = {
+        //   source: "main_h5",
+        //   token: "86e0d602201a412488691525f3c95693",
+        //   username: usernameRef.current.value,
+        //   password: rsaPassWord,
+        //   keep: true,
+        //   key: key,
+        //   go_url: "https://www.bilibili.com/",
+        //   validate: geetest_validate,
+        //   seccode: geetest_seccode,
+        // }
+
+        getLoginVerifyInfo(param)
         // .then(res => console.log(res))
       });
 

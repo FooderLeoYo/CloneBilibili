@@ -15,7 +15,7 @@ export function getPWKeyAndHash() {
   return getJSON(URL_LOGIN_PW_KEYHASH, null);
 }
 
-export function getSearchResult(param) {
+export function getLoginVerifyInfo(param) {
   return postJSON(URL_LOGIN_PW_VERIFY, param);
 }
 

@@ -1,5 +1,7 @@
 const fetch = require("node-fetch");
 const querystring = require("querystring");
+const axios = require('axios');
+const qs = require('qs');
 
 // 用户信息
 const URL_UP_USER = "https://api.bilibili.com/x/space/acc/info?mid={mid}";
@@ -242,11 +244,22 @@ const fetchPWKeyAndHash = () => {
     .then(json => json);
 }
 
-const fetchLoginVerifyInfo = reqBody => {
+const fetchLoginVerifyInfo = param => {
+  // async function fetchLoginVerifyInfo(param) {
+  const postData = qs.stringify(param)
+  const test2 = JSON.stringify(param)
+
+  // return await axios.post('http://passport.bilibili.com/web/login/v2', postData)
+  // .then(res => console.log(res))
   return fetch(URL_PW_VERIFY, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: JSON.stringify(reqBody),
+    headers: {
+      // 'Accept': 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded'
+      // 'Content-Type': 'application/jsond'
+    },
+    body: JSON.stringify(param),
+    // body: postData
   }).then(res => res.json())
     .then(json => json);
 }
