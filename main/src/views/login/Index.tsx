@@ -4,7 +4,6 @@ import JSEncrypt from 'jsencrypt'
 import { getGTCaptcha, getPWKeyAndHash, getLoginVerifyInfo } from "../../api/login";
 
 import style from "./index.styl?css-modules";
-import { Redirect } from "_@types_react-router@5.1.13@@types/react-router";
 
 declare global {
   interface Window {
@@ -35,7 +34,6 @@ function Index(props: IndexProps) {
 
       getPWKeyAndHash().then(pwRes => {
         const { key, hash } = pwRes.data;
-
         const encryptor = new JSEncrypt({});  // 创建加密对象实例
         encryptor.setPublicKey(key);//设置公钥
         const rsaPassWord = encryptor.encrypt(hash + passwordRef.current.value);  // 对内容进行加密
@@ -50,12 +48,50 @@ function Index(props: IndexProps) {
           validate: geetest_validate,
           seccode: geetest_seccode
         }
+
         getLoginVerifyInfo(param)
           .then(res => {
-            console.log(res)
+            const { code, json } = res;
+            if (code === 0) {
+              // console.log("哇！服务器太忙了，您稍等片刻昂……");
+              console.log("本地服务器出错");
+            } else {
+              const { code, data, message } = json;
+              if (data) {
+                console.log("登陆成功");
+              } else if (message.length > 0) {
+                console.log(message);
+              } else {
+                switch (code) {
+                  case -629:
+                    console.log("账号或密码错误");
+                    break;
+                  case -653:
+                    console.log("用户名或密码不能为空");
+                    break;
+                  case -662:
+                    console.log("提交超时,请重新提交");
+                    break;
+                  case -2100:
+                    console.log("需验证手机号或邮箱");
+                    break;
+                  case -2001:
+                    console.log("缺少必要的的参数");
+                    break;
+                  case 2400:
+                    console.log("登录秘钥错误");
+                    break;
+                  case 2406:
+                    console.log("验证极验服务出错");
+                    break;
+                  default:
+                    console.log("哇！服务器太忙了，您稍等片刻昂……");
+                    break;
+                }
+              }
+            }
           })
       });
-
     });
   }
 
@@ -100,7 +136,7 @@ function Index(props: IndexProps) {
           </div>
         </li>
       </ul>
-      <div ref={loginBtnRef}>登录</div>
+      <div ref={loginBtnRef}>你是机器人嘛 (′⌒` )</div>
       <div ref={toGTCapRef}></div>
       <div ref={continueRef}>继续登录</div>
     </div>

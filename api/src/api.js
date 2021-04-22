@@ -247,15 +247,9 @@ const fetchLoginVerifyInfo = param => {
 
   return fetch(URL_PW_VERIFY, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: searchParam
-  })
-    .then(res => res)
-  // .then(res => res.json())
-  // .then(json => json)
-
+  }).then(res => res);
 }
 
 module.exports = {
