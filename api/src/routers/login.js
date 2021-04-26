@@ -54,6 +54,7 @@ router.post("/login/verifypassword", (req, res, next) => {
           rawSetting.substring(SDataPos, bjctPos - 2),
           rawSetting.substring(bjctPos)
         ]);
+        res.setHeader("Access-Control-Allow-Credentials", true);
       }
 
       data.json().then(json => {

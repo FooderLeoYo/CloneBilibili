@@ -247,8 +247,12 @@ const fetchLoginVerifyInfo = param => {
 
   return fetch(URL_PW_VERIFY, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: searchParam
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "Access-Control-Allow-Credentials": true
+    },
+    body: searchParam,
+    credentials: "include",
   }).then(res => res);
 }
 
