@@ -43,6 +43,7 @@ router.post("/login/verifypassword", (req, res, next) => {
     }
 
     if (data) {
+      console.log(data)
       if (data.headers.has('set-cookie')) { // 登录成功则设置4个cookie
         const rawSetting = data.headers.get('set-cookie');
         const DUIdC5Pos = rawSetting.indexOf("DedeUserID__ckMd5");

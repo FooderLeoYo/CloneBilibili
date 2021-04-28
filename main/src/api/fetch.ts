@@ -35,7 +35,7 @@ export function postJSON(url: string, data) {
     method: "post",
     body: JSON.stringify(data),
     headers: { "Content-Type": "application/json; charset=utf-8", },
-    credentials: "include",
+    credentials: "include"
   }).then(res => {
     if (res.ok) {
       return res.json();
