@@ -49,12 +49,11 @@ router.post("/login/verifypassword", (req, res, next) => {
         const SDataPos = rawSetting.indexOf("SESSDATA");
         const bjctPos = rawSetting.indexOf("bili_jct");
         res.setHeader("Set-Cookie", [
-          rawSetting.substring(0, DUIdC5Pos - 2),
-          rawSetting.substring(DUIdC5Pos, SDataPos - 2),
-          rawSetting.substring(SDataPos, bjctPos - 2),
-          rawSetting.substring(bjctPos)
+          rawSetting.substring(0, DUIdC5Pos - 2).replace(" Domain=.bilibili.com;", ""),
+          rawSetting.substring(DUIdC5Pos, SDataPos - 2).replace(" Domain=.bilibili.com;", ""),
+          rawSetting.substring(SDataPos, bjctPos - 2).replace(" Domain=.bilibili.com;", ""),
+          rawSetting.substring(bjctPos).replace(" Domain=.bilibili.com;", "")
         ]);
-        res.setHeader("Access-Control-Allow-Credentials", true);
       }
 
       data.json().then(json => {

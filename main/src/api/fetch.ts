@@ -34,11 +34,8 @@ export function postJSON(url: string, data) {
   return fetch(url, {
     method: "post",
     body: JSON.stringify(data),
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Access-Control-Allow-Credentials": "true"
-    },
-    // credentials: "include",
+    headers: { "Content-Type": "application/json; charset=utf-8", },
+    credentials: "include",
   }).then(res => {
     if (res.ok) {
       return res.json();
