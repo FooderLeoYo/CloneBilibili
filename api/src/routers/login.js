@@ -1,5 +1,5 @@
 const express = require("express");
-const { fetchGTCaptcha, fetchPWKeyAndHash, fetchLoginVerifyInfo } = require("../api");
+const { fetchGTCaptcha, fetchPWKeyAndHash, fetchLoginVerifyInfo, fetchNavtUserInfo } = require("../api");
 
 const router = express.Router();
 
@@ -43,7 +43,6 @@ router.post("/login/verifypassword", (req, res, next) => {
     }
 
     if (data) {
-      console.log(data)
       if (data.headers.has('set-cookie')) { // 登录成功则设置4个cookie
         const rawSetting = data.headers.get('set-cookie');
         const DUIdC5Pos = rawSetting.indexOf("DedeUserID__ckMd5");
@@ -66,6 +65,23 @@ router.post("/login/verifypassword", (req, res, next) => {
       resData.msg = "fail";
       res.send(resData);
     }
+  }).catch(next);
+});
+
+router.get("/login/getnavuserinfo", (req, res, next) => {
+  fetchNavtUserInfo(req.headers.cookie).then(data => {
+    let resData = {
+      code: "1",
+      msg: "success"
+    }
+    if (data.code === 0) {
+      resData.data = data.data;
+    } else {
+      resData.code = "0";
+      resData.msg = "fail";
+      resData.data = data;
+    }
+    res.send(resData);
   }).catch(next);
 });
 

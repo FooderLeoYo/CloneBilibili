@@ -49,11 +49,13 @@ const URL_ROOM_INFO = "https://api.live.bilibili.com/room/v1/Room/get_info?devic
 const URL_DANMMU_CONFIG = "https://api.live.bilibili.com/room/v1/Danmu/getConf?room_id={roomid}&platform=h5";
 
 // 申请人机验证码参数
-const URL_GT_CAPTCHA = "http://passport.bilibili.com/web/captcha/combine?plat=6";
+const URL_GT_CAPTCHA = "https://passport.bilibili.com/web/captcha/combine?plat=6";
 // 获取加密公钥及密码盐值
-const URL_PW_KEYHASH = "http://passport.bilibili.com/login?act=getkey";
-// 将账号密码等信息发送后台验证
-const URL_PW_VERIFY = "http://passport.bilibili.com/web/login/v2";
+const URL_PW_KEYHASH = "https://passport.bilibili.com/login?act=getkey";
+// 验证登录信息并返回cookie
+const URL_PW_VERIFY = "https://passport.bilibili.com/web/login/v2";
+// 获取导航栏用户信息信息
+const URL_NAV_INFO = "http://api.bilibili.com/nav";
 
 const userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) " +
   "AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
@@ -252,6 +254,16 @@ const fetchLoginVerifyInfo = param => {
   }).then(res => res);
 }
 
+const fetchNavtUserInfo = cookie => {
+  console.log(typeof (cookie))
+
+  return fetch(URL_NAV_INFO, {
+    method: "GET",
+    headers: cookie,
+  }).then(res => res.json())
+    .then(json => json);
+}
+
 module.exports = {
   fetchUserData,
   fetchRoundSowing,
@@ -276,5 +288,6 @@ module.exports = {
   fetchDanMuConfig,
   fetchGTCaptcha,
   fetchPWKeyAndHash,
-  fetchLoginVerifyInfo
+  fetchLoginVerifyInfo,
+  fetchNavtUserInfo
 }

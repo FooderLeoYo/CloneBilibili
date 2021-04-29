@@ -2,7 +2,8 @@ import { getJSON, postJSON } from "./fetch";
 import {
   URL_LOGIN_GT_CAPTCHA,
   URL_LOGIN_PW_KEYHASH,
-  URL_LOGIN_PW_VERIFY
+  URL_LOGIN_PW_VERIFY,
+  URL_LOGIN_NAV_INFO
 } from "./url";
 
 /* 获取人机验证码 */
@@ -15,7 +16,12 @@ export function getPWKeyAndHash() {
   return getJSON(URL_LOGIN_PW_KEYHASH, null);
 }
 
+/* 验证登录信息并返回cookie */
 export function getLoginVerifyInfo(param) {
   return postJSON(URL_LOGIN_PW_VERIFY, param);
 }
 
+/* 获取导航栏用户信息信息 */
+export function getNavtUserInfo() {
+  return getJSON(URL_LOGIN_NAV_INFO, null);
+}

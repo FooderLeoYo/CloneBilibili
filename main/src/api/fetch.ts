@@ -20,19 +20,19 @@ export function getJSON(url: string, data) {
       param = "?" + datas.join("&");
     }
   }
-  return fetch(url + param)
-    .then((res) => {
-      // res.ok是fetch自带的判断请求是否成功的方法
-      if (res.ok) {
-        return res.json();
-      }
-      throw new Error(res.statusText);
-    })
+  return fetch(url + param, {
+    method: "GET",
+    credentials: 'include'
+  }).then((res) => {
+    // res.ok是fetch自带的判断请求是否成功的方法
+    if (res.ok) { return res.json(); }
+    throw new Error(res.statusText);
+  })
 }
 
 export function postJSON(url: string, data) {
   return fetch(url, {
-    method: "post",
+    method: "POST",
     body: JSON.stringify(data),
     headers: { "Content-Type": "application/json; charset=utf-8", },
     credentials: "include"

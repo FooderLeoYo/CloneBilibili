@@ -39,7 +39,7 @@ const URL_LIVE_DANMU_CONFIG = prefix + "/live/room/danmu_config";
 const URL_LOGIN_GT_CAPTCHA = prefix + "/login/getgtcaptcha";
 const URL_LOGIN_PW_KEYHASH = prefix + "/login/getpwkeyhash";
 const URL_LOGIN_PW_VERIFY = prefix + "/login/verifypassword";
-
+const URL_LOGIN_NAV_INFO = prefix + "/login/getnavuserinfo"
 
 export {
   URL_INDEX,
@@ -68,5 +68,6 @@ export {
   URL_LIVE_DANMU_CONFIG,
   URL_LOGIN_GT_CAPTCHA,
   URL_LOGIN_PW_KEYHASH,
-  URL_LOGIN_PW_VERIFY
+  URL_LOGIN_PW_VERIFY,
+  URL_LOGIN_NAV_INFO
 }
