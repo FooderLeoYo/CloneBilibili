@@ -245,6 +245,8 @@ const fetchPWKeyAndHash = () => {
 }
 
 const fetchLoginVerifyInfo = param => {
+  // 需要将参数转换成字符串
+  // 但是不能用JSON.toString，因为它转出来的是json字符串，不符合application/x-www-form-urlencoded类型的参数要求
   const searchParam = new URLSearchParams(Object.entries(param)).toString();
 
   return fetch(URL_PW_VERIFY, {
@@ -255,11 +257,9 @@ const fetchLoginVerifyInfo = param => {
 }
 
 const fetchNavtUserInfo = cookie => {
-  console.log(typeof (cookie))
-
   return fetch(URL_NAV_INFO, {
     method: "GET",
-    headers: cookie,
+    headers: { "cookie": cookie } // 通过设置headers来发送cookie
   }).then(res => res.json())
     .then(json => json);
 }
