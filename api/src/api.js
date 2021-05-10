@@ -56,6 +56,8 @@ const URL_PW_KEYHASH = "https://passport.bilibili.com/login?act=getkey";
 const URL_PW_VERIFY = "https://passport.bilibili.com/web/login/v2";
 // 获取导航栏用户信息信息
 const URL_NAV_INFO = "http://api.bilibili.com/nav";
+// 获取手机区号
+const URL_AREA_CODE = "http://passport.bilibili.com/web/generic/country/list";
 
 const userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) " +
   "AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
@@ -264,6 +266,12 @@ const fetchNavtUserInfo = cookie => {
     .then(json => json);
 }
 
+const fetchAreaCode = () => {
+  return fetch(URL_AREA_CODE)
+    .then(res => res.json())
+    .then(json => json);
+}
+
 module.exports = {
   fetchUserData,
   fetchRoundSowing,
@@ -289,5 +297,6 @@ module.exports = {
   fetchGTCaptcha,
   fetchPWKeyAndHash,
   fetchLoginVerifyInfo,
-  fetchNavtUserInfo
+  fetchNavtUserInfo,
+  fetchAreaCode
 }

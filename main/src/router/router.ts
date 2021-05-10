@@ -103,7 +103,7 @@ const router = [
   },
   {
     path: "/login",
-    component: loadable(() => import(/* webpackChunkName: 'login' */ "../views/login/Index")),
+    component: loadable(() => import(/* webpackChunkName: 'login' */ "../views/login/Login")),
   }
 ];
 

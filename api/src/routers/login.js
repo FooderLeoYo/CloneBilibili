@@ -1,6 +1,6 @@
 const express = require("express");
 const { fetchGTCaptcha, fetchPWKeyAndHash, fetchLoginVerifyInfo,
-  fetchNavtUserInfo } = require("../api");
+  fetchNavtUserInfo, fetchAreaCode } = require("../api");
 
 const router = express.Router();
 
@@ -89,6 +89,22 @@ router.get("/login/getnavuserinfo", (req, res, next) => {
       }
       res.send(resData);
     }).catch(next);
+});
+
+router.get("/login/getareacode", (req, res, next) => {
+  fetchAreaCode().then(data => {
+    let resData = {
+      code: "1",
+      msg: "success"
+    }
+    if (data) {
+      resData.data = data.data;
+    } else {
+      resData.code = "0";
+      resData.msg = "fail";
+    }
+    res.send(resData);
+  }).catch(next);
 });
 
 module.exports = router;

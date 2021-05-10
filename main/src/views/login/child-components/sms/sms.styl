@@ -1,0 +1,22 @@
+@import "../../../../assets/stylus/px2rem.styl"
+
+.sms-wrapper
+  font-size: px2rem(13.5)
+  .input-wrapper
+    background-color #ffffff
+    .area-form
+      display: grid
+      grid-template-columns: 20% 80%
+    .area-box
+      position: fixed
+      left: px2rem(12.5)
+      right: @left
+      top: px2rem(12.5)
+      bottom: @top
+      background-color: orange
+      z-index: 1
+      visibility: hidden
+      &.show
+        visibility: visible
+      .area-list
+        list-style-type: circle

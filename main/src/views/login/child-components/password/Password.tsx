@@ -11,17 +11,18 @@ declare global {
   }
 }
 
-interface IndexProps {
+interface PasswordProps {
 }
 
-const { useRef, useEffect } = React;
+const { useRef, useEffect, useState } = React;
 
-function Password(props: IndexProps) {
-  const loginBtnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
-  const toGTCapRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
-  const continueRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
-  const usernameRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
+function Password(props: PasswordProps) {
+  const accountRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
   const passwordRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
+  const loginBtnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
+
+  const [accountValue, setAccountValue] = useState("");
+  const [passwordValue, setPasswordValue] = useState("");
 
   let loginKey;
   let challengeValue;
@@ -38,7 +39,7 @@ function Password(props: IndexProps) {
           const rsaPassWord = encryptor.encrypt(hash + passwordRef.current.value);  // 对内容进行加密
           const param = {
             captchaType: 6,
-            username: usernameRef.current.value,
+            username: accountRef.current.value,
             password: rsaPassWord,
             keep: true,
             key: loginKey,
@@ -116,26 +117,64 @@ function Password(props: IndexProps) {
     loginBtnRef.current.addEventListener("click", () => { getRobertTestCap(); });
   }, []);
 
+
   return (
-    <>
-      <ul className={style.loginInfo}>
-        <li className={style.account}>
-          <div>
-            <span>账号</span>
-            <input type="text" placeholder="请输入手机号/邮箱" autoComplete="on" ref={usernameRef} />
-          </div>
+    <div className={style.pwWrapper}>
+      <ul className={style.inputWrapper}>
+        <li className={style.accountWrapper}>
+          <span className={style.accountTittle}>账号</span>
+          <input
+            type="text"
+            placeholder="请输入手机号/邮箱"
+            autoComplete="on"
+            ref={accountRef}
+            onChange={e => setAccountValue(e.currentTarget.value)}
+            className={style.phoneValue}
+          />
+          {
+            accountValue ? (
+              <span className={style.cleanContent} onClick={() => accountRef.current.value = ""}>
+                <svg className="icon" aria-hidden="true">
+                  <use href="#icon-close"></use>
+                </svg>
+              </span>
+            ) : null
+          }
         </li>
-        <li className={style.password}>
-          <div>
-            <span >密码</span>
-            <input type="password" placeholder="请输入密码" autoComplete="on" maxLength={20} ref={passwordRef} />
-          </div>
+        <li className={style.passwordWrapper}>
+          <span className={style.passwordTittle}>密码</span>
+          <input
+            type="password"
+            placeholder="请输入密码"
+            autoComplete="on"
+            maxLength={20}
+            ref={passwordRef}
+            onChange={e => setPasswordValue(e.currentTarget.value)}
+            className={style.passwordValue}
+          />
+          {
+            passwordValue ? (
+              <span className={style.cleanContent} onClick={() => passwordRef.current.value = ""}>
+                <svg className="icon" aria-hidden="true">
+                  <use href="#icon-close"></use>
+                </svg>
+              </span>
+            ) : null
+          }
         </li>
       </ul>
-      <div ref={loginBtnRef}>你是机器人嘛 (′⌒` )</div>
-      <div className={style.captchaWrapper} ref={toGTCapRef}></div>
-      <div ref={continueRef}>继续登录</div>
-    </>
+      <a href="#forgetPW" className={style.forget}>忘记密码？</a>
+      <div className={style.btnWrapper}>
+        <div className={style.signup}>注册</div>
+        <div className={style.login} ref={loginBtnRef}>登录</div>
+      </div>
+      <div className={style.protocolsWrapper}>
+        登录即代表你同意
+        <a href="#useragreement">用户协议</a>
+        和
+        <a href="#privacy">隐私政策</a>
+      </div>
+    </div>
   )
 }
 
