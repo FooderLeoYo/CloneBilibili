@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet";
 import Result from "../result/Result";
 import { getHotwords, getSuggests } from "../../../api/search";
 import storage, { SearcHistory } from "../../../customed-methods/storage";
+import Clean from "../../../components/clean/Clean"
 
 import style from "./search.styl?css-modules";
 
@@ -153,7 +154,7 @@ class Search extends React.Component<any, SearchState> {
               onKeyDown={this.setSearchContent}
             />
             {/* 清空输入内容 */}
-            {
+            {/* {
               this.state.searchValue ? (
                 <span
                   className={style.cleanContent}
@@ -164,7 +165,9 @@ class Search extends React.Component<any, SearchState> {
                   </svg>
                 </span>
               ) : null
-            }
+            } */}
+            <Clean inputValue={this.state.searchValue} inputDOMRef={passwordRef} />
+
           </div>
           {/* “取消”按钮 */}
           <span

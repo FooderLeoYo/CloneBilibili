@@ -3,6 +3,8 @@ import JSEncrypt from 'jsencrypt'
 
 import { getGTCaptcha, getPWKeyAndHash, getLoginVerifyInfo } from "../../../../api/login";
 
+import Clean from "../../../../components/clean/Clean"
+
 import style from "./password.styl?css-modules";
 
 declare global {
@@ -126,20 +128,15 @@ function Password(props: PasswordProps) {
           <input
             type="text"
             placeholder="请输入手机号/邮箱"
-            autoComplete="on"
+            // autoComplete="on"
             ref={accountRef}
             onChange={e => setAccountValue(e.currentTarget.value)}
             className={style.phoneValue}
           />
-          {
-            accountValue ? (
-              <span className={style.cleanContent} onClick={() => accountRef.current.value = ""}>
-                <svg className="icon" aria-hidden="true">
-                  <use href="#icon-close"></use>
-                </svg>
-              </span>
-            ) : null
-          }
+          <Clean
+            inputValue={accountValue}
+            inputDOMRef={accountRef}
+          />
         </li>
         <li className={style.passwordWrapper}>
           <span className={style.passwordTittle}>密码</span>
@@ -152,15 +149,10 @@ function Password(props: PasswordProps) {
             onChange={e => setPasswordValue(e.currentTarget.value)}
             className={style.passwordValue}
           />
-          {
-            passwordValue ? (
-              <span className={style.cleanContent} onClick={() => passwordRef.current.value = ""}>
-                <svg className="icon" aria-hidden="true">
-                  <use href="#icon-close"></use>
-                </svg>
-              </span>
-            ) : null
-          }
+          <Clean
+            inputValue={passwordValue}
+            inputDOMRef={passwordRef}
+          />
         </li>
       </ul>
       <a href="#forgetPW" className={style.forget}>忘记密码？</a>
