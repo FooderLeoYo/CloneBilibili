@@ -3,7 +3,7 @@ import JSEncrypt from 'jsencrypt'
 
 import { getGTCaptcha, getPWKeyAndHash, getLoginVerifyInfo } from "../../../../api/login";
 
-import Clean from "../../../../components/clean/Clean"
+import Clean from "../../../../components/clean/CleanText"
 
 import style from "./password.styl?css-modules";
 
@@ -155,16 +155,16 @@ function Password(props: PasswordProps) {
           />
         </li>
       </ul>
-      <a href="#forgetPW" className={style.forget}>忘记密码？</a>
+      <div className={style.forget} onClick={() => alert("找回密码")}>忘记密码？</div>
       <div className={style.btnWrapper}>
         <div className={style.signup}>注册</div>
         <div className={style.login} ref={loginBtnRef}>登录</div>
       </div>
       <div className={style.protocolsWrapper}>
         登录即代表你同意
-        <a href="#useragreement">用户协议</a>
+        <span onClick={() => alert("用户协议")}>用户协议</span>
         和
-        <a href="#privacy">隐私政策</a>
+        <span onClick={() => alert("隐私政策")}>隐私政策</span>
       </div>
     </div>
   )

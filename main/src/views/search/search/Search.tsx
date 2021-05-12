@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import Result from "../result/Result";
 import { getHotwords, getSuggests } from "../../../api/search";
 import storage, { SearcHistory } from "../../../customed-methods/storage";
-import Clean from "../../../components/clean/Clean"
+import Clean from "../../../components/clean/CleanText"
 
 import style from "./search.styl?css-modules";
 
@@ -17,9 +17,10 @@ interface SearchState {
 }
 
 class Search extends React.Component<any, SearchState> {
-  /* 以下为初始化 */
+  private searchInputRef: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
+    this.searchInputRef = React.createRef();
     this.state = {
       searchValue: "",
       keyword: "",
@@ -98,7 +99,7 @@ class Search extends React.Component<any, SearchState> {
   }
 
   //  清除搜索内容
-  private clearSearch() {
+  private cleanSearch() {
     this.setState({
       suggestList: [],
       searchValue: "",
@@ -145,34 +146,22 @@ class Search extends React.Component<any, SearchState> {
               autoComplete="off"
               maxLength={33}
               placeholder="搜索视频、up主或av号"
-              value={this.state.searchValue}
               className={style.searchBox}
-              onChange={e => {
-                this.setState({ searchValue: e.currentTarget.value })
-              }}
+              onChange={e => this.setState({ searchValue: e.currentTarget.value })}
               onKeyUp={this.getSuggests}
               onKeyDown={this.setSearchContent}
+              ref={this.searchInputRef}
             />
-            {/* 清空输入内容 */}
-            {/* {
-              this.state.searchValue ? (
-                <span
-                  className={style.cleanContent}
-                  onClick={() => { this.clearSearch(); }}
-                >
-                  <svg className="icon" aria-hidden="true">
-                    <use href="#icon-close"></use>
-                  </svg>
-                </span>
-              ) : null
-            } */}
-            <Clean inputValue={this.state.searchValue} inputDOMRef={passwordRef} />
-
+            <Clean
+              inputValue={this.state.searchValue}
+              inputDOMRef={this.searchInputRef}
+              clickMethods={() => this.cleanSearch()}
+            />
           </div>
           {/* “取消”按钮 */}
           <span
             className={style.cancel}
-            onClick={() => { window.history.back(); }}
+            onClick={() => window.history.back()}
           >取消</span>
         </div>
         { // 用户已确认最终要搜索的关键词

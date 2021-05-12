@@ -1,34 +1,39 @@
 import * as React from "react";
 
-import style from "./clean.styl?css-modules";
+import style from "./cleantext.styl?css-modules";
 
 
 interface CleanProps {
   inputValue: string;
   inputDOMRef: React.MutableRefObject<HTMLInputElement>;
+  clickMethods?: Function;
 }
 
 const { useState, useRef, useEffect } = React;
 
-function Clean(props: CleanProps) {
-  const { inputValue, inputDOMRef } = props;
+function CleanText(props: CleanProps) {
+  const { inputValue, inputDOMRef, clickMethods } = props;
 
-  const [firstLetter, setFirstLetter] = useState(false);
+  const [firstLetter, setFirstLetter] = useState(true);
 
   const btnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
   useEffect(() => {
     const cleanBtnDOM = btnRef.current;
+
+    if (inputValue.length > 0) { cleanBtnDOM.classList.add(style.show); }
+    if (clickMethods) { cleanBtnDOM.addEventListener("click", () => { clickMethods(); }); }
+
     cleanBtnDOM.addEventListener("click", () => {
       inputDOMRef.current.value = "";
-      cleanBtnDOM.classList.add(style.hide);
+      cleanBtnDOM.classList.remove(style.show);
       setFirstLetter(true);
-    })
+    });
   }, []);
 
   useEffect(() => {
-    if (firstLetter) {
-      btnRef.current.classList.remove(style.hide);
+    if (inputValue.length > 0 && firstLetter) {
+      btnRef.current.classList.add(style.show);
       setFirstLetter(false);
     }
   }, [inputValue]);
@@ -43,4 +48,4 @@ function Clean(props: CleanProps) {
   )
 }
 
-export default Clean;
+export default CleanText;
