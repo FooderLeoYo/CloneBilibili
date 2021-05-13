@@ -2,7 +2,7 @@
 
 .sms-wrapper
   font-size: px2rem(13.5)
-  .input-wrapper
+  .area-wrapper
     background-color #ffffff
     .area-form
       display: grid
@@ -11,12 +11,39 @@
       position: fixed
       left: px2rem(12.5)
       right: @left
-      top: px2rem(12.5)
-      bottom: @top
-      background-color: orange
-      z-index: 1
+      top: 0
+      bottom: 0
+      z-index: 4
+      visibility: hidden
+      overflow-y: scroll
+      background-color #fff
+      &::-webkit-scrollbar
+        display: none
+      &.show
+        visibility: visible
+      .tittle,
+      .cancel
+        position: fixed
+        padding: 0 px2rem(15)
+        --edgeDistance: px2rem(25)
+        width: calc(100% - var(--edgeDistance))
+        background-color #fff
+      .tittle
+        height: px2rem(40)
+        line-height: @height
+        border-bottom: px2rem(2) solid #e7e7e7
+        font-size: px2rem(15)
+      .cancel
+        bottom: 0
+        height: px2rem(60)
+        border-top: px2rem(2) solid #e7e7e7
+        padding-top: px2rem(10)
+        text-align: right
+        color: #fb7299
+      .options
+        padding: px2rem(40) px2rem(15) px2rem(60)
+    .overlay-wrapper
+      z-index: 3
       visibility: hidden
       &.show
         visibility: visible
-      .area-list
-        list-style-type: circle

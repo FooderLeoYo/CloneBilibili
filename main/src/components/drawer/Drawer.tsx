@@ -44,29 +44,24 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
 
   private setTranslateY(y) {
     const drawerWrapperDOM = this.drawerWrapperRef.current;
-    // $是typescript的字符串拼接符
-    // 注意要使用反引号`
-    drawerWrapperDOM.style.webkitTransform = `translate3d(0, ${y}, 0)`;
     drawerWrapperDOM.style.transform = `translate3d(0, ${y}, 0)`;
   }
 
   public show() {
     const drawerWrapperDOM = this.drawerWrapperRef.current;
-    const overlayDOM = this.overlayRef.current;
 
     this.pull = true;
     drawerWrapperDOM.style.display = "block";
     // 这里要将y设为0的原因是隐藏时，hide方法会将y设为-100%
-    setTimeout(() => { this.setTranslateY(0); }, 10);
-
-    overlayDOM.style.display = "block";
+    setTimeout(() => this.setTranslateY(0), 10);
+    this.overlayRef.current.classList.add(style.show);
   }
 
   public hide() {
     this.pull = false;
-    // 这里用setTranslateY而不是直接设display:none，是为了下拉动画效果
+    // 这里用setTranslateY而不是直接设display: none，是为了下拉动画效果
     this.setTranslateY("-100%");
-    this.overlayRef.current.style.display = "none";
+    this.overlayRef.current.classList.remove(style.show);
   }
 
   public componentDidMount() {
@@ -81,8 +76,8 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
         if (onPush) { onPush(); }
       } else { if (onPullDown) { onPullDown(); } }
     });
-    this.switchRef.current.addEventListener("click", () => { this.hide(); });
-    this.overlayRef.current.addEventListener("touchmove", e => { e.preventDefault(); });
+    this.switchRef.current.addEventListener("click", () => this.hide());
+    this.overlayRef.current.addEventListener("touchmove", e => e.preventDefault());
   }
 
   public static getDerivedStateFromProps(props, state) {
@@ -101,10 +96,7 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
     const { data } = this.props;
     const items = data.map((item, i) => (
       <div
-        className={
-          style.drawerItem + (i === this.state.currentIndex ? " " +
-            style.current : "")
-        }
+        className={style.drawerItem + (i === this.state.currentIndex ? " " + style.current : "")}
         key={item.id}
         onClick={() => { this.handleClick(item, i); }}
       >
