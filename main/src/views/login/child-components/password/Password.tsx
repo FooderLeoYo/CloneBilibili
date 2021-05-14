@@ -1,7 +1,7 @@
 import * as React from "react";
 import JSEncrypt from 'jsencrypt'
 
-import { getGTCaptcha, getPWKeyAndHash, getLoginVerifyInfo } from "../../../../api/login";
+import { getGTCaptcha, getPWKeyAndHash, getPWVerifyInfo } from "../../../../api/login";
 
 import Clean from "../../../../components/clean/CleanText"
 
@@ -50,7 +50,7 @@ function Password(props: PasswordProps) {
             seccode: geetest_seccode
           }
 
-          getLoginVerifyInfo(param).then(res => {
+          getPWVerifyInfo(param).then(res => {
             const { code, json } = res;
             if (code === 0) {
               // console.log("哇！服务器太忙了，您稍等片刻昂……");
@@ -115,6 +115,18 @@ function Password(props: PasswordProps) {
     });
   }
 
+  function checkFormat() {
+    const account = accountRef.current.value;
+    const phoneReg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
+    const emailReg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+
+    if (phoneReg.test(account) || emailReg.test(account) && passwordRef.current.value.length > 5) {
+      loginBtnRef.current.classList.add(style.able);
+    } else {
+      loginBtnRef.current.classList.remove(style.able);
+    }
+  }
+
   useEffect(() => {
     loginBtnRef.current.addEventListener("click", () => { getRobertTestCap(); });
   }, []);
@@ -126,12 +138,15 @@ function Password(props: PasswordProps) {
         <li className={style.accountWrapper}>
           <span className={style.accountTittle}>账号</span>
           <input
+            className={style.phoneValue}
             type="text"
             placeholder="请输入手机号/邮箱"
-            // autoComplete="on"
+            autoComplete="off"
             ref={accountRef}
-            onChange={e => setAccountValue(e.currentTarget.value)}
-            className={style.phoneValue}
+            onChange={e => {
+              checkFormat();
+              setAccountValue(e.currentTarget.value);
+            }}
           />
           <Clean
             inputValue={accountValue}
@@ -141,13 +156,16 @@ function Password(props: PasswordProps) {
         <li className={style.passwordWrapper}>
           <span className={style.passwordTittle}>密码</span>
           <input
+            className={style.passwordValue}
             type="password"
             placeholder="请输入密码"
-            autoComplete="on"
+            autoComplete="off"
             maxLength={20}
             ref={passwordRef}
-            onChange={e => setPasswordValue(e.currentTarget.value)}
-            className={style.passwordValue}
+            onChange={e => {
+              checkFormat();
+              setPasswordValue(e.currentTarget.value);
+            }}
           />
           <Clean
             inputValue={passwordValue}

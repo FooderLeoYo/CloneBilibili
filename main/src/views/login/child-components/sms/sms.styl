@@ -2,48 +2,98 @@
 
 .sms-wrapper
   font-size: px2rem(13.5)
-  .area-wrapper
-    background-color #ffffff
-    .area-form
-      display: grid
-      grid-template-columns: 20% 80%
-    .area-box
-      position: fixed
-      left: px2rem(12.5)
-      right: @left
-      top: 0
-      bottom: 0
-      z-index: 4
-      visibility: hidden
-      overflow-y: scroll
-      background-color #fff
-      &::-webkit-scrollbar
-        display: none
-      &.show
-        visibility: visible
-      .tittle,
-      .cancel
+  .input-wrapper
+    background-color: #ffffff
+    .area-wrapper,
+    .phone-wrapper,
+    .captcha-wrapper
+      padding: px2rem(12) px2rem(13)
+    .area-wrapper
+      .area-form
+        display: grid
+        grid-template-columns: 22.5% 77.5%
+        .more
+          text-align: right
+      .options-box
         position: fixed
-        padding: 0 px2rem(15)
-        --edgeDistance: px2rem(25)
-        width: calc(100% - var(--edgeDistance))
-        background-color #fff
-      .tittle
-        height: px2rem(40)
-        line-height: @height
-        border-bottom: px2rem(2) solid #e7e7e7
-        font-size: px2rem(15)
-      .cancel
+        left: px2rem(12.5)
+        right: @left
+        top: 0
         bottom: 0
-        height: px2rem(60)
-        border-top: px2rem(2) solid #e7e7e7
-        padding-top: px2rem(10)
+        z-index: 4
+        visibility: hidden
+        background-color: #ffffff
+        overflow-y: scroll
+        &::-webkit-scrollbar
+          display: none
+        &.show
+          visibility: visible
+        .tittle,
+        .cancel
+          position: fixed
+          padding: 0 px2rem(15)
+          --edgeDistance: px2rem(25)
+          width: calc(100% - var(--edgeDistance))
+          background-color: #ffffff
+        .tittle
+          height: px2rem(40)
+          line-height: @height
+          border-bottom: px2rem(0.1) solid black
+          font-size: px2rem(15)
+        .cancel
+          bottom: 0
+          height: px2rem(60)
+          border-top: px2rem(0.1) solid black
+          padding-top: px2rem(10)
+          text-align: right
+          color: #fb7299
+        .options
+          padding: px2rem(40) px2rem(15) px2rem(60)
+          li
+            padding: px2rem(10) 0
+            border-bottom: px2rem(0.1) solid #e7e7e7
+      .overlay-wrapper
+        z-index: 3
+        visibility: hidden
+        &.show
+          visibility: visible
+    .phone-wrapper,
+    .captcha-wrapper
+      display: grid
+      border-top: px2rem(1) solid #e7e7e7
+      .phone-value,
+      .captcha-value
+        width: 100%
+        border: none
+        box-shadow: 0 0 0px 1000px #ffffff inset
+      .get-captcha
+        border-left: px2rem(1.5) solid #e7e7e7
         text-align: right
+    .phone-wrapper
+      grid-template-columns: 22.5% 42.5% 10% 25%
+      .get-captcha
         color: #fb7299
-      .options
-        padding: px2rem(40) px2rem(15) px2rem(60)
-    .overlay-wrapper
-      z-index: 3
-      visibility: hidden
-      &.show
-        visibility: visible
+    .captcha-wrapper
+      grid-template-columns: 22.5% 67.5% 10%
+      border-bottom: px2rem(1) solid #e7e7e7
+  .verify
+    margin: px2rem(10) px2rem(13) px2rem(20)
+    height: px2rem(45)
+    line-height @height
+    border-radius: px2rem(5)
+    text-align: center
+    color: #ffffff
+    pointer-events: none
+    background-color: #ff9db5
+    &.able
+      pointer-events: auto
+      background-color: #fb7299
+  .bottom-wrapper
+    padding: 0 px2rem(13)
+    color: #757575
+    text-align: center
+    .protocols-wrapper
+      text-align: center
+      font-size: px2rem(10)
+      span
+        color: #fb7299

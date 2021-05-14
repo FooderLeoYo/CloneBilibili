@@ -52,12 +52,17 @@ const URL_DANMMU_CONFIG = "https://api.live.bilibili.com/room/v1/Danmu/getConf?r
 const URL_GT_CAPTCHA = "https://passport.bilibili.com/web/captcha/combine?plat=6";
 // 获取加密公钥及密码盐值
 const URL_PW_KEYHASH = "https://passport.bilibili.com/login?act=getkey";
-// 验证登录信息并返回cookie
+// 验证密码登录信息并返回cookie
 const URL_PW_VERIFY = "https://passport.bilibili.com/web/login/v2";
 // 获取导航栏用户信息信息
 const URL_NAV_INFO = "http://api.bilibili.com/nav";
 // 获取手机区号
 const URL_AREA_CODE = "http://passport.bilibili.com/web/generic/country/list";
+// 获取短信验证码
+const URL_SMS_CAPTCHA = "http://passport.bilibili.com/web/sms/general/v2/send";
+// 验证短信登录信息并返回cookie
+const URL_SMS_VERIFY = "http://passport.bilibili.com/web/login/rapid";
+
 
 const userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) " +
   "AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
@@ -246,7 +251,7 @@ const fetchPWKeyAndHash = () => {
     .then(json => json);
 }
 
-const fetchLoginVerifyInfo = param => {
+const fetchPWVerifyInfo = param => {
   // 需要将参数转换成字符串
   // 但是不能用JSON.toString，因为它转出来的是json字符串，不符合application/x-www-form-urlencoded类型的参数要求
   const searchParam = new URLSearchParams(Object.entries(param)).toString();
@@ -270,6 +275,27 @@ const fetchAreaCode = () => {
   return fetch(URL_AREA_CODE)
     .then(res => res.json())
     .then(json => json);
+}
+
+const fetchSMSCaptcha = param => {
+  const searchParam = new URLSearchParams(Object.entries(param)).toString();
+
+  return fetch(URL_SMS_CAPTCHA, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', },
+    body: searchParam,
+  }).then(res => res.json())
+    .then(json => json);
+}
+
+const fetchSMSVerifyInfo = param => {
+  const searchParam = new URLSearchParams(Object.entries(param)).toString();
+
+  return fetch(URL_SMS_VERIFY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', },
+    body: searchParam,
+  }).then(res => res);
 }
 
 module.exports = {
@@ -296,7 +322,9 @@ module.exports = {
   fetchDanMuConfig,
   fetchGTCaptcha,
   fetchPWKeyAndHash,
-  fetchLoginVerifyInfo,
+  fetchPWVerifyInfo,
   fetchNavtUserInfo,
-  fetchAreaCode
+  fetchAreaCode,
+  fetchSMSCaptcha,
+  fetchSMSVerifyInfo
 }
