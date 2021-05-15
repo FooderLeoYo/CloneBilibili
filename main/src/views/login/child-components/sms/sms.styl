@@ -69,6 +69,8 @@
       .get-captcha
         border-left: px2rem(1.5) solid #e7e7e7
         text-align: right
+        &.disable
+          pointer-events: none
     .phone-wrapper
       grid-template-columns: 22.5% 42.5% 10% 25%
       .get-captcha
@@ -82,12 +84,14 @@
     line-height @height
     border-radius: px2rem(5)
     text-align: center
-    color: #ffffff
     pointer-events: none
-    background-color: #ff9db5
+    // background-color: #ff9db5
+    background-color: rgb(253, 202, 241)
+    color: rgb(227, 225, 225)
     &.able
       pointer-events: auto
       background-color: #fb7299
+      color: #ffffff
   .bottom-wrapper
     padding: 0 px2rem(13)
     color: #757575

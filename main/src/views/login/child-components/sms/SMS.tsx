@@ -31,9 +31,20 @@ function SMS(props: SMSProps) {
   const getCapRef: React.MutableRefObject<HTMLSpanElement> = useRef(null);
   const verifyBtnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
+  function checkPhoneFormat() {
+    const phoneNum = phoneRef.current.value;
+    const phoneReg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
+    return phoneReg.test(phoneNum);
+  }
+
+  function checkSMSFormat() {
+    const smsCaptcha = captchaRef.current.value;
+    const captchaReg = /^\d{6}\b/;
+    return captchaReg.test(smsCaptcha);
+  }
+
   let loginKey;
   let challengeValue;
-
   function geetestHandler(captchaObj) {
     captchaObj.onReady(() => captchaObj.verify())
       .onSuccess(() => {
@@ -51,6 +62,7 @@ function SMS(props: SMSProps) {
 
         getCaptcha(getCapParam).then(res => {
           console.log(res.message)
+
           verifyBtnRef.current.addEventListener("click", () => {
             const verifySMSParam = {
               cid: cid,
@@ -84,20 +96,50 @@ function SMS(props: SMSProps) {
     });
   }
 
-  function checkFormat() {
-    const phoneNum = phoneRef.current.value;
-    const smsCaptcha = captchaRef.current.value;
-    const phoneReg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
-    const captchaReg = /^\d{6}\b/;
-
-    if (captchaReg.test(smsCaptcha) && phoneReg.test(phoneNum)) {
+  function ableLoginBtn() {
+    if (checkPhoneFormat() && checkSMSFormat()) {
       verifyBtnRef.current.classList.add(style.able);
     } else {
       verifyBtnRef.current.classList.remove(style.able);
     }
   }
 
+  const [canSend, setCanSend] = useState(true);
+  const [cooldown, setCooldown] = useState(60);
+  const cooldownRef: React.MutableRefObject<number> = useRef(60);
+  useEffect(() => { cooldownRef.current = cooldown; }, [cooldown]);
+  let countdownTimer: number;
+  let resetTimer: number;
+  function handleGetCapClick() {
+    if (canSend) {
+      if (!checkPhoneFormat()) {
+        alert("手机号码格式不正确，请检查后重新输入");
+      } else {
+        const getCapDOM = getCapRef.current;
+
+        getRobertTestCap();
+        getCapDOM.classList.add(style.disable);
+        setCanSend(false);
+
+        countdownTimer = setInterval(() => {
+          const newTime = cooldownRef.current - 1;
+          getCapDOM.innerText = `${newTime}s后重试`;
+          setCooldown(newTime);
+        }, 1000);
+        resetTimer = setTimeout(() => {
+          getCapDOM.classList.remove(style.disable);
+          getCapDOM.innerText = "获取验证码";
+          clearInterval(countdownTimer);
+          setCanSend(true);
+          setCooldown(60);
+        }, 60000);
+      }
+    }
+  }
+
   useEffect(() => {
+    getAreaCode().then(res => setAllArea(res.data.common.concat(res.data.others)));
+
     moreRef.current.addEventListener("click", () => {
       areaBoxRef.current.classList.add(style.show);
       overlayRef.current.classList.add(style.show);
@@ -108,9 +150,7 @@ function SMS(props: SMSProps) {
     });
     overlayRef.current.addEventListener("touchmove", e => e.preventDefault());
 
-    getCapRef.current.addEventListener("click", () => getRobertTestCap());
-
-    getAreaCode().then(res => setAllArea(res.data.common.concat(res.data.others)));
+    getCapRef.current.addEventListener("click", () => handleGetCapClick());
   }, []);
 
   useEffect(() => {
@@ -164,7 +204,7 @@ function SMS(props: SMSProps) {
             maxLength={16}
             ref={phoneRef}
             onChange={e => {
-              checkFormat();
+              ableLoginBtn();
               setPhoneValue(e.currentTarget.value);
             }}
           />
@@ -185,7 +225,7 @@ function SMS(props: SMSProps) {
             maxLength={6}
             ref={captchaRef}
             onChange={e => {
-              checkFormat();
+              ableLoginBtn();
               setCaptchaValue(e.currentTarget.value);
             }}
           />

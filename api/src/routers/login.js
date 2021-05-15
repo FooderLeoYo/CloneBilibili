@@ -148,7 +148,7 @@ router.post("/login/verifysms", (req, res, next) => {
       }
 
       data.json().then(json => {
-        resData.json = json;
+        resData.data = json;
         res.send(resData);
       });
     } else {
