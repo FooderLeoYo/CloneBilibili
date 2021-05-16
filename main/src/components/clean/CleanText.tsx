@@ -3,7 +3,7 @@ import * as React from "react";
 import style from "./cleantext.styl?css-modules";
 
 
-interface CleanProps {
+interface CleanTextProps {
   inputValue: string;
   inputDOMRef: React.MutableRefObject<HTMLInputElement>;
   clickMethods?: Function;
@@ -11,7 +11,7 @@ interface CleanProps {
 
 const { useState, useRef, useEffect } = React;
 
-function CleanText(props: CleanProps) {
+function CleanText(props: CleanTextProps) {
   const { inputValue, inputDOMRef, clickMethods } = props;
 
   const [firstLetter, setFirstLetter] = useState(true);

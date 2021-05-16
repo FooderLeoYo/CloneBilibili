@@ -3,7 +3,7 @@ import JSEncrypt from 'jsencrypt'
 
 import { getGTCaptcha, getPWKeyAndHash, getPWVerifyInfo } from "../../../../api/login";
 
-import Clean from "../../../../components/clean/CleanText"
+import CleanText from "../../../../components/clean/CleanText"
 
 import style from "./password.styl?css-modules";
 
@@ -14,11 +14,14 @@ declare global {
 }
 
 interface PasswordProps {
+  setOpenEyes: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const { useRef, useEffect, useState } = React;
 
 function Password(props: PasswordProps) {
+  const { setOpenEyes } = props;
+
   const accountRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
   const passwordRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
   const loginBtnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
@@ -115,12 +118,15 @@ function Password(props: PasswordProps) {
     });
   }
 
-  function checkFormat() {
+  function checkAccountFormat() {
     const account = accountRef.current.value;
     const phoneReg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
     const emailReg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+    return phoneReg.test(account) || emailReg.test(account)
+  }
 
-    if (phoneReg.test(account) || emailReg.test(account) && passwordRef.current.value.length > 5) {
+  function ableLoginBtn() {
+    if (checkAccountFormat() && passwordRef.current.value.length > 5) {
       loginBtnRef.current.classList.add(style.able);
     } else {
       loginBtnRef.current.classList.remove(style.able);
@@ -128,6 +134,8 @@ function Password(props: PasswordProps) {
   }
 
   useEffect(() => {
+    passwordRef.current.addEventListener("focus", () => setOpenEyes(false));
+    passwordRef.current.addEventListener("blur", () => setOpenEyes(true));
     loginBtnRef.current.addEventListener("click", () => { getRobertTestCap(); });
   }, []);
 
@@ -141,16 +149,17 @@ function Password(props: PasswordProps) {
             className={style.phoneValue}
             type="text"
             placeholder="请输入手机号/邮箱"
-            autoComplete="off"
+            autoComplete="on"
             ref={accountRef}
             onChange={e => {
-              checkFormat();
+              ableLoginBtn();
               setAccountValue(e.currentTarget.value);
             }}
           />
-          <Clean
+          <CleanText
             inputValue={accountValue}
             inputDOMRef={accountRef}
+            clickMethods={() => loginBtnRef.current.classList.remove(style.able)}
           />
         </li>
         <li className={style.passwordWrapper}>
@@ -163,13 +172,14 @@ function Password(props: PasswordProps) {
             maxLength={20}
             ref={passwordRef}
             onChange={e => {
-              checkFormat();
+              ableLoginBtn();
               setPasswordValue(e.currentTarget.value);
             }}
           />
-          <Clean
+          <CleanText
             inputValue={passwordValue}
             inputDOMRef={passwordRef}
+            clickMethods={() => loginBtnRef.current.classList.remove(style.able)}
           />
         </li>
       </ul>

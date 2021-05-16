@@ -2,17 +2,19 @@ import * as React from "react";
 
 import { getAreaCode, getGTCaptcha, getCaptcha, getSMSVerifyInfo } from "../../../../api/login";
 
-import Clean from "../../../../components/clean/CleanText"
+import CleanText from "../../../../components/clean/CleanText"
 import Overlay from "./child-components/overlay/Overlay";
 
 import style from "./sms.styl?css-modules";
 
 interface SMSProps {
+  setOpenEyes: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const { useState, useRef, useEffect } = React;
 
 function SMS(props: SMSProps) {
+  const { setOpenEyes } = props;
 
   const [curAreaInx, setCurAreaInx] = useState(0);
   const [allArea, setAllArea] = useState([]);
@@ -151,6 +153,9 @@ function SMS(props: SMSProps) {
     overlayRef.current.addEventListener("touchmove", e => e.preventDefault());
 
     getCapRef.current.addEventListener("click", () => handleGetCapClick());
+
+    captchaRef.current.addEventListener("focus", () => setOpenEyes(false));
+    captchaRef.current.addEventListener("blur", () => setOpenEyes(true));
   }, []);
 
   useEffect(() => {
@@ -200,7 +205,7 @@ function SMS(props: SMSProps) {
             className={style.phoneValue}
             type="tel"
             placeholder="请输入常用手机号"
-            autoComplete="off"
+            autoComplete="on"
             maxLength={16}
             ref={phoneRef}
             onChange={e => {
@@ -208,9 +213,10 @@ function SMS(props: SMSProps) {
               setPhoneValue(e.currentTarget.value);
             }}
           />
-          <Clean
+          <CleanText
             inputValue={phoneValue}
             inputDOMRef={phoneRef}
+            clickMethods={() => verifyBtnRef.current.classList.remove(style.able)}
           />
           <span className={style.getCaptcha} ref={getCapRef}>获取验证码</span>
         </li>
@@ -229,9 +235,10 @@ function SMS(props: SMSProps) {
               setCaptchaValue(e.currentTarget.value);
             }}
           />
-          <Clean
+          <CleanText
             inputValue={captchaValue}
             inputDOMRef={captchaRef}
+            clickMethods={() => verifyBtnRef.current.classList.remove(style.able)}
           />
         </li>
       </ul>

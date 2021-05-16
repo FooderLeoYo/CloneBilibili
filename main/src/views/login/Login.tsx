@@ -3,6 +3,9 @@ import * as React from "react";
 import { getNavUserInfo } from "../../api/login";
 
 import Head from "./child-components/head/Head";
+import openEyesPic from "../../assets/images/login-open-eyes.png";
+import closeEyesPic from "../../assets/images/login-close-eyes.png";
+
 import SMS from "./child-components/sms/SMS";
 import Password from "./child-components/password/Password";
 
@@ -24,8 +27,8 @@ function Login(props: LoginProps) {
   return (
     <div className={style.loginWrapper}>
       <Head loginType={loginType} setLoginType={setLoginType} />
-      {openEyes ? <div>开眼</div> : <div>闭眼</div>}
-      { loginType === "短信登陆" ? <SMS /> : <Password />}
+      {openEyes ? <img className={style.loginPic} src={openEyesPic} alt="开眼" /> : <img className={style.loginPic} src={closeEyesPic} alt="闭眼" />}
+      { loginType === "短信登陆" ? <SMS setOpenEyes={setOpenEyes} /> : <Password setOpenEyes={setOpenEyes} />}
     </div>
   );
 }
