@@ -28,7 +28,7 @@ const webpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: [
       {
-        test: /\.(ts|tsx)$/,
+        test: /\.(ts|tsx|js)$/,
         use: [
           {
             // webpack默认只识别js结尾的文件

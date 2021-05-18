@@ -11,6 +11,8 @@ import Password from "./child-components/password/Password";
 
 import style from "./login.styl?css-modules";
 
+import Toast from "../../components/toast/index";
+
 interface LoginProps {
 }
 
@@ -22,6 +24,7 @@ function Login(props: LoginProps) {
 
   useEffect(() => {
     getNavUserInfo().then(res => console.log(res));
+    Toast.info('啊啊啊啊啊啊啊啊', 5000);
   }, []);
 
   return (

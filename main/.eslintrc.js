@@ -29,7 +29,6 @@ module.exports = {
     "react/prop-types": "off",
     "no-console": "off",
     "react-hooks/rules-of-hooks": "error",
-    // "react-hooks/exhaustive-deps": "warn"
   },
   settings: {
     react: {
