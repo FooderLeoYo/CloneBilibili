@@ -15,16 +15,18 @@ declare global {
 
 interface PasswordProps {
   setOpenEyes: React.Dispatch<React.SetStateAction<boolean>>;
+  setLoginType: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const { useRef, useEffect, useState } = React;
 
 function Password(props: PasswordProps) {
-  const { setOpenEyes } = props;
+  const { setOpenEyes, setLoginType } = props;
 
   const accountRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
   const passwordRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
   const loginBtnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
+  const signupBtnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
   const [accountValue, setAccountValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
@@ -136,7 +138,8 @@ function Password(props: PasswordProps) {
   useEffect(() => {
     passwordRef.current.addEventListener("focus", () => setOpenEyes(false));
     passwordRef.current.addEventListener("blur", () => setOpenEyes(true));
-    loginBtnRef.current.addEventListener("click", () => { getRobertTestCap(); });
+    loginBtnRef.current.addEventListener("click", () => getRobertTestCap());
+    signupBtnRef.current.addEventListener("click", () => setLoginType("短信登录"));
   }, []);
 
 
@@ -185,7 +188,7 @@ function Password(props: PasswordProps) {
       </ul>
       <div className={style.forget} onClick={() => alert("找回密码")}>忘记密码？</div>
       <div className={style.btnWrapper}>
-        <div className={style.signup}>注册</div>
+        <div className={style.signup} ref={signupBtnRef}>注册</div>
         <div className={style.login} ref={loginBtnRef}>登录</div>
       </div>
       <div className={style.protocolsWrapper}>

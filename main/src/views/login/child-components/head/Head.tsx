@@ -5,10 +5,9 @@ import style from "./head.styl?css-modules";
 interface LoginProps {
   loginType: string;
   setLoginType: React.Dispatch<React.SetStateAction<string>>;
-
 }
 
-const { useState, useRef, useEffect } = React;
+const { useRef, useEffect } = React;
 
 function Head(props: LoginProps) {
   const { loginType, setLoginType } = props;
@@ -28,14 +27,10 @@ function Head(props: LoginProps) {
             </svg>
           </div>
         </div>
-        <div className={style.tittle}>
-          {loginType}
-        </div>
+        <div className={style.tittle}>{loginType}</div>
         <div
           className={style.typeSwitch}
-          onClick={() => {
-            setLoginType(loginType === "短信登陆" ? "密码登录" : "短信登录")
-          }}
+          onClick={() => setLoginType(loginType === "短信登录" ? "密码登录" : "短信登录")}
         >
           {loginType === "短信登陆" ? "密码登录" : "短信登录"}
         </div>

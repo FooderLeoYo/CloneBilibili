@@ -19,19 +19,24 @@ interface LoginProps {
 const { useState, useEffect } = React;
 
 function Login(props: LoginProps) {
-  const [loginType, setLoginType] = useState("短信登陆");
+  const [loginType, setLoginType] = useState("短信登录");
   const [openEyes, setOpenEyes] = useState(true);
 
   useEffect(() => {
     getNavUserInfo().then(res => console.log(res));
-    Toast.info('啊啊啊啊啊啊啊啊', 5000);
   }, []);
 
   return (
     <div className={style.loginWrapper}>
       <Head loginType={loginType} setLoginType={setLoginType} />
+      {/* <button onClick={() => Toast.warning('啊啊啊啊啊啊啊啊', true, "", null, 5000)}>点击</button> */}
+      <button onClick={() => Toast.loading()}>点击</button>
       {openEyes ? <img className={style.loginPic} src={openEyesPic} alt="开眼" /> : <img className={style.loginPic} src={closeEyesPic} alt="闭眼" />}
-      { loginType === "短信登陆" ? <SMS setOpenEyes={setOpenEyes} /> : <Password setOpenEyes={setOpenEyes} />}
+      {
+        loginType === "短信登录" ?
+          <SMS setOpenEyes={setOpenEyes} /> :
+          <Password setOpenEyes={setOpenEyes} setLoginType={setLoginType} />
+      }
     </div>
   );
 }
