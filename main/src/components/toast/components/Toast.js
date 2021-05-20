@@ -1,19 +1,14 @@
 import Notification from './Notification';
 
-// Toast组件比较特殊
-// 因为<Toast />不会被直接渲染在DOM中
-// 而是动态插入页面中
-// Toast组件核心就是通过Notification暴露的重写方法 动态改变Notification
-let newNotification;
-// notice方法实际上就是集合参数 完成对Notification的改变
-async function notice(type, content, mask = false, iconClass, onClose, duration) {
-	if (!newNotification) { newNotification = await Notification.reWrite(); }
-
-	newNotification.createNotice({
+let notificationInstance;
+// notice方法实际上就是集合参数，完成对Notification的改变
+async function notice(type, content, needMask = false, iconName, onClose = undefined, duration = 3000) {
+	if (!notificationInstance) { notificationInstance = await Notification.createNotification(); }
+	notificationInstance.createNotice({
 		duration,
 		type,
-		mask,
-		iconClass,
+		needMask,
+		iconName,
 		content,
 		onClose: () => { if (onClose) onClose(); },
 	});
@@ -21,22 +16,22 @@ async function notice(type, content, mask = false, iconClass, onClose, duration)
 
 export default {
 	// 无动画
-	show: (content, mask, iconClass, onClose, duration) => (notice(undefined, content, mask, iconClass, onClose, duration)),
+	show: (content, needMask, iconName, onClose, duration) => (notice(undefined, content, needMask, iconName, onClose, duration)),
 	// 翻转效果
-	info: (content, mask, iconClass, onClose, duration) => (notice('info', content, mask, iconClass, onClose, duration)),
+	info: (content, needMask, iconName, onClose, duration) => (notice('info', content, needMask, iconName, onClose, duration)),
 	// 缩放效果
-	success: (content, mask, iconClass, onClose, duration) => (notice('success', content, mask, iconClass, onClose, duration)),
+	success: (content, needMask, iconName, onClose, duration) => (notice('success', content, needMask, iconName, onClose, duration)),
 	// 从下方滑入
-	warning: (content, mask, iconClass, onClose, duration) => (notice('warning', content, mask, iconClass, onClose, duration)),
+	warning: (content, needMask, iconName, onClose, duration) => (notice('warning', content, needMask, iconName, onClose, duration)),
 	// 抖动
-	error: (content, mask, iconClass, onClose, duration) => (notice('error', content, mask, iconClass, onClose, duration)),
+	error: (content, needMask, iconName, onClose, duration) => (notice('error', content, needMask, iconName, onClose, duration)),
 	// loading
-	loading: (content) => (notice(undefined, content || '加载中...', true, 'fa-circle-o-notch fa-spin', undefined, 0)),
+	loading: (content) => (notice(undefined, content || '加载中...', true, 'toastLoading', undefined, 0)),
 	// 销毁
 	hide() {
-		if (newNotification) {
-			newNotification.destroy();
-			newNotification = null;
+		if (notificationInstance) {
+			notificationInstance.destroy();
+			notificationInstance = null;
 		}
 	},
 }

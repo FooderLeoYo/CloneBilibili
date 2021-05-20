@@ -1,47 +1,5 @@
-@charset "UTF-8";
+@import "../../../assets/stylus/px2rem.styl"
 
-// 公共函数
-
-// 基本颜色属性等
-$viColor: #00b4a5;
-$darkViColor: #009486;
-$linearViColor: linear-gradient(to right, #31D5A1, #00B4A5);
-$lightGray: #ddd;
-$darkGray: #bbb;
-$textGray: #888;
-
-// px2rem并没有自动实现该功能 还是手动加上吧
-@mixin font-dpr($font-size){
-  font-size: $font-size;
-
-  [data-dpr="2"] & {
-    font-size: $font-size * 2;
-  }
-
-  [data-dpr="3"] & {
-    font-size: $font-size * 3;
-  }
-}
-
-@mixin border-top () {
-  border-top: 2px solid $lightGray;
-}
-
-@mixin border-bottom () {
-  border-bottom: 2px solid $lightGray;
-}
-
-@mixin list-item-bottom-line ($fromLeft: 40px) {
-  content: '';
-  display: block;
-  position: absolute;
-  left: $fromLeft;
-  bottom: 0;
-  width: 100%;
-  @include border-bottom();
-}
-
-// 公共动画库
 // 爆炸进入
 @keyframes BombIn {
   0% {
@@ -91,7 +49,6 @@ $textGray: #888;
     opacity: 1;
   }
 }
-
 
 // 摇晃
 @keyframes shake {
@@ -173,3 +130,47 @@ $textGray: #888;
     transform: translate3D(0, 10px, 0) rotateX(0);
   }
 }
+
+
+// Notice
+.notice-wrapper
+  position: absolute
+  box-sizing: border-box
+  left: 50%
+  top: 30%
+  margin: 0
+  width: 100%
+  padding: 20px 30px
+  background: rgba(0,0,0, .7)
+  border-radius: 10px
+  text-align: center
+  font-size: 28px
+  line-height: 42px
+  color: #fff
+  z-index: 1110
+  transition: all .3s
+  transform: translate3D(-50%, -50%, 0) scale(1, 1)
+  &.should-close 
+    transform: translate3D(-50%, -100%, 0)
+    opacity: 0
+  // 正常提示
+  &.info 
+    animation: Flop .5s linear
+  // 成功提示
+  &.success 
+    animation: BombIn .3s
+  // 警告提示⚠️
+  &.warning 
+    animation: slideInFromBottom .3s
+  // 错误提示
+  &.error 
+    animation: shake .5s
+  .icon-wrapper 
+    padding: 20px
+    font-size: 80px
+    text-align: center
+    color: #fff
+  .content 
+    font-size: 28px
+    text-align: center
+    color: #fff

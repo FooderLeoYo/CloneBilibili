@@ -1,11 +1,11 @@
-// Notice是Toast最底层组件
-// 每个黑色的小框框其实都是一个Notice
-// Notice核心就是组件初始化的时候 生成一个定时器
-// 根据输入的时间 加载一个动画 然后执行输入的回调
-// Notice的显示和隐藏收到父组件Notification的绝对控制
+/* Notice是Toast最底层组件
+每个黑色的小框框其实都是一个Notice
+Notice核心就是组件初始化的时候生成一个定时器
+根据输入的时间加载一个动画，然后执行输入的回调
+Notice的显示和隐藏受到父组件Notification的绝对控制 */
+
 import React from 'react';
-import classNames from 'classnames'
-import '../style/notice.scss';
+import style from '../style/notice.styl?css-modules';
 
 class Notice extends React.Component {
 	constructor(props) {
@@ -23,17 +23,17 @@ class Notice extends React.Component {
 	}
 
 	close() {
-		// 关闭的时候 应该先清掉倒数定时器
-		// 然后开启过场动画
-		// 等待动画结束 执行回调
-		this.clearCloseTimer();
 		const _this = this;
+
+		// 关闭的时候应该先清掉倒数定时器，然后才开启过场动画
+		this.clearCloseTimer();
 		_this.setState({ shouldClose: true });
-		this.timer = setTimeout(() => {
-			if (this.props.onClose) {
-				this.props.onClose();
-			}
-			clearTimeout(_this.timer);
+
+		// 300ms关闭动画结束后，才是真正的结束时刻，这时才调用onClose
+		this.animationTimer = setTimeout(() => {
+			if (this.props.onClose) { this.props.onClose(); }
+			clearTimeout(_this.animationTimer);
+			_this.animationTimer = null;
 		}, 300);
 	}
 
@@ -51,21 +51,21 @@ class Notice extends React.Component {
 	}
 
 	render() {
+		const { type, iconName, content } = this.props;
 		const { shouldClose } = this.state;
-		const { prefixCls, type, iconClass, content } = this.props;
+		const noticeType = shouldClose ? "shouldClose" : type;
 
 		return (
-			<div
-				className={classNames([prefixCls,
-					{ 'info': type === 'info' },
-					{ 'success': type === 'success' },
-					{ 'warning': type === 'warning' },
-					{ 'error': type === 'error' },
-					{ 'leave': shouldClose }
-				])}
-			>
-				{iconClass ? <div className={`${prefixCls}-icon`}><span className={classNames(['fa', iconClass])} /></div> : null}
-				<div className={`${prefixCls}-content`}>{content}</div>
+			<div className={style.noticeWrapper + " " + style[noticeType]}>
+				{
+					iconName ?
+						<div className={style.iconWrapper}>
+							<svg className="icon" aria-hidden="true">
+								<use href={`#icon-${iconName}`}></use>
+							</svg>
+						</div> : null
+				}
+				<div className={style.content}>{content}</div>
 			</div>
 		)
 	}
@@ -75,14 +75,9 @@ class Notice extends React.Component {
 // 	duration: React.PropTypes.number.isRequired, // Notice显示时间
 // 	prefixCls: React.PropTypes.string, // 前缀class
 // 	type: React.PropTypes.oneOf(['info', 'success', 'warning', 'error']), // notice类型
-// 	iconClass: React.PropTypes.string, // icon的class
+// 	iconName: React.PropTypes.string, // icon的class
 // 	content: React.PropTypes.any, // Notice显示的内容
 // 	onClose: React.PropTypes.func // 显示结束回调
 // };
-Notice.defaultProps = {
-	prefixCls: 'notice',
-	duration: 3000,
-	onClose: null
-};
 
 export default Notice

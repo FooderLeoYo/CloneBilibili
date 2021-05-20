@@ -1,0 +1,21 @@
+@import "../../../assets/stylus/px2rem.styl"
+
+.notification-wrapper
+  .mask 
+    background-color: rgba(0, 0, 0, 0.3)
+    transition: opacity .2s ease-in-out
+    will-change: opacity
+    position: fixed
+    top: 0
+    bottom: 0
+    right: 0
+    left: 0
+    pointer-events: all
+  .notices-wrapper 
+    position: fixed
+    left: 50%
+    top: 30%
+    width: 40%
+    height: px2rem(300)
+    transform: translate3D(-50%, -50%, 0)
+    z-index: 110

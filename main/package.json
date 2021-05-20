@@ -14,7 +14,6 @@
   "dependencies": {
     "@loadable/component": "^5.2.1",
     "@loadable/server": "^5.2.0",
-    "classnames": "^2.3.1",
     "cross-fetch": "^2.2.3",
     "express": "^4.16.4",
     "hls.js": "^0.12.4",
@@ -31,8 +30,6 @@
     "react-router-dom": "^5.2.0",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
-    "sass": "^1.32.13",
-    "sass-loader": "^10.1.0",
     "swiper": "^3.4.2"
   },
   "devDependencies": {
@@ -65,7 +62,6 @@
     "postcss-flexbugs-fixes": "^4.1.0",
     "postcss-loader": "^3.0.0",
     "rimraf": "^2.6.2",
-    "sass-loader": "^10.1.0",
     "style-loader": "^0.23.1",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",

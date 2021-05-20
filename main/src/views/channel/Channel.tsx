@@ -16,9 +16,9 @@ import Partition from "./child-components/partition/Partition";
 import VideoLatest from "./child-components/video-latest/VideoLatest";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 
-import { PartitionType, createPartitionTypes, Video, createVideoByRanking } from "../../class-object-creators";
+import { PartitionType, createPartitionTypes, createVideoByRanking } from "../../class-object-creators";
 import { getPicSuffix } from "../../customed-methods/image";
-import style from "./stylus/channel.styl?css-modules";
+import style from "./channel.styl?css-modules";
 
 interface ChannelProps {
   shouldLoad: boolean,
