@@ -43,6 +43,7 @@ const URL_LOGIN_NAV_INFO = prefix + "/login/getnavuserinfo";
 const URL_LOGIN_AREA_CODE = prefix + "/login/getareacode";
 const URL_LOGIN_SMS_CAPTCHA = prefix + "/login/getsmscaptcha";
 const URL_LOGIN_SMS_VERIFY = prefix + "/login/verifysms";
+const URL_LOGIN_EXIT_LOGIN = prefix + "/login/exitlogin";
 
 export {
   URL_INDEX,
@@ -75,5 +76,6 @@ export {
   URL_LOGIN_NAV_INFO,
   URL_LOGIN_AREA_CODE,
   URL_LOGIN_SMS_CAPTCHA,
-  URL_LOGIN_SMS_VERIFY
+  URL_LOGIN_SMS_VERIFY,
+  URL_LOGIN_EXIT_LOGIN
 }

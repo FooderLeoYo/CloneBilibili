@@ -1,6 +1,5 @@
-/* Notification是Notice父组件，容器
-是动态插入和删除DOM节点的核心
-同时也向上暴露给Toast重写改变自己的方法 */
+/*  Notification是Notice父组件，容器
+是动态插入和删除DOM节点的核心 */
 
 import React from 'react';
 import ReactDOM from 'react-dom';

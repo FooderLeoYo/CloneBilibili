@@ -62,11 +62,11 @@ const URL_AREA_CODE = "http://passport.bilibili.com/web/generic/country/list";
 const URL_SMS_CAPTCHA = "http://passport.bilibili.com/web/sms/general/v2/send";
 // 验证短信登录信息并返回cookie
 const URL_SMS_VERIFY = "http://passport.bilibili.com/web/login/rapid";
-
+// 退出登录
+const URL_EXIT_LOGIN = "http://passport.bilibili.com/login?act=exit";
 
 const userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) " +
   "AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
-
 
 
 const fetchUserData = uId => {
@@ -298,6 +298,11 @@ const fetchSMSVerifyInfo = param => {
   }).then(res => res);
 }
 
+const exitLogin = () => {
+  return fetch(URL_EXIT_LOGIN)
+    .then(res => res);
+}
+
 module.exports = {
   fetchUserData,
   fetchRoundSowing,
@@ -326,5 +331,6 @@ module.exports = {
   fetchNavtUserInfo,
   fetchAreaCode,
   fetchSMSCaptcha,
-  fetchSMSVerifyInfo
+  fetchSMSVerifyInfo,
+  exitLogin
 }

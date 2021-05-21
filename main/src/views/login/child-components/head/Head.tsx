@@ -32,7 +32,7 @@ function Head(props: LoginProps) {
           className={style.typeSwitch}
           onClick={() => setLoginType(loginType === "短信登录" ? "密码登录" : "短信登录")}
         >
-          {loginType === "短信登陆" ? "密码登录" : "短信登录"}
+          {loginType === "短信登录" ? "密码登录" : "短信登录"}
         </div>
       </div>
     </>

@@ -116,10 +116,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       });
     } else {
       // 如果不放到定时器里，LoadingCutscene会没来得及加载显示不出来
-      setTimeout(() => {
-        this.setState({ isDataOk: true });
-      }, 1);
-
+      setTimeout(() => { this.setState({ isDataOk: true }); });
       this.props.dispatch(setShouldLoad(true));
     }
 

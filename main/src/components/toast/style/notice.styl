@@ -75,16 +75,16 @@
     height: 0;
   }
   100% {
-    width: 160px;
-    height: 160px;
+    width: px2rem(160);
+    height: px2rem(160);
   }
 }
 
 // 160-0
 @keyframes scaleOut {
   0% {
-    width: 160px;
-    height: 160px;
+    width: px2rem(160);
+    height: px2rem(160);
     opacity: 1;
   }
   100% {
@@ -97,42 +97,52 @@
 //
 @keyframes turnUp {
   0% {
-    transform: translate3D(0, -10px, 0) rotateX(90deg);
+    transform: translate3D(0, px2rem(-10), 0) rotateX(90deg);
   }
   100% {
-    transform: translate3D(0, -10px, 0) rotateX(0);
+    transform: translate3D(0, px2rem(-10), 0) rotateX(0);
   }
 }
 
 @keyframes turnLeft {
   0% {
-    transform: translate3D(-10px, 0, 0) rotateY(90deg);
+    transform: translate3D(px2rem(-10), 0, 0) rotateY(90deg);
   }
   100% {
-    transform: translate3D(-10px, 0, 0) rotateY(0);
+    transform: translate3D(px2rem(-10), 0, 0) rotateY(0);
   }
 }
 
 @keyframes turnRight {
   0% {
-    transform: translate3D(10px, 0, 0) rotateY(90deg);
+    transform: translate3D(px2rem(10), 0, 0) rotateY(90deg);
   }
   100% {
-    transform: translate3D(10px, 0, 0) rotateY(0);
+    transform: translate3D(px2rem(10), 0, 0) rotateY(0);
   }
 }
 
 @keyframes turnBottom {
   0% {
-    transform: translate3D(0, 10px, 0) rotateX(90deg);
+    transform: translate3D(0, px2rem(10), 0) rotateX(90deg);
   }
   100% {
-    transform: translate3D(0, 10px, 0) rotateX(0);
+    transform: translate3D(0, px2rem(10), 0) rotateX(0);
   }
 }
 
+@keyframes loading {
+  0% {
+    -webkit-transform: rotate3d(0, 0, 1, 0deg);
+    transform: rotate3d(0, 0, 1, 0deg); 
+    }
+  100% {
+    -webkit-transform: rotate3d(0, 0, 1, 360deg);
+    transform: rotate3d(0, 0, 1, 360deg); 
+    } 
+}
 
-// Notice
+
 .notice-wrapper
   position: absolute
   box-sizing: border-box
@@ -140,12 +150,11 @@
   top: 30%
   margin: 0
   width: 100%
-  padding: 20px 30px
+  padding: px2rem(10) px2rem(25)
   background: rgba(0,0,0, .7)
-  border-radius: 10px
+  border-radius: px2rem(10)
   text-align: center
-  font-size: 28px
-  line-height: 42px
+  line-height: px2rem(42)
   color: #fff
   z-index: 1110
   transition: all .3s
@@ -166,11 +175,10 @@
   &.error 
     animation: shake .5s
   .icon-wrapper 
-    padding: 20px
-    font-size: 80px
+    font-size: px2rem(35)
     text-align: center
-    color: #fff
+    &.loading
+      animation: loading 1s steps(12, end) infinite
   .content 
-    font-size: 28px
+    font-size: px2rem(18)
     text-align: center
-    color: #fff
