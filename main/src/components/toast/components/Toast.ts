@@ -24,16 +24,16 @@ async function notice(type: string, content: string, needMask: boolean = false,
 export default {
 	// 翻转效果
 	info: (content: string, needMask: boolean, onClose: Function, duration: number) =>
-		(notice('info', content, needMask, "info", onClose, duration)),
+		(notice('info', content, needMask, "toast-info", onClose, duration)),
 	// 缩放效果
 	success: (content: string, needMask: boolean, onClose: Function, duration: number) =>
-		(notice('success', content, needMask, "success", onClose, duration)),
+		(notice('success', content, needMask, "toast-success", onClose, duration)),
 	// 从下方滑入
 	warning: (content: string, needMask: boolean, onClose: Function, duration: number) =>
-		(notice('warning', content, needMask, "warning", onClose, duration)),
+		(notice('warning', content, needMask, "toast-warning", onClose, duration)),
 	// 抖动
 	error: (content: string, needMask: boolean, onClose: Function, duration: number) =>
-		(notice('error', content, needMask, "error", onClose, duration)),
+		(notice('error', content, needMask, "close", onClose, duration)),
 	// loading
 	loading: (content: string = '加载中...') => (notice(undefined, content, true, 'loading', undefined, 0)),
 	// 无动画

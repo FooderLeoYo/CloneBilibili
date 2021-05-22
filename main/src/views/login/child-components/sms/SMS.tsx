@@ -4,6 +4,7 @@ import { getAreaCode, getGTCaptcha, getCaptcha, getSMSVerifyInfo } from "../../.
 
 import CleanText from "../../../../components/clean/CleanText"
 import Overlay from "./child-components/overlay/Overlay";
+import Toast from "../../../../components/toast/index";
 
 import style from "./sms.styl?css-modules";
 
@@ -48,53 +49,85 @@ function SMS(props: SMSProps) {
   let loginKey;
   let challengeValue;
   function geetestHandler(captchaObj) {
-    captchaObj.onReady(() => captchaObj.verify())
-      .onSuccess(() => {
-        const { geetest_validate, geetest_seccode } = captchaObj.getValidate();
-        const getCapParam = {
-          tel: phoneRef.current.value,
-          cid: cid,
-          type: 21,
-          captchaType: 6,
-          key: loginKey,
-          challenge: challengeValue,
-          validate: geetest_validate,
-          seccode: geetest_seccode
+    captchaObj.onReady(() => {
+      Toast.hide();
+      captchaObj.verify();
+    }).onSuccess(() => {
+      const { geetest_validate, geetest_seccode } = captchaObj.getValidate();
+      const getCapParam = {
+        tel: phoneRef.current.value,
+        cid: cid,
+        type: 21,
+        captchaType: 6,
+        key: loginKey,
+        challenge: challengeValue,
+        validate: geetest_validate,
+        seccode: geetest_seccode
+      }
+
+      getCaptcha(getCapParam).then(res => {
+        const { code, data } = res;
+        if (code === 0) {
+          Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
+        } else {
+          const { code, message } = data;
+
+          if (code === 0) {
+            Toast.success(message, false, null, 2000);
+            verifyBtnRef.current.addEventListener("click", () => {
+              const verifySMSParam = {
+                cid: cid,
+                tel: phoneRef.current.value,
+                smsCode: captchaRef.current.value
+              }
+
+              Toast.loading("正在登录，请稍等……");
+              getSMSVerifyInfo(verifySMSParam).then(res => {
+                const { code, data } = res;
+
+                Toast.hide();
+                if (code === 0) {
+                  Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
+                } else {
+                  const { code, message } = data;
+
+                  if (code === 0) {
+                    // 登录成功后的操作
+                  } else { Toast.error(message, false, null, 2000); }
+                }
+              })
+            });
+          } else { Toast.error(message, false, null, 2000); }
         }
 
-        getCaptcha(getCapParam).then(res => {
-          console.log(res.message)
-
-          verifyBtnRef.current.addEventListener("click", () => {
-            const verifySMSParam = {
-              cid: cid,
-              tel: phoneRef.current.value,
-              smsCode: captchaRef.current.value
-            }
-            console.log(verifySMSParam)
-            getSMSVerifyInfo(verifySMSParam).then(res => console.log(res))
-          });
-        })
-      });
+      })
+    });
   }
 
   function getRobertTestCap() {
     getGTCaptcha().then(capData => {
-      const { gt, challenge, key } = capData.data.result;
-      loginKey = key;
-      challengeValue = challenge;
+      const { code, data } = capData;
 
-      // 调用 initGeetest 进行初始化
-      window.initGeetest({
-        // 以下 4 个配置参数为必须，不能缺少
-        gt: gt,
-        challenge: challenge,
-        offline: false, // 表示用户后台检测极验服务器是否宕机
-        new_captcha: true, // 用于宕机时表示是新验证码的宕机
+      if (code === 0) {
+        Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
+      } else {
+        const { gt, challenge, key } = data.result;
+        loginKey = key;
+        challengeValue = challenge;
 
-        product: "bind", // 验证图弹出形式
-        https: true
-      }, geetestHandler);
+        Toast.loading("人机验证加载中……");
+        // 调用 initGeetest 进行初始化
+        window.initGeetest({
+          // 以下 4 个配置参数为必须，不能缺少
+          gt: gt,
+          challenge: challenge,
+          offline: false, // 表示用户后台检测极验服务器是否宕机
+          new_captcha: true, // 用于宕机时表示是新验证码的宕机
+
+          product: "bind", // 验证图弹出形式
+          https: true
+        }, geetestHandler);
+      }
     });
   }
 
@@ -114,33 +147,38 @@ function SMS(props: SMSProps) {
   let resetTimer: number;
   function handleGetCapClick() {
     if (canSend) {
-      if (!checkPhoneFormat()) {
-        alert("手机号码格式不正确，请检查后重新输入");
-      } else {
-        const getCapDOM = getCapRef.current;
+      // if (!checkPhoneFormat()) {
+      //   Toast.warning('手机号码格式不正确，请检查后重新输入', false, null, 2000)
+      // } else {
+      const getCapDOM = getCapRef.current;
 
-        getRobertTestCap();
-        getCapDOM.classList.add(style.disable);
-        setCanSend(false);
+      getRobertTestCap();
+      getCapDOM.classList.add(style.disable);
+      setCanSend(false);
 
-        countdownTimer = setInterval(() => {
-          const newTime = cooldownRef.current - 1;
-          getCapDOM.innerText = `${newTime}s后重试`;
-          setCooldown(newTime);
-        }, 1000);
-        resetTimer = setTimeout(() => {
-          getCapDOM.classList.remove(style.disable);
-          getCapDOM.innerText = "获取验证码";
-          clearInterval(countdownTimer);
-          setCanSend(true);
-          setCooldown(60);
-        }, 60000);
-      }
+      countdownTimer = setInterval(() => {
+        const newTime = cooldownRef.current - 1;
+        getCapDOM.innerText = `${newTime}s后重试`;
+        setCooldown(newTime);
+      }, 1000);
+      resetTimer = setTimeout(() => {
+        getCapDOM.classList.remove(style.disable);
+        getCapDOM.innerText = "获取验证码";
+        clearInterval(countdownTimer);
+        setCanSend(true);
+        setCooldown(60);
+      }, 60000);
+      // }
     }
   }
 
   useEffect(() => {
-    getAreaCode().then(res => setAllArea(res.data.common.concat(res.data.others)));
+    getAreaCode().then(res => {
+      const { code, data } = res;
+      if (code === 0) {
+        Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
+      } else { setAllArea(data.common.concat(res.data.others)); }
+    });
 
     moreRef.current.addEventListener("click", () => {
       areaBoxRef.current.classList.add(style.show);

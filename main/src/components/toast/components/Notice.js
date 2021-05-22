@@ -54,16 +54,18 @@ class Notice extends React.Component {
 		const { type, iconName, content } = this.props;
 		const { shouldClose } = this.state;
 		const noticeType = shouldClose ? "shouldClose" : type;
-		const iconClassName = iconName === "loading" ? style.iconWrapper + " " + style[iconName] : style.iconWrapper;
 
 		return (
 			<div className={style.noticeWrapper + " " + style[noticeType]}>
 				{
 					iconName ?
-						<div className={iconClassName}>
-							<svg className="icon" aria-hidden="true">
-								<use href={`#icon-toast-${iconName}`}></use>
-							</svg>
+						<div className={style.iconWrapper}>
+							{
+								iconName === "loading" ? <span className={style.loadingIcon}></span> :
+									<svg className="icon" aria-hidden="true">
+										<use href={`#icon-${iconName}`}></use>
+									</svg>
+							}
 						</div> : null
 				}
 				<div className={style.content}>{content}</div>

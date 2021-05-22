@@ -151,11 +151,11 @@
   margin: 0
   width: 100%
   padding: px2rem(10) px2rem(25)
-  background: rgba(0,0,0, .7)
+  background: rgba(0,0,0,.7)
   border-radius: px2rem(10)
   text-align: center
   line-height: px2rem(42)
-  color: #fff
+  color: #ffffff
   z-index: 1110
   transition: all .3s
   transform: translate3D(-50%, -50%, 0) scale(1, 1)
@@ -177,7 +177,13 @@
   .icon-wrapper 
     font-size: px2rem(35)
     text-align: center
-    &.loading
+    .loading-icon
+      display: inline-block
+      width: px2rem(35) 
+      height: @width
+      border: px2rem(3) solid #ffffff
+      border-top: px2rem(3) solid rgba(255,255,255,0)
+      border-radius: 50%
       animation: loading 1s steps(12, end) infinite
   .content 
     font-size: px2rem(18)

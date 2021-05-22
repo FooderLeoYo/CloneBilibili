@@ -4,6 +4,7 @@ import JSEncrypt from 'jsencrypt'
 import { getGTCaptcha, getPWKeyAndHash, getPWVerifyInfo } from "../../../../api/login";
 
 import CleanText from "../../../../components/clean/CleanText"
+import Toast from "../../../../components/toast/index";
 
 import style from "./password.styl?css-modules";
 
@@ -35,12 +36,19 @@ function Password(props: PasswordProps) {
   let challengeValue;
 
   function geetestHandler(captchaObj) {
-    captchaObj.onReady(() => captchaObj.verify())
-      .onSuccess(() => {
-        const { geetest_validate, geetest_seccode } = captchaObj.getValidate();
+    captchaObj.onReady(() => {
+      Toast.hide();
+      captchaObj.verify();
+    }).onSuccess(() => {
+      const { geetest_validate, geetest_seccode } = captchaObj.getValidate();
 
-        getPWKeyAndHash().then(pwRes => {
-          const { key, hash } = pwRes.data;
+      getPWKeyAndHash().then(pwRes => {
+        const { code, data } = pwRes;
+
+        if (code === 0) {
+          Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
+        } else {
+          const { key, hash } = data;
           const encryptor = new JSEncrypt({});  // 创建加密对象实例
           encryptor.setPublicKey(key);//设置公钥
           const rsaPassWord = encryptor.encrypt(hash + passwordRef.current.value);  // 对内容进行加密
@@ -55,68 +63,50 @@ function Password(props: PasswordProps) {
             seccode: geetest_seccode
           }
 
+          Toast.loading("正在登录，请稍等……");
           getPWVerifyInfo(param).then(res => {
-            const { code, json } = res;
+            const { code, data } = res;
+
+            Toast.hide();
             if (code === 0) {
-              // console.log("哇！服务器太忙了，您稍等片刻昂……");
-              console.log("本地服务器出错");
+              Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
             } else {
-              const { code, data, message } = json;
-              if (data) {
-                console.log("登陆成功");
-              } else if (message.length > 0) {
-                console.log(message);
-              } else {
-                switch (code) {
-                  case -629:
-                    console.log("账号或密码错误");
-                    break;
-                  case -653:
-                    console.log("用户名或密码不能为空");
-                    break;
-                  case -662:
-                    console.log("提交超时,请重新提交");
-                    break;
-                  case -2100:
-                    console.log("需验证手机号或邮箱");
-                    break;
-                  case -2001:
-                    console.log("缺少必要的的参数");
-                    break;
-                  case 2400:
-                    console.log("登录秘钥错误");
-                    break;
-                  case 2406:
-                    console.log("验证极验服务出错");
-                    break;
-                  default:
-                    console.log("哇！服务器太忙了，您稍等片刻昂……");
-                    break;
-                }
-              }
+              const { code, message } = data;
+
+              if (code === 0) {
+                // 登录成功后的操作
+              } else { Toast.error(message, false, null, 2000); }
             }
           })
-        });
+        }
       });
+    });
   }
 
   function getRobertTestCap() {
     getGTCaptcha().then(capData => {
-      const { gt, challenge, key } = capData.data.result;
-      loginKey = key;
-      challengeValue = challenge;
+      const { code, data } = capData;
 
-      // 调用 initGeetest 进行初始化
-      window.initGeetest({
-        // 以下 4 个配置参数为必须，不能缺少
-        gt: gt,
-        challenge: challenge,
-        offline: false, // 表示用户后台检测极验服务器是否宕机
-        new_captcha: true, // 用于宕机时表示是新验证码的宕机
+      if (code === 0) {
+        Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
+      } else {
+        const { gt, challenge, key } = data.result;
+        loginKey = key;
+        challengeValue = challenge;
 
-        product: "bind", // 验证图弹出形式
-        https: true
-      }, geetestHandler);
+        Toast.loading("人机验证加载中……");
+        // 调用 initGeetest 进行初始化
+        window.initGeetest({
+          // 以下 4 个配置参数为必须，不能缺少
+          gt: gt,
+          challenge: challenge,
+          offline: false, // 表示用户后台检测极验服务器是否宕机
+          new_captcha: true, // 用于宕机时表示是新验证码的宕机
+
+          product: "bind", // 验证图弹出形式
+          https: true
+        }, geetestHandler);
+      }
     });
   }
 

@@ -36,10 +36,10 @@ function Login(props: LoginProps) {
         <div onClick={() => Toast.success('啊啊啊啊啊啊啊啊', false, null, 2000)}>success</div>
         <div onClick={() => Toast.warning('啊啊啊啊啊啊啊啊', false, null, 2000)}>warning</div>
         <div onClick={() => Toast.error('啊啊啊啊啊啊啊啊', false, null, 2000)}>error</div>
-        <div onClick={() => Toast.loading()}>loading</div>
         <div onClick={() => Toast.noAni('啊啊啊啊啊啊啊啊', false, "", () => alert("回调"), 2000)}>noAni</div>
         <div onClick={() => Toast.hide()}>hide</div>
         <div onClick={() => exitLogin()}>注销登录</div>
+        <div onClick={() => Toast.loading()}>loading</div>
         {openEyes ? <img className={style.loginPic} src={openEyesPic} alt="开眼" /> : <img className={style.loginPic} src={closeEyesPic} alt="闭眼" />}
         {
           loginType === "短信登录" ? <SMS setOpenEyes={setOpenEyes} /> :

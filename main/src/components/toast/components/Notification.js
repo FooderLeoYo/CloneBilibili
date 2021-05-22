@@ -16,6 +16,7 @@ const createID = () => {
 class Notification extends React.Component {
 	constructor(props) {
 		super(props);
+		this.noticesWraRef = React.createRef();
 		this.state = {
 			noticesProps: [], // 存储当前有的notices的Props
 			hasMask: false, // 是否显示蒙版
@@ -49,8 +50,10 @@ class Notification extends React.Component {
 
 		noticesProps.map(notice => {
 			// 每个Notice onClose的时候，删除掉state中对应key的notice
+			this.noticesWraRef.current.classList.remove(style.hide);
 			const closeCallback = () => {
 				_this.removeTarState(notice.key);
+				_this.noticesWraRef.current.classList.add(style.hide);
 				if (notice.onClose) notice.onClose();
 			};
 
@@ -67,7 +70,7 @@ class Notification extends React.Component {
 		return (
 			<div className={style.notificationWrapper}>
 				{noticesProps.length > 0 && hasMask ? <div className={style.mask} /> : null}
-				<div className={style.noticesWrapper}>{noticesDOM}</div>
+				<div className={style.noticesWrapper} ref={this.noticesWraRef}>{noticesDOM}</div>
 			</div>
 		)
 	}
