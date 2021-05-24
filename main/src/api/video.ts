@@ -1,10 +1,11 @@
-import { getJSON } from "./fetch";
+import { getJSON, postJSON } from "./fetch";
 import {
   URL_VIDEO_DETAIL,
   URL_PLAY_URL,
   URL_VIDEO_RECOMMEND,
   URL_VIDEO_REPLAY,
-  URL_VIDEO_BARRAG
+  URL_VIDEO_BARRAG,
+  URL_VIDEO_REPORT
 } from "./url";
 
 /**
@@ -32,7 +33,7 @@ export function getRecommendVides(aId: number) {
  * 获取评论列表
  */
 export function getComments(aId: number, p: number) {
-  return getJSON(URL_VIDEO_REPLAY, {aId, p});
+  return getJSON(URL_VIDEO_REPLAY, { aId, p });
 }
 
 /**
@@ -40,4 +41,12 @@ export function getComments(aId: number, p: number) {
  */
 export function getBarrages(cId: number) {
   return getJSON(URL_VIDEO_BARRAG + `/${cId}`, null)
+}
+
+/* 
+上报观看记录
+ */
+export function postReport(param) {
+  console.log(param)
+  return postJSON(URL_VIDEO_REPORT, param);
 }

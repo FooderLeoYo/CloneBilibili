@@ -20,6 +20,7 @@ const URL_VIDEO_RECOMMEND = prefix + "/av/recommend";
 const URL_VIDEO_REPLAY = prefix + "/av/replay";
 const URL_VIDEO_BARRAG = prefix + "/av/barrage";
 const URL_PLAY_URL = prefix + "/av/play_url";
+const URL_VIDEO_REPORT = prefix + "/av/report";
 
 const URL_UP_USER = prefix + "/up";
 const URL_USER_VIDEO = prefix + "/up/video";
@@ -44,6 +45,8 @@ const URL_LOGIN_AREA_CODE = prefix + "/login/getareacode";
 const URL_LOGIN_SMS_CAPTCHA = prefix + "/login/getsmscaptcha";
 const URL_LOGIN_SMS_VERIFY = prefix + "/login/verifysms";
 const URL_LOGIN_EXIT_LOGIN = prefix + "/login/exitlogin";
+
+const URL_SPACE_GET_HISTORY = prefix + "/space/gethistory";
 
 export {
   URL_INDEX,
@@ -77,5 +80,7 @@ export {
   URL_LOGIN_AREA_CODE,
   URL_LOGIN_SMS_CAPTCHA,
   URL_LOGIN_SMS_VERIFY,
-  URL_LOGIN_EXIT_LOGIN
+  URL_LOGIN_EXIT_LOGIN,
+  URL_SPACE_GET_HISTORY,
+  URL_VIDEO_REPORT
 }

@@ -7,12 +7,14 @@ const URL_UP_USER = "https://api.bilibili.com/x/space/acc/info?mid={mid}";
 const URL_UP_USER_STATUS = "https://api.bilibili.com/x/relation/stat?vmid={mid}";
 // 首页轮播
 const URL_ROUND_SOWING = "https://api.bilibili.com/x/web-show/res/loc?pf=7&id=1695";
+
 // 排行榜
 const URL_RANKING = "https://api.bilibili.com/x/web-interface/ranking?rid={rid}&day=3";
 // 分类排行榜
 const URL_RANKING_REGION = "https://api.bilibili.com/x/web-interface/ranking/region?rid={rid}&day={day}";
 // 当前分类排行
 const URL_RANKING_ARCHIVE = "https://api.bilibili.com/archive_rank/getarchiverankbypartion?tid={tid}&pn={p}";
+
 // 视频详情
 const URL_VIDEO_DETAIL = "https://api.bilibili.com/x/web-interface/view?aid={aid}&bvid=";
 // 详情推荐
@@ -25,6 +27,9 @@ const URL_BARRAGE = "https://api.bilibili.com/x/v1/dm/list.so?oid={cid}";
 const URL_REPLAY = "https://api.bilibili.com/x/v2/reply?type=1&sort=2&oid={oid}&pn={p}&nohot=1";
 // 用户视频
 const URL_VIDEO = "https://api.bilibili.com/x/space/arc/search?pn={p}&ps={size}&order=click&keyword=&mid={mid}"
+// 上报观看记录
+const URL_VIEWED_REPORT = "http://api.bilibili.com/x/v2/history/report";
+
 // 热搜
 const URL_HOT_WORD = "https://s.search.bilibili.com/main/hotword";
 // 搜索推荐
@@ -65,10 +70,14 @@ const URL_SMS_VERIFY = "http://passport.bilibili.com/web/login/rapid";
 // 退出登录
 const URL_EXIT_LOGIN = "http://passport.bilibili.com/login?act=exit";
 
+// 获取历史记录
+const URL_GET_HISTORY = "http://api.bilibili.com/x/web-interface/history/cursor";
+
 const userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) " +
   "AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
 
 
+/* 主页相关 */
 const fetchUserData = uId => {
   return Promise.all([
     // fetch会发送请求到指定路径，然后返回一个包含响应结果的promise(一个Response对象)
@@ -94,6 +103,8 @@ const fetchRoundSowing = () => {
     .then(json => json);
 }
 
+
+/* 排行榜相关 */
 const fetchRankingById = rId => {
   return fetch(URL_RANKING.replace("{rid}", rId))
     .then(res => res.json())
@@ -112,6 +123,8 @@ const fetchRankingArchiveById = (tId, p) => {
     .then(json => json);
 }
 
+
+/* 视频相关 */
 const fetchVideoDetail = aId => {
   return fetch(URL_VIDEO_DETAIL.replace("{aid}", aId))
     .then(res => res.json())
@@ -142,6 +155,26 @@ const fetchBarrage = cId => {
     .then(body => body)
 }
 
+const postViewedReport = (param, cookie) => {
+  const rawString = cookie;
+  const SDataPos = rawString.indexOf("SESSDATA");
+  const bjctPos = rawString.indexOf("bili_jct");
+  const SESSDATA = rawString.substring(SDataPos + 9, bjctPos - 2);
+
+  // const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${SESSDATA}`;
+  const searchParam = new URLSearchParams(Object.entries(param)).toString();
+
+
+  return fetch(URL_VIEWED_REPORT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: searchParam,
+  }).then(res => res.json())
+    .then(json => json);
+}
+
+
+/* UP主空间相关 */
 const fetchUserVideo = param => {
   return fetch(URL_VIDEO.replace("{mid}", param.uId)
     .replace("{p}", param.p)
@@ -150,6 +183,8 @@ const fetchUserVideo = param => {
     .then(json => json);
 }
 
+
+/* 搜索相关 */
 const fetchHotWord = () => {
   return fetch(URL_HOT_WORD)
     .then(res => res.json())
@@ -186,6 +221,8 @@ const fetchSearchContent = param => {
     .then(json => json);
 }
 
+
+/* 直播相关 */
 const fetchLiveList = () => {
   return fetch(URL_LIVE_INDEX)
     .then(res => res.json())
@@ -239,6 +276,8 @@ const fetchDanMuConfig = roomId => {
     .then(json => json);
 }
 
+
+/* 登录相关 */
 const fetchGTCaptcha = () => {
   return fetch(URL_GT_CAPTCHA)
     .then(res => res.json())
@@ -292,7 +331,7 @@ const fetchSMSVerifyInfo = param => {
   const searchParam = new URLSearchParams(Object.entries(param)).toString();
 
   return fetch(URL_SMS_VERIFY, {
-    method: 'POST',
+    method: 'GET',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded', },
     body: searchParam,
   }).then(res => res);
@@ -301,6 +340,23 @@ const fetchSMSVerifyInfo = param => {
 const exitLogin = () => {
   return fetch(URL_EXIT_LOGIN)
     .then(res => res);
+}
+
+
+/* 个人空间相关 */
+const fetchHistory = (param, cookie) => {
+  let fetchUrl;
+  if (param.max != undefined) {
+    const searchParam = new URLSearchParams(Object.entries(param)).toString();
+    fetchUrl = URL_GET_HISTORY + "?" + searchParam;
+  } else { fetchUrl = URL_GET_HISTORY; }
+  console.log(fetchUrl)
+
+  return fetch(fetchUrl, {
+    method: "GET",
+    headers: { "cookie": cookie },
+  }).then(res => res.json())
+    .then(json => json);
 }
 
 module.exports = {
@@ -314,6 +370,7 @@ module.exports = {
   fetchRecommendById,
   fetchReplay,
   fetchBarrage,
+  postViewedReport,
   fetchUserVideo,
   fetchHotWord,
   fetchSuggest,
@@ -332,5 +389,6 @@ module.exports = {
   fetchAreaCode,
   fetchSMSCaptcha,
   fetchSMSVerifyInfo,
-  exitLogin
+  exitLogin,
+  fetchHistory
 }

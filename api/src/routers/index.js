@@ -7,6 +7,8 @@ const searchRouter = require("./search");
 const transferRouter = require("./transfer");
 const liveRouter = require("./live");
 const loginRouter = require("./login");
+const spaceRouter = require("./space");
+
 
 const router = express.Router();
 
@@ -18,5 +20,6 @@ router.use(searchRouter);
 router.use(transferRouter);
 router.use(liveRouter);
 router.use(loginRouter);
+router.use(spaceRouter);
 
 module.exports = router;

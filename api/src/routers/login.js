@@ -80,7 +80,7 @@ router.get("/login/getnavuserinfo", (req, res, next) => {
       code: "1",
       msg: "success"
     }
-    if (data.code === 0) { resData.data = data.data; }
+    if (data.code === 0) { resData.data = data; }
     else {
       resData.code = "0";
       resData.msg = "fail";

@@ -15,6 +15,7 @@ interface VideoItemPortraitProps {
 
 const VideoItemPortrait = (props: VideoItemPortraitProps) => {
   const { video, showStatistics, lazyOffset } = props;
+
   return (
     <div className={style.video}>
       {/* <a className={style.videoLink} href={"/video/av" + video.aId}> */}

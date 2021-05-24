@@ -16,24 +16,14 @@ class App extends React.Component {
           <Helmet>
             <title>( ゜- ゜)つロ干杯~</title>
             <meta name="title" content="Bilibili-( ゜- ゜)つロ干杯~" />
-            <meta name="keywords" content="React,服务端渲染" />
-            <meta name="description" content="高仿Bilibili" />
           </Helmet>
           <Switch>
-            {
-              router.map((route, i) =>
-                // {...route}表示传递route对象给NestedRoute的(route)
-                <NestedRoute {...route} key={i} />
-              )
-            }
+            {/* {...route}表示传递route对象给NestedRoute的(route) */}
+            {router.map((route, i) => <NestedRoute {...route} key={i} />)}
             <Redirect from="/" to="/index" exact={true} />
             {/* StatusRoute不需要给匹配条件 */}
             {/* 因为如果上面的路由都不匹配，那这个路径就没有组件与之匹配，也即404 */}
-            <StatusRoute code={404}>
-              <div>
-                <h1>Not Found</h1>
-              </div>
-            </StatusRoute>
+            <StatusRoute code={404}><div><h1>Not Found</h1></div></StatusRoute>
           </Switch>
         </div>
       </Context.Provider>

@@ -5,7 +5,7 @@ import LazyLoad from "react-lazyload";
 import { History } from "history";
 
 import Context from "../../context";
-import { getRecommendVides, getComments } from "../../api/video";
+import { getRecommendVides, getComments, postReport } from "../../api/video";
 import storage from "../../customed-methods/storage";
 import getVideoDetail from "../../redux/async-action-creators/video";
 import { setShouldLoad } from "../../redux/action-creators";
@@ -350,6 +350,14 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     }
   }
 
+  public componentWillUnmount() {
+    const { aid, cid } = this.state.videoData;
+    postReport({
+      aid: aid,
+      cid: cid
+    }).then(res => console.log(res));
+  }
+
   /* 以下为渲染部分 */
   public render() {
     const video = this.state.videoData;
@@ -389,6 +397,13 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                     isLive={false}
                   />
                 </div>
+                <div onClick={() => {
+                  const { aid, cid } = this.state.videoData;
+                  postReport({
+                    aid: aid,
+                    cid: cid
+                  }).then(res => console.log(res));
+                }}>上报观看记录！！！！！！！！！！</div>
                 {/* 视频信息 */}
                 <div className={style.videoInfoContainer} ref={this.infoContainerRef}>
                   <span

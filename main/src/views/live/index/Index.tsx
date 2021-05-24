@@ -148,7 +148,7 @@ function Index(props: IndexProps) {
                         <h4 className={style.title}>
                           {item.areaName ? item.areaName : item.parentAreaName}
                           <span className={style.more} onClick={() => {
-                            window.location.href = `/live/list` +
+                            location.href = `/live/list` +
                               `?parent_area_id=${item.parentAreaId}` +
                               `&parent_area_name=${item.parentAreaName}` +
                               `&area_id=${item.areaId}` +

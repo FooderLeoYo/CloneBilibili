@@ -4,7 +4,8 @@ const {
   fetchPlayUrl,
   fetchRecommendById,
   fetchReplay,
-  fetchBarrage
+  fetchBarrage,
+  postViewedReport
 } = require("../api");
 // xml2js的作用是将后台返回的 xml 代码转换为前台可使用的 json 格式的字符串
 const { parseString } = require("xml2js");
@@ -114,6 +115,23 @@ router.get("/av/barrage/:cId", (req, res, next) => {
       }
     });
 
+  }).catch(next);
+});
+
+router.post("/av/report", (req, res, next) => {
+  console.log(req.body)
+  postViewedReport(req.body, req.headers.cookie).then(data => {
+    let resData = {
+      code: "1",
+      msg: "success",
+    }
+    if (data.code != 0) {
+      resData.code = "0";
+      resData.msg = "fail";
+    }
+    resData.data = data;
+
+    res.send(resData);
   }).catch(next);
 });
 

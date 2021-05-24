@@ -14,7 +14,7 @@ function Head(props: LoginProps) {
   const backRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
   useEffect(() => {
-    backRef.current.addEventListener("click", () => window.history.back());
+    backRef.current.addEventListener("click", () => history.back());
   }, []);
 
   return (

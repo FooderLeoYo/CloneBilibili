@@ -1,23 +1,29 @@
 import * as React from "react";
+import { History } from "history";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
+
+import { getHistory } from "../../../../api/space";
+import storage, { ViewHistory } from "../../../../customed-methods/storage";
+import { formatDate } from "../../../../customed-methods/datetime";
 
 import { Switcher } from "../../../../components/switcher/Switcher";
 import ScrollToTop from "../../../../components/scroll-to-top/ScrollToTop";
 
-import storage, { ViewHistory } from "../../../../customed-methods/storage";
-import { formatDate } from "../../../../customed-methods/datetime";
-
 import style from "./my-space.styl?css-modules";
 import tips from "../../../../assets/images/nocontent.png";
 
-interface HistoryState {
+interface MyspaceProps {
+  history: History,
+}
+
+interface MyspaceState {
   histories: Array<[string, ViewHistory[]]>;
   noHistory: boolean;
   tabInx: number;
 }
 
-class MySpace extends React.Component<null, HistoryState> {
+class MySpace extends React.Component<MyspaceProps, MyspaceState> {
   /* 以下为初始化 */
   private myspaceRef: React.RefObject<HTMLDivElement>;
   private switcherRef: React.RefObject<HTMLDivElement>;
@@ -27,7 +33,6 @@ class MySpace extends React.Component<null, HistoryState> {
     super(props);
     this.myspaceRef = React.createRef();
     this.switcherRef = React.createRef();
-
     this.state = {
       histories: [],
       noHistory: false,
@@ -35,7 +40,6 @@ class MySpace extends React.Component<null, HistoryState> {
     }
   }
 
-  /* 以下为自定义方法 */
   private getDateKey(timestamp) {
     const currentTime = new Date();
     const dateTime = new Date(timestamp);
@@ -84,7 +88,6 @@ class MySpace extends React.Component<null, HistoryState> {
   // 这里如果不用用箭头函数，onClick={this.clearHistory}会报错setState undefined
   // 因为click事件触发后，调用绑定方法clearHistory的是window(未指定调用者时，this默认为全局对象)
   // 而window上是不带setState的
-
   // 而箭头函数的this在定义时就绑定而不是函数被调用时才指定
   // 即this.setState的this永远都是History组件
   // 当然也可以在绑定onClick时使用bind方法指定this
@@ -99,39 +102,44 @@ class MySpace extends React.Component<null, HistoryState> {
     }
   }
 
-  /* 以下为生命周期 */
   public componentDidMount() {
-    const viewHistories = storage.getViewHistory();
+    getHistory(333136797, "archive") // 若未登录就直接在地址栏输入/space，则跳转登录界面
+      .then(res => {
+        const { code, data } = res.data;
+        if (code === 0) {
+          const viewHistories = storage.getViewHistory();
 
-    if (viewHistories.length === 0) {
-      this.setState({ noHistory: true });
-    } else {
-      // 按点击时间降序
-      // sort(a, b)：如果返回值大于0，则排序后b在a之前
-      viewHistories.sort((a, b) => b.viewAt - a.viewAt);
+          if (viewHistories.length === 0) {
+            this.setState({ noHistory: true });
+          } else {
+            // 按点击时间降序
+            // sort(a, b)：如果返回值大于0，则排序后b在a之前
+            viewHistories.sort((a, b) => b.viewAt - a.viewAt);
 
-      // 按时间点（今天，昨天，更早）分组
-      const historyMap: Map<string, ViewHistory[]> = new Map();
-      // 将viewHistories中的history分类，每一种DateKey的history放进一个数组中
-      // 然后按照键是DateKey、值是DateKey对应的数组，放进historyMap中
-      viewHistories.forEach(history => {
-        const key = this.getDateKey(history.viewAt);
-        let temHistory = historyMap.get(key);
+            // 按时间点（今天，昨天，更早）分组
+            const historyMap: Map<string, ViewHistory[]> = new Map();
+            // 将viewHistories中的history分类，每一种DateKey的history放进一个数组中
+            // 然后按照键是DateKey、值是DateKey对应的数组，放进historyMap中
+            viewHistories.forEach(history => {
+              const key = this.getDateKey(history.viewAt);
+              let temHistory = historyMap.get(key);
 
-        if (temHistory) {
-          temHistory.push(history);
-        } else {
-          temHistory = new Array();
-          temHistory.push(history);
-          historyMap.set(key, temHistory);
-        }
+              if (temHistory) {
+                temHistory.push(history);
+              } else {
+                temHistory = new Array();
+                temHistory.push(history);
+                historyMap.set(key, temHistory);
+              }
+            });
+
+            this.setState({ histories: [...historyMap] });
+          }
+
+          const navDOM: any = this.myspaceRef.current.parentElement.firstElementChild
+          this.bottomPos = this.switcherRef.current.offsetTop - navDOM.offsetHeight;
+        } else { this.props.history.push({ pathname: "/login" }); }
       });
-
-      this.setState({ histories: [...historyMap] });
-    }
-
-    const navDOM: any = this.myspaceRef.current.parentElement.firstElementChild
-    this.bottomPos = this.switcherRef.current.offsetTop - navDOM.offsetHeight;
   }
 
   /* 以下为渲染部分 */
@@ -192,6 +200,7 @@ class MySpace extends React.Component<null, HistoryState> {
         <Helmet>
           <title>个人空间</title>
         </Helmet>
+        <div onClick={() => getHistory(333136797, "archive").then(res => console.log(res))}>获取历史记录</div>
         <div className={style.switcherArea} ref={this.switcherRef}>
           < Switcher
             tabTitle={["历史记录", "我的投稿"]}
