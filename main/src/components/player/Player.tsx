@@ -26,14 +26,15 @@ interface PlayerProps {
     url: string
   },
   isStreaming?: boolean, // 主播是否正在直播
-  liveTime?: number
+  liveTime?: number,
+  videoRef?: React.RefObject<HTMLVideoElement>
 }
 
 const { useState, useEffect, useRef, useContext, forwardRef, useImperativeHandle } = React;
 
 function Player(props: PlayerProps, ref) {
   /* 从父组件获取的数据 */
-  const { isLive, video, liveTime } = props;
+  const { isLive, video, liveTime, videoRef } = props;
   const context = useContext(myContext);
 
   /* 不需要关联ref的state */
@@ -71,7 +72,6 @@ function Player(props: PlayerProps, ref) {
   const playBtnRef: React.RefObject<HTMLDivElement> = useRef(null);
   const curVolumeRef: React.RefObject<HTMLSpanElement> = useRef(null);
   const curBrightnessRef: React.RefObject<HTMLDivElement> = useRef(null);
-  const videoRef: React.RefObject<HTMLVideoElement> = useRef(null);
   const playBtnTimerRef: React.MutableRefObject<number> = useRef(0);
   const lastPosRef: React.MutableRefObject<JSX.Element> = useRef(null);
   const speedRef: React.MutableRefObject<JSX.Element> = useRef(null);
@@ -157,7 +157,7 @@ function Player(props: PlayerProps, ref) {
   // isPC = !isIos && !isAndroid;
   // isPC = !(navigator.userAgent.match(/(iPhone|iPad|iPod|iOS|Android)/i) !== null);
 
-  /* 以下为自定义方法 */
+
   /* videoDOM相关 */
   function getVideoUrl(url) {
     const { videoURL } = context;
@@ -317,7 +317,6 @@ function Player(props: PlayerProps, ref) {
     }
   }
 
-  /* Hooks */
   useImperativeHandle(ref, () => ({
     sendBarrage: (data: { color: string, content: string }) => {
       if (ctrBarRef.current.showBarrage) {
@@ -337,7 +336,6 @@ function Player(props: PlayerProps, ref) {
     } else { setLiveVideoDOM(); } // 直播时处理
   }, []);
 
-  /* 渲染部分 */
   return (
     <div className={style.videoPlayer} ref={playerRef}>
       {/* 视频区域 */}
@@ -372,9 +370,7 @@ function Player(props: PlayerProps, ref) {
         </div>
         <div className={style.controlContainer}>
           {/* 是否跳转到上次播放位置 */}
-          {
-            !isLive && <LastPosition video={video} videoRef={videoRef} ref={lastPosRef} />
-          }
+          {!isLive && <LastPosition video={video} videoRef={videoRef} ref={lastPosRef} />}
           {/* 调节音量后显示当前音量 */}
           <div className={style.curVolumeContainer} style={centerVolumeStyle}>
             <svg className="icon" aria-hidden="true">
@@ -407,8 +403,7 @@ function Player(props: PlayerProps, ref) {
           </div>
           {/* 右边的白色播放暂停按钮 */}
           {
-            !isLive && <div
-              className={style.playButton} style={playBtnStyle} ref={playBtnRef}>
+            !isLive && <div className={style.playButton} style={playBtnStyle} ref={playBtnRef}>
               <svg className="icon" aria-hidden="true">
                 <use href={`#icon-${playBtnIconName}`}></use>
               </svg>

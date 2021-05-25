@@ -147,28 +147,28 @@ function SMS(props: SMSProps) {
   let resetTimer: number;
   function handleGetCapClick() {
     if (canSend) {
-      // if (!checkPhoneFormat()) {
-      //   Toast.warning('手机号码格式不正确，请检查后重新输入', false, null, 2000)
-      // } else {
-      const getCapDOM = getCapRef.current;
+      if (!checkPhoneFormat()) {
+        Toast.error('手机号码格式不正确，请检查后重新输入', false, null, 2000)
+      } else {
+        const getCapDOM = getCapRef.current;
 
-      getRobertTestCap();
-      getCapDOM.classList.add(style.disable);
-      setCanSend(false);
+        getRobertTestCap();
+        getCapDOM.classList.add(style.disable);
+        setCanSend(false);
 
-      countdownTimer = setInterval(() => {
-        const newTime = cooldownRef.current - 1;
-        getCapDOM.innerText = `${newTime}s后重试`;
-        setCooldown(newTime);
-      }, 1000);
-      resetTimer = setTimeout(() => {
-        getCapDOM.classList.remove(style.disable);
-        getCapDOM.innerText = "获取验证码";
-        clearInterval(countdownTimer);
-        setCanSend(true);
-        setCooldown(60);
-      }, 60000);
-      // }
+        countdownTimer = setInterval(() => {
+          const newTime = cooldownRef.current - 1;
+          getCapDOM.innerText = `${newTime}s后重试`;
+          setCooldown(newTime);
+        }, 1000);
+        resetTimer = setTimeout(() => {
+          getCapDOM.classList.remove(style.disable);
+          getCapDOM.innerText = "获取验证码";
+          clearInterval(countdownTimer);
+          setCanSend(true);
+          setCooldown(60);
+        }, 60000);
+      }
     }
   }
 

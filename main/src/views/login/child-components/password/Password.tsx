@@ -176,7 +176,9 @@ function Password(props: PasswordProps) {
           />
         </li>
       </ul>
-      <div className={style.forget} onClick={() => alert("找回密码")}>忘记密码？</div>
+      <div className={style.forget}>
+        <span onClick={() => alert("找回密码")}>忘记密码？</span>
+      </div>
       <div className={style.btnWrapper}>
         <div className={style.signup} ref={signupBtnRef}>注册</div>
         <div className={style.login} ref={loginBtnRef}>登录</div>

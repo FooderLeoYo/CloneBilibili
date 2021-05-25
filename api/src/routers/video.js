@@ -119,7 +119,6 @@ router.get("/av/barrage/:cId", (req, res, next) => {
 });
 
 router.post("/av/report", (req, res, next) => {
-  console.log(req.body)
   postViewedReport(req.body, req.headers.cookie).then(data => {
     let resData = {
       code: "1",

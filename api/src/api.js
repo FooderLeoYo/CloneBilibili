@@ -157,17 +157,17 @@ const fetchBarrage = cId => {
 
 const postViewedReport = (param, cookie) => {
   const rawString = cookie;
-  const SDataPos = rawString.indexOf("SESSDATA");
   const bjctPos = rawString.indexOf("bili_jct");
-  const SESSDATA = rawString.substring(SDataPos + 9, bjctPos - 2);
-
-  // const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${SESSDATA}`;
-  const searchParam = new URLSearchParams(Object.entries(param)).toString();
-
+  const bili_jct = rawString.substring(bjctPos + 9);
+  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
+  console.log(searchParam)
 
   return fetch(URL_VIEWED_REPORT, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "cookie": cookie
+    },
     body: searchParam,
   }).then(res => res.json())
     .then(json => json);

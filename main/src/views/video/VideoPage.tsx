@@ -5,7 +5,7 @@ import LazyLoad from "react-lazyload";
 import { History } from "history";
 
 import Context from "../../context";
-import { getRecommendVides, getComments, postReport } from "../../api/video";
+import { getRecommendVides, getComments, postViewedReport } from "../../api/video";
 import storage from "../../customed-methods/storage";
 import getVideoDetail from "../../redux/async-action-creators/video";
 import { setShouldLoad } from "../../redux/action-creators";
@@ -45,8 +45,8 @@ interface VideoPageState {
 }
 
 class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
-  /* 以下为初始化 */
   private topWrapperRef: React.RefObject<HTMLDivElement>;
+  private videoRef: React.RefObject<HTMLVideoElement>;
   private arrowRef: React.RefObject<HTMLDivElement>;
   private infoContainerRef: React.RefObject<HTMLDivElement>;
   private infoRef: React.RefObject<HTMLDivElement>;
@@ -60,6 +60,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
   constructor(props) {
     super(props);
     this.topWrapperRef = React.createRef();
+    this.videoRef = React.createRef();
     this.arrowRef = React.createRef();
     this.infoContainerRef = React.createRef();
     this.infoRef = React.createRef();
@@ -81,8 +82,6 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
       prevId: -999,
     }
   }
-
-  /* 以下为自定义方法 */
 
   /* 数据获取相关 */
   private getPubdate(timestamp) {
@@ -113,14 +112,12 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
         publicDateStr = publicDate.getMonth() + 1 + "-" + publicDate.getDate();
       }
     } else {
-      publicDateStr = publicDate.getFullYear() + "-" +
-        (publicDate.getMonth() + 1) + "-" +
-        publicDate.getDate();
+      publicDateStr = publicDate.getFullYear() + "-" + (publicDate.getMonth() + 1) + "-" + publicDate.getDate();
     }
     return publicDateStr;
   }
 
-  private generateBottomTsx = () => {
+  private generateBottomTSX = () => {
     const { recommendVideos, comments } = this.state;
     if (recommendVideos && comments) {
       this.bottomContent = [
@@ -128,7 +125,17 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
         <div className={style.recommendList} key={"recommendList"}>
           {
             this.state.recommendVideos.map(video => (
-              <div className={style.videoWrapper} key={video.aId}>
+              <div
+                className={style.videoWrapper}
+                key={video.aId}
+                onClick={() =>
+                  postViewedReport({
+                    aid: this.props.video.aId,
+                    cid: this.props.video.cId,
+                    progress: Math.floor(this.videoRef.current.currentTime) // 后台API要求取整
+                  })
+                }
+              >
                 <VideoItemLandscape
                   videoData={video}
                   imgParams={{
@@ -141,10 +148,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
               </div>
             ))
           }
-          {
-            this.state.loading &&
-            <div className={style.loading}>加载中...</div>
-          }
+          {this.state.loading && <div className={style.loading}>加载中...</div>}
         </div>,
         // 评论区
         <div className={style.comment} key={"comment"}>
@@ -163,31 +167,19 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                   </Link>
                   <span className={style.commentTime}>{comment.date}</span>
                   <div className={style.commentUpUser}>
-                    <Link to={"/space/" + comment.user.mId}>
-                      {comment.user.name}
-                    </Link>
+                    <Link to={"/space/" + comment.user.mId}>{comment.user.name}</Link>
                   </div>
-                  <div className={style.commentContent}>
-                    {comment.content}
-                  </div>
+                  <div className={style.commentContent}>{comment.content}</div>
                 </div>
               ))
             }
           </div>
           <div className={style.commentsBottom}>
             {
-              this.state.showLoadMore ? (
-                <div
-                  className={style.loadMore}
-                  onClick={() => { this.loadMoreComment() }}
-                >
-                  点击加载更多评论
-                </div>
-              ) : (
-                <div className={style.noMore}>
-                  没有更多了 ~
-                </div>
-              )
+              this.state.showLoadMore ?
+                <div className={style.loadMore} onClick={() => { this.loadMoreComment() }}>
+                  点击加载更多评论</div> :
+                <div className={style.noMore}>没有更多了 ~</div>
             }
           </div>
         </div>
@@ -203,7 +195,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
           this.setState({
             loading: false,
             recommendVideos
-          }, () => { this.generateBottomTsx(); });
+          }, () => this.generateBottomTSX());
         }
       });
   }
@@ -239,7 +231,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
           this.setState({
             showLoadMore,
             comments: this.state.comments.concat(comments)
-          }, () => { this.generateBottomTsx(); });
+          }, () => this.generateBottomTSX());
         }
       });
   }
@@ -287,30 +279,26 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     }
   }
 
-  private toSpace(mId) {
-    this.props.history.push({
-      pathname: "/space/" + mId
-    });
-  }
-
   /* 设置状态相关 */
   // 记录浏览历史信息
   private saveHistory(video) {
+    const { aId, title, pic } = video;
     storage.setViewHistory({
-      aId: video.aId,
-      title: video.title,
-      pic: video.pic,
+      aId: aId,
+      title: title,
+      pic: pic,
       viewAt: new Date().getTime()
     });
   }
 
   private setInitStatus() {
-    this.setState({
-      videoData: this.props.video,
-      isDataOk: true
-    });
+    const vData = this.props.video;
 
-    this.saveHistory(this.state.videoData);
+    this.setState({ videoData: this.props.video, isDataOk: true });
+    this.saveHistory(vData);
+
+    const { aId, cId } = vData;
+    postViewedReport({ aid: aId, cid: cId });
 
     // 设置底部切换区域的位置，首次切换时都跳到这个位置
     // 不放在定时器里会报错找不到相关Dom节点
@@ -320,65 +308,67 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     }, 1);
   }
 
-  /* 以下为生命周期函数 */
   public componentDidMount() {
-    this.getComments();
+    const aID = this.props.match.params.aId;
+    this.setState({ prevId: aID });
+
     this.getRecommentVideos();
+    this.getComments();
 
     if (this.props.shouldLoad) {
-      this.props.dispatch(getVideoDetail(this.props.match.params.aId))
-        .then(() => { this.setInitStatus(); });
+      this.props.dispatch(getVideoDetail(aID)).then(() => this.setInitStatus());
     } else {
       this.setInitStatus();
       this.props.dispatch(setShouldLoad(true));
     }
   }
 
+  // 没这个的话点推荐视频不能跳转
   public componentDidUpdate() {
-    const aId = this.props.match.params.aId;
-    if (aId !== this.state.prevId) {
+    const aID = this.props.match.params.aId;
+    if (aID !== this.state.prevId) {
       this.setState({
         isDataOk: false,
         videoData: {},
-        prevId: aId
+        prevId: aID
       });
-
       this.getRecommentVideos();
       this.getComments();
-      this.props.dispatch(getVideoDetail(aId))
-        .then(() => { this.setInitStatus(); });
+      this.props.dispatch(getVideoDetail(aID)).then(() => this.setInitStatus());
     }
-  }
-
-  public componentWillUnmount() {
-    const { aid, cid } = this.state.videoData;
-    postReport({
-      aid: aid,
-      cid: cid
-    }).then(res => console.log(res));
   }
 
   /* 以下为渲染部分 */
   public render() {
-    const video = this.state.videoData;
     const isDataOk = this.state.isDataOk;
+    const video = this.state.videoData;
+    const { title, desc, owner, aId, cId, pic, duration, url, playCount, barrageCount,
+      publicDate, twoLevel } = video;
 
-    if (isDataOk && video.pic.indexOf("@400w_300h") === -1) {
-      video.pic = this.getPicUrl(video.pic, "@400w_300h");
+    if (isDataOk && pic.indexOf("@400w_300h") === -1) {
+      video.pic = this.getPicUrl(pic, "@400w_300h");
     }
 
     return (
       <div className="video-detail">
         <Helmet>
-          <title>{video.title}</title>
-          <meta name="title" content={video.title} />
-          <meta name="description" content={video.desc} />
-          <meta name="author" content={isDataOk ? video.owner.name : ""} />
+          <title>{title}</title>
+          <meta name="title" content={title} />
+          <meta name="description" content={desc} />
+          <meta name="author" content={isDataOk ? owner.name : ""} />
         </Helmet>
         {
           !isDataOk ? <LoadingCutscene /> :
             <>
-              <div className={style.topWrapper} ref={this.topWrapperRef}>
+              <div
+                className={style.topWrapper}
+                ref={this.topWrapperRef}
+                onClick={() => postViewedReport({
+                  aid: aId,
+                  cid: cId,
+                  progress: Math.floor(this.videoRef.current.currentTime)
+                })}
+              >
                 <HeaderWithBack />
               </div>
               {/* 内容 */}
@@ -387,23 +377,17 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                 <div className={style.videoContainer}>
                   <Player
                     video={{
-                      aId: video.aId,
-                      cId: video.cId,
-                      title: video.title,
+                      aId: aId,
+                      cId: cId,
+                      title: title,
                       cover: video.pic,
-                      duration: video.duration,
-                      url: video.url
+                      duration: duration,
+                      url: url,
                     }}
                     isLive={false}
+                    videoRef={this.videoRef}
                   />
                 </div>
-                <div onClick={() => {
-                  const { aid, cid } = this.state.videoData;
-                  postReport({
-                    aid: aid,
-                    cid: cid
-                  }).then(res => console.log(res));
-                }}>上报观看记录！！！！！！！！！！</div>
                 {/* 视频信息 */}
                 <div className={style.videoInfoContainer} ref={this.infoContainerRef}>
                   <span
@@ -415,33 +399,27 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                     </svg>
                   </span>
                   <div className={style.infoWrapper} ref={this.infoRef}>
-                    <div className={style.title}>
-                      {video.title}
-                    </div>
+                    <div className={style.title}>{title}</div>
                     <div className={style.videoInfo}>
                       <span className={style.upUserIcon}>
                         <svg className="icon" aria-hidden="true">
                           <use href="#icon-uper"></use>
                         </svg>
                       </span>
-                      <Link to={"/space/" + video.owner.mId}>
-                        {/* <a href={"/space/" + video.owner.mId}> */}
-                        <span className={style.upUserName}>{video.owner.name}</span>
-                        {/* </a> */}
+                      <Link to={"/space/" + owner.mId}>
+                        <span className={style.upUserName}>{owner.name}</span>
                       </Link>
-                      <span className={style.play}>{formatTenThousand(video.playCount)}次观看</span>
-                      <span>{formatTenThousand(video.barrageCount)}弹幕</span>
-                      <span>{this.getPubdate(video.publicDate)}</span>
+                      <span className={style.play}>{formatTenThousand(playCount)}次观看</span>
+                      <span>{formatTenThousand(barrageCount)}弹幕</span>
+                      <span>{this.getPubdate(publicDate)}</span>
                     </div>
-                    <div className={style.desc}>
-                      {video.desc}
-                    </div>
+                    <div className={style.desc}>{desc}</div>
                     <div className={style.position}>
                       <a href="/index">主页</a>
                       <span>&gt;</span>
-                      <a href={"/channel/" + video.twoLevel.id}>{video.twoLevel.name}</a>
+                      <a href={"/channel/" + twoLevel.id}>{twoLevel.name}</a>
                       <span>&gt;</span>
-                      <span className={style.aid}>av{video.aId}</span>
+                      <span className={style.aid}>av{aId}</span>
                     </div>
                   </div>
                 </div>

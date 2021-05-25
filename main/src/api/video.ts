@@ -46,7 +46,6 @@ export function getBarrages(cId: number) {
 /* 
 上报观看记录
  */
-export function postReport(param) {
-  console.log(param)
+export function postViewedReport(param) {
   return postJSON(URL_VIDEO_REPORT, param);
 }
