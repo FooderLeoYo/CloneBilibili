@@ -160,7 +160,6 @@ const postViewedReport = (param, cookie) => {
   const bjctPos = rawString.indexOf("bili_jct");
   const bili_jct = rawString.substring(bjctPos + 9);
   const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
-  console.log(searchParam)
 
   return fetch(URL_VIEWED_REPORT, {
     method: 'POST',
@@ -346,11 +345,10 @@ const exitLogin = () => {
 /* 个人空间相关 */
 const fetchHistory = (param, cookie) => {
   let fetchUrl;
-  if (param.max != undefined) {
+  if (param.max != "undefined") {
     const searchParam = new URLSearchParams(Object.entries(param)).toString();
     fetchUrl = URL_GET_HISTORY + "?" + searchParam;
   } else { fetchUrl = URL_GET_HISTORY; }
-  console.log(fetchUrl)
 
   return fetch(fetchUrl, {
     method: "GET",
