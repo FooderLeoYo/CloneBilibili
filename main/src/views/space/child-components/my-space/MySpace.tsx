@@ -50,7 +50,7 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
 
   private getDateKey(timestamp) {
     const currentTime = new Date();
-    const dateTime = new Date(timestamp);
+    const dateTime = new Date(timestamp * 1000);
 
     if (currentTime.getFullYear() === dateTime.getFullYear() &&
       currentTime.getMonth() === dateTime.getMonth()) {
@@ -73,8 +73,7 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
 
   private getTime(timestamp) {
     const currentTime = new Date();
-    const dateTime = new Date(timestamp);
-    console.log(dateTime)
+    const dateTime = new Date(timestamp * 1000);
 
     if (currentTime.getFullYear() === dateTime.getFullYear() &&
       currentTime.getMonth() === dateTime.getMonth()) {
@@ -122,9 +121,8 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
   }
 
   private setHistoryData() {
-    getViewedHistory().then(res => {
+    getViewedHistory(0, "", 30).then(res => {
       const { code, data } = res.data;
-      console.log(data)
       if (code === 0) {
         const videoMap: Map<string, []> = new Map();
         const liveMap: Map<string, []> = new Map();
@@ -141,21 +139,15 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
         }
 
         data.list.forEach(record => {
-          const { view_at } = record;
-          if (record.history.business === "archive") { updateMap(videoMap, view_at, record); }
-          else if (record.history.business === "live") { updateMap(liveMap, view_at, record); }
+          const { history, view_at } = record;
+          if (history.business === "archive") { updateMap(videoMap, view_at, record); }
+          else if (history.business === "live") { updateMap(liveMap, view_at, record); }
         });
 
-        if (videoMap.size === 0) {
-          this.setState({ noVideoHistory: true })
-        } else {
-          this.setState({ videoHistories: [...videoMap] });
-        }
-        if (liveMap.size === 0) {
-          this.setState({ noLiveHistory: true })
-        } else {
-          this.setState({ liveHistories: [...liveMap] });
-        }
+        if (videoMap.size === 0) { this.setState({ noVideoHistory: true }) }
+        else { this.setState({ videoHistories: [...videoMap] }); }
+        if (liveMap.size === 0) { this.setState({ noLiveHistory: true }) }
+        else { this.setState({ liveHistories: [...liveMap] }); }
 
         const navDOM: any = this.myspaceRef.current.parentElement.firstElementChild
         this.bottomPos = this.switcherRef.current.offsetTop - navDOM.offsetHeight;
@@ -177,26 +169,38 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
                 {/* item[0]是map的键，item[1]是值 */}
                 <div className={style.itemTitle}>{item[0]}</div>
                 {
-                  item[1].map((record, i) => (
-                    <div className={style.itemWrapper} key={i}>
-                      <Link to={"/video/av" + record.history.oid}>
-                        <div className={style.imgContainer}>
-                          <span className={style.placeholder}>
-                            <svg className="icon" aria-hidden="true">
-                              <use href="#icon-placeholder"></use>
-                            </svg>
-                          </span>
-                          <img src={this.getPicUrl(record.cover, "@320w_200h")} />
-                        </div>
-                        <div className={style.info}>
-                          <div className={style.title}>{record.title}</div>
-                          <div className={style.time}>
-                            {this.getTime(record.view_at)}
+                  item[1].map((record, i) => {
+                    const { history, cover, title, view_at, author_name } = record;
+                    const { oid, dt } = history;
+                    const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "phone";
+                    return (
+                      <div className={style.itemWrapper} key={i}>
+                        <Link to={"/video/av" + oid}>
+                          <div className={style.imgContainer}>
+                            <span className={style.placeholder}>
+                              <svg className="icon" aria-hidden="true">
+                                <use href="#icon-placeholder"></use>
+                              </svg>
+                            </span>
+                            <img src={this.getPicUrl(cover, "@320w_200h")} />
                           </div>
-                        </div>
-                      </Link>
-                    </div>
-                  ))
+                          <div className={style.info}>
+                            <div className={style.title}>{title}</div>
+                            {/* <div className={style.author}>{author_name}</div> */}
+                            <div className={style.time}>
+                              <span className={style.platform}>
+                                {/* <svg className="icon" aria-hidden="true">
+                                <use href={`#icon-${platform}`}></use>
+                              </svg> */}
+                                {platform}
+                              </span>
+                              {this.getTime(view_at)}
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+                    )
+                  })
                 }
               </div>
             )) :
@@ -214,33 +218,49 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
               <div className={style.historyItem} key={i}>
                 <div className={style.itemTitle}>{item[0]}</div>
                 {
-                  item[1].map((record, i) => (
-                    <div className={style.itemWrapper} key={i}>
-                      <Link to={"/video/av" + record.history.oid}>
-                        <div className={style.imgContainer}>
-                          <span className={style.placeholder}>
-                            <svg className="icon" aria-hidden="true">
-                              <use href="#icon-placeholder"></use>
-                            </svg>
-                          </span>
-                          <img src={this.getPicUrl(record.cover, "@320w_200h")} />
-                        </div>
-                        <div className={style.info}>
-                          <div className={style.title}>{record.title}</div>
-                          <div className={style.time}>
-                            {this.getTime(record.viewAt)}
+                  item[1].map((record, i) => {
+                    const { history, kid, cover, title, view_at, author_name, badge } = record;
+                    const { dt } = history;
+                    const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "phone";
+                    const liveStatus = badge === "为开播" ? "offline" : "live";
+                    return (
+                      <div className={style.itemWrapper} key={i}>
+                        <Link to={"/live/" + kid}>
+                          <div className={style.imgContainer}>
+                            <span className={style.placeholder}>
+                              <svg className="icon" aria-hidden="true">
+                                <use href="#icon-placeholder"></use>
+                              </svg>
+                            </span>
+                            <img src={this.getPicUrl(cover, "@320w_200h")} />
                           </div>
-                        </div>
-                      </Link>
-                    </div>
-                  ))
+                          <div className={style.info}>
+                            <div className={style.title}>{title}</div>
+                            <div className={style.author}>
+                              <span className={style.name}>{author_name}</span>
+                              <span className={style[liveStatus]}>{badge}</span>
+                            </div>
+                            <div className={style.time}>
+                              <span className={style.platform}>
+                                {/* <svg className="icon" aria-hidden="true">
+                                <use href={`#icon-${platform}`}></use>
+                              </svg> */}
+                                {platform}
+                              </span>
+                              {this.getTime(view_at)}
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+                    )
+                  })
                 }
               </div>
             )) :
             <div className={style.tips}>
               <img src={tips} />
               <div className={style.text}>你还没有视频观看历史记录</div>
-              <div className={style.text}>快去发现&nbsp;<Link to="/index">新内容</Link>&nbsp;吧！</div>
+              <div className={style.text}>快去发现&nbsp;<Link to="/live">新直播</Link>&nbsp;吧！</div>
             </div>
         }
       </div>

@@ -344,11 +344,8 @@ const exitLogin = () => {
 
 /* 个人空间相关 */
 const fetchHistory = (param, cookie) => {
-  let fetchUrl;
-  if (param.max != "undefined") {
-    const searchParam = new URLSearchParams(Object.entries(param)).toString();
-    fetchUrl = URL_GET_HISTORY + "?" + searchParam;
-  } else { fetchUrl = URL_GET_HISTORY; }
+  const searchParam = new URLSearchParams(Object.entries(param)).toString();
+  const fetchUrl = URL_GET_HISTORY + "?" + searchParam;
 
   return fetch(fetchUrl, {
     method: "GET",
