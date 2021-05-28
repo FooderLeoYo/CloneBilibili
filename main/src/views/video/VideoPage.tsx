@@ -22,7 +22,7 @@ import { getPicSuffix } from "../../customed-methods/image";
 import { formatDate } from "../../customed-methods/datetime";
 import { formatTenThousand } from "../../customed-methods/string";
 
-import style from "./stylus/video-page.styl?css-modules";
+import style from "./video-page.styl?css-modules";
 
 interface VideoPageProps {
   shouldLoad: boolean;

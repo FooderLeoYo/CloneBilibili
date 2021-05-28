@@ -13,7 +13,7 @@ import Barrage, { BarrageType } from "./child-components/barrage/Barrage";
 import Loading from "./child-components/loading/Loading"
 import { formatDuration } from "../../customed-methods/string";
 
-import style from "./stylus/player.styl?css-modules";
+import style from "./player.styl?css-modules";
 
 interface PlayerProps {
   isLive: boolean, // 该视频是否是直播
@@ -25,9 +25,9 @@ interface PlayerProps {
     duration: number,
     url: string
   },
+  videoRef?: React.RefObject<HTMLVideoElement>,
   isStreaming?: boolean, // 主播是否正在直播
   liveTime?: number,
-  videoRef?: React.RefObject<HTMLVideoElement>
 }
 
 const { useState, useEffect, useRef, useContext, forwardRef, useImperativeHandle } = React;
@@ -35,7 +35,10 @@ const { useState, useEffect, useRef, useContext, forwardRef, useImperativeHandle
 function Player(props: PlayerProps, ref) {
   /* 从父组件获取的数据 */
   const { isLive, video, liveTime, videoRef } = props;
+  const temVideoRef = useRef(null);
+  const videoDOMRef: React.RefObject<HTMLVideoElement> = videoRef ? videoRef : temVideoRef;
   const context = useContext(myContext);
+
 
   /* 不需要关联ref的state */
   const [waiting, setWaiting] = useState(false);
@@ -88,7 +91,7 @@ function Player(props: PlayerProps, ref) {
   /* 需要传递给子组件的props */
   // 将传递给Barrage
   const barrageRefs = {
-    videoRef: videoRef,
+    videoRef: videoDOMRef,
     curBrightnessRef: curBrightnessRef,
     curVolumeRef: curVolumeRef,
     gesRef: gestureTypeRef,
@@ -142,7 +145,7 @@ function Player(props: PlayerProps, ref) {
     ctrPlayBtnRef: ctrPlayBtnRef,
     currentTimeRef: currentTimeRef,
     progressRef: progressRef,
-    videoRef: videoRef,
+    videoRef: videoDOMRef,
     barrageRef: barrageRef,
     playerRef: playerRef,
     speedRef: speedRef,
@@ -169,7 +172,7 @@ function Player(props: PlayerProps, ref) {
   }
 
   function playOrPause() {
-    const videoDOM = videoRef.current;
+    const videoDOM = videoDOMRef.current;
 
     if (pausedRef.current) {
       setPaused(false);
@@ -187,7 +190,7 @@ function Player(props: PlayerProps, ref) {
   }
 
   function setListeners() {
-    const videoDOM = videoRef.current;
+    const videoDOM = videoDOMRef.current;
     // 当播放时间发生变动时，更新进度条并加载当前时点的弹幕
     videoDOM.addEventListener("timeupdate", setTimeupdateListener);
     // 视频结束时重置进度条和state
@@ -209,7 +212,7 @@ function Player(props: PlayerProps, ref) {
   }
 
   function setLiveVideoDOM() {
-    const videoDOM: HTMLVideoElement = videoRef.current;
+    const videoDOM: HTMLVideoElement = videoDOMRef.current;
     const { video } = props;
 
     // 支持m3u8，直接使用video播放
@@ -291,7 +294,7 @@ function Player(props: PlayerProps, ref) {
   }
 
   function setTimeupdateListener() {
-    const videoDOM = videoRef.current;
+    const videoDOM = videoDOMRef.current;
     const videoDur = videoDOM.duration
     const barrageComponent = barrageRef.current;
     const currentTimeDOM = currentTimeRef.current;
@@ -350,7 +353,7 @@ function Player(props: PlayerProps, ref) {
             webkit-playsinline="true"
             playsInline={true}
             src={isLive ? "" : getVideoUrl(video.url)}
-            ref={videoRef}
+            ref={videoDOMRef}
             style={videoStyle}
           />
         </div>
@@ -370,7 +373,7 @@ function Player(props: PlayerProps, ref) {
         </div>
         <div className={style.controlContainer}>
           {/* 是否跳转到上次播放位置 */}
-          {!isLive && <LastPosition video={video} videoRef={videoRef} ref={lastPosRef} />}
+          {!isLive && <LastPosition video={video} videoRef={videoDOMRef} ref={lastPosRef} />}
           {/* 调节音量后显示当前音量 */}
           <div className={style.curVolumeContainer} style={centerVolumeStyle}>
             <svg className="icon" aria-hidden="true">
@@ -390,17 +393,19 @@ function Player(props: PlayerProps, ref) {
             </div>
           </div>
           {/* 速度调节及显示 */}
-          <div className={style.speedContainer}>
-            <Speed
-              videoDOM={videoRef.current}
-              paused={paused}
-              playBtnTimer={playBtnTimerRef.current}
-              isShowPlayBtn={isShowPlayBtn}
-              setIsShowPlayBtn={setIsShowPlayBtn}
-              setSpeedBtnSuffix={setSpeedBtnSuffix}
-              ref={speedRef}
-            />
-          </div>
+          {
+            !isLive && <div className={style.speedContainer}>
+              <Speed
+                videoDOM={videoDOMRef.current}
+                paused={paused}
+                playBtnTimer={playBtnTimerRef.current}
+                isShowPlayBtn={isShowPlayBtn}
+                setIsShowPlayBtn={setIsShowPlayBtn}
+                setSpeedBtnSuffix={setSpeedBtnSuffix}
+                ref={speedRef}
+              />
+            </div>
+          }
           {/* 右边的白色播放暂停按钮 */}
           {
             !isLive && <div className={style.playButton} style={playBtnStyle} ref={playBtnRef}>
@@ -425,7 +430,7 @@ function Player(props: PlayerProps, ref) {
           playOrPause={playOrPause}
           lastPosRef={lastPosRef}
           setWaiting={setWaiting}
-          videoRef={videoRef}
+          videoRef={videoDOMRef}
           setPaused={setPaused}
           ref={coverRef}
         />

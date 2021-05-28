@@ -23,20 +23,17 @@ function Header() {
 
   return (
     <div className={style.header}>
-      {/* <a className={style.logo} href="/index"><Logo /></a> */}
       <Link className={style.logo} to="/index">
         <svg className="icon" aria-hidden="true">
           <use href="#icon-logo"></use>
         </svg>
       </Link>
       <div className={style.tools}>
-        {/* <a className={style.searchIcon} href="/search"><i className="icon-search" /></a> */}
         <Link className={style.search} to="/search">
           <svg className="icon" aria-hidden="true">
             <use href="#icon-search"></use>
           </svg>
         </Link>
-        {/* <a className={style.avatar} href="/space"><Avatar /></a> */}
         {
           isLogin ?
             <Link className={style.face} to="/space"><img src={faceUrl} alt="Face" /></Link> :
@@ -46,7 +43,6 @@ function Header() {
               </svg>
             </Link>
         }
-
       </div>
     </div >
   );

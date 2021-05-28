@@ -1,16 +1,29 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 
+import { getNavUserInfo } from "../../api/login";
 import style from "./header-with-back.styl?css-modules";
 
+const { useState, useEffect } = React;
+
 function HeaderWithBack() {
+  const [isLogin, setIsLogin] = useState(false);
+  const [faceUrl, setFaceUrl] = useState("");
+
+  useEffect(() => {
+    getNavUserInfo().then(res => {
+      const { code, data } = res.data;
+      if (code === 0) {
+        setIsLogin(true);
+        setFaceUrl(data.face);
+      }
+    });
+  }, []);
+
   return (
     <div className={style.header}>
       <div className={style.backWrapper}>
-        <div
-          className={style.backBtn}
-          onClick={() => { window.history.back(); }}
-        >
+        <div className={style.backBtn} onClick={() => window.history.back()}>
           <svg className="icon" aria-hidden="true">
             <use href="#icon-back"></use>
           </svg>
@@ -18,7 +31,6 @@ function HeaderWithBack() {
       </div>
       <div className={style.logoWrapper}>
         <div className={style.logo}>
-          {/* <a href="/index"><Logo /></a> */}
           <Link to="/index">
             <svg className="icon" aria-hidden="true">
               <use href="#icon-logo"></use>
@@ -27,22 +39,21 @@ function HeaderWithBack() {
         </div>
       </div>
       <div className={style.tools}>
-        {/* <a className={style.searchIcon} href="/search"> */}
         <Link className={style.search} to="/search">
           <svg className="icon" aria-hidden="true">
             <use href="#icon-search"></use>
           </svg>
         </Link>
-        {/* <a className={style.avatar} href="/space"> */}
-        <Link className={style.avatar} to="/space">
-          <svg className="icon" aria-hidden="true">
-            <use href="#icon-avatar"></use>
-          </svg>
-        </Link>
-        {/* </a> */}
-        {/* </a> */}
+        {
+          isLogin ?
+            <Link className={style.face} to="/space"><img src={faceUrl} alt="Face" /></Link> :
+            <Link className={style.avatar} to="/login">
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-avatar"></use>
+              </svg>
+            </Link>
+        }
       </div>
-
     </div>
   );
 }

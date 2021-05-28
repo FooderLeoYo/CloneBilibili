@@ -71,10 +71,8 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
     const contentDOM = this.contentRef.current;
 
     if (contentDOM.offsetHeight <= introduceDOM.offsetHeight) {
-      arrowDOM.style.display = "none";
-    } else {
-      arrowDOM.style.display = "block";
-    }
+      arrowDOM.style.visibility = "hidden";
+    } else { arrowDOM.style.visibility = "visible"; }
   }
 
   private getUserVideos() {
@@ -123,13 +121,9 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
     if (process.env.REACT_ENV === "server") {
       // 服务端获取图片后缀
       suffix = this.props.staticContext.picSuffix;
-    } else {
-      suffix = getPicSuffix();
-    }
+    } else { suffix = getPicSuffix(); }
     // 默认头像
-    if (url.indexOf(".gif") !== -1) {
-      return `${picURL}?pic=${url}`;
-    }
+    if (url.indexOf(".gif") !== -1) { return `${picURL}?pic=${url}`; }
     return `${picURL}?pic=${url}${format + suffix}`;
   }
 
@@ -168,19 +162,16 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
     return (
       <div className={style.upSapce}>
         {
-          upUser &&
-          <Helmet>
-            <title>{upUser.name + "的个人空间"}</title>
-          </Helmet>
+          upUser && <Helmet><title>{upUser.name + "的个人空间"}</title></Helmet>
         }
         <div className={style.upUserContainer}>
           <div className={style.face}>
             {
-              upUser.face ? (
-                <img src={this.getPicUrl(upUser.face, "@160w_160h")} alt={upUser.name} />
-              ) : <svg className="icon" aria-hidden="true">
-                <use href="#icon-avatar"></use>
-              </svg>
+              upUser.face ?
+                <img src={this.getPicUrl(upUser.face, "@160w_160h")} alt={upUser.name} /> :
+                <svg className="icon" aria-hidden="true">
+                  <use href="#icon-avatar"></use>
+                </svg>
             }
           </div>
           <div className={style.info}>
@@ -203,27 +194,22 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
           <div className={style.detail}>
             <div className={style.stats}>
               <span className={style.follow}>
-                {
-                  upUser.following ? formatTenThousand(upUser.following) : "--"
-                }&nbsp;
-              </span>
-              关注
+                {upUser.following ? formatTenThousand(upUser.following) : "--"}&nbsp;
+              </span>关注
               <span className={style.fans}>
-                {
-                  upUser.follower ? formatTenThousand(upUser.follower) : "--"
-                }&nbsp;
-                </span>
-              粉丝
+                {upUser.follower ? formatTenThousand(upUser.follower) : "--"}&nbsp;
+              </span>粉丝
             </div>
             <div className={style.introduce} ref={this.introduceRef}>
-              <i
-                className={`icon-arrow-down ${style.arrow}`}
+              <span
+                className={style.iconArrow}
                 ref={this.arrowRef}
-                onClick={this.toggle}
-              />
-              <div className={style.content} ref={this.contentRef}>
-                {upUser.sign}
-              </div>
+                onClick={this.toggle}>
+                <svg className="icon" aria-hidden="true">
+                  <use href="#icon-arrowDownBig"></use>
+                </svg>
+              </span>
+              <div className={style.content} ref={this.contentRef}>{upUser.sign}</div>
             </div>
           </div>
         </div>
@@ -239,7 +225,7 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
                     videoData={video}
                     imgParams={{
                       imgHeight: "3.654rem",
-                      imgSrc: "https:" + video.pic,
+                      imgSrc: video.pic,
                       imgFormat: "@200w_125h"
                     }}
                     noOwner={true}
@@ -253,14 +239,9 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
             this.state.videos.length > 0 && this.state.showLoadMore &&
             <div className={style.loadMore} onClick={() => { this.loadMoreVideos() }}>
               刚刚看到这里，点击加载更多~
-              </div>
+            </div>
           }
-          {
-            this.state.loading &&
-            <div className={style.loading}>
-              加载中...
-              </div>
-          }
+          {this.state.loading && <div className={style.loading}>加载中...</div>}
           {
             !this.state.loading && this.state.videos.length === 0 &&
             <div className={style.tips}>

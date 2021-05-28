@@ -3,8 +3,7 @@ import { History } from "history";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
-import { getViewedHistory } from "../../../../api/space";
-import storage, { ViewHistory } from "../../../../customed-methods/storage";
+import { getViewedHistory, clearHistory } from "../../../../api/space";
 import { formatDate } from "../../../../customed-methods/datetime";
 import { getPicSuffix } from "../../../../customed-methods/image";
 import Context from "../../../../context";
@@ -20,10 +19,8 @@ interface MyspaceProps {
 }
 
 interface MyspaceState {
-  // histories: Array<[string, ViewHistory[]]>;
   videoHistories: Array<[string, Array<any>]>;
   liveHistories: Array<[string, Array<any>]>;
-  // noHistory: boolean;
   noVideoHistory: boolean;
   noLiveHistory: boolean;
   tabInx: number;
@@ -100,7 +97,7 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
   // 即this.setState的this永远都是History组件
   // 当然也可以在绑定onClick时使用bind方法指定this
   private clearHistory = (type: string) => {
-    storage.clearViewHistory();
+    clearHistory();
     // 光改noHistory不会触发重渲染，一定要将histories清空
     // 因为更改noHistory后虽然会执行render，但render会与比对渲染数据
     // 如果没清空histories，那么渲染数据没变，则不会触发重渲染
@@ -122,6 +119,7 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
 
   private setHistoryData() {
     getViewedHistory(0, "", 30).then(res => {
+      console.log(res)
       const { code, data } = res.data;
       if (code === 0) {
         const videoMap: Map<string, []> = new Map();
@@ -170,9 +168,9 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
                 <div className={style.itemTitle}>{item[0]}</div>
                 {
                   item[1].map((record, i) => {
-                    const { history, cover, title, view_at, author_name } = record;
+                    const { history, cover, title, view_at, author_mid, author_name, } = record;
                     const { oid, dt } = history;
-                    const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "phone";
+                    const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "mobile";
                     return (
                       <div className={style.itemWrapper} key={i}>
                         <Link to={"/video/av" + oid}>
@@ -186,13 +184,25 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
                           </div>
                           <div className={style.info}>
                             <div className={style.title}>{title}</div>
-                            {/* <div className={style.author}>{author_name}</div> */}
+                            <div
+                              className={style.ownerWrapper}
+                              onClick={e => {
+                                e.preventDefault();
+                                this.props.history.push({ pathname: "/space/" + author_mid });
+                              }}
+                            >
+                              <span className={style.iconUp} >
+                                <svg className="icon" aria-hidden="true">
+                                  <use href="#icon-uper"></use>
+                                </svg>
+                              </span>
+                              <span className={style.owner}>{author_name}</span>
+                            </div>
                             <div className={style.time}>
                               <span className={style.platform}>
-                                {/* <svg className="icon" aria-hidden="true">
-                                <use href={`#icon-${platform}`}></use>
-                              </svg> */}
-                                {platform}
+                                <svg className="icon" aria-hidden="true">
+                                  <use href={`#icon-${platform}`}></use>
+                                </svg>
                               </span>
                               {this.getTime(view_at)}
                             </div>
@@ -219,10 +229,10 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
                 <div className={style.itemTitle}>{item[0]}</div>
                 {
                   item[1].map((record, i) => {
-                    const { history, kid, cover, title, view_at, author_name, badge } = record;
+                    const { history, kid, cover, title, view_at, author_mid, author_name, badge } = record;
                     const { dt } = history;
                     const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "phone";
-                    const liveStatus = badge === "为开播" ? "offline" : "live";
+                    const liveStatus = badge === "未开播" ? "offline" : "live";
                     return (
                       <div className={style.itemWrapper} key={i}>
                         <Link to={"/live/" + kid}>
@@ -236,16 +246,26 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
                           </div>
                           <div className={style.info}>
                             <div className={style.title}>{title}</div>
-                            <div className={style.author}>
-                              <span className={style.name}>{author_name}</span>
-                              <span className={style[liveStatus]}>{badge}</span>
+                            <div
+                              className={style.streamerWrapper}
+                              onClick={e => {
+                                e.preventDefault();
+                                this.props.history.push({ pathname: "/space/" + author_mid });
+                              }}
+                            >
+                              <span className={style.iconUp} >
+                                <svg className="icon" aria-hidden="true">
+                                  <use href="#icon-uper"></use>
+                                </svg>
+                              </span>
+                              <span className={style.owner}>{author_name}</span>
+                              <span className={style.liveStatus + " " + style[liveStatus]}>{badge}</span>
                             </div>
                             <div className={style.time}>
                               <span className={style.platform}>
-                                {/* <svg className="icon" aria-hidden="true">
-                                <use href={`#icon-${platform}`}></use>
-                              </svg> */}
-                                {platform}
+                                <svg className="icon" aria-hidden="true">
+                                  <use href={`#icon-${platform}`}></use>
+                                </svg>
                               </span>
                               {this.getTime(view_at)}
                             </div>

@@ -72,6 +72,8 @@ const URL_EXIT_LOGIN = "http://passport.bilibili.com/login?act=exit";
 
 // 获取历史记录
 const URL_GET_HISTORY = "http://api.bilibili.com/x/web-interface/history/cursor";
+// 清空历史记录
+const URL_CLEAR_HISTORY = "http://api.bilibili.com/x/v2/history/clear";
 
 const userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) " +
   "AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
@@ -328,9 +330,10 @@ const fetchSMSCaptcha = param => {
 
 const fetchSMSVerifyInfo = param => {
   const searchParam = new URLSearchParams(Object.entries(param)).toString();
+  console.log(searchParam)
 
   return fetch(URL_SMS_VERIFY, {
-    method: 'GET',
+    method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded', },
     body: searchParam,
   }).then(res => res);
@@ -350,6 +353,23 @@ const fetchHistory = (param, cookie) => {
   return fetch(fetchUrl, {
     method: "GET",
     headers: { "cookie": cookie },
+  }).then(res => res.json())
+    .then(json => json);
+}
+
+const clearHistory = cookie => {
+  const rawString = cookie;
+  const bjctPos = rawString.indexOf("bili_jct");
+  const bili_jct = rawString.substring(bjctPos + 9);
+  const searchParam = `csrf=${bili_jct}`;
+
+  return fetch(URL_CLEAR_HISTORY, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "cookie": cookie
+    },
+    body: searchParam,
   }).then(res => res.json())
     .then(json => json);
 }
@@ -385,5 +405,6 @@ module.exports = {
   fetchSMSCaptcha,
   fetchSMSVerifyInfo,
   exitLogin,
-  fetchHistory
+  fetchHistory,
+  clearHistory
 }

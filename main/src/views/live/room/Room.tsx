@@ -18,7 +18,7 @@ import Player from "../../../components/player/Player";
 import BottomArea from "./child-components/bottom-area/BottomArea";
 import ChatWebSocket, { Events } from "./child-components/ChatWS";
 
-import style from "./stylus/room.styl?css-modules";
+import style from "./room.styl?css-modules";
 
 interface RoomProps {
   shouldLoad: boolean,
@@ -140,7 +140,7 @@ function Room(props: RoomProps) {
 
   // 相当于getDerivedStateFromProps
   useEffect(() => {
-    if (roomData) { setInitData(); }
+    if (Object.keys(roomData).length != 0) { setInitData(); }
   }, [roomData?.parentAreaId]);
 
   return (

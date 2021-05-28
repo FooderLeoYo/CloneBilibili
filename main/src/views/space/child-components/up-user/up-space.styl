@@ -59,12 +59,12 @@
       transition: height .5s
       transform: translateZ(0)
       overflow: hidden
-      .arrow
+      .icon-arrow
         position: absolute
-        top: 0
-        right: 0
+        right: px2rem(12)
         font-size: px2rem(18)
-        transition: transform .1s
+        color: #757575
+        transition: transform .3s // transform也能加过渡效果
         &.rotate
           transform: rotateZ(180deg)
       .content

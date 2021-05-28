@@ -47,6 +47,7 @@ const URL_LOGIN_SMS_VERIFY = prefix + "/login/verifysms";
 const URL_LOGIN_EXIT_LOGIN = prefix + "/login/exitlogin";
 
 const URL_SPACE_GET_HISTORY = prefix + "/space/gethistory";
+const URL_SPACE_CLEAR_HISTORY = prefix + "/space/clearhistory";
 
 export {
   URL_INDEX,
@@ -82,5 +83,6 @@ export {
   URL_LOGIN_SMS_VERIFY,
   URL_LOGIN_EXIT_LOGIN,
   URL_SPACE_GET_HISTORY,
-  URL_VIDEO_REPORT
+  URL_VIDEO_REPORT,
+  URL_SPACE_CLEAR_HISTORY
 }

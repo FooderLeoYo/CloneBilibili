@@ -24,24 +24,19 @@ interface VideoItemLandscapeProps {
 
 const { useContext, useRef } = React;
 
-
 function VideoItemLandscape(props: VideoItemLandscapeProps) {
   const context = useContext(myContext);
   const { videoData, imgParams, picSuffix, noOwner, history } = props;
   const { imgHeight, imgSrc, imgFormat } = imgParams;
   const duration = typeof (videoData.duration) === "string" ? videoData.duration :
     formatDuration(videoData.duration, "0#:##:##");
-
   const ownerRef: React.RefObject<HTMLSpanElement> = useRef(null);
 
   function getPicUrl(url, format) {
     let suffix = ".webp";
 
-    if (process.env.REACT_ENV === "server") { // 服务端获取图片后缀
-      suffix = picSuffix
-    } else {
-      suffix = getPicSuffix();
-    }
+    if (process.env.REACT_ENV === "server") { suffix = picSuffix }
+    else { suffix = getPicSuffix(); }
 
     return `${context.picURL}?pic=${url}${format + suffix}`;
   }
@@ -70,7 +65,7 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
               className={style.ownerWrapper}
               onClick={e => {
                 e.preventDefault();
-                props.history.push({ pathname: "/space/" + videoData.owner.mId });
+                history.push({ pathname: "/space/" + videoData.owner.mId });
               }}
             >
               <span className={style.iconUp} >
@@ -78,9 +73,7 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
                   <use href="#icon-uper"></use>
                 </svg>
               </span>
-              <span className={style.owner} ref={ownerRef}>
-                {videoData.owner.name}
-              </span>
+              <span className={style.owner} ref={ownerRef}>{videoData.owner.name}</span>
             </span>
           }
           <div className={style.countInfo}>
@@ -89,17 +82,13 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
                 <use href="#icon-playCount"></use>
               </svg>
             </span>
-            <span className={style.playCount}>
-              {formatTenThousand(videoData.playCount)}
-            </span>
+            <span className={style.playCount}>{formatTenThousand(videoData.playCount)}</span>
             <span className={style.iconBarrage} >
               <svg className="icon" aria-hidden="true">
                 <use href="#icon-barrageCount"></use>
               </svg>
             </span>
-            <span className={style.barrageCount}>
-              {formatTenThousand(videoData.barrageCount)}
-            </span>
+            <span className={style.barrageCount}>{formatTenThousand(videoData.barrageCount)}</span>
           </div>
         </div>
       </Link>

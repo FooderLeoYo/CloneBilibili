@@ -39,18 +39,40 @@
               width: 100%
           .info
             margin-left: px2rem(130)
+            position: relative
             .title
               height: px2rem(34)
               line-height: px2rem(17)
               font-size: px2rem(14)
               color: #212121
               overflow: hidden
+            .owner-wrapper,
+            .streamer-wrapper,
             .time
-              margin-top: px2rem(24)
-              height: px2rem(14)
-              line-height: px2rem(14)
+              position: absolute
+              height: px2rem(22)
+              line-height: px2rem(22)
               font-size: px2rem(12)
               color: #999999
+            .owner-wrapper,
+            .streamer-wrapper
+              top: px2rem(33)
+              .icon-up
+                font-size: px2rem(16)
+              .owner
+                margin-left: px2rem(6)
+            .streamer-wrapper
+              width: 100%
+              .live-status
+                float: right
+                padding: 0 px2rem(2)
+                &.live
+                  color: #fb7299
+            .time
+              top: px2rem(52)
+              .platform
+                margin-right: px2rem(6)
+                font-size: px2rem(16)
       .tips
         padding-top: px2rem(85.2)
         text-align: center
