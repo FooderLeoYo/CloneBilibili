@@ -28,13 +28,14 @@ interface PlayerProps {
   videoRef?: React.RefObject<HTMLVideoElement>,
   isStreaming?: boolean, // 主播是否正在直播
   liveTime?: number,
+  clickCover?: Function
 }
 
 const { useState, useEffect, useRef, useContext, forwardRef, useImperativeHandle } = React;
 
 function Player(props: PlayerProps, ref) {
   /* 从父组件获取的数据 */
-  const { isLive, video, liveTime, videoRef } = props;
+  const { isLive, video, liveTime, videoRef, clickCover } = props;
   const temVideoRef = useRef(null);
   const videoDOMRef: React.RefObject<HTMLVideoElement> = videoRef ? videoRef : temVideoRef;
   const context = useContext(myContext);
@@ -425,6 +426,7 @@ function Player(props: PlayerProps, ref) {
         </div>
         {/* 封面 */}
         <Cover
+          ref={coverRef}
           isLive={isLive}
           video={video}
           playOrPause={playOrPause}
@@ -432,7 +434,7 @@ function Player(props: PlayerProps, ref) {
           setWaiting={setWaiting}
           videoRef={videoDOMRef}
           setPaused={setPaused}
-          ref={coverRef}
+          clickCover={clickCover}
         />
         {/* 正在缓冲 */}
         {waiting && <Loading isLive={isLive} />}

@@ -18,19 +18,17 @@ interface CoverProps {
   lastPosRef: React.MutableRefObject<any>,
   setWaiting: React.Dispatch<React.SetStateAction<boolean>>,
   videoRef: React.RefObject<HTMLVideoElement>,
-  setPaused: React.Dispatch<React.SetStateAction<boolean>>
+  setPaused: React.Dispatch<React.SetStateAction<boolean>>,
+  clickCover?: Function
 }
 
 const { useState, useEffect, useRef, forwardRef, useImperativeHandle } = React;
 
 function Cover(props: CoverProps, ref) {
-  const { isLive, video, playOrPause, lastPosRef, setWaiting,
-    videoRef, setPaused } = props;
-
+  const { isLive, video, playOrPause, lastPosRef, setWaiting, videoRef,
+    setPaused, clickCover } = props;
   const [isShowCover, setIsShowCover] = useState(true);
-  const notLiveCoverRef: React.RefObject<HTMLDivElement> = useRef(null);
-  const liveCoverRef: React.RefObject<HTMLDivElement> = useRef(null);
-
+  const playBtnCoverRef: React.RefObject<HTMLDivElement> = useRef(null);
   const coverStyle = { display: isShowCover ? "block" : "none" };
 
   function setThumbnailListener() {
@@ -46,55 +44,35 @@ function Cover(props: CoverProps, ref) {
     // "play"是HTML DOM 事件onplay的事件类型，而不是一个自定义名称
     if (!isLive) {
       videoDOM.addEventListener("play", setPlayState);
-      notLiveCoverRef.current.addEventListener("click", e => {
+      playBtnCoverRef.current.addEventListener("click", e => {
         e.stopPropagation();
         playOrPause();
         lastPosRef.current.hideLastPos();
-      });
-    } else {
-      liveCoverRef.current.addEventListener("click", e => {
-        e.stopPropagation();
-        playOrPause();
+        clickCover();
       });
     }
   }
 
-  useImperativeHandle(ref, () => ({
-    isShowCover: isShowCover
-  }), [isShowCover])
+  useImperativeHandle(ref, () => ({ isShowCover: isShowCover }), [isShowCover])
 
-  useEffect(() => {
-    setThumbnailListener();
-  }, []);
+  useEffect(() => setThumbnailListener(), []);
 
   return (
     <div className={style.cover} style={coverStyle}>
       {
-        !isLive ? (
+        !isLive ?
           <>
-            <div className={style.title}>
-              av{video.aId}
-            </div>
+            <div className={style.title}>av{video.aId}</div>
             <img className={style.pic} src={video.cover} alt={video.title} />
             <div className={style.prePlay}>
-              <div className={style.duration}>
-                {formatDuration(video.duration, "0#:##:##")}
-              </div>
-              <div className={style.preview} ref={notLiveCoverRef}>
+              <div className={style.duration}>{formatDuration(video.duration, "0#:##:##")}</div>
+              <div className={style.playBtn} ref={playBtnCoverRef}>
                 <svg className="icon" aria-hidden="true">
                   <use href="#icon-play"></use>
                 </svg>
               </div>
             </div>
-          </>
-        ) : (
-            <>
-              <img className={style.pic} src={video.cover} alt={video.title} />
-              <div className={style.prePlay}>
-                <div className={style.preview} ref={liveCoverRef} />
-              </div>
-            </>
-          )
+          </> : <><img className={style.pic} src={video.cover} alt={video.title} /></>
       }
     </div>
   )

@@ -297,9 +297,6 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     this.setState({ videoData: this.props.video, isDataOk: true });
     this.saveHistory(vData);
 
-    const { aId, cId } = vData;
-    postViewedReport({ aid: aId, cid: cId });
-
     // 设置底部切换区域的位置，首次切换时都跳到这个位置
     // 不放在定时器里会报错找不到相关Dom节点
     setTimeout(() => {
@@ -368,9 +365,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                   cid: cId,
                   progress: Math.floor(this.videoRef.current.currentTime)
                 })}
-              >
-                <HeaderWithBack />
-              </div>
+              ><HeaderWithBack /></div>
               {/* 内容 */}
               <div className={style.contentWrapper}>
                 {/* 播放器 */}
@@ -386,6 +381,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                     }}
                     isLive={false}
                     videoRef={this.videoRef}
+                    clickCover={() => postViewedReport({ aid: this.props.video.aId, cid: this.props.video.cId })}
                   />
                 </div>
                 {/* 视频信息 */}
@@ -393,7 +389,8 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                   <span
                     className={style.iconArrow}
                     ref={this.arrowRef}
-                    onClick={this.toggle}>
+                    onClick={this.toggle}
+                  >
                     <svg className="icon" aria-hidden="true">
                       <use href="#icon-arrowDownBig"></use>
                     </svg>

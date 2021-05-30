@@ -119,8 +119,8 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
 
   private setHistoryData() {
     getViewedHistory(0, "", 30).then(res => {
-      console.log(res)
       const { code, data } = res.data;
+      console.log(data)
       if (code === 0) {
         const videoMap: Map<string, []> = new Map();
         const liveMap: Map<string, []> = new Map();
@@ -168,8 +168,9 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
                 <div className={style.itemTitle}>{item[0]}</div>
                 {
                   item[1].map((record, i) => {
-                    const { history, cover, title, view_at, author_mid, author_name, } = record;
+                    const { history, cover, title, progress, duration, view_at, author_mid, author_name, } = record;
                     const { oid, dt } = history;
+                    const curProgress = progress === -1 ? 100 : progress / duration * 100;
                     const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "mobile";
                     return (
                       <div className={style.itemWrapper} key={i}>
@@ -181,6 +182,9 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
                               </svg>
                             </span>
                             <img src={this.getPicUrl(cover, "@320w_200h")} />
+                            <div className={style.progressWrapper}>
+                              <div className={style.curProgress} style={{ width: `${curProgress}%` }}></div>
+                            </div>
                           </div>
                           <div className={style.info}>
                             <div className={style.title}>{title}</div>
