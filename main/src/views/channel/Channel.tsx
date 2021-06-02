@@ -70,11 +70,7 @@ function Channel(props: ChannelProps) {
     const rId = rIdRef.current;
     getRankingRegion({ rId, day: 7 }).then(result => {
       if (result.code === "1") {
-        setHotVideos(
-          result.data.splice(0, 4).map(
-            data => createVideoByRanking(data)
-          )
-        );
+        setHotVideos(result.data.splice(0, 4).map(data => createVideoByRanking(data)));
       }
     });
   }
@@ -134,9 +130,7 @@ function Channel(props: ChannelProps) {
 
   useEffect(() => {
     if (shouldLoad) {
-      dispatch(getPartitionList()).then(() => {
-        setInitData();
-      });
+      dispatch(getPartitionList()).then(() => setInitData());
     } else {
       setInitData();
       dispatch(setShouldLoad(true));
