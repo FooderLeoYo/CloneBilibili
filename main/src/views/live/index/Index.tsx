@@ -174,13 +174,6 @@ function Index(props: IndexProps) {
                                 data.cover = `${context.picURL}?pic=${data.cover}`;
                               }
                               return (
-                                // <a
-                                //   className={style.roomWrapper}
-                                //   key={data.roomId}
-                                //   href={`/live/${data.roomId}`}
-                                // >
-                                //   <LiveInfo data={data} />
-                                // </a>
                                 <Link className={style.roomWrapper} key={data.roomId} to={`/live/${data.roomId}`}>
                                   <LiveInfo data={data} />
                                 </Link>

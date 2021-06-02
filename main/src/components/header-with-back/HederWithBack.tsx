@@ -51,6 +51,7 @@ function HeaderWithBack() {
               <svg className="icon" aria-hidden="true">
                 <use href="#icon-avatar"></use>
               </svg>
+              <span className={style.login}>登录</span>
             </Link>
         }
       </div>

@@ -12,7 +12,7 @@ const router = express.Router();
 
 // 直播首页
 router.get("/live/data", (req, res, next) => {
-  fetchLiveList().then((data) => {
+  fetchLiveList().then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -29,7 +29,7 @@ router.get("/live/data", (req, res, next) => {
 
 // 直播分类
 router.get("/live/area", (req, res, next) => {
-  fetchLiveArea().then((data) => {
+  fetchLiveArea().then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -46,7 +46,7 @@ router.get("/live/area", (req, res, next) => {
 
 // 房间列表
 router.get("/live/room/list", (req, res, next) => {
-  fetchRoomList(req.query).then((data) => {
+  fetchRoomList(req.query).then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -63,7 +63,7 @@ router.get("/live/room/list", (req, res, next) => {
 
 // 房间信息
 router.get("/live/room/info", (req, res, next) => {
-  fetchRoomInfo(req.query.roomId).then((data) => {
+  fetchRoomInfo(req.query.roomId).then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -80,7 +80,7 @@ router.get("/live/room/info", (req, res, next) => {
 
 // 直播礼物
 router.get("/live/room/gifts", (req, res, next) => {
-  fetchLiveGift().then((data) => {
+  fetchLiveGift().then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -97,7 +97,7 @@ router.get("/live/room/gifts", (req, res, next) => {
 
 // 直播地址
 router.get("/live/room/play_url", (req, res, next) => {
-  fetchLiveUrl(req.query.roomId).then((data) => {
+  fetchLiveUrl(req.query.roomId).then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -114,7 +114,7 @@ router.get("/live/room/play_url", (req, res, next) => {
 
 // 弹幕配置
 router.get("/live/room/danmu_config", (req, res, next) => {
-  fetchDanMuConfig(req.query.roomId).then((data) => {
+  fetchDanMuConfig(req.query.roomId).then(data => {
     let resData = {
       code: "1",
       msg: "success"

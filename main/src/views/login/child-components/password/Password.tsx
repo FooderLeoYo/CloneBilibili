@@ -75,6 +75,7 @@ function Password(props: PasswordProps) {
 
               if (code === 0) {
                 // 登录成功后的操作
+                window.history.back();
               } else { Toast.error(message, false, null, 2000); }
             }
           })

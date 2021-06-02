@@ -13,7 +13,6 @@ import style from "./head.styl?css-modules";
 interface HeadProps {
   partitions: PartitionType[],
   match: match<{ rId }>,
-  setIsDataOk: React.Dispatch<React.SetStateAction<boolean>>,
   history: History,
   loadHotVideos: () => void,
   loadAllSecRecVideos: () => void,

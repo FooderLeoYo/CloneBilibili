@@ -35,7 +35,6 @@ function Channel(props: ChannelProps) {
   const { history, shouldLoad, dispatch, staticContext, match, partitions } = props;
   const context = useContext(myContext);
 
-  const [isDataOk, setIsDataOk] = useState(false);
   const [hotVideos, setHotVideos] = useState([]);
   const [videoLatestId, setVideoLatestId] = useState(0);
   const [isRecAndChildrenGtTwo, setIsRecAndChildrenGtTwo] = useState(true);
@@ -131,7 +130,6 @@ function Channel(props: ChannelProps) {
   function setInitData() {
     setRankingPartitions();
     loadHotVideos();
-    setTimeout(() => { setIsDataOk(true); }, 1);
   }
 
   useEffect(() => {
@@ -209,7 +207,6 @@ function Channel(props: ChannelProps) {
             <Head
               partitions={partitions}
               match={match}
-              setIsDataOk={setIsDataOk}
               history={history}
               loadHotVideos={loadHotVideos}
               isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}

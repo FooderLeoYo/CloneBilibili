@@ -6,6 +6,7 @@ import { History } from "history";
 
 import Context from "../../context";
 import { getRecommendVides, getComments, postViewedReport } from "../../api/video";
+import { getNavUserInfo } from "../../api/login";
 import storage from "../../customed-methods/storage";
 import getVideoDetail from "../../redux/async-action-creators/video";
 import { setShouldLoad } from "../../redux/action-creators";
@@ -42,6 +43,8 @@ interface VideoPageState {
   comments: any;
   isSwitcherFixed: boolean;
   prevId: number;
+  isViewed: boolean;
+  isLogin: boolean;
 }
 
 class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
@@ -80,6 +83,8 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
       comments: [],
       isSwitcherFixed: false,
       prevId: -999,
+      isViewed: false,
+      isLogin: false
     }
   }
 
@@ -128,13 +133,15 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
               <div
                 className={style.videoWrapper}
                 key={video.aId}
-                onClick={() =>
-                  postViewedReport({
-                    aid: this.props.video.aId,
-                    cid: this.props.video.cId,
-                    progress: Math.floor(this.videoRef.current.currentTime) // 后台API要求取整
-                  })
-                }
+                onClick={() => {
+                  if (this.state.isLogin && this.state.isViewed) {
+                    postViewedReport({
+                      aid: this.props.video.aId,
+                      cid: this.props.video.cId,
+                      progress: Math.floor(this.videoRef.current.currentTime) // 后台API要求取整
+                    })
+                  }
+                }}
               >
                 <VideoItemLandscape
                   videoData={video}
@@ -297,6 +304,12 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     this.setState({ videoData: this.props.video, isDataOk: true });
     this.saveHistory(vData);
 
+    getNavUserInfo().then(result => {
+      if (result.data.code === 0) {
+        this.setState({ isLogin: true });
+      }
+    })
+
     // 设置底部切换区域的位置，首次切换时都跳到这个位置
     // 不放在定时器里会报错找不到相关Dom节点
     setTimeout(() => {
@@ -337,13 +350,12 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
 
   /* 以下为渲染部分 */
   public render() {
-    const isDataOk = this.state.isDataOk;
-    const video = this.state.videoData;
+    const { isDataOk, videoData } = this.state
     const { title, desc, owner, aId, cId, pic, duration, url, playCount, barrageCount,
-      publicDate, twoLevel } = video;
+      publicDate, twoLevel } = videoData;
 
     if (isDataOk && pic.indexOf("@400w_300h") === -1) {
-      video.pic = this.getPicUrl(pic, "@400w_300h");
+      videoData.pic = this.getPicUrl(pic, "@400w_300h");
     }
 
     return (
@@ -360,11 +372,15 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
               <div
                 className={style.topWrapper}
                 ref={this.topWrapperRef}
-                onClick={() => postViewedReport({
-                  aid: aId,
-                  cid: cId,
-                  progress: Math.floor(this.videoRef.current.currentTime)
-                })}
+                onClick={() => {
+                  if (this.state.isLogin && this.state.isViewed) {
+                    postViewedReport({
+                      aid: aId,
+                      cid: cId,
+                      progress: Math.floor(this.videoRef.current.currentTime)
+                    })
+                  }
+                }}
               ><HeaderWithBack /></div>
               {/* 内容 */}
               <div className={style.contentWrapper}>
@@ -375,13 +391,16 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                       aId: aId,
                       cId: cId,
                       title: title,
-                      cover: video.pic,
+                      cover: videoData.pic,
                       duration: duration,
                       url: url,
                     }}
                     isLive={false}
                     videoRef={this.videoRef}
-                    clickCover={() => postViewedReport({ aid: this.props.video.aId, cid: this.props.video.cId })}
+                    clickCover={() => {
+                      this.setState({ isViewed: true });
+                      if (this.state.isLogin) { postViewedReport({ aid: this.props.video.aId, cid: this.props.video.cId }); }
+                    }}
                   />
                 </div>
                 {/* 视频信息 */}

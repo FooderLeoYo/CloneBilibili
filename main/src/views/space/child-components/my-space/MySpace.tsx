@@ -120,7 +120,6 @@ class MySpace extends React.Component<MyspaceProps, MyspaceState> {
   private setHistoryData() {
     getViewedHistory(0, "", 30).then(res => {
       const { code, data } = res.data;
-      console.log(data)
       if (code === 0) {
         const videoMap: Map<string, []> = new Map();
         const liveMap: Map<string, []> = new Map();

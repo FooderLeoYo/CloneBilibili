@@ -1,7 +1,5 @@
 const express = require("express");
-const {
-  fetchRoundSowing
-} = require("../api");
+const { fetchRoundSowing } = require("../api");
 const router = express.Router();
 
 const partitionData = {
@@ -10,7 +8,7 @@ const partitionData = {
     { tid: 3, typename: "音乐" }, { tid: 129, typename: "舞蹈" }, { tid: 4, typename: "游戏" },
     { tid: 36, typename: "科技" }, { tid: 188, typename: "数码" }, { tid: 160, typename: "生活" },
     { tid: 119, typename: "鬼畜" }, { tid: 155, typename: "时尚" }, { tid: 5, typename: "娱乐" },
-    { tid: 181, typename: "影视" }, { tid: 166, typename: "广告" }, { tid: 177, typename: "纪录片" },
+    { tid: 181, typename: "影视" }, { tid: 177, typename: "纪录片" },
     { tid: 23, typename: "电影" }, { tid: 11, typename: "电视剧" }
   ],
   1: [
@@ -63,7 +61,6 @@ const partitionData = {
     { tid: 182, typename: "影视杂谈" }, { tid: 183, typename: "影视剪辑" }, { tid: 85, typename: "短片" },
     { tid: 184, typename: "预告·资讯" }
   ],
-  166: [{ tid: 166, typename: "广告" }],
   177: [],
   11: [],
   23: []

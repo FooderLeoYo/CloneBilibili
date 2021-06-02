@@ -1,7 +1,7 @@
 import { getJSON, postJSON } from "./fetch";
 import {
   URL_LOGIN_GT_CAPTCHA, URL_LOGIN_PW_KEYHASH, URL_LOGIN_PW_VERIFY, URL_LOGIN_NAV_INFO,
-  URL_LOGIN_AREA_CODE, URL_LOGIN_SMS_CAPTCHA, URL_LOGIN_SMS_VERIFY, URL_LOGIN_EXIT_LOGIN
+  URL_LOGIN_AREA_CODE, URL_LOGIN_SMS_CAPTCHA, URL_LOGIN_SMS_VERIFY
 } from "./url";
 
 /* 获取人机验证码 */
@@ -39,6 +39,3 @@ export function getSMSVerifyInfo(param) {
   return postJSON(URL_LOGIN_SMS_VERIFY, param);
 }
 
-export function exitLogin() {
-  return getJSON(URL_LOGIN_EXIT_LOGIN, null);
-}

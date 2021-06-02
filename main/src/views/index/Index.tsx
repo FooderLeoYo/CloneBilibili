@@ -226,11 +226,6 @@ class Index extends React.Component<IndexProps, IndexState> {
                     </div>
                   </div>
                 }
-                <div onClick={() => {
-                  this.props.history.push({ pathname: "/login/" });
-                }}>
-                  登录！！！！！！！！！！
-            </div>
                 {/* 视频 */}
                 <div className={style.videoList + " clear"}>
                   {videoElements}
