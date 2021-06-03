@@ -22,7 +22,7 @@ function BasicInfo(props) {
           </span>
         </div>
         <div className={style.accountType}>
-          {<span className={style.vip}>{navData?.vipStatus === 1 ? navData?.vip_label?.text : "正式会员"}</span>}
+          {<span className={style.membership}>{navData?.vipStatus === 1 ? navData?.vip_label?.text : "正式会员"}</span>}
           {navData?.official_verify?.type === 0 ? <span>{navData?.official?.role}</span> : null}
         </div>
       </div>
