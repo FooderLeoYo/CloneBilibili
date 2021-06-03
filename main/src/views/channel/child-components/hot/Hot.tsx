@@ -52,7 +52,7 @@ function Hot(props: HotProps) {
           <span className={style.text}>排行榜</span>
           <span className={style.more}>
             <svg className="icon" aria-hidden="true">
-              <use href="#icon-back"></use>
+              <use href="#icon-arrowDownBig"></use>
             </svg>
           </span>
         </div>

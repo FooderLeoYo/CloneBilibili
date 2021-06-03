@@ -36,7 +36,7 @@ function Header() {
         </Link>
         {
           isLogin ?
-            <Link className={style.face} to="/space"><img src={faceUrl} alt="Face" /></Link> :
+            <Link className={style.face} to="/me"><img src={faceUrl} alt="Face" /></Link> :
             <Link className={style.avatar} to="/login">
               <svg className="icon" aria-hidden="true">
                 <use href="#icon-avatar"></use>

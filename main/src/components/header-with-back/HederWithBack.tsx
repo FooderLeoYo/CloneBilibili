@@ -23,11 +23,11 @@ function HeaderWithBack() {
   return (
     <div className={style.header}>
       <div className={style.backWrapper}>
-        <div className={style.backBtn} onClick={() => window.history.back()}>
+        <span className={style.backBtn} onClick={() => window.history.back()}>
           <svg className="icon" aria-hidden="true">
-            <use href="#icon-back"></use>
+            <use href="#icon-arrowDownBig"></use>
           </svg>
-        </div>
+        </span>
       </div>
       <div className={style.logoWrapper}>
         <div className={style.logo}>
@@ -46,7 +46,7 @@ function HeaderWithBack() {
         </Link>
         {
           isLogin ?
-            <Link className={style.face} to="/space"><img src={faceUrl} alt="Face" /></Link> :
+            <Link className={style.face} to="/me"><img src={faceUrl} alt="Face" /></Link> :
             <Link className={style.avatar} to="/login">
               <svg className="icon" aria-hidden="true">
                 <use href="#icon-avatar"></use>

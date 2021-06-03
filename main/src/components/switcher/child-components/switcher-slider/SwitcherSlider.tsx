@@ -36,7 +36,6 @@ function SwitcherSlider(props: SwitcherSliderProps) {
   const switchTypeRef: React.MutableRefObject<number> = useRef(switchType);
   if (switchTypeRef.current !== switchType) { switchTypeRef.current = switchType; }
 
-  /* 以下为自定义方法 */
   function switchSlider(indx) {
     const sliderDOM: HTMLDivElement = contentWrapperRef.current;
     const sliderItems: HTMLCollection = sliderDOM.children;
@@ -100,8 +99,7 @@ function SwitcherSlider(props: SwitcherSliderProps) {
     } else {
       e.preventDefault();
       if (gestureType !== 1) { setGestureType(1); }
-      DOM.style.transform =
-        `translate3d(${-outerWidth * curInxRef.current + moveDistance.x}px, 0, 0)`;
+      DOM.style.transform = `translate3d(${-outerWidth * curInxRef.current + moveDistance.x}px, 0, 0)`;
     }
   }
 
@@ -131,7 +129,7 @@ function SwitcherSlider(props: SwitcherSliderProps) {
       };
       avoidSway(moveDistance, sliderDOM, e);
     });
-    sliderDOM.addEventListener("touchend", () => { shouldSwitch(moveDistance.x); });
+    sliderDOM.addEventListener("touchend", () => shouldSwitch(moveDistance.x));
   }
 
   useEffect(() => {

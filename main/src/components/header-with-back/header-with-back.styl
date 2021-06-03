@@ -17,6 +17,9 @@
       padding-left: px2rem(7)
       color: rgb(251, 114, 153)
       font-size: px2rem(20)
+      svg
+        transform: rotate(90deg)
+        transform-origin: 50% 50%
   .logo-wrapper
     flex: 1
     .logo
@@ -41,16 +44,19 @@
       font-size: px2rem(25)
       color: rgb(138, 138, 138)
     .face
+      position: absolute
+      top: 50%
+      transform:translateY(-50%)
+      right: px2rem(18)
+      width: px2rem(25)
+      height: px2rem(25)
+      display: flex
+      border-radius: 50%
+      overflow: hidden
+      justify-content: center
+      align-items: center
       img
-        position: absolute
-        top: 50%
-        transform:translateY(-50%)
-        right: px2rem(18)
-        display: inline-block
-        width: px2rem(25)
-        height: px2rem(25)
-        line-height: @height
-        text-align: center
+        height: 100%
     .avatar
       position: absolute
       top: 50%

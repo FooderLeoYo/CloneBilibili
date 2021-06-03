@@ -9,9 +9,7 @@ import style from "./space.styl?css-modules";
 function Space(props) {
   return (
     <div className="space">
-      <div className={style.topWrapper}>
-        <HederWithBack />
-      </div>
+      <div className={style.topWrapper}><HederWithBack /></div>
       <div className={style.banner}>
         <img src={banner} />
       </div>

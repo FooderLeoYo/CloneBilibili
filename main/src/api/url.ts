@@ -44,10 +44,11 @@ const URL_LOGIN_NAV_INFO = prefix + "/login/getnavuserinfo";
 const URL_LOGIN_AREA_CODE = prefix + "/login/getareacode";
 const URL_LOGIN_SMS_CAPTCHA = prefix + "/login/getsmscaptcha";
 const URL_LOGIN_SMS_VERIFY = prefix + "/login/verifysms";
-const URL_LOGIN_EXIT_LOGIN = prefix + "/login/exitlogin";
 
 const URL_SPACE_GET_HISTORY = prefix + "/space/gethistory";
 const URL_SPACE_CLEAR_HISTORY = prefix + "/space/clearhistory";
+
+const URL_LOGIN_EXIT_LOGIN = prefix + "/me/exitlogin";
 
 export {
   URL_INDEX,

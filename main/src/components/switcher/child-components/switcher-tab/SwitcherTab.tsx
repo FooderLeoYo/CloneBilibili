@@ -38,7 +38,7 @@ function SwitcherTab(props: SwitcherTabProps) {
           return (
             <span
               className={style.switcherItem + (curTab === index ? " " + style.actived : "")}
-              onClick={() => { switchTab(index); }}
+              onClick={() => switchTab(index)}
               key={index}
             >{title}</span>
           );
