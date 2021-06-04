@@ -1,0 +1,86 @@
+@import "../../../../assets/stylus/px2rem.styl"
+    
+.top
+  position: fixed
+  top: px2rem(45)
+  left: 0
+  right: 0
+  background-color #fff
+  height: px2rem(130)
+  .basic-info
+    display: grid
+    grid-template-columns: 20% 40% 40%
+    padding: px2rem(10) px2rem(20)
+    .portrait
+      display: flex
+      justify-content: center
+      align-items: center
+      width: px2rem(60)
+      height: px2rem(60)
+      border-radius: 50%
+      overflow: hidden
+      img
+        height: 100%
+    .descriptions
+      padding-left: px2rem(10)
+      .name-and-lv
+        display: flex
+        align-items: center
+        height: px2rem(20)
+        .uname
+          font-size: px2rem(18)
+        .level
+          margin-left: px2rem(3)
+          font-size: px2rem(30)
+      .account-type
+        height: px2rem(30)
+        .membership
+          padding: px2rem(2) px2rem(5)
+          border-radius: px2rem(3)
+          background-color: #fb7299
+          color: #ffffff
+          font-size: px2rem(1)
+    .to-space
+      position: relative
+      color: #888888
+      .link
+        position: absolute
+        right: 0
+        top: 50%
+        transform: translateY(-50%)
+        font-size: px2rem(13)
+        .arrow
+          svg
+            transform: rotate(-90deg)
+            transform-origin: 50% 50%
+  .statistics
+    margin: px2rem(5) 0
+    height: px2rem(40)
+    display: grid
+    grid-template-columns: 33.33% 33.33% 33.33%
+    .container
+      position: relative
+      display: grid
+      grid-template-rows: 50% 50%
+      text-align: center
+      .data,
+      .title
+        line-height: px2rem(20)
+      .data
+        font-size: px2rem(16)
+        font-weight: bold
+      .title
+        font-size: px2rem(10)
+        color: #777777
+      &:before,
+      &:after
+        position: absolute
+        top: 50%
+        transform: translateY(-50%)
+        content:""
+        display: inline-block
+        width: px2rem(1)
+        height: 50%
+        background-color: #999999
+
+        

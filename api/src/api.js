@@ -37,7 +37,6 @@ const URL_SUGGEST = "https://s.search.bilibili.com/main/suggest";
 // 搜索
 const URL_SEARCH = "https://api.bilibili.com/x/web-interface/search/type";
 
-
 // 直播首页
 const URL_LIVE_INDEX = "https://api.live.bilibili.com/room/v2/AppIndex/getAllList?device=phone&platform=ios&scale=3";
 // 分类
@@ -374,6 +373,12 @@ const clearHistory = cookie => {
     .then(json => json);
 }
 
+const fetchRelation = (uid) => {
+  return fetch(URL_UP_USER_STATUS.replace("{mid}", uid))
+    .then(res => res.json())
+    .then(body => body.data);
+}
+
 module.exports = {
   fetchUserData,
   fetchRoundSowing,
@@ -406,5 +411,6 @@ module.exports = {
   fetchSMSVerifyInfo,
   exitLogin,
   fetchHistory,
-  clearHistory
+  clearHistory,
+  fetchRelation
 }
