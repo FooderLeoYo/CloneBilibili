@@ -46,7 +46,6 @@ const URL_LOGIN_SMS_CAPTCHA = prefix + "/login/getsmscaptcha";
 const URL_LOGIN_SMS_VERIFY = prefix + "/login/verifysms";
 
 const URL_SPACE_GET_HISTORY = prefix + "/space/gethistory";
-const URL_SPACE_CLEAR_HISTORY = prefix + "/space/clearhistory";
 const URL_SPACE_GET_RELATION = prefix + "/space/getrelation";
 
 const URL_LOGIN_EXIT_LOGIN = prefix + "/me/exitlogin";
@@ -86,6 +85,5 @@ export {
   URL_LOGIN_EXIT_LOGIN,
   URL_SPACE_GET_HISTORY,
   URL_VIDEO_REPORT,
-  URL_SPACE_CLEAR_HISTORY,
   URL_SPACE_GET_RELATION
 }

@@ -6,11 +6,11 @@ import { History } from "history";
 import { getPicSuffix } from "../../../../../../customed-methods/image";
 import Context from "../../../../../../context";
 
-import { Switcher } from "../../../../../../components/switcher/Switcher";
+import Header from "../../child-components/header/Header"
 import ScrollToTop from "../../../../../../components/scroll-to-top/ScrollToTop";
 
 import style from "./favorites.styl?css-modules";
-import tips from "../../../../../../assets/images/nocontent.png";
+import tips from "../../../../../assets/images/nocontent.png";
 
 interface FavoritesProps {
   history: History;
@@ -21,8 +21,9 @@ function Favorites(props: FavoritesProps) {
   return (
     <div className={style.favorites}>
       <Helmet><title>我的收藏</title></Helmet>
+      <div className={style.topWrapper}><Header /></div>
       <div className={style.listWrapper}>
-
+        收藏列表
       </div>
       <ScrollToTop />
     </div>

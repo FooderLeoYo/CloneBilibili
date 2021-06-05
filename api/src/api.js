@@ -71,8 +71,6 @@ const URL_EXIT_LOGIN = "http://passport.bilibili.com/login?act=exit";
 
 // 获取历史记录
 const URL_GET_HISTORY = "http://api.bilibili.com/x/web-interface/history/cursor";
-// 清空历史记录
-const URL_CLEAR_HISTORY = "http://api.bilibili.com/x/v2/history/clear";
 // 获取自己收藏夹列表
 const URL_GET_MINEFAVLIST = "http://api.bilibili.com/x/v3/fav/folder/created/list-all";
 // 获取收藏的收藏夹
@@ -362,23 +360,6 @@ const fetchHistory = (param, cookie) => {
     .then(json => json);
 }
 
-const clearHistory = cookie => {
-  const rawString = cookie;
-  const bjctPos = rawString.indexOf("bili_jct");
-  const bili_jct = rawString.substring(bjctPos + 9);
-  const searchParam = `csrf=${bili_jct}`;
-
-  return fetch(URL_CLEAR_HISTORY, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      "cookie": cookie
-    },
-    body: searchParam,
-  }).then(res => res.json())
-    .then(json => json);
-}
-
 const fetchRelation = (uid) => {
   return fetch(URL_UP_USER_STATUS.replace("{mid}", uid))
     .then(res => res.json())
@@ -417,6 +398,5 @@ module.exports = {
   fetchSMSVerifyInfo,
   exitLogin,
   fetchHistory,
-  clearHistory,
   fetchRelation
 }

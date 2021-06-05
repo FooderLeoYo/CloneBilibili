@@ -11,10 +11,10 @@ function Header() {
   useEffect(() => {
     const url = location.pathname;
 
-    if (url === "/me/list/history") { setType("历史记录") }
-    else if (url === "/me/list/favorites") { setType("我的收藏") }
-    else if (url === "/me/list/bangumi") { setType("我的订阅") }
-    else if (url === "/me/list/later") { setType("稍后再看") }
+    if (url === "/me/history") { setType("历史记录") }
+    else if (url === "/me/favorites") { setType("我的收藏") }
+    else if (url === "/me/bangumi") { setType("我的订阅") }
+    else if (url === "/me/later") { setType("稍后再看") }
   }, []);
 
   return (

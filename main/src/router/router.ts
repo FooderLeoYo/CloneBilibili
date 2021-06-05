@@ -110,14 +110,12 @@ const router = [
     component: loadable(() => import(/* webpackChunkName: 'me' */ "../views/me/Me")),
   },
   {
-    path: "/me/list",
-    component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/child-components/list/List")),
-    routes: [
-      {
-        path: "/me/list/history",
-        component: loadable(() => import(/* webpackChunkName: 'me-list-history' */ "../views/me/child-components/list/child-components/history/MyHistory")),
-      },
-    ]
+    path: "/me/history",
+    component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/child-components/list/genre/history/MyHistory")),
+  },
+  {
+    path: "/me/favorites",
+    component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/child-components/list/genre/favorites/Favorites")),
   },
 ];
 

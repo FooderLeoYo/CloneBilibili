@@ -3,16 +3,17 @@ import { History } from "history";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
-import { getViewedHistory, clearHistory } from "../../../../../../api/space";
+import { getViewedHistory } from "../../../../../../api/space";
 import { formatDate } from "../../../../../../customed-methods/datetime";
 import { getPicSuffix } from "../../../../../../customed-methods/image";
 import Context from "../../../../../../context";
 
+import Header from "../../child-components/header/Header"
 import { Switcher } from "../../../../../../components/switcher/Switcher";
 import ScrollToTop from "../../../../../../components/scroll-to-top/ScrollToTop";
 
 import style from "./my-history.styl?css-modules";
-import tips from "../../../../../../assets/images/nocontent.png";
+import tips from "../../../../../assets/images/nocontent.png";
 
 interface MyHistoryProps {
   history: History;
@@ -88,26 +89,6 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       }
     } else {
       return formatDate(dateTime, "yyyy-MM-dd hh:mm");
-    }
-  }
-
-  // 这里如果不用用箭头函数，onClick={this.clearHistory}会报错setState undefined
-  // 因为click事件触发后，调用绑定方法clearHistory的是window(未指定调用者时，this默认为全局对象)
-  // 而window上是不带setState的
-  // 而箭头函数的this在定义时就绑定而不是函数被调用时才指定
-  // 即this.setState的this永远都是History组件
-  // 当然也可以在绑定onClick时使用bind方法指定this
-  private clearHistory = (type: string) => {
-    clearHistory();
-    // 光改noHistory不会触发重渲染，一定要将histories清空
-    // 因为更改noHistory后虽然会执行render，但render会与比对渲染数据
-    // 如果没清空histories，那么渲染数据没变，则不会触发重渲染
-    if (type === "video") {
-      this.setState({ noVideoHistory: true });
-      this.setState({ videoHistories: [] });
-    } else {
-      this.setState({ noLiveHistory: true });
-      this.setState({ liveHistories: [] });
     }
   }
 
@@ -286,12 +267,11 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
         }
       </div>
     ];
-    const showClear = (this.state.tabInx === 0 && !this.state.noVideoHistory) ||
-      (this.state.tabInx === 1 && !this.state.noLiveHistory);
 
     return (
       <div className={style.myHistory} ref={this.historyRef} >
         <Helmet><title>历史记录</title></Helmet>
+        <div className={style.topWrapper}><Header /></div>
         <div className={style.switcherArea} ref={this.switcherRef}>
           < Switcher
             tabTitle={["视频", "直播"]}
@@ -302,17 +282,6 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
           />
         </div>
         <ScrollToTop />
-        {
-          showClear ?
-            <div
-              className={style.clearHistory}
-              onClick={() => this.clearHistory(this.state.tabInx === 0 ? "video" : "live")}
-            >
-              <svg className="icon" aria-hidden="true">
-                <use href="#icon-clean"></use>
-              </svg>
-            </div> : null
-        }
       </div>
     );
   }
