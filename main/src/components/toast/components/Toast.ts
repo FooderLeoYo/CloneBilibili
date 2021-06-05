@@ -1,17 +1,11 @@
 import Notification from './Notification';
 
-interface NotificationIns {
-	createNotice: (noticeProps) => void;
-	removeNotice: (key) => void;
-	destroy: () => void;
-}
-
-let notificationInstance: NotificationIns;
+let notificationInstance;
 // notice方法实际上就是集合参数，完成对Notification的改变
 async function notice(type: string, content: string, needMask: boolean = false,
 	iconName: string, onClose: Function = undefined, duration: number = 3000) {
-	const tmp = new Notification(null);
-	if (!notificationInstance) { notificationInstance = await tmp.createNotification(); }
+	const NotiInstance = new Notification(null);
+	if (!notificationInstance) { notificationInstance = await NotiInstance.createNotification(); }
 	notificationInstance.createNotice({
 		duration,
 		type,
