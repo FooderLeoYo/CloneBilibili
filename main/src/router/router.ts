@@ -106,8 +106,19 @@ const router = [
   },
   {
     path: "/me",
-    component: loadable(() => import(/* webpackChunkName: 'login' */ "../views/me/Me")),
-  }
+    exact: true,
+    component: loadable(() => import(/* webpackChunkName: 'me' */ "../views/me/Me")),
+  },
+  {
+    path: "/me/list",
+    component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/child-components/list/List")),
+    routes: [
+      {
+        path: "/me/list/history",
+        component: loadable(() => import(/* webpackChunkName: 'me-list-history' */ "../views/me/child-components/list/child-components/history/MyHistory")),
+      },
+    ]
+  },
 ];
 
 export default router;

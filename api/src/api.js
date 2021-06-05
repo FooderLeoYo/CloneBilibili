@@ -73,6 +73,12 @@ const URL_EXIT_LOGIN = "http://passport.bilibili.com/login?act=exit";
 const URL_GET_HISTORY = "http://api.bilibili.com/x/web-interface/history/cursor";
 // 清空历史记录
 const URL_CLEAR_HISTORY = "http://api.bilibili.com/x/v2/history/clear";
+// 获取自己收藏夹列表
+const URL_GET_MINEFAVLIST = "http://api.bilibili.com/x/v3/fav/folder/created/list-all";
+// 获取收藏的收藏夹
+const URL_GET_LIKEDFAVLIST = "";
+// 获取收藏夹明细
+
 
 const userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) " +
   "AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";

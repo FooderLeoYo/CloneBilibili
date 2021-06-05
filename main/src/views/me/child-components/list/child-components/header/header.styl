@@ -1,0 +1,47 @@
+@import "../../../../../../assets/stylus/px2rem.styl"
+
+* 
+  box-sizing: border-box
+.header
+  display: flex
+  height: px2rem(45)
+  border-bottom: px2rem(0.2) solid #E6E6FA
+  background-color #fff
+  .back-wrapper
+    width: px2rem(80)
+    .back-btn
+      position: absolute
+      top: 50%
+      transform: translateY(-50%)
+      width: px2rem(40)
+      padding-left: px2rem(7)
+      font-size: px2rem(20)
+      svg
+        transform: rotate(90deg)
+        transform-origin: 50% 50%
+  .tools
+    position: relative
+    width: px2rem(80)
+    .search
+      position: absolute
+      top: 51%
+      transform:translateY(-50%)
+      right: px2rem(50)
+      display: inline-block
+      width: px2rem(25)
+      height: @width
+      line-height: @height
+      font-size: px2rem(25)
+      color: rgb(138, 138, 138)
+    .edit
+      position: absolute
+      top: 50%
+      transform:translateY(-50%)
+      right: px2rem(18)
+      width: px2rem(25)
+      height: px2rem(25)
+      display: flex
+      border-radius: 50%
+      overflow: hidden
+      justify-content: center
+      align-items: center

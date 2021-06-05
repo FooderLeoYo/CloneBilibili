@@ -2,7 +2,7 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 
 import { fetchRelation } from "../../../../api/space";
-import { formatTenThousand } from "../../../../customed-methods/string";
+// import { formatTenThousand } from "../../../../customed-methods/string";
 
 import style from "./top.styl?css-modules";
 
@@ -56,15 +56,18 @@ function Top(props) {
       </div>
       <div className={style.statistics}>
         <div className={style.container}>
-          <span className={style.data}>{formatTenThousand(relationData?.following)}</span>
+          {/* <span className={style.data}>{formatTenThousand(relationData?.following)}</span> */}
+          <span className={style.data}>{relationData?.following}</span>
           <span className={style.title}>关注</span>
         </div>
         <div className={style.container + " " + style.follower}>
-          <span className={style.data}>{formatTenThousand(relationData?.follower)}</span>
+          {/* <span className={style.data}>{formatTenThousand(relationData?.follower)}</span> */}
+          <span className={style.data}>{relationData?.follower}</span>
           <span className={style.title}>粉丝</span>
         </div>
         <div className={style.container}>
-          <span className={style.data}>{formatTenThousand(relationData?.whisper)}</span>
+          {/* <span className={style.data}>{formatTenThousand(relationData?.whisper)}</span> */}
+          <span className={style.data}>{relationData?.whisper}</span>
           <span className={style.title}>黑名单</span>
         </div>
       </div>

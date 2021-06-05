@@ -1,10 +1,15 @@
 /*  Notification是Notice父组件，容器
 是动态插入和删除DOM节点的核心 */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import Notice from './Notice';
 import style from '../style/notification.styl?css-modules';
+
+interface NotificationState {
+	noticesProps: Array<any>;
+	hasMask: boolean;
+}
 
 // 统计notice总数，防止重复
 let noticeNumber = 0;
@@ -13,7 +18,8 @@ const createID = () => {
 	return 'notification-' + new Date().getTime() + '-' + noticeNumber++;
 }
 
-class Notification extends React.Component {
+class Notification extends React.Component<null, NotificationState> {
+	private noticesWraRef: React.RefObject<HTMLDivElement>;
 	constructor(props) {
 		super(props);
 		this.noticesWraRef = React.createRef();
@@ -23,27 +29,12 @@ class Notification extends React.Component {
 		}
 	}
 
-	addNewState(noticeProps) {
-		const { noticesProps } = this.state;
-		const needMask = noticeProps.needMask ? noticeProps.needMask : false;
-		const key = noticeProps.key ? noticeProps.key : noticeProps.key = createID();
-		const duplicate = noticesProps.filter(item => item.key === key);
-
-		if (duplicate.length === 0) {
-			noticesProps.push(noticeProps);
-			this.setState({
-				noticesProps: noticesProps,
-				hasMask: needMask
-			});
-		}
-	}
-
-	removeTarState(key) {
+	public removeTarState(key) {
 		// 根据key删除对应
 		this.setState(previousState => ({ noticesProps: previousState.noticesProps.filter(notice => notice.key !== key) }));
 	}
 
-	createNoticesDOM() {
+	private createNoticesDOM() {
 		const _this = this;
 		const { noticesProps } = this.state;
 		const result = [];
@@ -63,6 +54,40 @@ class Notification extends React.Component {
 		return result;
 	}
 
+	public addNewState(noticeProps) {
+		const { noticesProps } = this.state;
+		const needMask = noticeProps.needMask ? noticeProps.needMask : false;
+		const key = noticeProps.key ? noticeProps.key : noticeProps.key = createID();
+		const duplicate = noticesProps.filter(item => item.key === key);
+
+		if (duplicate.length === 0) {
+			noticesProps.push(noticeProps);
+			this.setState({
+				noticesProps: noticesProps,
+				hasMask: needMask
+			});
+		}
+	}
+
+	// Notification对外暴露一个createNotification方法
+	public createNotification = async function (properties?) {
+		const { ...props } = properties || {}; // 扩展运算符是为了深拷贝properties
+
+		const div = document.createElement('div');
+		document.body.appendChild(div);
+		const toastDOMRef = React.createRef();
+		await ReactDOM.render(<Notification ref={toastDOMRef} {...props} />, div);
+
+		return {
+			createNotice(noticeProps) { (toastDOMRef.current as Notification).addNewState(noticeProps); },
+			removeNotice(key) { (toastDOMRef.current as Notification).removeTarState(key); },
+			destroy() {
+				ReactDOM.unmountComponentAtNode(div);
+				document.body.removeChild(div);
+			},
+		}
+	}
+
 	render() {
 		const { noticesProps, hasMask } = this.state;
 		const noticesDOM = this.createNoticesDOM();
@@ -73,25 +98,6 @@ class Notification extends React.Component {
 				<div className={style.noticesWrapper} ref={this.noticesWraRef}>{noticesDOM}</div>
 			</div>
 		)
-	}
-}
-
-// Notification对外暴露一个createNotification方法
-Notification.createNotification = async function (properties) {
-	const { ...props } = properties || {}; // 扩展运算符是为了深拷贝properties
-
-	const div = document.createElement('div');
-	document.body.appendChild(div);
-	const toastDOMRef = React.createRef();
-	await ReactDOM.render(<Notification ref={toastDOMRef} {...props} />, div);
-
-	return {
-		createNotice(noticeProps) { toastDOMRef.current.addNewState(noticeProps); },
-		removeNotice(key) { notification.removeTarState(key); },
-		destroy() {
-			ReactDOM.unmountComponentAtNode(div);
-			document.body.removeChild(div);
-		},
 	}
 }
 

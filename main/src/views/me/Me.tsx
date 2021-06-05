@@ -6,7 +6,8 @@ import { getNavUserInfo } from "../../api/login";
 import { exitLogin } from "../../api/me";
 
 import HederWithBack from "../../components/header-with-back/HederWithBack";
-import Top from "./child-components/basic-info/Top"
+import Top from "./child-components/top/Top";
+import VideoLinks from "./child-components/links/Videos";
 
 import style from "./me.styl?css-modules";
 
@@ -32,28 +33,7 @@ function Me() {
       <div className={style.meWrapper}>
         <Top navData={navData} />
         <div className={style.links}>
-          <div className={style.videos}>
-            <span className={style.history}>
-              <svg className="icon" aria-hidden="true">
-                <use href="#icon-history"></use>
-              </svg>
-            </span>
-            <span className={style.later}>
-              <svg className="icon" aria-hidden="true">
-                <use href="#icon-watchLater"></use>
-              </svg>
-            </span>
-            <span className={style.favorites}>
-              <svg className="icon" aria-hidden="true">
-                <use href="#icon-favorites"></use>
-              </svg>
-            </span>
-            <span className={style.bangumi}>
-              <svg className="icon" aria-hidden="true">
-                <use href="#icon-bangumiSubscription"></use>
-              </svg>
-            </span>
-          </div>
+          <VideoLinks />
           <div className={style.creation}>
             <span>我的创作</span>
             <div>

@@ -10,7 +10,8 @@ let notificationInstance: NotificationIns;
 // notice方法实际上就是集合参数，完成对Notification的改变
 async function notice(type: string, content: string, needMask: boolean = false,
 	iconName: string, onClose: Function = undefined, duration: number = 3000) {
-	if (!notificationInstance) { notificationInstance = await Notification.createNotification(); }
+	const tmp = new Notification(null);
+	if (!notificationInstance) { notificationInstance = await tmp.createNotification(); }
 	notificationInstance.createNotice({
 		duration,
 		type,

@@ -4,10 +4,24 @@ Notice核心就是组件初始化的时候生成一个定时器
 根据输入的时间加载一个动画，然后执行输入的回调
 Notice的显示和隐藏受到父组件Notification的绝对控制 */
 
-import React from 'react';
+import * as React from 'react';
 import style from '../style/notice.styl?css-modules';
 
-class Notice extends React.Component {
+interface NoticeProps {
+	onClose?: Function;
+	duration?: number;
+	type?: string;
+	iconName?: string;
+	content?: string;
+}
+
+interface NoticeState {
+	shouldClose: boolean;
+}
+
+class Notice extends React.Component<NoticeProps, NoticeState> {
+	private closeTimer: number;
+	private animationTimer: number;
 	constructor(props) {
 		super(props);
 		this.state = {
