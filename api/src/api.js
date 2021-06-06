@@ -28,7 +28,7 @@ const URL_REPLAY = "https://api.bilibili.com/x/v2/reply?type=1&sort=2&oid={oid}&
 // 用户视频
 const URL_VIDEO = "https://api.bilibili.com/x/space/arc/search?pn={p}&ps={size}&order=click&keyword=&mid={mid}"
 // 上报观看记录
-const URL_VIEWED_REPORT = "http://api.bilibili.com/x/v2/history/report";
+const URL_VIEWED_REPORT = "https://api.bilibili.com/x/v2/history/report";
 
 // 热搜
 const URL_HOT_WORD = "https://s.search.bilibili.com/main/hotword";
@@ -59,21 +59,21 @@ const URL_PW_KEYHASH = "https://passport.bilibili.com/login?act=getkey";
 // 验证密码登录信息并返回cookie
 const URL_PW_VERIFY = "https://passport.bilibili.com/web/login/v2";
 // 获取导航栏用户信息信息
-const URL_NAV_INFO = "http://api.bilibili.com/nav";
+const URL_NAV_INFO = "https://api.bilibili.com/nav";
 // 获取手机区号
-const URL_AREA_CODE = "http://passport.bilibili.com/web/generic/country/list";
+const URL_AREA_CODE = "https://passport.bilibili.com/web/generic/country/list";
 // 获取短信验证码
-const URL_SMS_CAPTCHA = "http://passport.bilibili.com/web/sms/general/v2/send";
+const URL_SMS_CAPTCHA = "https://passport.bilibili.com/web/sms/general/v2/send";
 // 验证短信登录信息并返回cookie
-const URL_SMS_VERIFY = "http://passport.bilibili.com/web/login/rapid";
+const URL_SMS_VERIFY = "https://passport.bilibili.com/web/login/rapid";
 // 退出登录
-const URL_EXIT_LOGIN = "http://passport.bilibili.com/login?act=exit";
+const URL_EXIT_LOGIN = "https://passport.bilibili.com/login?act=exit";
 
 // 获取历史记录
-const URL_GET_HISTORY = "http://api.bilibili.com/x/web-interface/history/cursor";
+const URL_GET_HISTORY = "https://api.bilibili.com/x/web-interface/history/cursor";
 // 获取自己收藏夹列表
-const URL_GET_MINEFAVLIST = "http://api.bilibili.com/x/v3/fav/folder/created/list-all";
-// 获取收藏的收藏夹
+const URL_GET_MINEFAVLIST = "https://api.bilibili.com/x/v3/fav/folder/created/list-all";
+// 获取收藏的收藏夹列表
 const URL_GET_LIKEDFAVLIST = "";
 // 获取收藏夹明细
 

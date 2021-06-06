@@ -1,0 +1,19 @@
+@import "../../../../../../assets/stylus/px2rem.styl"
+
+.tab-bar-wrapper
+  height: px2rem(40)
+  background-color: #ffffff
+  display: flex
+  align-items: center
+  .switcher-item
+    display: inline-block
+    width: px2rem(45)
+    height: px2rem(25)
+    line-height @height
+    border-radius: px2rem(3)
+    text-align: center
+    font-size: px2rem(12)
+    font-weight: bold
+    &.actived
+      background-color: #f4f4f4
+      color: #fb7299

@@ -37,8 +37,11 @@
     margin: 0
     height: px2rem(32)
     line-height: px2rem(16)
-    font-size: px2rem(14)
+    font-size: px2rem(12)
+    font-weight: bold
     overflow hidden
+    white-space: nowrap
+    text-overflow: ellipsis
     text-align: left
     color: #212121
     letter-spacing: 0
@@ -46,8 +49,8 @@
     // 加了:global后，括号里的类名就不会被css-modules加上hash
     // 这么做的原因是这个类名直接来自B站后台数据video.title，而不是本地通过style.xx生成的
     :global(.keyword)
-      font-style: normal
       color: #fb7299
+      font-weight: bold
   .owner-wrapper
     position: absolute
     top: px2rem(30)
@@ -60,8 +63,10 @@
     .icon-up
       font-size: px2rem(16)
     .owner
-      font-size: px2rem(12)
       margin-left: px2rem(6)
+      font-size: px2rem(12)
+      text-overflow: ellipsis
+      white-space: nowrap
   .count-info
     position: absolute
     top: px2rem(47)

@@ -8,15 +8,19 @@
     left: 0
     width: 100%
     z-index: 10
-  .switcher-area
-    padding-top: px2rem(45)
+  .tab-wrapper
+    position: fixed
+    top: px2rem(45)
+    left: px2rem(5)
+    width: 100%
+    z-index: 10
+  .list-wrapper
+    padding-top: px2rem(85)
     .video-history,
     .live-history
       padding: 0 px2rem(12) px2rem(19) px2rem(12)
-      background-color: #f4f4f4
-      .history-item
-        margin-top: px2rem(8)
-        .item-title
+      .viewed-time-group
+        .group-title
           font-size: px2rem(14)
           color: #999999
           line-height: px2rem(34)
@@ -59,9 +63,12 @@
             .title
               height: px2rem(34)
               line-height: px2rem(17)
-              font-size: px2rem(14)
-              color: #212121
+              font-size: px2rem(13)
+              font-weight: bold
+              color: #222
               overflow: hidden
+              text-overflow: ellipsis
+              white-space: nowrap
             .owner-wrapper,
             .streamer-wrapper,
             .time
@@ -69,6 +76,8 @@
               height: px2rem(22)
               line-height: px2rem(22)
               font-size: px2rem(12)
+              text-overflow: ellipsis
+              white-space: nowrap
               color: #999999
             .owner-wrapper,
             .streamer-wrapper
@@ -92,6 +101,7 @@
               .platform
                 margin-right: px2rem(6)
                 font-size: px2rem(16)
+          // &.edit
       .tips
         padding-top: px2rem(85.2)
         text-align: center

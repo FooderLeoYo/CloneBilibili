@@ -9,11 +9,11 @@ import { getPicSuffix } from "../../../../../../customed-methods/image";
 import Context from "../../../../../../context";
 
 import Header from "../../child-components/header/Header"
-import { Switcher } from "../../../../../../components/switcher/Switcher";
+import TabBar from "../../child-components/tab-bar/TabBar";
 import ScrollToTop from "../../../../../../components/scroll-to-top/ScrollToTop";
 
 import style from "./my-history.styl?css-modules";
-import tips from "../../../../../assets/images/nocontent.png";
+import tips from "../../../../../../assets/images/nocontent.png";
 
 interface MyHistoryProps {
   history: History;
@@ -26,24 +26,19 @@ interface MyHistoryState {
   noVideoHistory: boolean;
   noLiveHistory: boolean;
   tabInx: number;
+  editting: boolean;
 }
 
 class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
-  /* 以下为初始化 */
-  private historyRef: React.RefObject<HTMLDivElement>;
-  private switcherRef: React.RefObject<HTMLDivElement>;
-  private bottomPos: number;
-
   constructor(props) {
     super(props);
-    this.historyRef = React.createRef();
-    this.switcherRef = React.createRef();
     this.state = {
       videoHistories: [],
       liveHistories: [],
       noVideoHistory: false,
       noLiveHistory: false,
-      tabInx: 0
+      tabInx: 0,
+      editting: false
     }
   }
 
@@ -126,8 +121,6 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       if (liveMap.size === 0) { this.setState({ noLiveHistory: true }) }
       else { this.setState({ liveHistories: [...liveMap] }); }
 
-      const navDOM: any = this.historyRef.current.parentElement.firstElementChild
-      this.bottomPos = this.switcherRef.current.offsetTop - navDOM.offsetHeight;
     });
   }
 
@@ -136,14 +129,15 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
   }
 
   public render() {
-    const sliderData = [
-      <div className={style.videoHistory} key={"videoHistory"}>
+    const edit = this.state.editting ? "eddit" : "";
+    const videoList = (
+      <div className={style.videoHistory}>
         {
           !this.state.noVideoHistory ?
             this.state.videoHistories.map((item, i) => (
-              <div className={style.historyItem} key={i}>
+              <ul className={style.viewedTimeGroup} key={i}>
                 {/* item[0]是map的键，item[1]是值 */}
-                <div className={style.itemTitle}>{item[0]}</div>
+                <div className={style.groupTitle}>{item[0]}</div>
                 {
                   item[1].map((record, i) => {
                     const { history, cover, title, progress, duration, view_at, author_mid, author_name, } = record;
@@ -151,7 +145,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                     const curProgress = progress === -1 ? 100 : progress / duration * 100;
                     const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "mobile";
                     return (
-                      <div className={style.itemWrapper} key={i}>
+                      <li className={style.itemWrapper + " " + style[edit]} key={i}>
                         <Link to={"/video/av" + oid}>
                           <div className={style.imgContainer}>
                             <span className={style.placeholder}>
@@ -190,11 +184,11 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                             </div>
                           </div>
                         </Link>
-                      </div>
+                      </li>
                     )
                   })
                 }
-              </div>
+              </ul>
             )) :
             <div className={style.tips}>
               <img src={tips} />
@@ -202,13 +196,15 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
               <div className={style.text}>快去发现&nbsp;<Link to="/index">新内容</Link>&nbsp;吧！</div>
             </div>
         }
-      </div>,
-      <div className={style.liveHistory} key={"liveHistory"}>
+      </div>
+    );
+    const liveList = (
+      <div className={style.liveHistory}>
         {
           !this.state.noLiveHistory ?
             this.state.liveHistories.map((item, i) => (
-              <div className={style.historyItem} key={i}>
-                <div className={style.itemTitle}>{item[0]}</div>
+              <ul className={style.viewedTimeGroup} key={i}>
+                <div className={style.groupTitle}>{item[0]}</div>
                 {
                   item[1].map((record, i) => {
                     const { history, kid, cover, title, view_at, author_mid, author_name, badge } = record;
@@ -216,7 +212,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                     const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "phone";
                     const liveStatus = badge === "未开播" ? "offline" : "live";
                     return (
-                      <div className={style.itemWrapper} key={i}>
+                      <li className={style.itemWrapper + " " + style[edit]} key={i}>
                         <Link to={"/live/" + kid}>
                           <div className={style.imgContainer}>
                             <span className={style.placeholder}>
@@ -253,11 +249,11 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                             </div>
                           </div>
                         </Link>
-                      </div>
+                      </li>
                     )
                   })
                 }
-              </div>
+              </ul>
             )) :
             <div className={style.tips}>
               <img src={tips} />
@@ -266,20 +262,21 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
             </div>
         }
       </div>
-    ];
+    );
 
     return (
-      <div className={style.myHistory} ref={this.historyRef} >
+      <div className={style.myHistory}>
         <Helmet><title>历史记录</title></Helmet>
         <div className={style.topWrapper}><Header /></div>
-        <div className={style.switcherArea} ref={this.switcherRef}>
-          < Switcher
+        <div className={style.tabWrapper}>
+          <TabBar
             tabTitle={["视频", "直播"]}
-            sliderData={sliderData}
-            switchRatio={0.15}
-            scrollToAtFirstSwitch={this.bottomPos}
-            doSthWithNewInx={tabInx => this.setState({ tabInx })}
+            setFatherCurInx={inx => this.setState({ tabInx: inx })}
+            curFatherInx={this.state.tabInx}
           />
+        </div>
+        <div className={style.listWrapper}>
+          {this.state.tabInx === 0 ? videoList : liveList}
         </div>
         <ScrollToTop />
       </div>
