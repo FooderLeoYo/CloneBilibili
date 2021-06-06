@@ -1,1 +1,19 @@
 @import "../../../../../assets/stylus/px2rem.styl"
+
+.videos
+  height: px2rem(60)
+  display: grid
+  grid-template-columns: 25% 25% 25% 25% 
+  text-align: center
+  .link
+    display: grid
+    grid-template-rows: 50% 50%
+    .icon,
+    .word
+      display: inline-block
+      height: px2rem(30)
+      line-height: @height
+    .icon
+      font-size: px2rem(25)
+    .word
+      font-size: px2rem(12)

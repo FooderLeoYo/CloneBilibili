@@ -26,8 +26,8 @@ function Top(props) {
     <div className={style.top}>
       <div className={style.basicInfo}>
         <div className={style.portrait}>
-          <img src={navData?.face} alt="Face" />
-          {navData?.pendant?.image != "" ? <span><img src={navData?.pendant?.image} alt="pendant" /></span> : null}
+          <img src={navData?.face} alt="" />
+          {navData?.pendant?.image != "" ? <span><img src={navData?.pendant?.image} alt="" /></span> : null}
         </div>
         <div className={style.descriptions}>
           <div className={style.nameAndLv}>

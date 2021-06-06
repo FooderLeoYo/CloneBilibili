@@ -128,8 +128,18 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     this.setHistoryData();
   }
 
+  private handleClick(type, param) {
+    if (this.state.editting) {
+      return
+    } else {
+      if (type === "video") { this.props.history.push("/video/av" + param); }
+      else { this.props.history.push("/live/" + param); }
+    }
+  }
+
   public render() {
-    const edit = this.state.editting ? "eddit" : "";
+    const isEditing = this.state.editting;
+    const edit = isEditing ? "edit" : "";
     const videoList = (
       <div className={style.videoHistory}>
         {
@@ -145,45 +155,48 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                     const curProgress = progress === -1 ? 100 : progress / duration * 100;
                     const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "mobile";
                     return (
-                      <li className={style.itemWrapper + " " + style[edit]} key={i}>
-                        <Link to={"/video/av" + oid}>
-                          <div className={style.imgContainer}>
-                            <span className={style.placeholder}>
-                              <svg className="icon" aria-hidden="true">
-                                <use href="#icon-placeholder"></use>
-                              </svg>
-                            </span>
-                            <img src={this.getPicUrl(cover, "@320w_200h")} />
-                            <div className={style.progressWrapper}>
-                              <div className={style.curProgress} style={{ width: `${curProgress}%` }}></div>
-                            </div>
-                          </div>
-                          <div className={style.info}>
-                            <div className={style.title}>{title}</div>
-                            <div
-                              className={style.ownerWrapper}
-                              onClick={e => {
-                                e.preventDefault();
-                                this.props.history.push({ pathname: "/space/" + author_mid });
-                              }}
-                            >
-                              <span className={style.iconUp} >
+                      <li className={style.itemWrapper} key={i}>
+                        <span onClick={() => this.handleClick("video", oid)} >
+                          {isEditing ? <span></span> : null}
+                          <div className={style.cotentWrapper + " " + style[edit]}>
+                            <div className={style.imgContainer}>
+                              <span className={style.placeholder}>
                                 <svg className="icon" aria-hidden="true">
-                                  <use href="#icon-uper"></use>
+                                  <use href="#icon-placeholder"></use>
                                 </svg>
                               </span>
-                              <span className={style.owner}>{author_name}</span>
+                              <img src={this.getPicUrl(cover, "@320w_200h")} />
+                              <div className={style.progressWrapper}>
+                                <div className={style.curProgress} style={{ width: `${curProgress}%` }}></div>
+                              </div>
                             </div>
-                            <div className={style.time}>
-                              <span className={style.platform}>
-                                <svg className="icon" aria-hidden="true">
-                                  <use href={`#icon-${platform}`}></use>
-                                </svg>
-                              </span>
-                              {this.getTime(view_at)}
+                            <div className={style.info}>
+                              <div className={style.title}>{title}</div>
+                              <div
+                                className={style.ownerWrapper}
+                                onClick={e => {
+                                  e.preventDefault();
+                                  this.props.history.push({ pathname: "/space/" + author_mid });
+                                }}
+                              >
+                                <span className={style.iconUp} >
+                                  <svg className="icon" aria-hidden="true">
+                                    <use href="#icon-uper"></use>
+                                  </svg>
+                                </span>
+                                <span className={style.owner}>{author_name}</span>
+                              </div>
+                              <div className={style.time}>
+                                <span className={style.platform}>
+                                  <svg className="icon" aria-hidden="true">
+                                    <use href={`#icon-${platform}`}></use>
+                                  </svg>
+                                </span>
+                                {this.getTime(view_at)}
+                              </div>
                             </div>
                           </div>
-                        </Link>
+                        </span>
                       </li>
                     )
                   })
@@ -212,8 +225,8 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                     const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "phone";
                     const liveStatus = badge === "未开播" ? "offline" : "live";
                     return (
-                      <li className={style.itemWrapper + " " + style[edit]} key={i}>
-                        <Link to={"/live/" + kid}>
+                      <li className={style.itemWrapper} key={i}>
+                        <span onClick={() => this.handleClick("live", kid)}>
                           <div className={style.imgContainer}>
                             <span className={style.placeholder}>
                               <svg className="icon" aria-hidden="true">
@@ -248,7 +261,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                               {this.getTime(view_at)}
                             </div>
                           </div>
-                        </Link>
+                        </span>
                       </li>
                     )
                   })

@@ -54,7 +54,6 @@
             transform: rotate(-90deg)
             transform-origin: 50% 50%
   .statistics
-    margin: px2rem(5) 0
     height: px2rem(40)
     display: grid
     grid-template-columns: 33.33% 33.33% 33.33%
@@ -72,15 +71,18 @@
       .title
         font-size: px2rem(10)
         color: #777777
-      &:before,
-      &:after
-        position: absolute
-        top: 50%
-        transform: translateY(-50%)
-        content:""
-        display: inline-block
-        width: px2rem(1)
-        height: 50%
-        background-color: #999999
+      &.follower
+        &:before,
+        &:after
+          position: absolute
+          top: 50%
+          transform: translateY(-50%)
+          content:""
+          display: inline-block
+          width: px2rem(1)
+          height: 40%
+          background-color: #999999
+        &:after
+          right: 0
 
         
