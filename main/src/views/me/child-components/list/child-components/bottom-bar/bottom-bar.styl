@@ -1,0 +1,23 @@
+@import "../../../../../../assets/stylus/px2rem.styl"
+
+.circle
+  // position: absolute
+  // top: 50%
+  // transform: translateY(-50%)
+  display: inline-block
+  width: px2rem(20)
+  height: @width
+  box-sizing: content-box
+  border: px2rem(1) solid #999999
+  border-radius: 50%
+  svg
+    position: absolute
+    left: px2rem(-2)
+    top: px2rem(-2)
+    font-size: px2rem(25)
+    color: #fb7299
+.all
+  margin-left: px2rem(15)
+.delete
+  float: right
+  margin-right: px2rem(25)

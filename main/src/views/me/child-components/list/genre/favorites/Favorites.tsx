@@ -21,7 +21,7 @@ function Favorites(props: FavoritesProps) {
   return (
     <div className={style.favorites}>
       <Helmet><title>我的收藏</title></Helmet>
-      <div className={style.topWrapper}><Header /></div>
+      <div className={style.topWrapper}><Header title={"我的收藏"} needEdit={true} /></div>
       <div className={style.listWrapper}>
         收藏列表
       </div>

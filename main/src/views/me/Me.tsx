@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
 
 import { getNavUserInfo } from "../../api/login";
 import { exitLogin } from "../../api/me";
@@ -13,7 +12,7 @@ import style from "./me.styl?css-modules";
 
 const { useState, useEffect } = React;
 
-function Me() {
+function Me(props) {
   const [navData, setNavData] = useState(null);
 
   useEffect(() => {
@@ -22,7 +21,7 @@ function Me() {
       // console.log(data)
       if (code === 0) {
         setNavData(data);
-      }
+      } else { props.history.push("/login/"); }
     });
   }, []);
 

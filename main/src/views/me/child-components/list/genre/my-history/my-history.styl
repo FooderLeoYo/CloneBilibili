@@ -1,0 +1,54 @@
+@import "../../../../../../assets/stylus/px2rem.styl"
+@import "../../../../../../assets/stylus/1pxborder.styl"
+
+.my-history
+  .top-wrapper
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    z-index: 10
+  .tab-wrapper
+    position: fixed
+    top: px2rem(45)
+    left: px2rem(5)
+    width: 100%
+    z-index: 10
+  .list-wrapper
+    padding: px2rem(85) 0 px2rem(45)
+    .video-history,
+    .live-history
+      padding: 0 px2rem(12) px2rem(19) px2rem(12)
+      .viewed-time-group
+        .group-title
+          font-size: px2rem(14)
+          color: #999999
+          line-height: px2rem(34)
+        .item-wrapper
+          position: relative
+          height: px2rem(73.194)
+          margin-bottom: px2rem(19)
+          &:last-child
+            margin-bottom: 0
+      .tips
+        padding-top: px2rem(85.2)
+        text-align: center
+        img
+          display: block
+          width: px2rem(280)
+          margin: 0 auto
+        .text
+          font-size: px2rem(16)
+          color: #999999
+          a
+            color: #fb7299
+  .bottom-wrapper
+    position: fixed
+    bottom: 0
+    width: 100%
+    height: px2rem(45)
+    background-color: #ffffff
+  .btn
+    position: fixed
+    top: 0
+    z-index: 999

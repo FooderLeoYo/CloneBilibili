@@ -27,7 +27,7 @@ function Top(props) {
       <div className={style.basicInfo}>
         <div className={style.portrait}>
           <img src={navData?.face} alt="" />
-          {navData?.pendant?.image != "" ? <span><img src={navData?.pendant?.image} alt="" /></span> : null}
+          {navData?.pendant?.image != "" && <span><img src={navData?.pendant?.image} alt="" /></span>}
         </div>
         <div className={style.descriptions}>
           <div className={style.nameAndLv}>
@@ -40,7 +40,7 @@ function Top(props) {
           </div>
           <div className={style.accountType}>
             {<span className={style.membership}>{navData?.vipStatus === 1 ? navData?.vip_label?.text : "正式会员"}</span>}
-            {navData?.official_verify?.type === 0 ? <span>{navData?.official?.role}</span> : null}
+            {navData?.official_verify?.type === 0 && <span>{navData?.official?.role}</span>}
           </div>
         </div>
         <div className={style.toSpace}>

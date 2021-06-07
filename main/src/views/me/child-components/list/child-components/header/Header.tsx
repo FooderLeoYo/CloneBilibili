@@ -3,19 +3,15 @@ import { Link } from "react-router-dom";
 
 import style from "./header.styl?css-modules";
 
-const { useState, useEffect } = React;
+interface HeaderProps {
+  title: string;
+  needEdit?: boolean;
+  editting?: boolean;
+  setEditting?: Function;
+}
 
-function Header() {
-  const [type, setType] = useState("");
-
-  useEffect(() => {
-    const url = location.pathname;
-
-    if (url === "/me/history") { setType("历史记录") }
-    else if (url === "/me/favorites") { setType("我的收藏") }
-    else if (url === "/me/bangumi") { setType("我的订阅") }
-    else if (url === "/me/later") { setType("稍后再看") }
-  }, []);
+function Header(props: HeaderProps) {
+  const { title, needEdit, editting, setEditting } = props;
 
   return (
     <div className={style.header}>
@@ -26,14 +22,16 @@ function Header() {
           </svg>
         </span>
       </div>
-      <div className={style.listType}>{type}</div>
+      <div className={style.listType}>{title}</div>
       <div className={style.tools}>
         <Link className={style.search} to="/search">
           <svg className="icon" aria-hidden="true">
             <use href="#icon-search"></use>
           </svg>
         </Link>
-        <div className={style.edit}>编辑</div>
+        {needEdit && <div className={style.edit} onClick={() => setEditting()}>
+          {editting ? "取消" : "编辑"}</div>
+        }
       </div>
     </div>
   );
