@@ -3,8 +3,9 @@ import { History } from "history";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
-import { getViewedHistory } from "../../../../../../api/space";
+import { getHistory, deleteHistory } from "../../../../../../api/me";
 
+import Toast from "../../../../../../components/toast/index";
 import Header from "../../child-components/header/Header"
 import TabBar from "../../child-components/tab-bar/TabBar";
 import VideoItem from "../../child-components/item/VideoItem";
@@ -67,7 +68,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
   }
 
   private setHistoryData() {
-    getViewedHistory(0, "", 30).then(res => {
+    getHistory(0, "", 30).then(res => {
       const videoMap: Map<string, []> = new Map();
       const liveMap: Map<string, []> = new Map();
       const updateMap = (map, view_at, record) => {
@@ -124,6 +125,43 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     if (allCancled) { this.setAllSelectedStatus(type, 0); }
     else if (allSelected) { this.setAllSelectedStatus(type, 1); }
     else { this.setState({ selectedStatus: 2 }); }
+  }
+
+  private handleDelete = async () => {
+    const { tabInx, videoHistories, liveHistories } = this.state;
+    const histories = tabInx === 0 ? videoHistories : liveHistories;
+    let hasProblem = false;
+
+    await histories.map(item => {
+      if (hasProblem) { return }
+
+      item[1].map(record => {
+        const { history, kid, selected } = record;
+        selected && deleteHistory(tabInx === 0 ? `archive_${history.oid}` : `live_${kid}`)
+          .then(result => {
+            const { code, data } = result;
+            if (code === 0) {
+              Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
+              hasProblem = true;
+              return;
+            }
+            else {
+              const { code, message } = data;
+              if (code != 0) {
+                Toast.error(message, false, null, 2000);
+                hasProblem = true;
+                return;
+              }
+            }
+          });
+      })
+    });
+
+    !hasProblem && Toast.success("删除成功！", false, null, 2000);
+    setTimeout(() => {
+      this.setHistoryData();
+      this.setState({ editting: false });
+    }, 2000);
   }
 
   public componentDidMount() {
@@ -214,6 +252,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
           <BottomBar
             selectedStatus={selectedStatus}
             setAllSelectedStatus={status => this.setAllSelectedStatus(tabInx, status)}
+            handleDelete={this.handleDelete}
           />
         </div>
         }

@@ -45,10 +45,11 @@ const URL_LOGIN_AREA_CODE = prefix + "/login/getareacode";
 const URL_LOGIN_SMS_CAPTCHA = prefix + "/login/getsmscaptcha";
 const URL_LOGIN_SMS_VERIFY = prefix + "/login/verifysms";
 
-const URL_SPACE_GET_HISTORY = prefix + "/space/gethistory";
 const URL_SPACE_GET_RELATION = prefix + "/space/getrelation";
 
-const URL_LOGIN_EXIT_LOGIN = prefix + "/me/exitlogin";
+const URL_ME_GET_HISTORY = prefix + "/me/gethistory";
+const URL_ME_DELETE_HISTORY = prefix + "/me/deletehistory";
+const URL_ME_EXIT_LOGIN = prefix + "/me/exitlogin";
 
 export {
   URL_INDEX,
@@ -82,8 +83,9 @@ export {
   URL_LOGIN_AREA_CODE,
   URL_LOGIN_SMS_CAPTCHA,
   URL_LOGIN_SMS_VERIFY,
-  URL_LOGIN_EXIT_LOGIN,
-  URL_SPACE_GET_HISTORY,
   URL_VIDEO_REPORT,
-  URL_SPACE_GET_RELATION
+  URL_SPACE_GET_RELATION,
+  URL_ME_GET_HISTORY,
+  URL_ME_DELETE_HISTORY,
+  URL_ME_EXIT_LOGIN,
 }

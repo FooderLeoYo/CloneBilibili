@@ -14,12 +14,7 @@ function Top(props) {
   const [relationData, setRelationData] = useState(null);
 
   useEffect(() => {
-    if (navData) {
-      fetchRelation(navData.mid).then(result => {
-        console.log(result)
-        setRelationData(result.data)
-      })
-    }
+    navData && fetchRelation(navData.mid).then(result => { setRelationData(result.data) })
   }, [navData]);
 
   return (

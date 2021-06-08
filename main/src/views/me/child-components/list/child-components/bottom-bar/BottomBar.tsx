@@ -5,20 +5,24 @@ import style from "./bottom-bar.styl?css-modules";
 interface BottomBarProps {
   selectedStatus: number;
   setAllSelectedStatus: (status) => void;
+  handleDelete: Function;
 }
 
 const { useState, useEffect } = React;
 
 function BottomBar(props: BottomBarProps) {
-  const { selectedStatus, setAllSelectedStatus } = props;
+  const { selectedStatus, setAllSelectedStatus, handleDelete } = props;
 
   const [selected, setSelected] = useState(false);
+  const [hasSelectedItem, setHasSelectedItem] = useState(false);
 
   useEffect(() => {
     setSelected(selectedStatus === 1 ? true : false);
+    setHasSelectedItem(selectedStatus === 0 ? false : true);
   }, [selectedStatus]);
+
   return (
-    <>
+    <div className={style.bottomWrapper}>
       <span
         className={style.circle}
         onClick={() => {
@@ -32,8 +36,12 @@ function BottomBar(props: BottomBarProps) {
         }
       </span>
       <span className={style.all}>全选</span>
-      <span className={style.delete}>删除</span>
-    </>
+      <span
+        className={hasSelectedItem ? style.delete + " " + style.actived : style.delete}
+        onClick={hasSelectedItem ? () => handleDelete() : null}
+      >删除
+      </span>
+    </div>
   )
 }
 

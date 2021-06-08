@@ -1,6 +1,38 @@
 const express = require("express");
-const { exitLogin } = require("../api");
+const { fetchHistory, deleteHistory, exitLogin } = require("../api");
 const router = express.Router();
+
+router.get("/me/gethistory", (req, res, next) => {
+  fetchHistory(req.query, req.headers.cookie).then(data => {
+    let resData = {
+      code: "1",
+      msg: "success"
+    }
+    if (data.code === 0) { resData.data = data; }
+    else {
+      resData.code = "0";
+      resData.msg = "fail";
+      resData.data = data;
+    }
+    res.send(resData);
+  }).catch(next);
+});
+
+router.post("/me/deletehistory", (req, res, next) => {
+  deleteHistory(req.body, req.headers.cookie).then(data => {
+    let resData = {
+      code: "1",
+      msg: "success",
+    }
+    if (data.code != 0) {
+      resData.code = "0";
+      resData.msg = "fail";
+    }
+    resData.data = data;
+
+    res.send(resData);
+  }).catch(next);
+});
 
 router.get("/me/exitlogin", (req, res, next) => {
   exitLogin().then(data => {
@@ -39,3 +71,5 @@ router.get("/me/exitlogin", (req, res, next) => {
     console.log(data)
   }).catch(next);
 });
+
+module.exports = router;

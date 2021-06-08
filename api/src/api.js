@@ -66,16 +66,17 @@ const URL_AREA_CODE = "https://passport.bilibili.com/web/generic/country/list";
 const URL_SMS_CAPTCHA = "https://passport.bilibili.com/web/sms/general/v2/send";
 // 验证短信登录信息并返回cookie
 const URL_SMS_VERIFY = "https://passport.bilibili.com/web/login/rapid";
-// 退出登录
-const URL_EXIT_LOGIN = "https://passport.bilibili.com/login?act=exit";
 
 // 获取历史记录
 const URL_GET_HISTORY = "https://api.bilibili.com/x/web-interface/history/cursor";
+// 删除历史记录
+const URL_DELETE_HISTORY = "http://api.bilibili.com/x/v2/history/delete";
 // 获取自己收藏夹列表
 const URL_GET_MINEFAVLIST = "https://api.bilibili.com/x/v3/fav/folder/created/list-all";
 // 获取收藏的收藏夹列表
 const URL_GET_LIKEDFAVLIST = "";
-// 获取收藏夹明细
+// 退出登录
+const URL_EXIT_LOGIN = "https://passport.bilibili.com/login?act=exit";
 
 
 const userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) " +
@@ -333,22 +334,24 @@ const fetchSMSCaptcha = param => {
 
 const fetchSMSVerifyInfo = param => {
   const searchParam = new URLSearchParams(Object.entries(param)).toString();
-  console.log(searchParam)
 
   return fetch(URL_SMS_VERIFY, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded', },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: searchParam,
   }).then(res => res);
 }
 
-const exitLogin = () => {
-  return fetch(URL_EXIT_LOGIN)
-    .then(res => res);
+
+/* 空间相关 */
+const fetchRelation = (uid) => {
+  return fetch(URL_UP_USER_STATUS.replace("{mid}", uid))
+    .then(res => res.json())
+    .then(body => body.data);
 }
 
 
-/* 个人空间相关 */
+/* 个人中心相关 */
 const fetchHistory = (param, cookie) => {
   const searchParam = new URLSearchParams(Object.entries(param)).toString();
   const fetchUrl = URL_GET_HISTORY + "?" + searchParam;
@@ -360,10 +363,27 @@ const fetchHistory = (param, cookie) => {
     .then(json => json);
 }
 
-const fetchRelation = (uid) => {
-  return fetch(URL_UP_USER_STATUS.replace("{mid}", uid))
-    .then(res => res.json())
-    .then(body => body.data);
+const deleteHistory = (param, cookie) => {
+  const rawString = cookie;
+  const bjctPos = rawString.indexOf("bili_jct");
+  const bili_jct = rawString.substring(bjctPos + 9);
+  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
+  console.log(searchParam)
+
+  return fetch(URL_DELETE_HISTORY, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "cookie": cookie
+    },
+    body: searchParam,
+  }).then(res => res.json())
+    .then(json => json);
+}
+
+const exitLogin = () => {
+  return fetch(URL_EXIT_LOGIN)
+    .then(res => res);
 }
 
 module.exports = {
@@ -396,7 +416,8 @@ module.exports = {
   fetchAreaCode,
   fetchSMSCaptcha,
   fetchSMSVerifyInfo,
-  exitLogin,
+  fetchRelation,
   fetchHistory,
-  fetchRelation
+  deleteHistory,
+  exitLogin
 }
