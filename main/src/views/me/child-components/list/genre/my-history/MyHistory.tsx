@@ -26,7 +26,7 @@ interface MyHistoryState {
   noLiveHistory: boolean;
   tabInx: number;
   editting: boolean;
-  allSelected: boolean;
+  selectedStatus: number; // 0为全不选，1为全选，2为选部分
 }
 
 class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
@@ -39,7 +39,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       noLiveHistory: false,
       tabInx: 0,
       editting: false,
-      allSelected: false
+      selectedStatus: 0
     }
   }
 
@@ -72,13 +72,16 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       const liveMap: Map<string, []> = new Map();
       const updateMap = (map, view_at, record) => {
         const key = this.getDateKey(view_at);
-        let temHistory = map.get(key);
-        if (temHistory) {
-          temHistory.push(record);
+        const tempRecord = record;
+        tempRecord.selected = false; // 添加“是否被选中”属性，用于全选
+        let tempHistory = map.get(key);
+
+        if (tempHistory) {
+          tempHistory.push(tempRecord);
         } else {
-          temHistory = new Array();
-          temHistory.push(record);
-          map.set(key, temHistory);
+          tempHistory = new Array();
+          tempHistory.push(tempRecord);
+          map.set(key, tempHistory);
         }
       }
 
@@ -96,6 +99,33 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     });
   }
 
+  private setAllSelectedStatus(type: number, status: number) {   // type：0为video，1为live；status同state.selectedStatus
+    const histories = type === 0 ? this.state.videoHistories : this.state.liveHistories;
+    histories.map(item => {
+      item[1].map(record => {
+        record.selected = status === 0 ? false : true;
+      })
+    });
+    type === 0 ? this.setState({ videoHistories: histories }) : this.setState({ liveHistories: histories });
+    this.setState({ selectedStatus: status });
+  }
+
+  private checkAllSelectedStatus(type: number) {  // type：0为video，1为live
+    const histories = type === 0 ? this.state.videoHistories : this.state.liveHistories;
+    let allSelected = true;
+    let allCancled = true;
+    histories.map(item => {
+      item[1].map(record => {
+        if (record.selected) { allCancled = false; }
+        else { allSelected = false; }
+      })
+    })
+
+    if (allCancled) { this.setAllSelectedStatus(type, 0); }
+    else if (allSelected) { this.setAllSelectedStatus(type, 1); }
+    else { this.setState({ selectedStatus: 2 }); }
+  }
+
   public componentDidMount() {
     this.setHistoryData();
   }
@@ -103,7 +133,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
   public render() {
     const { history } = this.props;
     const { editting, noVideoHistory, videoHistories, noLiveHistory, liveHistories,
-      tabInx, allSelected } = this.state;
+      tabInx, selectedStatus } = this.state;
     const videoList = (
       <div className={style.videoHistory}>
         { !noVideoHistory ?
@@ -111,11 +141,16 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
             <ul className={style.viewedTimeGroup} key={`video${i}`}>
               {/* item[0]是map的键，item[1]是值 */}
               <div className={style.groupTitle}>{item[0]}</div>
-              { item[1].map((record, i) => {
+              { item[1].map((record, j) => {
                 return (
-                  <li className={style.itemWrapper} key={i}>
+                  <li className={style.itemWrapper} key={j}>
                     <VideoItem history={history} curFatherInx={tabInx} record={record}
-                      editting={editting} allSelected={allSelected} />
+                      switchSelected={() => {
+                        record.selected = !record.selected;
+                        this.setState({ videoHistories: this.state.videoHistories });
+                        this.checkAllSelectedStatus(0);
+                      }}
+                      editting={editting} selectedStatus={selectedStatus} />
                   </li>
                 )
               })}
@@ -135,10 +170,15 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
           liveHistories.map((item, i) => (
             <ul className={style.viewedTimeGroup} key={`live${i}`}>
               <div className={style.groupTitle}>{item[0]}</div>
-              { item[1].map((record, i) => {
-                return (<li className={style.itemWrapper} key={i}>
+              { item[1].map((record, j) => {
+                return (<li className={style.itemWrapper} key={j}>
                   <VideoItem history={history} curFatherInx={tabInx} record={record}
-                    editting={editting} allSelected={allSelected} />
+                    switchSelected={() => {
+                      record.selected = !record.selected;
+                      this.setState({ liveHistories: this.state.liveHistories });
+                      this.checkAllSelectedStatus(1);
+                    }}
+                    editting={editting} selectedStatus={selectedStatus} />
                 </li>)
               })}
             </ul>
@@ -156,17 +196,28 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       <div className={style.myHistory}>
         <Helmet><title>历史记录</title></Helmet>
         <div className={style.topWrapper}>
-          <Header title={"历史记录"} needEdit={true} editting={editting} setEditting={() => this.setState({ editting: !editting })} />
+          <Header title={"历史记录"} needEdit={true} editting={editting}
+            doSthWhenSwitch={() => {
+              this.setAllSelectedStatus(0, 0);
+              this.setAllSelectedStatus(1, 0);
+              this.setState({ editting: !editting, selectedStatus: 0 });
+            }}
+          />
         </div>
         <div className={style.tabWrapper}>
-          <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })} curFatherInx={tabInx} />
+          <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })}
+            curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ editting: false, selectedStatus: 0 })}
+          />
         </div>
         <div className={style.listWrapper}>{tabInx === 0 ? videoList : liveList}</div>
-        <div className={style.bottomWrapper}>
-          <BottomBar allSelected={allSelected} setAllSelected={() => this.setState({ allSelected: !allSelected })} />
+        { editting && <div className={style.bottomWrapper}>
+          <BottomBar
+            selectedStatus={selectedStatus}
+            setAllSelectedStatus={status => this.setAllSelectedStatus(tabInx, status)}
+          />
         </div>
+        }
         <ScrollToTop />
-        <div className={style.btn} onClick={() => this.setState({ allSelected: !allSelected })}>{allSelected ? "全选" : "反选"}</div>
       </div>
     );
   }

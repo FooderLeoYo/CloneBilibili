@@ -3,28 +3,27 @@ import * as React from "react";
 import style from "./bottom-bar.styl?css-modules";
 
 interface BottomBarProps {
-  allSelected: boolean;
-  setAllSelected: Function;
-  setAllCancled: Function;
+  selectedStatus: number;
+  setAllSelectedStatus: (status) => void;
 }
 
 const { useState, useEffect } = React;
 
 function BottomBar(props: BottomBarProps) {
-  const { allSelected, setAllSelected, setAllCancled } = props;
+  const { selectedStatus, setAllSelectedStatus } = props;
 
-  const [selected, setSelected] = useState(allSelected);
+  const [selected, setSelected] = useState(false);
 
   useEffect(() => {
-    setSelected(allSelected);
-  }, [allSelected]);
+    setSelected(selectedStatus === 1 ? true : false);
+  }, [selectedStatus]);
   return (
     <>
       <span
         className={style.circle}
         onClick={() => {
           setSelected(!selected);
-          setAllSelected();
+          setAllSelectedStatus(selected ? 0 : 1);
         }}
       >
         {selected && <svg className="icon" aria-hidden="true">

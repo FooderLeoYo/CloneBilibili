@@ -7,11 +7,11 @@ interface HeaderProps {
   title: string;
   needEdit?: boolean;
   editting?: boolean;
-  setEditting?: Function;
+  doSthWhenSwitch?: Function;
 }
 
 function Header(props: HeaderProps) {
-  const { title, needEdit, editting, setEditting } = props;
+  const { title, needEdit, editting, doSthWhenSwitch } = props;
 
   return (
     <div className={style.header}>
@@ -29,7 +29,7 @@ function Header(props: HeaderProps) {
             <use href="#icon-search"></use>
           </svg>
         </Link>
-        {needEdit && <div className={style.edit} onClick={() => setEditting()}>
+        {needEdit && <div className={style.edit} onClick={() => doSthWhenSwitch()}>
           {editting ? "取消" : "编辑"}</div>
         }
       </div>

@@ -20,20 +20,22 @@ interface VideoItemProps {
     view_at: number;
     author_mid: number;
     author_name: string;
+    selected: boolean;
     progress?: number;
     duration?: number;
     kid?: number;
     badge?: string;
   };
+  switchSelected: Function
   editting: boolean;
-  allSelected: boolean;
+  selectedStatus: number;
 }
 
-const { useContext, useState, useRef, useEffect } = React;
+const { useContext, useRef, useEffect } = React;
 
 function VideoItem(props: VideoItemProps) {
-  const { record, curFatherInx, editting, allSelected } = props;
-  const { history, cover, title, view_at, author_name,
+  const { record, curFatherInx, switchSelected, editting } = props;
+  const { history, cover, title, view_at, author_name, selected,
     progress, duration, kid, badge } = record;
   const { oid, dt } = history;
   const spanParam = oid ? oid : kid;
@@ -44,18 +46,12 @@ function VideoItem(props: VideoItemProps) {
 
   const context = useContext(Context);
 
-  const [selected, setSelected] = useState(false);
-  const selectedRef = useRef(selected);
-  useEffect(() => { selectedRef.current = selected; }, [selected]);
-
   const edittingRef = useRef(editting);
   useEffect(() => { edittingRef.current = editting; }, [editting]);
 
-  useEffect(() => { if (allSelected) { setSelected(true) } }, [allSelected]);
-
   function handleClick(type, param) {
     if (edittingRef.current) {
-      setSelected(!selectedRef.current);
+      switchSelected();
     } else {
       if (type === "video") { props.history.push("/video/av" + param); }
       else { props.history.push("/live/" + param); }
