@@ -53,6 +53,16 @@ function Me(props) {
               </span>
             </div>
           </div>
+          <div className={style.messageCenter}>
+            <span>消息中心</span>
+            <div>
+              <span className={style.history}>
+                <svg className="icon" aria-hidden="true">
+                  <use href="#icon-history"></use>
+                </svg>
+              </span>
+            </div>
+          </div>
           <div className={style.profile}>
             <span>个人资料</span>
             <div>

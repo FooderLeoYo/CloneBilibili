@@ -34,6 +34,10 @@ function Top(props) {
             {<span className={style.membership}>{navData?.vipStatus === 1 ? navData?.vip_label?.text : "正式会员"}</span>}
             {navData?.official_verify?.type === 0 && <span>{navData?.official?.role}</span>}
           </div>
+          <div className={style.otherInfo}>
+            <span className={style.uid}>{`UID：${navData?.mid}`}</span>
+            <span className={style.moral}>{`节操值： ${navData?.moral}`}</span>
+          </div>
         </div>
         <div className={style.toSpace}>
           <Link className={style.link} to={"/space/myspace"}>

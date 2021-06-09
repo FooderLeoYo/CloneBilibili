@@ -6,23 +6,27 @@
   left: 0
   right: 0
   background-color #fff
-  height: px2rem(130)
+  height: px2rem(150)
   .basic-info
+    height: px2rem(110)
     display: grid
-    grid-template-columns: 20% 40% 40%
+    grid-template-columns: 20% 60% 20%
     padding: px2rem(10) px2rem(20)
     .portrait
       display: flex
       justify-content: center
       align-items: center
       width: px2rem(60)
-      height: px2rem(60)
+      height: px2rem(90)
       border-radius: 50%
       overflow: hidden
       img
         height: 100%
     .descriptions
       padding-left: px2rem(10)
+      height: px2rem(90)
+      display: grid
+      grid-template-rows: 33.33% 33.33% 33.33%
       .name-and-lv
         display: flex
         align-items: center
@@ -40,6 +44,9 @@
           background-color: #fb7299
           color: #ffffff
           font-size: px2rem(1)
+      .other-info
+        font-size: px2rem(12)
+        color: #888888
     .to-space
       position: relative
       color: #888888
