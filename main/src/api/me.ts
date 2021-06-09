@@ -1,5 +1,11 @@
 import { getJSON, postJSON } from "./fetch";
-import { URL_ME_GET_HISTORY, URL_ME_DELETE_HISTORY, URL_ME_EXIT_LOGIN } from "./url";
+import { URL_ME_GET_MYRELATION, URL_ME_GET_HISTORY, URL_ME_DELETE_HISTORY, URL_ME_EXIT_LOGIN } from "./url";
+
+/* 获取我的状态数 */
+export function fetchMyRelation() {
+  return getJSON(URL_ME_GET_MYRELATION, {});
+}
+
 
 /* 获取历史记录 */
 export function getHistory(aId: number = 0, type: string = "", count: number = 20) {

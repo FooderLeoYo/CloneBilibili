@@ -1,6 +1,9 @@
 const fetch = require("node-fetch");
 const querystring = require("querystring");
 
+
+/* 综合相关 */
+
 // 用户信息
 const URL_UP_USER = "https://api.bilibili.com/x/space/acc/info?mid={mid}";
 // 用户状态
@@ -8,12 +11,18 @@ const URL_UP_USER_STATUS = "https://api.bilibili.com/x/relation/stat?vmid={mid}"
 // 首页轮播
 const URL_ROUND_SOWING = "https://api.bilibili.com/x/web-show/res/loc?pf=7&id=1695";
 
+
+/* 排行榜相关 */
+
 // 排行榜
 const URL_RANKING = "https://api.bilibili.com/x/web-interface/ranking?rid={rid}&day=3";
 // 分类排行榜
 const URL_RANKING_REGION = "https://api.bilibili.com/x/web-interface/ranking/region?rid={rid}&day={day}";
 // 当前分类排行
 const URL_RANKING_ARCHIVE = "https://api.bilibili.com/archive_rank/getarchiverankbypartion?tid={tid}&pn={p}";
+
+
+/* 视频相关 */
 
 // 视频详情
 const URL_VIDEO_DETAIL = "https://api.bilibili.com/x/web-interface/view?aid={aid}&bvid=";
@@ -30,12 +39,18 @@ const URL_VIDEO = "https://api.bilibili.com/x/space/arc/search?pn={p}&ps={size}&
 // 上报观看记录
 const URL_VIEWED_REPORT = "https://api.bilibili.com/x/v2/history/report";
 
+
+/* 搜索相关 */
+
 // 热搜
 const URL_HOT_WORD = "https://s.search.bilibili.com/main/hotword";
 // 搜索推荐
 const URL_SUGGEST = "https://s.search.bilibili.com/main/suggest";
 // 搜索
 const URL_SEARCH = "https://api.bilibili.com/x/web-interface/search/type";
+
+
+/* 直播相关 */
 
 // 直播首页
 const URL_LIVE_INDEX = "https://api.live.bilibili.com/room/v2/AppIndex/getAllList?device=phone&platform=ios&scale=3";
@@ -52,6 +67,9 @@ const URL_ROOM_INFO = "https://api.live.bilibili.com/room/v1/Room/get_info?devic
 // 弹幕配置
 const URL_DANMMU_CONFIG = "https://api.live.bilibili.com/room/v1/Danmu/getConf?room_id={roomid}&platform=h5";
 
+
+/* 登录相关 */
+
 // 申请人机验证码参数
 const URL_GT_CAPTCHA = "https://passport.bilibili.com/web/captcha/combine?plat=6";
 // 获取加密公钥及密码盐值
@@ -67,7 +85,12 @@ const URL_SMS_CAPTCHA = "https://passport.bilibili.com/web/sms/general/v2/send";
 // 验证短信登录信息并返回cookie
 const URL_SMS_VERIFY = "https://passport.bilibili.com/web/login/rapid";
 
+
+
+/* 个人中心相关 */
+
 // 获取历史记录
+const URL_GET_MYRELATION = "http://api.bilibili.com/x/web-interface/nav/stat";
 const URL_GET_HISTORY = "https://api.bilibili.com/x/web-interface/history/cursor";
 // 删除历史记录
 const URL_DELETE_HISTORY = "http://api.bilibili.com/x/v2/history/delete";
@@ -344,7 +367,7 @@ const fetchSMSVerifyInfo = param => {
 
 
 /* 空间相关 */
-const fetchRelation = (uid) => {
+const fetchRelation = uid => {
   return fetch(URL_UP_USER_STATUS.replace("{mid}", uid))
     .then(res => res.json())
     .then(body => body.data);
@@ -352,6 +375,14 @@ const fetchRelation = (uid) => {
 
 
 /* 个人中心相关 */
+const fetchMyRelation = cookie => {
+  return fetch(URL_GET_MYRELATION, {
+    method: "GET",
+    headers: { "cookie": cookie },
+  }).then(res => res.json())
+    .then(json => json);
+}
+
 const fetchHistory = (param, cookie) => {
   const searchParam = new URLSearchParams(Object.entries(param)).toString();
   const fetchUrl = URL_GET_HISTORY + "?" + searchParam;
@@ -417,6 +448,7 @@ module.exports = {
   fetchSMSCaptcha,
   fetchSMSVerifyInfo,
   fetchRelation,
+  fetchMyRelation,
   fetchHistory,
   deleteHistory,
   exitLogin

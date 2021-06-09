@@ -1,6 +1,22 @@
 const express = require("express");
-const { fetchHistory, deleteHistory, exitLogin } = require("../api");
+const { fetchMyRelation, fetchHistory, deleteHistory, exitLogin } = require("../api");
 const router = express.Router();
+
+router.get("/me/getmyrelation", (req, res, next) => {
+  fetchMyRelation(req.headers.cookie).then(data => {
+    let resData = {
+      code: "1",
+      msg: "success"
+    }
+    if (data.code === 0) { resData.data = data; }
+    else {
+      resData.code = "0";
+      resData.msg = "fail";
+      resData.data = data;
+    }
+    res.send(resData);
+  }).catch(next);
+});
 
 router.get("/me/gethistory", (req, res, next) => {
   fetchHistory(req.query, req.headers.cookie).then(data => {

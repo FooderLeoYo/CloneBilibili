@@ -47,6 +47,7 @@ const URL_LOGIN_SMS_VERIFY = prefix + "/login/verifysms";
 
 const URL_SPACE_GET_RELATION = prefix + "/space/getrelation";
 
+const URL_ME_GET_MYRELATION = prefix + "/me/getmyrelation";
 const URL_ME_GET_HISTORY = prefix + "/me/gethistory";
 const URL_ME_DELETE_HISTORY = prefix + "/me/deletehistory";
 const URL_ME_EXIT_LOGIN = prefix + "/me/exitlogin";
@@ -85,6 +86,7 @@ export {
   URL_LOGIN_SMS_VERIFY,
   URL_VIDEO_REPORT,
   URL_SPACE_GET_RELATION,
+  URL_ME_GET_MYRELATION,
   URL_ME_GET_HISTORY,
   URL_ME_DELETE_HISTORY,
   URL_ME_EXIT_LOGIN,

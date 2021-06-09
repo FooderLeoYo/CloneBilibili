@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 
-import { fetchRelation } from "../../../../api/space";
+import { fetchMyRelation } from "../../../../api/me";
 // import { formatTenThousand } from "../../../../customed-methods/string";
 
 import style from "./top.styl?css-modules";
@@ -10,12 +10,9 @@ const { useState, useEffect } = React;
 
 function Top(props) {
   const { navData } = props;
-
   const [relationData, setRelationData] = useState(null);
 
-  useEffect(() => {
-    navData && fetchRelation(navData.mid).then(result => { setRelationData(result.data) })
-  }, [navData]);
+  useEffect(() => { fetchMyRelation().then(result => setRelationData(result.data.data)) }, []);
 
   return (
     <div className={style.top}>
@@ -62,8 +59,8 @@ function Top(props) {
         </div>
         <div className={style.container}>
           {/* <span className={style.data}>{formatTenThousand(relationData?.whisper)}</span> */}
-          <span className={style.data}>{relationData?.whisper}</span>
-          <span className={style.title}>黑名单</span>
+          <span className={style.data}>{relationData?.dynamic_count}</span>
+          <span className={style.title}>动态</span>
         </div>
       </div>
     </div>
