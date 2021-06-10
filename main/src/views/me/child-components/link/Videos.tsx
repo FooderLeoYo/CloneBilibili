@@ -31,13 +31,13 @@ function Videos() {
         </span>
         <span className={style.word}>稍后再看</span>
       </Link>
-      <Link className={style.link} to="me/bangumi">
+      <Link className={style.link} to="me/like">
         <span className={style.icon}>
           <svg className="icon" aria-hidden="true">
-            <use href="#icon-bangumiSubscription"></use>
+            <use href="#icon-like"></use>
           </svg>
         </span>
-        <span className={style.word}>我的追番</span>
+        <span className={style.word}>我的投币</span>
       </Link>
     </div>
   )

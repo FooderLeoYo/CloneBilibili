@@ -6,28 +6,7 @@ const prefix = process.env.URL_PREFIX;
 
 const URL_INDEX = prefix + "/index";
 const URL_ROUND_SOWING = prefix + "/round-sowing";
-
 const URL_PARTITION = prefix + "/partitions";
-
-const URL_RANKING = prefix + "/ranking";
-const URL_RANKING_REGION = prefix + "/ranking/region";
-const URL_RANKING_ARCHIVE = prefix + "/ranking/archive";
-
-const URL_RANKING_PARTITION = prefix + "/ranking/partitions";
-
-const URL_VIDEO_DETAIL = prefix + "/av";
-const URL_VIDEO_RECOMMEND = prefix + "/av/recommend";
-const URL_VIDEO_REPLAY = prefix + "/av/replay";
-const URL_VIDEO_BARRAG = prefix + "/av/barrage";
-const URL_PLAY_URL = prefix + "/av/play_url";
-const URL_VIDEO_REPORT = prefix + "/av/report";
-
-const URL_UP_USER = prefix + "/up";
-const URL_USER_VIDEO = prefix + "/up/video";
-
-const URL_SEARCH_HOTWORD = prefix + "/search/hotword";
-const URL_SEARCH_SUGGEST = prefix + "/search/suggest";
-const URL_SEARCH = prefix + "/search";
 
 const URL_LIVE_AREA = prefix + "/live/area";
 const URL_LIVE_DATA = prefix + "/live/data";
@@ -45,31 +24,36 @@ const URL_LOGIN_AREA_CODE = prefix + "/login/getareacode";
 const URL_LOGIN_SMS_CAPTCHA = prefix + "/login/getsmscaptcha";
 const URL_LOGIN_SMS_VERIFY = prefix + "/login/verifysms";
 
-const URL_SPACE_GET_RELATION = prefix + "/space/getrelation";
-
-const URL_ME_GET_MYRELATION = prefix + "/me/getmyrelation";
+const URL_ME_MY_RELATION = prefix + "/me/getmyrelation";
 const URL_ME_GET_HISTORY = prefix + "/me/gethistory";
 const URL_ME_DELETE_HISTORY = prefix + "/me/deletehistory";
 const URL_ME_EXIT_LOGIN = prefix + "/me/exitlogin";
+
+const URL_RANKING = prefix + "/ranking";
+const URL_RANKING_REGION = prefix + "/ranking/region";
+const URL_RANKING_ARCHIVE = prefix + "/ranking/archive";
+const URL_RANKING_PARTITION = prefix + "/ranking/partitions";
+
+const URL_SPACE_FAVORITES_LIST = prefix + "/space/getfavoriteslist";
+const URL_SPACE_RELATION = prefix + "/space/getrelation";
+const URL_SPACE_USER = prefix + "/space";
+const URL_SPACE_VIDEO = prefix + "/space/video";
+
+const URL_SEARCH_HOTWORD = prefix + "/search/hotword";
+const URL_SEARCH_SUGGEST = prefix + "/search/suggest";
+const URL_SEARCH = prefix + "/search";
+
+const URL_VIDEO_DETAIL = prefix + "/av";
+const URL_VIDEO_RECOMMEND = prefix + "/av/recommend";
+const URL_VIDEO_REPLAY = prefix + "/av/replay";
+const URL_VIDEO_BARRAG = prefix + "/av/barrage";
+const URL_VIDEO_PLAY_URL = prefix + "/av/play_url";
+const URL_VIDEO_REPORT = prefix + "/av/report";
 
 export {
   URL_INDEX,
   URL_ROUND_SOWING,
   URL_PARTITION,
-  URL_RANKING,
-  URL_RANKING_REGION,
-  URL_RANKING_ARCHIVE,
-  URL_RANKING_PARTITION,
-  URL_VIDEO_DETAIL,
-  URL_VIDEO_RECOMMEND,
-  URL_VIDEO_REPLAY,
-  URL_VIDEO_BARRAG,
-  URL_PLAY_URL,
-  URL_UP_USER,
-  URL_USER_VIDEO,
-  URL_SEARCH_HOTWORD,
-  URL_SEARCH_SUGGEST,
-  URL_SEARCH,
   URL_LIVE_AREA,
   URL_LIVE_DATA,
   URL_LIVE_LIST,
@@ -85,9 +69,24 @@ export {
   URL_LOGIN_SMS_CAPTCHA,
   URL_LOGIN_SMS_VERIFY,
   URL_VIDEO_REPORT,
-  URL_SPACE_GET_RELATION,
-  URL_ME_GET_MYRELATION,
+  URL_ME_MY_RELATION,
   URL_ME_GET_HISTORY,
   URL_ME_DELETE_HISTORY,
   URL_ME_EXIT_LOGIN,
+  URL_RANKING,
+  URL_RANKING_REGION,
+  URL_RANKING_ARCHIVE,
+  URL_RANKING_PARTITION,
+  URL_SPACE_FAVORITES_LIST,
+  URL_SPACE_RELATION,
+  URL_SPACE_USER,
+  URL_SPACE_VIDEO,
+  URL_SEARCH_HOTWORD,
+  URL_SEARCH_SUGGEST,
+  URL_SEARCH,
+  URL_VIDEO_DETAIL,
+  URL_VIDEO_RECOMMEND,
+  URL_VIDEO_REPLAY,
+  URL_VIDEO_BARRAG,
+  URL_VIDEO_PLAY_URL,
 }

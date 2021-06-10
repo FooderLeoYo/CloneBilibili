@@ -5,7 +5,7 @@ import { match } from "react-router-dom";
 
 import getRoomData from "../../../redux/async-action-creators/live/room";
 import { setShouldLoad } from "../../../redux/action-creators";
-import { getUserInfo } from "../../../api/up-user";
+import { getUserInfo } from "../../../api/space";
 import { getDanMuConfig } from "../../../api/live";
 
 import Context from "../../../context";

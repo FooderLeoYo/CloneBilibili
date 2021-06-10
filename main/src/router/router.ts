@@ -10,7 +10,7 @@ import getIndexContent from "../redux/async-action-creators/index";
 import getPartitionList from "../redux/async-action-creators/channel";
 import { getRankingVideoList } from "../redux/async-action-creators/ranking";
 import getVideoInfo from "../redux/async-action-creators/video";
-import getUpUserInfo from "../redux/async-action-creators/up-user";
+import getUpUserInfo from "../redux/async-action-creators/space";
 
 import getLiveData from "../redux/async-action-creators/live/index";
 import getLiveListInfo from "../redux/async-action-creators/live/list";

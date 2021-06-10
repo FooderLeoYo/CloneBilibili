@@ -128,65 +128,61 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
       this.bottomContent = [
         // 推荐列表
         <div className={style.recommendList} key={"recommendList"}>
-          {
-            this.state.recommendVideos.map(video => (
-              <div
-                className={style.videoWrapper}
-                key={video.aId}
-                onClick={() => {
-                  if (this.state.isLogin && this.state.isViewed) {
-                    postViewedReport({
-                      aid: this.props.video.aId,
-                      cid: this.props.video.cId,
-                      progress: Math.floor(this.videoRef.current.currentTime) // 后台API要求取整
-                    })
-                  }
+          {this.state.recommendVideos.map(video => (
+            <div
+              className={style.videoWrapper}
+              key={video.aId}
+              onClick={() => {
+                if (this.state.isLogin && this.state.isViewed) {
+                  postViewedReport({
+                    aid: this.props.video.aId,
+                    cid: this.props.video.cId,
+                    progress: Math.floor(this.videoRef.current.currentTime) // 后台API要求取整
+                  })
+                }
+              }}
+            >
+              <VideoItemLandscape
+                videoData={video}
+                imgParams={{
+                  imgHeight: "10.575rem",
+                  imgSrc: video.pic,
+                  imgFormat: "@320w_200h"
                 }}
-              >
-                <VideoItemLandscape
-                  videoData={video}
-                  imgParams={{
-                    imgHeight: "10.575rem",
-                    imgSrc: video.pic,
-                    imgFormat: "@320w_200h"
-                  }}
-                  history={this.props.history}
-                />
-              </div>
-            ))
+              />
+            </div>
+          ))
           }
           {this.state.loading && <div className={style.loading}>加载中...</div>}
         </div>,
         // 评论区
         <div className={style.comment} key={"comment"}>
           <div className={style.commentList}>
-            {
-              this.state.comments.map((comment, i) => (
-                <div className={style.commentWrapper} key={i}>
-                  <Link to={"/space/" + comment.user.mId}>
-                    <LazyLoad height="2rem">
-                      <img
-                        className={style.commentUpPic}
-                        src={this.getPicUrl(comment.user.face, "@60w_60h")}
-                        alt={comment.user.name}
-                      />
-                    </LazyLoad>
-                  </Link>
-                  <span className={style.commentTime}>{comment.date}</span>
-                  <div className={style.commentUpUser}>
-                    <Link to={"/space/" + comment.user.mId}>{comment.user.name}</Link>
-                  </div>
-                  <div className={style.commentContent}>{comment.content}</div>
+            {this.state.comments.map((comment, i) => (
+              <div className={style.commentWrapper} key={i}>
+                <Link to={"/space/" + comment.user.mId}>
+                  <LazyLoad height="2rem">
+                    <img
+                      className={style.commentUpPic}
+                      src={this.getPicUrl(comment.user.face, "@60w_60h")}
+                      alt={comment.user.name}
+                    />
+                  </LazyLoad>
+                </Link>
+                <span className={style.commentTime}>{comment.date}</span>
+                <div className={style.commentUpUser}>
+                  <Link to={"/space/" + comment.user.mId}>{comment.user.name}</Link>
                 </div>
-              ))
+                <div className={style.commentContent}>{comment.content}</div>
+              </div>
+            ))
             }
           </div>
           <div className={style.commentsBottom}>
-            {
-              this.state.showLoadMore ?
-                <div className={style.loadMore} onClick={() => { this.loadMoreComment() }}>
-                  点击加载更多评论</div> :
-                <div className={style.noMore}>没有更多了 ~</div>
+            {this.state.showLoadMore ?
+              <div className={style.loadMore} onClick={() => { this.loadMoreComment() }}>
+                点击加载更多评论</div> :
+              <div className={style.noMore}>没有更多了 ~</div>
             }
           </div>
         </div>
@@ -366,90 +362,68 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
           <meta name="description" content={desc} />
           <meta name="author" content={isDataOk ? owner.name : ""} />
         </Helmet>
-        {
-          !isDataOk ? <LoadingCutscene /> :
-            <>
-              <div
-                className={style.topWrapper}
-                ref={this.topWrapperRef}
-                onClick={() => {
-                  if (this.state.isLogin && this.state.isViewed) {
-                    postViewedReport({
-                      aid: aId,
-                      cid: cId,
-                      progress: Math.floor(this.videoRef.current.currentTime)
-                    })
-                  }
-                }}
-              ><HeaderWithBack /></div>
-              {/* 内容 */}
-              <div className={style.contentWrapper}>
-                {/* 播放器 */}
-                <div className={style.videoContainer}>
-                  <Player
-                    video={{
-                      aId: aId,
-                      cId: cId,
-                      title: title,
-                      cover: videoData.pic,
-                      duration: duration,
-                      url: url,
-                    }}
-                    isLive={false}
-                    videoRef={this.videoRef}
-                    clickCover={() => {
-                      this.setState({ isViewed: true });
-                      if (this.state.isLogin) { postViewedReport({ aid: this.props.video.aId, cid: this.props.video.cId }); }
-                    }}
-                  />
-                </div>
-                {/* 视频信息 */}
-                <div className={style.videoInfoContainer} ref={this.infoContainerRef}>
-                  <span
-                    className={style.iconArrow}
-                    ref={this.arrowRef}
-                    onClick={this.toggle}
-                  >
-                    <svg className="icon" aria-hidden="true">
-                      <use href="#icon-arrowDownBig"></use>
-                    </svg>
-                  </span>
-                  <div className={style.infoWrapper} ref={this.infoRef}>
-                    <div className={style.title}>{title}</div>
-                    <div className={style.videoInfo}>
-                      <span className={style.upUserIcon}>
-                        <svg className="icon" aria-hidden="true">
-                          <use href="#icon-uper"></use>
-                        </svg>
-                      </span>
-                      <Link to={"/space/" + owner.mId}>
-                        <span className={style.upUserName}>{owner.name}</span>
-                      </Link>
-                      <span className={style.play}>{formatTenThousand(playCount)}次观看</span>
-                      <span>{formatTenThousand(barrageCount)}弹幕</span>
-                      <span>{this.getPubdate(publicDate)}</span>
-                    </div>
-                    <div className={style.desc}>{desc}</div>
-                    <div className={style.position}>
-                      <a href="/index">主页</a>
-                      <span>&gt;</span>
-                      <a href={"/channel/" + twoLevel.id}>{twoLevel.name}</a>
-                      <span>&gt;</span>
-                      <span className={style.aid}>av{aId}</span>
-                    </div>
+        { !isDataOk ? <LoadingCutscene /> :
+          <>
+            <div className={style.topWrapper} ref={this.topWrapperRef}
+              onClick={() => { if (this.state.isLogin && this.state.isViewed) { postViewedReport({ aid: aId, cid: cId, progress: Math.floor(this.videoRef.current.currentTime) }) } }}
+            ><HeaderWithBack /></div>
+            {/* 内容 */}
+            <div className={style.contentWrapper}>
+              {/* 播放器 */}
+              <div className={style.videoContainer}>
+                <Player
+                  video={{ aId: aId, cId: cId, title: title, cover: videoData.pic, duration: duration, url: url, }}
+                  isLive={false}
+                  videoRef={this.videoRef}
+                  clickCover={() => {
+                    this.setState({ isViewed: true });
+                    if (this.state.isLogin) { postViewedReport({ aid: this.props.video.aId, cid: this.props.video.cId }); }
+                  }}
+                />
+              </div>
+              {/* 视频信息 */}
+              <div className={style.videoInfoContainer} ref={this.infoContainerRef}>
+                <span className={style.iconArrow} ref={this.arrowRef} onClick={this.toggle} >
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-arrowDownBig"></use>
+                  </svg>
+                </span>
+                <div className={style.infoWrapper} ref={this.infoRef}>
+                  <div className={style.title}>{title}</div>
+                  <div className={style.videoInfo}>
+                    <span className={style.upUserIcon}>
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#icon-uper"></use>
+                      </svg>
+                    </span>
+                    <Link to={"/space/" + owner.mId}>
+                      <span className={style.upUserName}>{owner.name}</span>
+                    </Link>
+                    <span className={style.play}>{formatTenThousand(playCount)}次观看</span>
+                    <span>{formatTenThousand(barrageCount)}弹幕</span>
+                    <span>{this.getPubdate(publicDate)}</span>
+                  </div>
+                  <div className={style.desc}>{desc}</div>
+                  <div className={style.position}>
+                    <a href="/index">主页</a>
+                    <span>&gt;</span>
+                    <a href={"/channel/" + twoLevel.id}>{twoLevel.name}</a>
+                    <span>&gt;</span>
+                    <span className={style.aid}>av{aId}</span>
                   </div>
                 </div>
-                <div className={style.bottomArea} ref={this.bottomAreaRef}>
-                  <Switcher
-                    tabTitle={["相关推荐", `评论 (${this.commentPage.count})`]}
-                    sliderData={this.bottomContent}
-                    switchRatio={0.15}
-                    scrollToAtFirstSwitch={this.bottomPos}
-                  />
-                </div>
               </div>
-              <ScrollToTop />
-            </>
+              <div className={style.bottomArea} ref={this.bottomAreaRef}>
+                <Switcher
+                  tabTitle={["相关推荐", `评论 (${this.commentPage.count})`]}
+                  sliderData={this.bottomContent}
+                  switchRatio={0.15}
+                  scrollToAtFirstSwitch={this.bottomPos}
+                />
+              </div>
+            </div>
+            <ScrollToTop />
+          </>
         }
       </div>
     );

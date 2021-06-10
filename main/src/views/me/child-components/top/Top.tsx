@@ -35,8 +35,8 @@ function Top(props) {
             {navData?.official_verify?.type === 0 && <span>{navData?.official?.role}</span>}
           </div>
           <div className={style.otherInfo}>
-            <span className={style.uid}>{`UID：${navData?.mid}`}</span>
-            <span className={style.moral}>{`节操值： ${navData?.moral}`}</span>
+            <span className={style.uid}>{`UID : ${navData?.mid}`}</span>
+            <span className={style.moral}>{`节操值 : ${navData?.moral}`}</span>
           </div>
         </div>
         <div className={style.toSpace}>

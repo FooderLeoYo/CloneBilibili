@@ -4,8 +4,8 @@ import { Helmet } from "react-helmet";
 
 import Context from "../../../../context";
 import { setShouldLoad } from "../../../../redux/action-creators";
-import getUser from "../../../../redux/async-action-creators/up-user";
-import { getUserVideos } from "../../../../api/up-user";
+import getUser from "../../../../redux/async-action-creators/space";
+import { getUserVideos } from "../../../../api/space";
 
 import { Video, createVideoByUser } from "../../../../class-object-creators";
 import { UpUser as Model } from "../../../../class-object-creators";
@@ -161,17 +161,14 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
 
     return (
       <div className={style.upSapce}>
-        {
-          upUser && <Helmet><title>{upUser.name + "的个人空间"}</title></Helmet>
-        }
+        {upUser && <Helmet><title>{upUser.name + "的个人空间"}</title></Helmet>}
         <div className={style.upUserContainer}>
           <div className={style.face}>
-            {
-              upUser.face ?
-                <img src={this.getPicUrl(upUser.face, "@160w_160h")} alt={upUser.name} /> :
-                <svg className="icon" aria-hidden="true">
-                  <use href="#icon-avatar"></use>
-                </svg>
+            {upUser.face ?
+              <img src={this.getPicUrl(upUser.face, "@160w_160h")} alt={upUser.name} /> :
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-avatar"></use>
+              </svg>
             }
           </div>
           <div className={style.info}>
@@ -181,8 +178,7 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
                 <use href={`#icon-${this.sexClass[upUser.sex]}`}></use>
               </svg>
             </span>
-            {
-              upUser.level &&
+            {upUser.level &&
               <span className={style.level}>
                 <svg className="icon" aria-hidden="true">
                   <use href={`#icon-lv${upUser.level}`}></use>
@@ -217,8 +213,7 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
         <div className={style.masterpiece}>
           <div className={style.title}>Ta的投稿</div>
           <div className={style.videoList}>
-            {
-              this.state.videos.length !== 0 &&
+            {this.state.videos.length !== 0 &&
               this.state.videos.map(video => (
                 <div className={style.videoWrapper} key={video.aId}>
                   <VideoItemLandscape
@@ -231,19 +226,16 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
                     noOwner={true}
                   />
                 </div>
-              )
-              )
+              ))
             }
           </div>
-          {
-            this.state.videos.length > 0 && this.state.showLoadMore &&
+          {this.state.videos.length > 0 && this.state.showLoadMore &&
             <div className={style.loadMore} onClick={() => { this.loadMoreVideos() }}>
               刚刚看到这里，点击加载更多~
             </div>
           }
           {this.state.loading && <div className={style.loading}>加载中...</div>}
-          {
-            !this.state.loading && this.state.videos.length === 0 &&
+          {!this.state.loading && this.state.videos.length === 0 &&
             <div className={style.tips}>
               <img src={tips} />
               <span className={style.text}>Ta还没有投过稿~</span>

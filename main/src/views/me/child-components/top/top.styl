@@ -6,39 +6,40 @@
   left: 0
   right: 0
   background-color #fff
-  height: px2rem(150)
   .basic-info
-    height: px2rem(110)
+    height: px2rem(75)
     display: grid
-    grid-template-columns: 20% 60% 20%
-    padding: px2rem(10) px2rem(20)
+    grid-template-columns: 23% 57% 20%
+    margin: px2rem(20) px2rem(15)
     .portrait
       display: flex
       justify-content: center
       align-items: center
-      width: px2rem(60)
-      height: px2rem(90)
+      width: px2rem(75)
+      height: @width
       border-radius: 50%
       overflow: hidden
       img
         height: 100%
     .descriptions
       padding-left: px2rem(10)
-      height: px2rem(90)
+      height: px2rem(75)
       display: grid
       grid-template-rows: 33.33% 33.33% 33.33%
       .name-and-lv
         display: flex
         align-items: center
-        height: px2rem(20)
         .uname
           font-size: px2rem(18)
         .level
           margin-left: px2rem(3)
           font-size: px2rem(30)
       .account-type
-        height: px2rem(30)
+        position: relative
         .membership
+          position: absolute
+          top: 50%
+          transform: translateY(-50%)
           padding: px2rem(2) px2rem(5)
           border-radius: px2rem(3)
           background-color: #fb7299
@@ -47,6 +48,8 @@
       .other-info
         font-size: px2rem(12)
         color: #888888
+        .moral
+          margin-left: px2rem(10)
     .to-space
       position: relative
       color: #888888
@@ -62,6 +65,7 @@
             transform-origin: 50% 50%
   .statistics
     height: px2rem(40)
+    margin: px2rem(5) 0
     display: grid
     grid-template-columns: 33.33% 33.33% 33.33%
     .container

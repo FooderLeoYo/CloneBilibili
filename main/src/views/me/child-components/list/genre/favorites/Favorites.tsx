@@ -3,10 +3,10 @@ import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { History } from "history";
 
-import { getPicSuffix } from "../../../../../../customed-methods/image";
-import Context from "../../../../../../context";
+import { getHistory, deleteHistory } from "../../../../../../api/me";
 
 import Header from "../../child-components/header/Header"
+import TabBar from "../../child-components/tab-bar/TabBar";
 import ScrollToTop from "../../../../../../components/scroll-to-top/ScrollToTop";
 
 import style from "./favorites.styl?css-modules";

@@ -1,6 +1,6 @@
 import { AnyAction, Dispatch } from "redux";
 import { setShouldLoad, setUpUserInfo, setVideoInfo } from "../action-creators";
-import { getUserInfo, getUserVideos } from "../../api/up-user";
+import { getUserInfo, getUserVideos } from "../../api/space";
 import { UpUser, createVideoByUser } from "../../class-object-creators";
 
 export default function getUser(mId: number) {

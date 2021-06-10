@@ -1,11 +1,7 @@
 import { getJSON, postJSON } from "./fetch";
 import {
-  URL_VIDEO_DETAIL,
-  URL_PLAY_URL,
-  URL_VIDEO_RECOMMEND,
-  URL_VIDEO_REPLAY,
-  URL_VIDEO_BARRAG,
-  URL_VIDEO_REPORT
+  URL_VIDEO_DETAIL, URL_VIDEO_PLAY_URL, URL_VIDEO_RECOMMEND,
+  URL_VIDEO_REPLAY, URL_VIDEO_BARRAG, URL_VIDEO_REPORT
 } from "./url";
 
 /**
@@ -19,7 +15,7 @@ export function getVideoInfo(aId: number) {
  * 获取视频播放地址
  */
 export function getPlayUrl(aId: number, cId: number) {
-  return getJSON(URL_PLAY_URL + `?aId=${aId}&cId=${cId}`, null);
+  return getJSON(URL_VIDEO_PLAY_URL + `?aId=${aId}&cId=${cId}`, null);
 }
 
 /**

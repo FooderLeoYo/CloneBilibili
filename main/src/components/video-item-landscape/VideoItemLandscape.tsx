@@ -1,7 +1,6 @@
 import * as React from "react";
 import LazyLoad from "react-lazyload";
 import { Link } from "react-router-dom";
-import { History } from "history";
 
 import myContext from "../../context";
 import { getPicSuffix } from "../../customed-methods/image";
@@ -19,14 +18,13 @@ interface VideoItemLandscapeProps {
   },
   picSuffix?: string,
   noOwner?: boolean,
-  history?: History,
 }
 
 const { useContext, useRef } = React;
 
 function VideoItemLandscape(props: VideoItemLandscapeProps) {
   const context = useContext(myContext);
-  const { videoData, imgParams, picSuffix, noOwner, history } = props;
+  const { videoData, imgParams, picSuffix, noOwner } = props;
   const { imgHeight, imgSrc, imgFormat } = imgParams;
   const duration = typeof (videoData.duration) === "string" ? videoData.duration :
     formatDuration(videoData.duration, "0#:##:##");
@@ -41,7 +39,6 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
     return `${context.picURL}?pic=${url}${format + suffix}`;
   }
 
-
   return (
     <>
       {/* 这里的href为相对url，因此不需要写完整的 */}
@@ -52,22 +49,13 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
               <use href="#icon-placeholder"></use>
             </svg>
           </span>
-          <LazyLoad height={imgHeight}>
-            <img src={getPicUrl(imgSrc, imgFormat)} />
-          </LazyLoad>
+          <LazyLoad height={imgHeight}><img src={getPicUrl(imgSrc, imgFormat)} /></LazyLoad>
           <div className={style.duration}>{duration}</div>
         </div>
         <div className={style.infoWrapper}>
           <p dangerouslySetInnerHTML={{ __html: videoData.title }} />
-          {
-            !noOwner &&
-            <span
-              className={style.ownerWrapper}
-              onClick={e => {
-                e.preventDefault();
-                history.push({ pathname: "/space/" + videoData.owner.mId });
-              }}
-            >
+          {!noOwner &&
+            <span className={style.ownerWrapper}            >
               <span className={style.iconUp} >
                 <svg className="icon" aria-hidden="true">
                   <use href="#icon-uper"></use>
