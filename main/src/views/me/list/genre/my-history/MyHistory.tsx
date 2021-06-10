@@ -3,17 +3,17 @@ import { History } from "history";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
-import { getHistory, deleteHistory } from "../../../../../../api/me";
+import { getHistory, deleteHistory } from "../../../../../api/me";
 
-import Toast from "../../../../../../components/toast/index";
+import Toast from "../../../../../components/toast/index";
 import Header from "../../child-components/header/Header"
 import TabBar from "../../child-components/tab-bar/TabBar";
 import VideoItem from "../../child-components/item/VideoItem";
 import BottomBar from "../../child-components/bottom-bar/BottomBar"
-import ScrollToTop from "../../../../../../components/scroll-to-top/ScrollToTop";
+import ScrollToTop from "../../../../../components/scroll-to-top/ScrollToTop";
 
 import style from "./my-history.styl?css-modules";
-import tips from "../../../../../../assets/images/nocontent.png";
+import tips from "../../../../../assets/images/nocontent.png";
 
 interface MyHistoryProps {
   history: History;

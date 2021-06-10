@@ -1,18 +1,18 @@
 import * as React from "react";
 import { Helmet } from "react-helmet";
 
-import { getNavUserInfo } from "../../api/login";
-import { exitLogin } from "../../api/me";
+import { getNavUserInfo } from "../../../api/login";
+import { exitLogin } from "../../../api/me";
 
-import HederWithBack from "../../components/header-with-back/HederWithBack";
-import Top from "./child-components/top/Top";
-import VideoLinks from "./child-components/link/Videos";
+import HederWithBack from "../../../components/header-with-back/HederWithBack";
+import Top from "../child-components/top/Top";
+import VideoLinks from "../child-components/link/Videos";
 
-import style from "./me.styl?css-modules";
+import style from "./index.styl?css-modules";
 
 const { useState, useEffect } = React;
 
-function Me(props) {
+function Index(props) {
   const [navData, setNavData] = useState(null);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ function Me(props) {
       <div className={style.meWrapper}>
         <Top navData={navData} />
         <div className={style.links}>
-          <VideoLinks />
+          <VideoLinks uid={navData?.mid} />
           <div className={style.creation}>
             <span>我的创作</span>
             <div>
@@ -90,4 +90,4 @@ function Me(props) {
   )
 }
 
-export default Me;
+export default Index;

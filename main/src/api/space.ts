@@ -1,7 +1,7 @@
 import { getJSON, postJSON } from "./fetch";
 import {
   URL_SPACE_RELATION, URL_SPACE_USER, URL_SPACE_VIDEO,
-  URL_SPACE_FAVORITES_LIST
+  URL_SPACE_FAV_LIST_CREATED
 } from "./url";
 
 /**
@@ -24,6 +24,6 @@ export function fetchRelation(uid: number) {
 }
 
 /* 获取收藏夹列表 */
-export function fetchFavoritesList(uid: number) {
-  return getJSON(URL_SPACE_FAVORITES_LIST + `/${uid}`, null);
+export function fetchFavListCreated(uid: number) {
+  return getJSON(URL_SPACE_FAV_LIST_CREATED + `/${uid}`, null);
 }

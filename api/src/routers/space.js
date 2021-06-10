@@ -1,7 +1,22 @@
 const express = require("express");
-const { fetchRelation, fetchUserData, fetchUserVideo } = require("../api");
+const { fetchFavListCreated, fetchUserData, fetchUserVideo, fetchRelation } = require("../api");
 
 const router = express.Router();
+
+router.get("/space/getfavlistcreated/:uid", (req, res, next) => {
+  fetchFavListCreated(req.params.uid, req.headers.cookie).then(data => {
+    const resData = {
+      code: "1",
+      msg: "success",
+      data
+    }
+    if (data.code != 0) {
+      resData.code = "0";
+      resData.msg = "fail";
+    }
+    res.send(resData);
+  }).catch(next);
+});
 
 router.get("/space/:uId", (req, res, next) => {
   if (req.path === "/space/video") {

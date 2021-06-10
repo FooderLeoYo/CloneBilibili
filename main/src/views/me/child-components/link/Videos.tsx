@@ -3,7 +3,12 @@ import { Link } from "react-router-dom";
 
 import style from "./style/videos.styl?css-modules";
 
-function Videos() {
+interface VideosProps {
+  uid: number;
+}
+
+function Videos(props: VideosProps) {
+  const { uid } = props;
 
   return (
     <div className={style.videos}>
@@ -15,7 +20,7 @@ function Videos() {
         </span>
         <span className={style.word}>历史记录</span>
       </Link>
-      <Link className={style.link} to="me/favorites">
+      <Link className={style.link} to={`me/favorites/${uid}`}>
         <span className={style.icon}>
           <svg className="icon" aria-hidden="true">
             <use href="#icon-favorites"></use>

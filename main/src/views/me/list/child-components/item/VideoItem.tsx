@@ -1,9 +1,9 @@
 import * as React from "react";
 import { History } from "history";
 
-import Context from "../../../../../../context";
-import { getPicSuffix } from "../../../../../../customed-methods/image";
-import { formatDate } from "../../../../../../customed-methods/datetime";
+import Context from "../../../../../context";
+import { getPicSuffix } from "../../../../../customed-methods/image";
+import { formatDate } from "../../../../../customed-methods/datetime";
 
 import style from "./video-item.styl?css-modules";
 
