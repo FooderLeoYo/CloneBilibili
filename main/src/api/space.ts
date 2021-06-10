@@ -1,14 +1,14 @@
-import { getJSON, postJSON } from "./fetch";
+import { getJSON } from "./fetch";
 import {
   URL_SPACE_RELATION, URL_SPACE_USER, URL_SPACE_VIDEO,
-  URL_SPACE_FAV_LIST_CREATED
+  URL_SPACE_FAV_LIST_CREATED, URL_SPACE_FAV_LIST_COLLECTED
 } from "./url";
 
 /**
  * 获取up主信息
  */
 export function getUserInfo(mId: number) {
-  return getJSON(URL_SPACE_USER + `/${mId}`, null);
+  return getJSON(URL_SPACE_USER, { mId });
 }
 
 /**
@@ -20,10 +20,15 @@ export function getUserVideos(aId: number, p: number, size: number) {
 
 /* 获取关系数据 */
 export function fetchRelation(uid: number) {
-  return getJSON(URL_SPACE_RELATION + `/${uid}`, null);
+  return getJSON(URL_SPACE_RELATION, { uid });
 }
 
-/* 获取收藏夹列表 */
+/* 获取创建的收藏夹列表 */
 export function fetchFavListCreated(uid: number) {
-  return getJSON(URL_SPACE_FAV_LIST_CREATED + `/${uid}`, null);
+  return getJSON(URL_SPACE_FAV_LIST_CREATED, { uid });
+}
+
+/* 获取收藏的收藏夹列表 */
+export function fetchFavListCollected(ps: number, pn: number, up_mid: number) {
+  return getJSON(URL_SPACE_FAV_LIST_COLLECTED, { ps, pn, up_mid });
 }

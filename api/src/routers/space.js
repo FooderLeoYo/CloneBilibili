@@ -1,10 +1,13 @@
 const express = require("express");
-const { fetchFavListCreated, fetchUserData, fetchUserVideo, fetchRelation } = require("../api");
+const { fetchFavListCollected, fetchFavListCreated, fetchUserData, fetchUserVideo, fetchRelation } = require("../api");
 
 const router = express.Router();
 
-router.get("/space/getfavlistcreated/:uid", (req, res, next) => {
-  fetchFavListCreated(req.params.uid, req.headers.cookie).then(data => {
+router.get("/space/getfavlistcollected", (req, res, next) => {
+  const { ps, pn, up_mid } = req.query
+  const params = { ps, pn, up_mid }
+
+  fetchFavListCollected(params, req.headers.cookie).then(data => {
     const resData = {
       code: "1",
       msg: "success",
@@ -18,12 +21,23 @@ router.get("/space/getfavlistcreated/:uid", (req, res, next) => {
   }).catch(next);
 });
 
-router.get("/space/:uId", (req, res, next) => {
-  if (req.path === "/space/video") {
-    next();
-    return;
-  }
-  fetchUserData(req.params.uId).then(data => {
+router.get("/space/getfavlistcreated", (req, res, next) => {
+  fetchFavListCreated(req.query.uid, req.headers.cookie).then(data => {
+    const resData = {
+      code: "1",
+      msg: "success",
+      data
+    }
+    if (data.code != 0) {
+      resData.code = "0";
+      resData.msg = "fail";
+    }
+    res.send(resData);
+  }).catch(next);
+});
+
+router.get("/space/userinfo", (req, res, next) => {
+  fetchUserData(req.query.mId).then(data => {
     const resData = {
       code: "1",
       msg: "success",
@@ -54,8 +68,8 @@ router.get("/space/video", (req, res, next) => {
   }).catch(next);
 });
 
-router.get("/space/getrelation/:uid", (req, res, next) => {
-  fetchRelation(req.params.uid).then(data => {
+router.get("/space/getrelation", (req, res, next) => {
+  fetchRelation(req.query.uid).then(data => {
     const resData = {
       code: "1",
       msg: "success",

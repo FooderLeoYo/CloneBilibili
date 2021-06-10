@@ -79,7 +79,7 @@ const URL_SEARCH_SEARCH = "https://api.bilibili.com/x/web-interface/search/type"
 /* 空间相关 */
 
 // 获取收藏的收藏夹列表
-const URL_SPACE_FAV_LIST_COLLECTED = "";
+const URL_SPACE_FAV_LIST_COLLECTED = "http://api.bilibili.com/x/v3/fav/folder/collected/list";
 // 创建的收藏夹列表
 const URL_SPACE_FAV_LIST_CREATED = "http://api.bilibili.com/x/v3/fav/folder/created/list-all";
 // 用户信息
@@ -239,12 +239,11 @@ const fetchSMSCaptcha = param => {
 
 /* 个人中心相关 */
 
-const deleteHistory = (param, cookie) => {
+const deleteHistory = (params, cookie) => {
   const rawString = cookie;
   const bjctPos = rawString.indexOf("bili_jct");
   const bili_jct = rawString.substring(bjctPos + 9);
-  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
-  console.log(searchParam)
+  const searchParam = new URLSearchParams(Object.entries(params)).toString() + `&csrf=${bili_jct}`;
 
   return fetch(URL_ME_DELETE_HISTORY, {
     method: 'POST',
@@ -342,9 +341,18 @@ const fetchSearchContent = param => {
 
 /* 空间相关 */
 
+const fetchFavListCollected = (param, cookie) => {
+  const searchParam = new URLSearchParams(Object.entries(param)).toString();
+
+  return fetch(`${URL_SPACE_FAV_LIST_COLLECTED}?${searchParam}`, {
+    method: "GET",
+    headers: { "cookie": cookie },
+  }).then(res => res.json())
+    .then(json => json);
+}
+
 const fetchFavListCreated = (uid, cookie) => {
   const fetchUrl = `${URL_SPACE_FAV_LIST_CREATED}?up_mid=${uid}`;
-  console.log(cookie)
   return fetch(fetchUrl, {
     method: "GET",
     headers: { "cookie": cookie },
@@ -354,12 +362,8 @@ const fetchFavListCreated = (uid, cookie) => {
 
 const fetchUserData = uId => {
   return Promise.all([
-    // fetch会发送请求到指定路径，然后返回一个包含响应结果的promise(一个Response对象)
-    fetch(URL_SPACE_USER_INFO.replace("{mid}", uId), {
-      headers: { "User-Agent": userAgent }
-    }).then(res => res.json())
-      // .json()也是一个异步方法，会返回一个 Promise，因此它的结果也要通过.then拿到
-      // 这个then是.json的结果，而不是fetch的
+    fetch(URL_SPACE_USER_INFO.replace("{mid}", uId), { headers: { "User-Agent": userAgent } })
+      .then(res => res.json())
       .then(body => body.data),
 
     fetch(URL_SPACE_USER_STATUS.replace("{mid}", uId))
@@ -452,7 +456,8 @@ module.exports = {
   /* 搜索相关 */
   fetchHotWord, fetchSuggest, fetchSearchContent,
   /* 空间相关 */
-  fetchFavListCreated, fetchUserData, fetchRelation, fetchUserVideo,
+  fetchFavListCollected, fetchFavListCreated, fetchUserData, fetchRelation,
+  fetchUserVideo,
   /* 视频相关 */
   fetchBarrage, fetchVideoDetail, fetchPlayUrl, fetchRecommendById,
   fetchReplay, postViewedReport

@@ -35,7 +35,7 @@ const URL_ME_GET_HISTORY = prefix + "/me/gethistory";
 const URL_ME_MY_RELATION = prefix + "/me/getmyrelation";
 
 /* 排行榜相关 */
-const URL_RANKING = prefix + "/ranking";
+const URL_RANKING = prefix + "/ranking/list";
 const URL_RANKING_ARCHIVE = prefix + "/ranking/archive";
 const URL_RANKING_PARTITION = prefix + "/ranking/partitions";
 const URL_RANKING_REGION = prefix + "/ranking/region";
@@ -46,14 +46,15 @@ const URL_SEARCH_HOTWORD = prefix + "/search/hotword";
 const URL_SEARCH_SUGGEST = prefix + "/search/suggest";
 
 /* 空间相关 */
+const URL_SPACE_FAV_LIST_COLLECTED = prefix + "/space/getfavlistcollected";
 const URL_SPACE_FAV_LIST_CREATED = prefix + "/space/getfavlistcreated";
 const URL_SPACE_RELATION = prefix + "/space/getrelation";
-const URL_SPACE_USER = prefix + "/space";
+const URL_SPACE_USER = prefix + "/space/userinfo";
 const URL_SPACE_VIDEO = prefix + "/space/video";
 
 /* 视频相关 */
 const URL_VIDEO_BARRAG = prefix + "/av/barrage";
-const URL_VIDEO_DETAIL = prefix + "/av";
+const URL_VIDEO_DETAIL = prefix + "/av/info";
 const URL_VIDEO_PLAY_URL = prefix + "/av/play_url";
 const URL_VIDEO_RECOMMEND = prefix + "/av/recommend";
 const URL_VIDEO_REPLAY = prefix + "/av/replay";
@@ -76,7 +77,8 @@ export {
   /* 搜索相关 */
   URL_SEARCH, URL_SEARCH_HOTWORD, URL_SEARCH_SUGGEST,
   /* 空间相关 */
-  URL_SPACE_FAV_LIST_CREATED, URL_SPACE_RELATION, URL_SPACE_USER, URL_SPACE_VIDEO,
+  URL_SPACE_FAV_LIST_COLLECTED, URL_SPACE_FAV_LIST_CREATED, URL_SPACE_RELATION,
+  URL_SPACE_USER, URL_SPACE_VIDEO,
   /* 视频相关 */
   URL_VIDEO_BARRAG, URL_VIDEO_DETAIL, URL_VIDEO_PLAY_URL, URL_VIDEO_RECOMMEND,
   URL_VIDEO_REPLAY, URL_VIDEO_REPORT,

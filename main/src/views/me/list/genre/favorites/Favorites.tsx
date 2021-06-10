@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet";
 import { match, Link } from "react-router-dom";
 import { History } from "history";
 
-import { fetchFavListCreated } from "../../../../../api/space";
+import { fetchFavListCreated, fetchFavListCollected } from "../../../../../api/space";
 
 import Header from "../../child-components/header/Header"
 import TabBar from "../../child-components/tab-bar/TabBar";
@@ -23,7 +23,11 @@ function Favorites(props: FavoritesProps) {
   const { match } = props;
 
   useEffect(() => {
-    fetchFavListCreated(match.params.uid).then(result => {
+    const { uid } = match.params;
+    fetchFavListCreated(uid).then(result => {
+      console.log(result)
+    });
+    fetchFavListCollected(10, 1, uid).then(result => {
       console.log(result)
     })
   }, []);

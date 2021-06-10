@@ -8,21 +8,21 @@ import {
  * 获取视频信息
  */
 export function getVideoInfo(aId: number) {
-  return getJSON(URL_VIDEO_DETAIL + `/${aId}`, null);
+  return getJSON(URL_VIDEO_DETAIL, { aId });
 }
 
 /**
  * 获取视频播放地址
  */
 export function getPlayUrl(aId: number, cId: number) {
-  return getJSON(URL_VIDEO_PLAY_URL + `?aId=${aId}&cId=${cId}`, null);
+  return getJSON(URL_VIDEO_PLAY_URL, { aId, cId });
 }
 
 /**
  * 获取推荐视频列表
  */
 export function getRecommendVides(aId: number) {
-  return getJSON(URL_VIDEO_RECOMMEND + `/${aId}`, null);
+  return getJSON(URL_VIDEO_RECOMMEND, { aId });
 }
 
 /**
@@ -36,7 +36,7 @@ export function getComments(aId: number, p: number) {
  * 获取弹幕
  */
 export function getBarrages(cId: number) {
-  return getJSON(URL_VIDEO_BARRAG + `/${cId}`, null)
+  return getJSON(URL_VIDEO_BARRAG, { cId })
 }
 
 /* 

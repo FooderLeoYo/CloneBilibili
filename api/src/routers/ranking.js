@@ -23,7 +23,7 @@ router.get("/ranking/partitions", (req, res, next) => {
 router.get("/ranking/region", (req, res, next) => {
   const rId = req.query.rId;
   const day = req.query.day;
-  fetchRankingRegionById(rId, day).then((data) => {
+  fetchRankingRegionById(rId, day).then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -41,7 +41,7 @@ router.get("/ranking/region", (req, res, next) => {
 router.get("/ranking/archive", (req, res, next) => {
   let tId = req.query.tId;
   let p = req.query.p;
-  fetchRankingArchiveById(tId, p).then((data) => {
+  fetchRankingArchiveById(tId, p).then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -56,8 +56,8 @@ router.get("/ranking/archive", (req, res, next) => {
   }).catch(next);
 });
 
-router.get("/ranking/:rId", (req, res, next) => {
-  fetchRankingById(req.params.rId).then((data) => {
+router.get("/ranking/list", (req, res, next) => {
+  fetchRankingById(req.query.rId).then(data => {
     let resData = {
       code: "1",
       msg: "success"

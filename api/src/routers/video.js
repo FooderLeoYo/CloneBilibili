@@ -1,25 +1,13 @@
 const express = require("express");
-const {
-  fetchVideoDetail,
-  fetchPlayUrl,
-  fetchRecommendById,
-  fetchReplay,
-  fetchBarrage,
-  postViewedReport
-} = require("../api");
+const { fetchVideoDetail, fetchPlayUrl, fetchRecommendById, fetchReplay,
+  fetchBarrage, postViewedReport } = require("../api");
 // xml2js的作用是将后台返回的 xml 代码转换为前台可使用的 json 格式的字符串
 const { parseString } = require("xml2js");
 const router = express.Router();
 
 // 视频详情
-router.get("/av/:aId", (req, res, next) => {
-  // 这里排除的大概是番剧、电影
-  if (req.path == "/av/replay" || req.path == "/av/play_url") {
-    // 这里的next是跳到下一个中间件，也就是/av/play_url，而不是fetchVideoDetail
-    next();
-    return;
-  }
-  fetchVideoDetail(req.params.aId).then((data) => {
+router.get("/av/info", (req, res, next) => {
+  fetchVideoDetail(req.query.aId).then(data => {
     const resData = {
       code: "1",
       msg: "success",
@@ -37,7 +25,8 @@ router.get("/av/:aId", (req, res, next) => {
 
 // 视频地址
 router.get("/av/play_url", (req, res, next) => {
-  fetchPlayUrl(req.query.aId, req.query.cId).then((data) => {
+  const { aId, cId } = req.query;
+  fetchPlayUrl(aId, cId).then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -52,8 +41,8 @@ router.get("/av/play_url", (req, res, next) => {
   }).catch(next);
 });
 
-router.get("/av/recommend/:aId", (req, res, next) => {
-  fetchRecommendById(req.params.aId).then((data) => {
+router.get("/av/recommend/", (req, res, next) => {
+  fetchRecommendById(req.query.aId).then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -71,7 +60,7 @@ router.get("/av/recommend/:aId", (req, res, next) => {
 router.get("/av/replay", (req, res, next) => {
   let aId = req.query.aId;
   let p = req.query.p;
-  fetchReplay(aId, p).then((data) => {
+  fetchReplay(aId, p).then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -86,8 +75,8 @@ router.get("/av/replay", (req, res, next) => {
   }).catch(next);
 });
 
-router.get("/av/barrage/:cId", (req, res, next) => {
-  fetchBarrage(req.params.cId).then((xml) => {
+router.get("/av/barrage", (req, res, next) => {
+  fetchBarrage(req.query.cId).then(xml => {
     parseString(xml, { explicitArray: false, trim: true }, (err, result) => {
       if (!err) {
         let resData = {
@@ -123,13 +112,12 @@ router.post("/av/report", (req, res, next) => {
     let resData = {
       code: "1",
       msg: "success",
+      data
     }
     if (data.code != 0) {
       resData.code = "0";
       resData.msg = "fail";
     }
-    resData.data = data;
-
     res.send(resData);
   }).catch(next);
 });
