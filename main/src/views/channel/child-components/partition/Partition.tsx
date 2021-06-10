@@ -24,17 +24,16 @@ function Partition(props: PartitionProps) {
       <div className={style.ranking}>
         <Link className={style.more} to={"/channel/" + data.id}>查看更多</Link>
         <svg className="icon" aria-hidden="true">
-          <use href="#icon-moreNoFill"></use>
+          <use href="#icon-arrowDownBig"></use>
         </svg>
       </div>
       <div className={style.partitionContent + " clear"}>
-        {
-          data.videos.map((item, i) => {
-            if (item.pic && item.pic.indexOf("@320w_200h") === -1) {
-              item.pic = getPicUrl(item.pic, "@320w_200h");
-            }
-            return <VideoItem video={item} key={i} showStatistics={true} lazyOffset={100} />
-          })
+        {data.videos.map((item, i) => {
+          if (item.pic && item.pic.indexOf("@320w_200h") === -1) {
+            item.pic = getPicUrl(item.pic, "@320w_200h");
+          }
+          return <VideoItem video={item} key={i} showStatistics={true} lazyOffset={100} />
+        })
         }
       </div>
     </div>
