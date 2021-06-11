@@ -8,7 +8,7 @@ interface TabBarProps {
   tabTitle: Array<string>,
   setFatherCurInx: Function,
   curFatherInx: number,
-  doSthWithNewInx?: Function
+  doSthWithNewInx?: (index?: number) => any
 }
 
 function TabBar(props: TabBarProps) {

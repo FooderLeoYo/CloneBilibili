@@ -49,6 +49,7 @@ const URL_SEARCH_SUGGEST = prefix + "/search/suggest";
 const URL_SPACE_FAV_LIST_COLLECTED = prefix + "/space/getfavlistcollected";
 const URL_SPACE_FAV_LIST_CREATED = prefix + "/space/getfavlistcreated";
 const URL_SPACE_RELATION = prefix + "/space/getrelation";
+const URL_SPACE_SERIES_FOLLOWED = prefix + "/space/getseriesfollowed";
 const URL_SPACE_USER = prefix + "/space/userinfo";
 const URL_SPACE_VIDEO = prefix + "/space/video";
 
@@ -78,7 +79,7 @@ export {
   URL_SEARCH, URL_SEARCH_HOTWORD, URL_SEARCH_SUGGEST,
   /* 空间相关 */
   URL_SPACE_FAV_LIST_COLLECTED, URL_SPACE_FAV_LIST_CREATED, URL_SPACE_RELATION,
-  URL_SPACE_USER, URL_SPACE_VIDEO,
+  URL_SPACE_SERIES_FOLLOWED, URL_SPACE_USER, URL_SPACE_VIDEO,
   /* 视频相关 */
   URL_VIDEO_BARRAG, URL_VIDEO_DETAIL, URL_VIDEO_PLAY_URL, URL_VIDEO_RECOMMEND,
   URL_VIDEO_REPLAY, URL_VIDEO_REPORT,

@@ -78,10 +78,12 @@ const URL_SEARCH_SEARCH = "https://api.bilibili.com/x/web-interface/search/type"
 
 /* 空间相关 */
 
-// 获取收藏的收藏夹列表
+// 收藏的收藏夹列表
 const URL_SPACE_FAV_LIST_COLLECTED = "http://api.bilibili.com/x/v3/fav/folder/collected/list";
 // 创建的收藏夹列表
 const URL_SPACE_FAV_LIST_CREATED = "http://api.bilibili.com/x/v3/fav/folder/created/list-all";
+// 追番/剧列表
+const URL_SPACE_SERIES_FOLLOWED = "http://api.bilibili.com/x/space/bangumi/follow/list";
 // 用户信息
 const URL_SPACE_USER_INFO = "https://api.bilibili.com/x/space/acc/info?mid={mid}";
 // 用户状态
@@ -381,6 +383,16 @@ const fetchRelation = uid => {
     .then(body => body.data);
 }
 
+const fetchSeriesFollowed = (param, cookie) => {
+  const searchParam = new URLSearchParams(Object.entries(param)).toString();
+
+  return fetch(`${URL_SPACE_SERIES_FOLLOWED}?${searchParam}`, {
+    method: "GET",
+    headers: { "cookie": cookie },
+  }).then(res => res.json())
+    .then(json => json);
+}
+
 const fetchUserVideo = param => {
   return fetch(URL_SPACE_VIDEO.replace("{mid}", param.uId)
     .replace("{p}", param.p)
@@ -457,7 +469,7 @@ module.exports = {
   fetchHotWord, fetchSuggest, fetchSearchContent,
   /* 空间相关 */
   fetchFavListCollected, fetchFavListCreated, fetchUserData, fetchRelation,
-  fetchUserVideo,
+  fetchSeriesFollowed, fetchUserVideo,
   /* 视频相关 */
   fetchBarrage, fetchVideoDetail, fetchPlayUrl, fetchRecommendById,
   fetchReplay, postViewedReport

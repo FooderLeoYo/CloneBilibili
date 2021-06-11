@@ -1,5 +1,6 @@
 const express = require("express");
-const { fetchFavListCollected, fetchFavListCreated, fetchUserData, fetchUserVideo, fetchRelation } = require("../api");
+const { fetchFavListCollected, fetchFavListCreated, fetchUserData,
+  fetchUserVideo, fetchRelation, fetchSeriesFollowed } = require("../api");
 
 const router = express.Router();
 
@@ -74,6 +75,26 @@ router.get("/space/getrelation", (req, res, next) => {
       code: "1",
       msg: "success",
       data
+    }
+    res.send(resData);
+  }).catch(next);
+});
+
+router.get("/space/getseriesfollowed", (req, res, next) => {
+  const { vmid, type, pn, ps } = req.query;
+  const params = { vmid, type, pn, ps };
+
+  console.log(params)
+
+  fetchSeriesFollowed(params, req.headers.cookie).then(data => {
+    const resData = {
+      code: "1",
+      msg: "success",
+      data
+    }
+    if (data.code != 0) {
+      resData.code = "0";
+      resData.msg = "fail";
     }
     res.send(resData);
   }).catch(next);

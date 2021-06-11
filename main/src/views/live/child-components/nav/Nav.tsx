@@ -93,7 +93,7 @@ function Nav(props: NavProps) {
             data={firstTabBarData}
             needUnderline={true}
             clickMethod={handleFirstClick}
-            currentIndex={14}
+            currentIndex={15}
             noSlideAni={true}
           />
         </div>

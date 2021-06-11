@@ -24,12 +24,8 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
   constructor(props) {
     super(props);
     this.tabBarRef = React.createRef();
-    if (this.props.needUnderline) {
-      this.underlineRef = React.createRef();
-    }
-    this.state = {
-      curInx: this.props.currentIndex ? this.props.currentIndex : 0
-    }
+    if (this.props.needUnderline) { this.underlineRef = React.createRef() }
+    this.state = { curInx: this.props.currentIndex ? this.props.currentIndex : 0 }
   }
 
 
@@ -77,11 +73,8 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
       const tabPadding = parseInt(getComputedStyle(currentTabDOM)["paddingLeft"].slice(0, -2));
       const spanPadding = parseInt(getComputedStyle(currentTabDOM.children[0])["paddingLeft"].slice(0, -2));
 
-      if (this.props.noSlideAni) {
-        underlineDOM.classList.add(style.noAni);
-      } else {
-        underlineDOM.classList.remove(style.noAni);
-      }
+      if (this.props.noSlideAni) { underlineDOM.classList.add(style.noAni) }
+      else { underlineDOM.classList.remove(style.noAni) }
 
       underlineDOM.style.left = `${currentTabDOM.offsetLeft + tabPadding + spanPadding}px`;
       underlineDOM.style.width = `${currentTabDOM.children[0].clientWidth - 2 * spanPadding}px`;
@@ -123,9 +116,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     this.setListeners();
     setTimeout(() => {
       this.resetScroll();
-      if (this.props.needUnderline) {
-        this.moveUnderline(this.state.curInx);
-      }
+      if (this.props.needUnderline) { this.moveUnderline(this.state.curInx) }
     });
   }
 
@@ -140,7 +131,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     if (this.props.needForcedUpdate && (prevProps.currentIndex !== this.state.curInx ||
       this.props.oneInx && this.props.oneInx !== prevProps.oneInx)) {
       this.resetScroll();
-      if (this.props.needUnderline) { this.moveUnderline(this.state.curInx); }
+      if (this.props.needUnderline) { this.moveUnderline(this.state.curInx) }
     }
   }
 
@@ -150,8 +141,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     const tabs = data.map((tab, i) => (
       <a
         className={style.tab + (i === this.state.curInx ? " " + style.highlight : "")}
-        onClick={() => { this.handleClick(tab, i); }}
-        key={tab.id}
+        onClick={() => { this.handleClick(tab, i); }} key={tab.id}
       >
         <span>{tab.name}</span>
       </a>
@@ -160,10 +150,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     return (
       <div className={style.tabBarWrapper}>
         <ul className={style.tabBar} ref={this.tabBarRef}>
-          {
-            needUnderline &&
-            <span className={style.underline} ref={this.underlineRef}></span>
-          }
+          {needUnderline && <span className={style.underline} ref={this.underlineRef}></span>}
           {tabs}
         </ul>
       </div>
