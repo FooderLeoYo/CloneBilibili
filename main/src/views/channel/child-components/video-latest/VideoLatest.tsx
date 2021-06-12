@@ -1,4 +1,5 @@
 import * as React from "react";
+import { match } from "react-router-dom";
 
 import { getRankingArchive } from "../../../../api/ranking";
 
@@ -10,16 +11,15 @@ import style from "./video-latest.styl?css-modules";
 import tips from "../../../../assets/images/tips.png";
 
 interface VideoLatestProps {
-  id: number,
-  curLvTwoTabIndex: number,
-  getPicUrl: (url: string, format: string) => string
+  getPicUrl: (url: string, format: string) => string;
+  match: match<{ rId }>;
 }
 
 interface VideoLatestState {
-  id: number,
-  currentPage: number,
-  latestVideos: Video[],
-  loading: boolean
+  id: number;
+  currentPage: number;
+  latestVideos: Video[];
+  loading: boolean;
 }
 
 class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
@@ -51,35 +51,21 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
     });
   }
 
-  private handleClick() {
-    const currentPage = this.state.currentPage + 1;
-    if (currentPage <= 4) { this.loadLatestData(this.props.id, currentPage); }
-  }
-
   public componentDidMount() {
+    const { rId } = this.props.match.params;
+
+    this.loadLatestData(rId, 1);
     this.loadMoreRef.current.addEventListener("click", () => {
-      this.handleClick()
+      const currentPage = this.state.currentPage + 1;
+      currentPage < 5 && this.loadLatestData(rId, currentPage);
     });
-
-    if (this.props.curLvTwoTabIndex !== 0) {
-      this.loadLatestData(this.props.id, 1);
-    }
-  }
-
-  public static getDerivedStateFromProps(props, state) {
-    if (props.id !== state.id) {
-      return {
-        id: props.id,
-        latestVideos: []
-      };
-    }
-    return null;
   }
 
   public componentDidUpdate(prevProps) {
-    if (this.props.id !== prevProps.id) {
-      this.setState({ latestVideos: [] });
-      this.loadLatestData(this.props.id, 1);
+    const { rId } = this.props.match.params.rId;
+    if (rId && rId !== prevProps.match.params.rId) {
+      this.setState({ latestVideos: [], id: rId, });
+      this.loadLatestData(rId, 1);
     }
   }
 
@@ -88,25 +74,22 @@ class VideoLatest extends React.Component<VideoLatestProps, VideoLatestState> {
       <div className={style.videoLatest}>
         <div className={style.title}>最新视频</div>
         <div className={style.videoList + " clear"}>
-          {
-            this.state.latestVideos.map((item, i) => {
-              if (item.pic && item.pic.indexOf("@320w_200h") === -1) {
-                item.pic = this.props.getPicUrl(item.pic, "@320w_200h");
-              }
-              return <VideoItem video={item} key={i} showStatistics={true} lazyOffset={100} />
-            })
+          {this.state.latestVideos.map((item, i) => {
+            if (item?.pic.indexOf("@320w_200h") === -1) {
+              item.pic = this.props.getPicUrl(item.pic, "@320w_200h");
+            }
+            return <VideoItem video={item} key={i} showStatistics={true} lazyOffset={100} />
+          })
           }
         </div>
         { // 拉到底部可加载更多，但最多只加载4页视频数据
-          this.state.currentPage < 4 ? (
+          this.state.currentPage < 4 ?
             this.state.loading ? <div className={style.loading}>Loading...</div> :
-              <div className={style.loadMore} ref={this.loadMoreRef}>点击加载更多</div>) :
-            (
-              <div className={style.tips}>
-                <img src={tips} />
-                <span className={style.text}>只能到这里了 ~</span>
-              </div>
-            )
+              <div className={style.loadMore} ref={this.loadMoreRef}>点击加载更多</div> :
+            <div className={style.tips}>
+              <img src={tips} />
+              <span className={style.text}>只能到这里了 ~</span>
+            </div>
         }
       </div>
     );

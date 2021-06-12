@@ -10,19 +10,24 @@ interface PartitionProps {
     id: number,
     name: string,
     videos: Video[]
-  },
-  getPicUrl: Function,
+  };
+  getPicUrl: Function;
+  setCurLvTwoTabIndex: React.Dispatch<React.SetStateAction<number>>;
+  index: number;
+  setLatestId: Function;
 }
 
-
 function Partition(props: PartitionProps) {
-  const { data, getPicUrl } = props;
+  const { data, getPicUrl, setCurLvTwoTabIndex, index, setLatestId } = props;
 
   return (
     <div className={style.partition}>
       <div className={style.title}>{data.name}</div>
-      <div className={style.ranking}>
-        <Link className={style.more} to={"/channel/" + data.id}>查看更多</Link>
+      <div className={style.more} onClick={() => {
+        setCurLvTwoTabIndex(index + 1)
+        setLatestId();
+      }}>
+        <Link className={style.word} to={"/channel/" + data.id}>查看更多</Link>
         <svg className="icon" aria-hidden="true">
           <use href="#icon-arrowDownBig"></use>
         </svg>

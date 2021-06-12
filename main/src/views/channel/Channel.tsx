@@ -41,20 +41,17 @@ function Channel(props: ChannelProps) {
   const rankParRef = useRef(null); // 用于获取点击“排行榜”后，跳转到的url中最后的id
 
   const [lvOnePartition, setLvOnePartition] = useState<PartitionType>(null);
+  const oneParRef = useRef(lvOnePartition);
+  useEffect(() => { oneParRef.current = lvOnePartition; }, [lvOnePartition]);
   const [lvTwoPartition, setLvTwoPartition] = useState<PartitionType>(null);
   const [curLvTwoTabIndex, setCurLvTwoTabIndex] = useState(0);
+  const twoInxRef = useRef(curLvTwoTabIndex);
+  useEffect(() => { twoInxRef.current = curLvTwoTabIndex; }, [curLvTwoTabIndex]);
   const [twoTabData, setTwoTabData] = useState([]);
   const [lvTwoParHotVideos, setLvTwoParHotVideos] = useState([]);
 
   const rIdRef = useRef(match.params.rId)
   useEffect(() => { rIdRef.current = match.params.rId; }, [match.params.rId]);
-
-  // 数据加载过程中，视频封面的placeholder
-  // const initVideos = [];
-  // for (let i = 0; i < 4; i++) {
-  //   initVideos.push(new Video(0, "加载中...", "", "", 0, 0, 0, 0, 0, ""));
-  // }
-
 
   function getPicUrl(url, format) {
     const { picURL } = context;
@@ -64,6 +61,11 @@ function Channel(props: ChannelProps) {
     else { suffix = getPicSuffix(); }
 
     return `${picURL}?pic=${url}${format + suffix}`;
+  }
+
+  function setLvTwoTabData() {
+    lvOnePartition && setTwoTabData([{ id: lvOnePartition.id, name: "推荐" } as PartitionType]
+      .concat(lvOnePartition.children));
   }
 
   function loadHotVideos() {
@@ -86,7 +88,6 @@ function Channel(props: ChannelProps) {
         const partitions = [];
         for (let i = 0; i < results.length; i++) {
           const result = results[i];
-          // result.code是express发送的res中附带的一个自定义属性，规定1表示成功
           if (result.code === "1") {
             const partition = lvTwoPartitions[i];
             partitions.push({
@@ -105,34 +106,30 @@ function Channel(props: ChannelProps) {
   // 获取排行榜分类的信息，包含name和id
   function setRankingPartitions() {
     getRankingPartitions().then(result => {
-      if (result.code === "1") { rankParRef.current = createPartitionTypes(result.data); }
+      if (result.code === "1") { rankParRef.current = createPartitionTypes(result.data) }
     });
   }
 
-  function setLvTwoTabDataAndPar() {
-    if (lvOnePartition) {
-      // 设置lvTwoTabData、lvTwoPartition
-      let tmpData = [{ id: lvOnePartition.id, name: "推荐" } as PartitionType]
-        .concat(lvOnePartition.children);
-      setTwoTabData(tmpData);
+  function setLatestId() {
+    const onePar = oneParRef.current;
+    const tmp = isRecAndChildrenGtTwo ?
+      rIdRef.current :  // 当前的二级分类为“推荐”，且二级分类有两个或以上
+      onePar.children.length > 1 ? // 如果此时的二级分类非“推荐”
+        onePar.children[twoInxRef.current - 1].id : // 二级分类有两个或以上取当前二级分类
+        onePar.children[0].id; // 只有一个二级分类取第一个
 
-      // 如果此时的二级分类非“推荐”
-      if (curLvTwoTabIndex !== 0) {
-        setLvTwoPartition(twoTabData[curLvTwoTabIndex]);
-      }
-    }
-  }
-
-  function setInitData() {
-    setRankingPartitions();
-    loadHotVideos();
+    setVideoLatestId(tmp);
   }
 
   useEffect(() => {
     if (shouldLoad) {
-      dispatch(getPartitionList()).then(() => setInitData());
+      dispatch(getPartitionList()).then(() => {
+        setRankingPartitions();
+        loadHotVideos();
+      })
     } else {
-      setInitData();
+      setRankingPartitions();
+      loadHotVideos();
       dispatch(setShouldLoad(true));
     }
     // 开发环境中，样式在js加载后动态添加会导致图片被检测到未出现在屏幕上
@@ -140,37 +137,26 @@ function Channel(props: ChannelProps) {
     setTimeout(() => { forceCheck(); }, 10);
   }, []);
 
+  // 切换一级tab后重新设置二级tab及加载所有二级推荐视频
   useEffect(() => {
-    setLvTwoTabDataAndPar();
+    setLvTwoTabData();
     loadAllSecRecVideos();
   }, [lvOnePartition?.id]);
 
+  // 点击二级tab或“查看更多”后加载对应热门视频；检查当前二级tab是否为“推荐”
   useEffect(() => {
-    if (lvOnePartition) {
-      setIsRecAndChildrenGtTwo(
-        curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1
-      );
+    if (lvOnePartition) { // 跳过curLvTwoTabIndex初始化时触发的那次useEffect
+      loadHotVideos();
+      curLvTwoTabIndex > 0 && scrollTo(0, 0);
     }
-  }, [curLvTwoTabIndex, lvOnePartition?.id]);
+    lvOnePartition && setIsRecAndChildrenGtTwo(curLvTwoTabIndex === 0 && lvOnePartition.children.length > 1);
+  }, [curLvTwoTabIndex]);
 
-  // 使得点击推荐页面下各二级分类的查看更多后，能正常切换
-  useEffect((() => {
-    if (lvOnePartition) {
-      const tmpTwoInx = twoTabData.findIndex(partition =>
-        partition.id === parseInt(match.params.rId, 10)
-      )
-      if (tmpTwoInx !== -1) {
-        setCurLvTwoTabIndex(tmpTwoInx);
-      }
-      if (curLvTwoTabIndex > 0) {
-        scrollTo(0, 0)
-
-        const tmp = lvOnePartition.children.length > 1 ? // 如果此时的二级分类非“推荐”
-          lvOnePartition.children[curLvTwoTabIndex - 1].id : // 二级分类有两个或以上取当前二级分类
-          lvOnePartition.children[0].id; // 只有一个二级分类取第一个
-      }
-    }
-  }), [match.params.rId, lvOnePartition, curLvTwoTabIndex]);
+  // 数据加载过程中，视频封面的placeholder
+  // const initVideos = [];
+  // for (let i = 0; i < 4; i++) {
+  //   initVideos.push(new Video(0, "加载中...", "", "", 0, 0, 0, 0, 0, ""));
+  // }
 
   // 切换tab后，加载过程中显示placeholder图片
   // useEffect(() => {
@@ -178,48 +164,44 @@ function Channel(props: ChannelProps) {
   //   setLvTwoParHotVideos([]);
   // }, [match.params.rId]);
 
-
   return (
     <div className="channel">
       <Helmet><title>{lvOnePartition && lvOnePartition.name + (lvTwoPartition ? "-" + lvTwoPartition.name : "")}</title></Helmet>
-      {
-        <>
-          {/* 顶部 */}
-          <div className={style.topWrapper}>
-            <Head partitions={partitions} match={match} history={history}
-              loadHotVideos={loadHotVideos} isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}
-              lvOnePartition={lvOnePartition} setLvOnePartition={setLvOnePartition}
-              setLvTwoPartition={setLvTwoPartition} curLvTwoTabIndex={curLvTwoTabIndex}
-              setCurLvTwoTabIndex={setCurLvTwoTabIndex} setVideoLatestId={setVideoLatestId}
-              loadAllSecRecVideos={loadAllSecRecVideos} rIdRef={rIdRef}
-              twoTabData={twoTabData}
+      {<>
+        {/* 顶部 */}
+        <div className={style.topWrapper}>
+          <Head match={match} history={history} twoTabData={twoTabData}
+            partitions={partitions} lvOnePartition={lvOnePartition}
+            setLvOnePartition={setLvOnePartition} setLvTwoPartition={setLvTwoPartition}
+            curLvTwoTabIndex={curLvTwoTabIndex} setCurLvTwoTabIndex={setCurLvTwoTabIndex}
+            loadHotVideos={loadHotVideos} loadAllSecRecVideos={loadAllSecRecVideos}
+            setLatestId={setLatestId} rIdRef={rIdRef}
+          />
+        </div>
+        {/* 是否留出二级tab的位置 */}
+        <div className={lvOnePartition?.children?.length > 1 ? style.specialLine1 : style.specialLine2} />
+        {/* 主体部分 */}
+        <div className={style.partitionWrapper}>
+          {/* 热门推荐 */}
+          <div className={style.recommend}>
+            <Hot rankParRef={rankParRef} isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}
+              lvOnePartition={lvOnePartition} hotVideos={hotVideos}
+              getPicUrl={getPicUrl} history={history}
             />
           </div>
-          {/* 是否留出二级tab的位置 */}
-          <div className={lvOnePartition?.children?.length > 1 ? style.specialLine1 : style.specialLine2} />
-          {/* 主体部分 */}
-          <div className={style.partitionWrapper}>
-            {/* 热门推荐 */}
-            <div className={style.recommend}>
-              <Hot rankParRef={rankParRef} isRecAndChildrenGtTwo={isRecAndChildrenGtTwo}
-                lvOnePartition={lvOnePartition} hotVideos={hotVideos}
-                getPicUrl={getPicUrl} history={history}
+          {/* 分类推荐视频或最新视频 */}
+          {isRecAndChildrenGtTwo ? // 当前二级分类为“推荐”，则显示分类推荐视频
+            lvTwoParHotVideos.map((partition, index) =>
+              <Partition data={partition} key={partition.id} index={index}
+                getPicUrl={(url, format) => getPicUrl(url, format)}
+                setCurLvTwoTabIndex={setCurLvTwoTabIndex} setLatestId={setLatestId}
               />
-            </div>
-            { // 分类推荐视频或最新视频
-              isRecAndChildrenGtTwo ? // 当前二级分类为“推荐”，则显示分类推荐视频
-                lvTwoParHotVideos.map(partition =>
-                  <Partition data={partition} key={partition.id}
-                    getPicUrl={(url, format) => getPicUrl(url, format)}
-                  />
-                ) : // 当前二级分类为非“推荐”或一级分类只有一个二级分类，则显示最新视频
-                <VideoLatest id={videoLatestId} curLvTwoTabIndex={curLvTwoTabIndex}
-                  getPicUrl={(url, format) => getPicUrl(url, format)}
-                />
-            }
-          </div>
-          <ScrollToTop />
-        </>
+            ) : // 当前二级分类为非“推荐”或一级分类只有一个二级分类，则显示最新视频
+            <VideoLatest match={match} getPicUrl={(url, format) => getPicUrl(url, format)} />
+          }
+        </div>
+        <ScrollToTop />
+      </>
       }
     </div>
   );

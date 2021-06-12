@@ -37,15 +37,13 @@ function Hot(props: HotProps) {
       }
     }
   }
+
   return (
     <>
       <div className={style.title}>热门推荐</div>
-      { // 排行榜
-        isRecAndChildrenGtTwo &&
-        <div
-          className={style.ranking}
-          onClick={() => { handleRankingClick(lvOnePartition) }}
-        >
+      {/* 排行榜 */}
+      {isRecAndChildrenGtTwo &&
+        <div className={style.ranking} onClick={() => handleRankingClick(lvOnePartition)}>
           <svg className="icon" aria-hidden="true">
             <use href="#icon-ranking"></use>
           </svg>
@@ -59,14 +57,12 @@ function Hot(props: HotProps) {
       }
       {/* 4个热门推荐视频 */}
       <div className={style.recommendContent + " clear"}>
-        {
-          hotVideos.map((video, i) => {
-            if (video.pic && video.pic.indexOf("@320w_200h") === -1) {
-              video.pic = getPicUrl(video.pic, "@320w_200h");
-            }
-            return <VideoItem video={video} key={i} showStatistics={true} lazyOffset={100} />
-          })
-        }
+        {hotVideos.map((video, i) => {
+          if (video.pic && video.pic.indexOf("@320w_200h") === -1) {
+            video.pic = getPicUrl(video.pic, "@320w_200h");
+          }
+          return <VideoItem video={video} key={i} showStatistics={true} lazyOffset={100} />
+        })}
       </div>
     </>
   );

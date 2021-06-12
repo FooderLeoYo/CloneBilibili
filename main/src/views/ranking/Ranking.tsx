@@ -52,8 +52,7 @@ class Ranking extends React.Component<RankingProps, RankingState> {
     });
     // 这里不用history.push是因为按返回时需要回到channhel
     // 如果用了push那么返回的将是前一个点击的tab
-    this.props.dispatch(getVideoList(tabID))
-      .then(() => { this.setState({ loading: false }); });
+    this.props.dispatch(getVideoList(tabID)).then(() => { this.setState({ loading: false }) });
   }
 
   /* 以下是生命周期函数 */
@@ -67,9 +66,9 @@ class Ranking extends React.Component<RankingProps, RankingState> {
           });
           this.setState({ loading: false });
         });
-    } else { this.props.dispatch(setShouldLoad(true)); }
+    } else { this.props.dispatch(setShouldLoad(true)) }
 
-    setTimeout(() => { forceCheck(); }, 10);
+    setTimeout(() => { forceCheck() }, 10);
   }
 
   public getSnapshotBeforeUpdate() {
@@ -77,36 +76,25 @@ class Ranking extends React.Component<RankingProps, RankingState> {
   }
 
   public componentDidUpdate(prevProps, prevState, scroll) {
-    if (scroll) { scrollTo(0, 0); }
+    scroll && scrollTo(0, 0)
   }
 
   public render() {
     const { rankingPartitions, rankingVideos } = this.props;
     const currentPartition = rankingPartitions[this.state.currentTabIndex];
+
     return (
       <div className="ranking">
-        {
-          currentPartition &&
-          <Helmet>
-            <title>{currentPartition.name + "-排行榜"}</title>
-          </Helmet>
-        }
+        {currentPartition && <Helmet><title>{currentPartition.name + "-排行榜"}</title>          </Helmet>}
         <div className={style.topWrapper}>
           <Header />
-          <TabBar
-            data={rankingPartitions}
-            needUnderline={true}
-            currentIndex={this.state.currentTabIndex}
-            clickMethod={this.handleClick}
-            needForcedUpdate={true}
+          <TabBar data={rankingPartitions} needUnderline={true} needForcedUpdate={true}
+            currentIndex={this.state.currentTabIndex} clickMethod={this.handleClick}
           />
         </div>
         <div className={style.topBottom} />
         <div className={style.rankingList}>
-          <RankingList
-            rankingVideos={rankingVideos}
-            picSuffix={this.props.staticContext?.picSuffix}
-          />
+          <RankingList rankingVideos={rankingVideos} picSuffix={this.props.staticContext?.picSuffix} />
         </div>
         {this.state.loading && <div className={style.loading}>(´・ω・｀)正在加载...</div>}
         <ScrollToTop />
