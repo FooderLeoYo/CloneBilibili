@@ -7,6 +7,7 @@ import { getFavListCreated, getFavListCollected, getSeriesFollowed } from "../..
 
 import Header from "../../child-components/header/Header"
 import TabBar from "../../child-components/tab-bar/TabBar";
+import FoldableList from "../../child-components/drop-down/FoldableList";
 import ScrollToTop from "../../../../../components/scroll-to-top/ScrollToTop";
 
 import style from "./favorites.styl?css-modules";
@@ -24,15 +25,6 @@ function Favorites(props: FavoritesProps) {
   const [tabInx, setTabInx] = useState(0);
   const [bangumiPage, setBangumiPage] = useState(1);
   const [showPage, setShowPage] = useState(1);
-
-
-  // const [shouldLoadShow, setShouldLoadShow] = useState(false);
-  // useEffect(() => {
-  //   console.log("tabInx: " + tabInx + '!!!!!!!!!!')
-  //   console.log("shouldLoadBan: " + shouldLoadBan + "!!!!!!!!!")
-  //   console.log("bangumiPage: " + bangumiPage + "!!!!!!!!!")
-  //   shouldLoadBan && getDataByTabInx(tabInx)
-  // }, [shouldLoadBan]);
 
   function getDataByTabInx(index: number) {
     const { uid } = match.params;
@@ -65,20 +57,6 @@ function Favorites(props: FavoritesProps) {
     }
   }
 
-  const [targetState, setTargetState] = useState("old");
-  const [firstTime, setFirstTime] = useState(true);
-
-  useEffect(() => {
-    !firstTime && console.log(targetState) // "new"
-  }, [targetState]);
-
-  useEffect(() => {
-    setFirstTime(false);
-    setTimeout(() => {
-      setTargetState("new");
-    }, 5000);
-  }, []);
-
   // useEffect(() => {
   //   const { uid } = match.params;
 
@@ -89,8 +67,7 @@ function Favorites(props: FavoritesProps) {
   //     console.log(result)
   //   });
   // }, []);
-
-
+  const content = <div>内容</div>
 
   return (
     <div className={style.favorites}>
@@ -102,6 +79,7 @@ function Favorites(props: FavoritesProps) {
         />
       </div>
       <div className={style.listWrapper}>
+        <FoldableList swichTitle={"收藏"} content={content} count={5} />
         <div onClick={() => handleLoadMore()}>加载更多</div>
       </div>
       <ScrollToTop />
