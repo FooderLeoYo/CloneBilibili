@@ -2,7 +2,7 @@ import { getJSON } from "./fetch";
 import {
   URL_SPACE_RELATION, URL_SPACE_USER, URL_SPACE_VIDEO,
   URL_SPACE_FAV_LIST_CREATED, URL_SPACE_FAV_LIST_COLLECTED,
-  URL_SPACE_SERIES_FOLLOWED
+  URL_SPACE_SERIES_FOLLOWED, URL_SPACE_FAV_INFO
 } from "./url";
 
 /**
@@ -37,4 +37,9 @@ export function getFavListCollected(ps: number, pn: number, up_mid: number) {
 /* 获取追番/剧列表 */
 export function getSeriesFollowed(vmid: number, type: number, pn: number = 1, ps: number = 15) {
   return getJSON(URL_SPACE_SERIES_FOLLOWED, { vmid, type, pn, ps });
+}
+
+/* 获取目标收藏夹信息 */
+export function getFavInfo(media_id: number) {
+  return getJSON(URL_SPACE_FAV_INFO, { media_id });
 }

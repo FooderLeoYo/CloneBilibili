@@ -13,7 +13,7 @@ const { useState, useRef, useEffect } = React;
 function FoldableList(props: FoldableListProps) {
   const { swichTitle, content, count } = props;
   const [isHide, setIsHide] = useState(true);
-  const [contentHeight, setContentHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState("");
   const contentRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
   const iconRef: React.MutableRefObject<HTMLSpanElement> = useRef(null);
 
@@ -21,7 +21,7 @@ function FoldableList(props: FoldableListProps) {
     const contentStyle = contentRef.current.style;
     const iconDOM = iconRef.current;
     if (isHide) {
-      contentStyle.height = `${contentHeight.toString()}px`;
+      contentStyle.height = contentHeight;
       iconDOM.classList.add(style.show);
     } else {
       contentStyle.height = "0";
@@ -31,9 +31,13 @@ function FoldableList(props: FoldableListProps) {
   }
 
   useEffect(() => {
-    setContentHeight(parseInt(getComputedStyle(contentRef.current)["height"]));
-    contentRef.current.classList.add(style.setZero);
-  }, []);
+    if (content) {
+      console.log(content)
+      // console.log(getComputedStyle(contentRef.current)["height"])
+      setContentHeight(getComputedStyle(contentRef.current)["height"]);
+      contentRef.current.classList.add(style.setZero);
+    }
+  }, [content])
 
   return (
     <>

@@ -1,12 +1,28 @@
 const express = require("express");
 const { fetchFavListCollected, fetchFavListCreated, fetchUserData,
-  fetchUserVideo, fetchRelation, fetchSeriesFollowed } = require("../api");
+  fetchUserVideo, fetchRelation, fetchSeriesFollowed,
+  fetchFavInof } = require("../api");
 
 const router = express.Router();
 
+router.get("/space/getfavinfo", (req, res, next) => {
+  fetchFavInof(req.query.media_id, req.headers.cookie).then(data => {
+    const resData = {
+      code: "1",
+      msg: "success",
+      data
+    }
+    if (data.code != 0) {
+      resData.code = "0";
+      resData.msg = "fail";
+    }
+    res.send(resData);
+  }).catch(next);
+});
+
 router.get("/space/getfavlistcollected", (req, res, next) => {
-  const { ps, pn, up_mid } = req.query
-  const params = { ps, pn, up_mid }
+  const { ps, pn, up_mid } = req.query;
+  const params = { ps, pn, up_mid };
 
   fetchFavListCollected(params, req.headers.cookie).then(data => {
     const resData = {

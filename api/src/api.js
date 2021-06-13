@@ -78,6 +78,7 @@ const URL_SEARCH_SEARCH = "https://api.bilibili.com/x/web-interface/search/type"
 
 /* 空间相关 */
 
+const URL_SPACE_FAV_INFO = "http://api.bilibili.com/x/v3/fav/folder/info";
 // 收藏的收藏夹列表
 const URL_SPACE_FAV_LIST_COLLECTED = "http://api.bilibili.com/x/v3/fav/folder/collected/list";
 // 创建的收藏夹列表
@@ -343,6 +344,14 @@ const fetchSearchContent = param => {
 
 /* 空间相关 */
 
+const fetchFavInof = (param, cookie) => {
+  return fetch(`${URL_SPACE_FAV_INFO}?media_id=${param}`, {
+    method: "GET",
+    headers: { "cookie": cookie },
+  }).then(res => res.json())
+    .then(json => json);
+}
+
 const fetchFavListCollected = (param, cookie) => {
   const searchParam = new URLSearchParams(Object.entries(param)).toString();
 
@@ -468,8 +477,8 @@ module.exports = {
   /* 搜索相关 */
   fetchHotWord, fetchSuggest, fetchSearchContent,
   /* 空间相关 */
-  fetchFavListCollected, fetchFavListCreated, fetchUserData, fetchRelation,
-  fetchSeriesFollowed, fetchUserVideo,
+  fetchFavInof, fetchFavListCollected, fetchFavListCreated, fetchUserData,
+  fetchRelation, fetchSeriesFollowed, fetchUserVideo,
   /* 视频相关 */
   fetchBarrage, fetchVideoDetail, fetchPlayUrl, fetchRecommendById,
   fetchReplay, postViewedReport

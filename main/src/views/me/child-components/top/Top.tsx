@@ -42,7 +42,7 @@ function Top(props) {
         <div className={style.toSpace}>
           <Link className={style.link} to={"/space/myspace"}>
             空间&nbsp;
-          <span className={style.arrow}>
+            <span className={style.arrow}>
               <svg className="icon" aria-hidden="true">
                 <use href="#icon-arrowDownBig"></use>
               </svg>
