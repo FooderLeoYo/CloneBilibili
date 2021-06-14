@@ -4,6 +4,7 @@ import style from "./foldable-list.styl?css-modules";
 
 interface FoldableListProps {
   swichTitle: string;
+  stickyPosition: string;
   content: JSX.Element;
   count?: number;
 }
@@ -11,37 +12,37 @@ interface FoldableListProps {
 const { useState, useRef, useEffect } = React;
 
 function FoldableList(props: FoldableListProps) {
-  const { swichTitle, content, count } = props;
-  const [isHide, setIsHide] = useState(true);
+  const { swichTitle, stickyPosition, content, count } = props;
+  const [isShow, setIsShow] = useState(true);
   const [contentHeight, setContentHeight] = useState("");
   const contentRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
+  const switchRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
   const iconRef: React.MutableRefObject<HTMLSpanElement> = useRef(null);
 
   const handleClick = () => {
     const contentStyle = contentRef.current.style;
     const iconDOM = iconRef.current;
-    if (isHide) {
-      contentStyle.height = contentHeight;
-      iconDOM.classList.add(style.show);
-    } else {
+    if (isShow) {
       contentStyle.height = "0";
-      iconDOM.classList.remove(style.show);
+      setTimeout(() => { iconDOM.classList.remove(style.show) }, 200);
+    } else {
+      contentStyle.height = contentHeight;
+      setTimeout(() => { iconDOM.classList.add(style.show) }, 200);
     }
-    setIsHide(!isHide);
+    setIsShow(!isShow);
   }
 
   useEffect(() => {
-    if (content) {
-      console.log(content)
-      // console.log(getComputedStyle(contentRef.current)["height"])
-      setContentHeight(getComputedStyle(contentRef.current)["height"]);
-      contentRef.current.classList.add(style.setZero);
-    }
-  }, [content])
+    switchRef.current.style.top = stickyPosition;
+  }, []);
+
+  useEffect(() => {
+    content && setContentHeight(getComputedStyle(contentRef.current)["height"]);
+  }, [content]);
 
   return (
     <>
-      <div className={style.switch} onClick={handleClick}>
+      <div className={style.switch} onClick={handleClick} ref={switchRef}>
         <span className={style.icon} ref={iconRef}>
           <svg className="icon" aria-hidden="true">
             <use href="#icon-arrowDownBig"></use>

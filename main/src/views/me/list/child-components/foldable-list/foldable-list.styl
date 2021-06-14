@@ -1,13 +1,24 @@
 @import "../../../../../assets/stylus/px2rem.styl"
 
 .switch
-  background-color: orange
+  padding: px2rem(8) 0
+  z-index: 10
+  background-color #ffffff
+  width: 100%
+  position: sticky
   .icon
+    font-size: px2rem(15)
+    color: #888888
     &.show
-      transform: translate3d(0, -100%, 0)
+      svg
+        transform: rotateZ(180deg)
+  .title
+    margin: 0 px2rem(10)
+    font-size: px2rem(18)
+    font-weight: bold
+  .count
+    font-size: px2rem(15)
+    color: #888888
 .content-wrapper
   overflow: hidden
   transition: height .4s
-  &.set-zero
-    height: 0
-
