@@ -8,7 +8,7 @@ import { getHistory, deleteHistory } from "../../../../../api/me";
 import Toast from "../../../../../components/toast/index";
 import Header from "../../child-components/header/Header"
 import TabBar from "../../child-components/tab-bar/TabBar";
-import VideoItem from "../../child-components/item/VideoItem";
+import VideoItem from "./child-components/item/VideoItem";
 import BottomBar from "../../child-components/bottom-bar/BottomBar"
 import ScrollToTop from "../../../../../components/scroll-to-top/ScrollToTop";
 
@@ -174,12 +174,12 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       tabInx, selectedStatus } = this.state;
     const videoList = (
       <div className={style.videoHistory}>
-        { !noVideoHistory ?
+        {!noVideoHistory ?
           videoHistories.map((item, i) => (
             <ul className={style.viewedTimeGroup} key={`video${i}`}>
               {/* item[0]是map的键，item[1]是值 */}
               <div className={style.groupTitle}>{item[0]}</div>
-              { item[1].map((record, j) => {
+              {item[1].map((record, j) => {
                 return (
                   <li className={style.itemWrapper} key={j}>
                     <VideoItem history={history} curFatherInx={tabInx} record={record}
@@ -204,11 +204,11 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     );
     const liveList = (
       <div className={style.liveHistory}>
-        { !noLiveHistory ?
+        {!noLiveHistory ?
           liveHistories.map((item, i) => (
             <ul className={style.viewedTimeGroup} key={`live${i}`}>
               <div className={style.groupTitle}>{item[0]}</div>
-              { item[1].map((record, j) => {
+              {item[1].map((record, j) => {
                 return (<li className={style.itemWrapper} key={j}>
                   <VideoItem history={history} curFatherInx={tabInx} record={record}
                     switchSelected={() => {
@@ -248,7 +248,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
           />
         </div>
         <div className={style.listWrapper}>{tabInx === 0 ? videoList : liveList}</div>
-        { editting && <div className={style.bottomWrapper}>
+        {editting && <div className={style.bottomWrapper}>
           <BottomBar
             selectedStatus={selectedStatus}
             setAllSelectedStatus={status => this.setAllSelectedStatus(tabInx, status)}

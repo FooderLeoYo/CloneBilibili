@@ -1,9 +1,9 @@
 import * as React from "react";
 import { History } from "history";
 
-import Context from "../../../../../context";
-import { getPicSuffix } from "../../../../../customed-methods/image";
-import { formatDate } from "../../../../../customed-methods/datetime";
+import Context from "../../../../../../../context";
+import { getPicSuffix } from "../../../../../../../customed-methods/image";
+import { formatDate } from "../../../../../../../customed-methods/datetime";
 
 import style from "./video-item.styl?css-modules";
 
@@ -11,20 +11,20 @@ interface VideoItemProps {
   history: History;
   curFatherInx: number;
   record: {
+    author_name: string;
+    cover: string;
     history: {
       dt: number;
       oid?: number;
     };
-    cover: string;
+    selected: boolean;
     title: string;
     view_at: number;
-    author_mid: number;
-    author_name: string;
-    selected: boolean;
-    progress?: number;
+    badge?: string;
     duration?: number;
     kid?: number;
-    badge?: string;
+    progress?: number;
+    tag_name?: string;
   };
   switchSelected: Function
   editting: boolean;
@@ -35,8 +35,8 @@ const { useContext, useRef, useEffect } = React;
 
 function VideoItem(props: VideoItemProps) {
   const { record, curFatherInx, switchSelected, editting } = props;
-  const { history, cover, title, view_at, author_name, selected,
-    progress, duration, kid, badge } = record;
+  const { author_name, cover, history, selected, title, view_at,
+    badge, duration, kid, progress, tag_name } = record;
   const { oid, dt } = history;
   const spanParam = oid ? oid : kid;
   const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "mobile";
@@ -49,7 +49,7 @@ function VideoItem(props: VideoItemProps) {
   const edittingRef = useRef(editting);
   useEffect(() => { edittingRef.current = editting; }, [editting]);
 
-  function handleClick(type, param) {
+  function handleClick(type: string, param: number) {
     if (edittingRef.current) {
       switchSelected();
     } else {
@@ -58,14 +58,14 @@ function VideoItem(props: VideoItemProps) {
     }
   }
 
-  function getPicUrl(url, format) {
+  function getPicUrl(url: string, format: string) {
     const { picURL } = context;
     let suffix = ".webp";
     suffix = getPicSuffix();
     return `${picURL}?pic=${url}${format + suffix}`;
   }
 
-  function getTime(timestamp) {
+  function getTime(timestamp: number) {
     const currentTime = new Date();
     const dateTime = new Date(timestamp * 1000);
 
@@ -121,6 +121,7 @@ function VideoItem(props: VideoItemProps) {
               </svg>
             </span>
             <span className={style.owner}>{author_name}</span>
+            {curFatherInx === 1 && <span className={style.tag}>{tag_name}</span>}
             {curFatherInx === 1 && <span className={style[liveStatus]}>{badge}</span>}
           </div>
           <div className={style.time}>

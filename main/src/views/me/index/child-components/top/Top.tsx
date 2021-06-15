@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 
-import { fetchMyRelation } from "../../../../api/me";
+import { fetchMyRelation } from "../../../../../api/me";
 // import { formatTenThousand } from "../../../../customed-methods/string";
 
 import style from "./top.styl?css-modules";

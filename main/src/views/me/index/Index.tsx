@@ -5,8 +5,8 @@ import { getNavUserInfo } from "../../../api/login";
 import { exitLogin } from "../../../api/me";
 
 import HederWithBack from "../../../components/header-with-back/HederWithBack";
-import Top from "../child-components/top/Top";
-import VideoLinks from "../child-components/link/Videos";
+import Top from "./child-components/top/Top";
+import VideoLinks from "./child-components/link/Videos";
 
 import style from "./index.styl?css-modules";
 
