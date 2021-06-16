@@ -1,22 +1,18 @@
 import * as React from "react";
 import { match } from "react-router-dom";
-import { Helmet } from "react-helmet";
 
-import Context from "../../../../context";
-import { setShouldLoad } from "../../../../redux/action-creators";
-import getUser from "../../../../redux/async-action-creators/space";
 import { getUserVideos } from "../../../../api/space";
+import Context from "../../../../context";
+import { getPicSuffix } from "../../../../customed-methods/image";
 
 import { Video, createVideoByUser } from "../../../../class-object-creators";
 import { UpUser as Model } from "../../../../class-object-creators";
 import ScrollToTop from "../../../../components/scroll-to-top/ScrollToTop";
 import VideoItemLandscape from "../../../../components/video-item-landscape/VideoItemLandscape";
 
-import { formatTenThousand } from "../../../../customed-methods/string";
-import { getPicSuffix } from "../../../../customed-methods/image";
-
 import tips from "../../../../assets/images/nocontent.png";
 import style from "./up-space.styl?css-modules";
+import { formatTenThousand } from "../../../../customed-methods/string";
 
 interface UpUserProps {
   shouldLoad: boolean;
@@ -64,17 +60,6 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
   }
 
   /* 以下为自定义方法 */
-  //  若自我介绍太长则显示展开个人简介箭头
-  private initToggle() {
-    const arrowDOM = this.arrowRef.current;
-    const introduceDOM = this.introduceRef.current;
-    const contentDOM = this.contentRef.current;
-
-    if (contentDOM.offsetHeight <= introduceDOM.offsetHeight) {
-      arrowDOM.style.visibility = "hidden";
-    } else { arrowDOM.style.visibility = "visible"; }
-  }
-
   private getUserVideos() {
     getUserVideos(
       this.props.match.params.mId,
@@ -128,32 +113,6 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
   }
 
   /* 以下为生命周期函数 */
-  public componentDidMount() {
-    this.initToggle();
-
-    if (this.props.shouldLoad) {
-      // 这里也可以将getUser添加到本组件中，就像getUserVideos
-      // 然后调用组件自己的方法获取数据，而不是先存到redux，再从redux中取
-
-      // 不这么做的原因是up信息只需要获取一次，而getUserVideos由于有加载更多需要多次调用
-      // 而且需要通过state.videos.length，设置加载中，以避免数据未加载报错
-      // 所以getUserVideos是肯定要添加到组件自身的
-      // 这同时也是upUser从props中取，而videos从state中取的原因
-
-      // getUser出于代码冗余的考虑则没有添加到组件
-      // 虽然从性能上说应该比多倒一次redux要好，但是代码多则bundle大
-      // 评估后认为bundle下载时间造成的影响 > 多一步redux造成的性能影响
-      this.props.dispatch(getUser(this.props.match.params.mId))
-        .then(() => { this.setState({ videos: this.props.videos }); });
-    } else {
-      this.setState({ videos: this.props.videos });
-      this.props.dispatch(setShouldLoad(true))
-    }
-  }
-
-  public componentDidUpdate() {
-    this.initToggle();
-  }
 
   /* 以下为渲染部分 */
   public render() {
@@ -161,7 +120,6 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
 
     return (
       <div className={style.upSapce}>
-        {upUser && <Helmet><title>{upUser.name + "的个人空间"}</title></Helmet>}
         <div className={style.upUserContainer}>
           <div className={style.face}>
             {upUser.face ?
@@ -197,10 +155,7 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
               </span>粉丝
             </div>
             <div className={style.introduce} ref={this.introduceRef}>
-              <span
-                className={style.iconArrow}
-                ref={this.arrowRef}
-                onClick={this.toggle}>
+              <span className={style.iconArrow} ref={this.arrowRef} onClick={this.toggle}>
                 <svg className="icon" aria-hidden="true">
                   <use href="#icon-arrowDownBig"></use>
                 </svg>
@@ -215,16 +170,9 @@ class UpSapce extends React.Component<UpUserProps, UpUserState> {
           <div className={style.videoList}>
             {this.state.videos.length !== 0 &&
               this.state.videos.map(video => (
-                <div className={style.videoWrapper} key={video.aId}>
-                  <VideoItemLandscape
-                    videoData={video}
-                    imgParams={{
-                      imgHeight: "3.654rem",
-                      imgSrc: video.pic,
-                      imgFormat: "@200w_125h"
-                    }}
-                    noOwner={true}
-                  />
+                <div className={style.videoWrapper} key={video.aId}> noOwner={true}
+                  <VideoItemLandscape videoData={video}
+                    imgParams={{ imgHeight: "3.654rem", imgSrc: video.pic, imgFormat: "@200w_125h" }} />
                 </div>
               ))
             }

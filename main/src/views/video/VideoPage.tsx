@@ -11,12 +11,12 @@ import storage from "../../customed-methods/storage";
 import getVideoDetail from "../../redux/async-action-creators/video";
 import { setShouldLoad } from "../../redux/action-creators";
 
-import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
-import HeaderWithBack from "../../components/header-with-back/HederWithBack";
+import BigHeaderWithBack from "../../components/big-header-with-back/BigHeaderWithBack";
 import LoadingCutscene from "../../components/loading-cutscene/LoadingCutscene";
 import Player from "../../components/player/Player";
 import { Switcher } from "../../components/switcher/Switcher";
 import VideoItemLandscape from "../../components/video-item-landscape/VideoItemLandscape";
+import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 
 import { Video, createVideo, UpUser } from "../../class-object-creators";
 import { getPicSuffix } from "../../customed-methods/image";
@@ -362,11 +362,11 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
           <meta name="description" content={desc} />
           <meta name="author" content={isDataOk ? owner.name : ""} />
         </Helmet>
-        { !isDataOk ? <LoadingCutscene /> :
+        {!isDataOk ? <LoadingCutscene /> :
           <>
             <div className={style.topWrapper} ref={this.topWrapperRef}
               onClick={() => { if (this.state.isLogin && this.state.isViewed) { postViewedReport({ aid: aId, cid: cId, progress: Math.floor(this.videoRef.current.currentTime) }) } }}
-            ><HeaderWithBack /></div>
+            ><BigHeaderWithBack /></div>
             {/* 内容 */}
             <div className={style.contentWrapper}>
               {/* 播放器 */}

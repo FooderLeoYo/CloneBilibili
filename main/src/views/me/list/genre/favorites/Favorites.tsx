@@ -2,7 +2,7 @@ import * as React from "react";
 import { Helmet } from "react-helmet";
 import { match } from "react-router-dom";
 
-import Header from "../../child-components/header/Header"
+import Header from "../../../../../components/header/Header"
 import TabBar from "../../child-components/tab-bar/TabBar";
 import Video from "./child-components/video/Video";
 import Show from "./child-components/show/Show";

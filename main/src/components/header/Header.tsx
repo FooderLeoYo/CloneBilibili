@@ -1,51 +1,39 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 
-import { getNavUserInfo } from "../../api/login";
 import style from "./header.styl?css-modules";
 
-const { useState, useEffect } = React;
+interface HeaderProps {
+  title?: string;
+  needEdit?: boolean;
+  doSthWhenSwitch?: Function;
+  editting?: boolean;
+}
 
-function Header() {
-
-  const [isLogin, setIsLogin] = useState(false);
-  const [faceUrl, setFaceUrl] = useState("");
-
-  useEffect(() => {
-    getNavUserInfo().then(res => {
-      const { code, data } = res.data;
-      if (code === 0) {
-        setIsLogin(true);
-        setFaceUrl(data.face);
-      }
-    });
-  }, []);
+function Header(props: HeaderProps) {
+  const { title, needEdit, editting, doSthWhenSwitch } = props;
 
   return (
     <div className={style.header}>
-      <Link className={style.logo} to="/index">
-        <svg className="icon" aria-hidden="true">
-          <use href="#icon-logo"></use>
-        </svg>
-      </Link>
+      <div className={style.backWrapper}>
+        <span className={style.backBtn} onClick={() => window.history.back()}>
+          <svg className="icon" aria-hidden="true">
+            <use href="#icon-arrowDownBig"></use>
+          </svg>
+        </span>
+      </div>
+      <div className={style.listType}>{title}</div>
       <div className={style.tools}>
         <Link className={style.search} to="/search">
           <svg className="icon" aria-hidden="true">
             <use href="#icon-search"></use>
           </svg>
         </Link>
-        {
-          isLogin ?
-            <Link className={style.face} to="/me"><img src={faceUrl} alt="Face" /></Link> :
-            <Link className={style.avatar} to="/login">
-              <svg className="icon" aria-hidden="true">
-                <use href="#icon-avatar"></use>
-              </svg>
-              <span className={style.login}>登录</span>
-            </Link>
+        {needEdit && <div className={style.edit} onClick={() => doSthWhenSwitch()}>
+          {editting ? "取消" : "编辑"}</div>
         }
       </div>
-    </div >
+    </div>
   );
 }
 

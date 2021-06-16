@@ -78,6 +78,9 @@ const URL_SEARCH_SEARCH = "https://api.bilibili.com/x/web-interface/search/type"
 
 /* 空间相关 */
 
+// 收藏夹内容
+const URL_SPACE_FAV_DETAIL = "http://api.bilibili.com/x/v3/fav/resource/list";
+// 收藏夹信息
 const URL_SPACE_FAV_INFO = "http://api.bilibili.com/x/v3/fav/folder/info";
 // 收藏的收藏夹列表
 const URL_SPACE_FAV_LIST_COLLECTED = "http://api.bilibili.com/x/v3/fav/folder/collected/list";
@@ -285,6 +288,7 @@ const fetchMyRelation = cookie => {
 
 
 /* 排行榜相关 */
+
 const fetchRankingById = rId => {
   return fetch(URL_RANKING.replace("{rid}", rId))
     .then(res => res.json())
@@ -305,6 +309,7 @@ const fetchRankingRegionById = (rId, day) => {
 
 
 /* 搜索相关 */
+
 const fetchHotWord = () => {
   return fetch(URL_SEARCH_HOT_WORD)
     .then(res => res.json())
@@ -343,6 +348,15 @@ const fetchSearchContent = param => {
 
 
 /* 空间相关 */
+
+const fetchFavDetail = (param, cookie) => {
+  const { media_id, ps } = param;
+  return fetch(`${URL_SPACE_FAV_DETAIL}?media_id=${media_id}&ps=${ps}`, {
+    method: "GET",
+    headers: { "cookie": cookie },
+  }).then(res => res.json())
+    .then(json => json);
+}
 
 const fetchFavInof = (param, cookie) => {
   return fetch(`${URL_SPACE_FAV_INFO}?media_id=${param}`, {
@@ -477,8 +491,8 @@ module.exports = {
   /* 搜索相关 */
   fetchHotWord, fetchSuggest, fetchSearchContent,
   /* 空间相关 */
-  fetchFavInof, fetchFavListCollected, fetchFavListCreated, fetchUserData,
-  fetchRelation, fetchSeriesFollowed, fetchUserVideo,
+  fetchFavDetail, fetchFavInof, fetchFavListCollected, fetchFavListCreated,
+  fetchUserData, fetchRelation, fetchSeriesFollowed, fetchUserVideo,
   /* 视频相关 */
   fetchBarrage, fetchVideoDetail, fetchPlayUrl, fetchRecommendById,
   fetchReplay, postViewedReport

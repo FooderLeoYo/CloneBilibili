@@ -43,7 +43,7 @@ export function setVideoInfo(video: Video): AnyAction {
   return { type: ActionTypes.SET_VIDEO_INFO, video };
 }
 
-export function setUpUserInfo(upUser: UpUser): AnyAction {
+export function setUpUserInfo(upUser: any): AnyAction {
   return { type: ActionTypes.SET_UP_USER, upUser };
 }
 

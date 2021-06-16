@@ -4,7 +4,7 @@ import { History } from "history";
 
 import { PartitionType } from "../../../../class-object-creators";
 
-import Header from "../../../../components/header/Header";
+import BigHeader from "../../../../components/big-header/BigHeader";
 import TabBar from "../../../../components/tab-bar/TabBar";
 import Drawer from "../../../../components/drawer/Drawer";
 
@@ -126,7 +126,7 @@ function Head(props: HeadProps) {
 
   return (
     <>
-      <Header />
+      <BigHeader />
       <div className={style.partition}>
         {/* 一级分类Tab */}
         <div className={style.oneTabBar}>

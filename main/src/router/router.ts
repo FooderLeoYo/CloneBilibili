@@ -50,24 +50,17 @@ const router = [
       return store.dispatch(getVideoInfo(param.aId))
     }
   },
-  // 二级路由
-  // 并用exact区分一二级路径，避免错误匹配
   {
-    path: "/space",
-    component: loadable(() => import(/* webpackChunkName: 'space' */ "../views/space/Space")),
-    routes: [
-      {
-        path: "/space/myspace",
-        component: loadable(() => import(/* webpackChunkName: 'history' */ "../views/space/child-components/my-space/MySpace")),
-      },
-      {
-        path: "/space/:mId",
-        component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../redux/connect/UpSapce")),
-        asyncData: (store, param) => {
-          return store.dispatch(getUpUserInfo(param.mId));
-        }
-      }
-    ]
+    path: "/space/:mId",
+    component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../redux/connect/Sapce")),
+    exact: true,
+    asyncData: (store, param) => {
+      return store.dispatch(getUpUserInfo(param.mId));
+    },
+  },
+  {
+    path: "/space/fav/:mlid",
+    component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../views/space/child-components/fav/Fav")),
   },
   {
     path: "/search",

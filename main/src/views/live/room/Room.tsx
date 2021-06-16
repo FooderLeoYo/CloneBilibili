@@ -13,7 +13,7 @@ import { Live, UpUser } from "../../../class-object-creators";
 import { formatTenThousand } from "../../../customed-methods/string";
 
 import LoadingCutscene from "../../../components/loading-cutscene/LoadingCutscene";
-import HeaderWithBack from "../../../components/header-with-back/HederWithBack";
+import BigHeaderWithBack from "../../../components/big-header-with-back/BigHeaderWithBack";
 import Player from "../../../components/player/Player";
 import BottomArea from "./child-components/bottom-area/BottomArea";
 import ChatWebSocket, { Events } from "./child-components/ChatWS";
@@ -152,7 +152,7 @@ function Room(props: RoomProps) {
         !isDataOk ? <LoadingCutscene /> :
           <>
             <header className={style.header}>
-              <HeaderWithBack />
+              <BigHeaderWithBack />
             </header>
             <Context.Consumer>
               {

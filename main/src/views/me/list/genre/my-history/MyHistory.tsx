@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { getHistory, deleteHistory } from "../../../../../api/me";
 
 import Toast from "../../../../../components/toast/index";
-import Header from "../../child-components/header/Header"
+import Header from "../../../../../components/header/Header"
 import TabBar from "../../child-components/tab-bar/TabBar";
 import VideoItem from "./child-components/item/VideoItem";
 import BottomBar from "../../child-components/bottom-bar/BottomBar"

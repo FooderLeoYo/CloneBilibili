@@ -1,5 +1,6 @@
 import * as React from "react";
 import { match } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { getFavListCreated, getFavListCollected, getFavInfo } from "../../../../../../../api/space";
 import { getPicSuffix } from "../../../../../../../customed-methods/image";
@@ -33,21 +34,21 @@ function Video(props: VideoProps) {
     const { uid } = match.params;
 
     getFavListCreated(uid).then(result => {
-      const { code, data } = result.data;
-      if (code === 0) {
-        const { count, list } = data;
+      const { code, data } = result;
+      if (code === "1") {
+        const { count, list } = data.data;
         const tempData = { count: count, list: [] };
         getFavInfo(list[0].id).then(result => { // 保证“默认收藏夹”在第一位
-          const { code, data } = result.data;
-          if (code === 0) { tempData.list.push(data) }
-          else { throw new Error(`No.0 has error: ${result.data.message}`) }
+          const { code, data } = result;
+          if (code === "1") { tempData.list.push(data.data) }
+          else { throw new Error(`No.0 has error: ${data.message}`) }
         }).then(() => {
           let finishedCount = 1;
           for (let i = 1; i < list.length; i++) {
             getFavInfo(list[i].id).then(result => {
-              const { code, data } = result.data;
-              if (code === 0) {
-                tempData.list.push(data);
+              const { code, data } = result;
+              if (code === "1") {
+                tempData.list.push(data.data);
                 ++finishedCount;
                 // 这里不能直接用i判断是否都获取完了，因为先循环完(同步)再执行promise，这样靠后的i就可能先请求到数据
                 finishedCount === count && setFavCreatedData(tempData);
@@ -68,9 +69,9 @@ function Video(props: VideoProps) {
       return (
         <>
           {favCreatedData.list.map((fav, i) => {
-            const { attr, cover, intro, media_count, title } = fav;
+            const { attr, cover, id, intro, media_count, title } = fav;
             return (
-              <div className={style.favItem} key={i}>
+              <Link className={style.favItem} key={i} to={`/space/fav/${id}`}>
                 <div className={style.imageContainer}>
                   <span className={style.placeholder}>
                     <svg className="icon" aria-hidden="true">
@@ -87,7 +88,7 @@ function Video(props: VideoProps) {
                     <span>{attr === 23 || attr === 55 ? "私密" : "公开"}</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             )
           })}
         </>

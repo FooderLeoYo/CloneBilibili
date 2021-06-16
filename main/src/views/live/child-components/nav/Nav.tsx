@@ -3,7 +3,7 @@ import { History } from "history";
 
 import { PartitionType, LiveSecQueryParType } from "../../../../class-object-creators";
 
-import Header from "../../../../components/header/Header";
+import BigHeader from "../../../../components/big-header/BigHeader";
 import TabBar from "../../../../components/tab-bar/TabBar";
 import Drawer from "../../../../components/drawer/Drawer";
 
@@ -85,7 +85,7 @@ function Nav(props: NavProps) {
 
   return (
     <div className={style.head}>
-      <Header />
+      <BigHeader />
       {/* 一级分类 */}
       <div className={style.partition}>
         <div className={style.tabBar}>

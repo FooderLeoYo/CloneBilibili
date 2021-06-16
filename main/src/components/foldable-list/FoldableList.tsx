@@ -23,10 +23,12 @@ function FoldableList(props: FoldableListProps) {
     const contentStyle = contentRef.current.style;
     const iconDOM = iconRef.current;
     if (isShow) {
-      contentStyle.height = "0";
+      // contentStyle.height = "0";
+      contentRef.current.classList.add(style.hide);
       setTimeout(() => { iconDOM.classList.remove(style.show) }, 200);
     } else {
-      contentStyle.height = contentHeight;
+      // contentStyle.height = contentHeight;
+      contentRef.current.classList.remove(style.hide);
       setTimeout(() => { iconDOM.classList.add(style.show) }, 200);
     }
     setIsShow(!isShow);

@@ -32,7 +32,6 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
 
   function getPicUrl(url, format) {
     let suffix = ".webp";
-
     if (process.env.REACT_ENV === "server") { suffix = picSuffix }
     else { suffix = getPicSuffix(); }
 
@@ -41,7 +40,6 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
 
   return (
     <>
-      {/* 这里的href为相对url，因此不需要写完整的 */}
       <Link to={"/video/av" + videoData.aId}>
         <div className={style.imageContainer}>
           <span className={style.placeholder}>

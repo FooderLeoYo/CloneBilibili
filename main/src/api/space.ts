@@ -2,7 +2,7 @@ import { getJSON } from "./fetch";
 import {
   URL_SPACE_RELATION, URL_SPACE_USER, URL_SPACE_VIDEO,
   URL_SPACE_FAV_LIST_CREATED, URL_SPACE_FAV_LIST_COLLECTED,
-  URL_SPACE_SERIES_FOLLOWED, URL_SPACE_FAV_INFO
+  URL_SPACE_SERIES_FOLLOWED, URL_SPACE_FAV_INFO, URL_SPACE_FAV_DETAIL
 } from "./url";
 
 /**
@@ -42,4 +42,9 @@ export function getSeriesFollowed(vmid: number, type: number, pn: number = 1, ps
 /* 获取目标收藏夹信息 */
 export function getFavInfo(media_id: number) {
   return getJSON(URL_SPACE_FAV_INFO, { media_id });
+}
+
+/* 获取目标收藏夹内容 */
+export function getFavDetail(media_id: number, ps: number) {
+  return getJSON(URL_SPACE_FAV_DETAIL, { media_id, ps });
 }
