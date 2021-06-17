@@ -33,7 +33,7 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
   function getPicUrl(url, format) {
     let suffix = ".webp";
     if (process.env.REACT_ENV === "server") { suffix = picSuffix }
-    else { suffix = getPicSuffix(); }
+    else { suffix = getPicSuffix() }
 
     return `${context.picURL}?pic=${url}${format + suffix}`;
   }
@@ -47,7 +47,7 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
               <use href="#icon-placeholder"></use>
             </svg>
           </span>
-          <LazyLoad height={imgHeight}><img src={getPicUrl(imgSrc, imgFormat)} /></LazyLoad>
+          <LazyLoad height={imgHeight}><img className={style.cover} src={getPicUrl(imgSrc, imgFormat)} /></LazyLoad>
           <div className={style.duration}>{duration}</div>
         </div>
         <div className={style.infoWrapper}>

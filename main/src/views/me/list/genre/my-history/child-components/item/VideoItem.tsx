@@ -1,4 +1,5 @@
 import * as React from "react";
+import LazyLoad from "react-lazyload";
 import { History } from "history";
 
 import Context from "../../../../../../../context";
@@ -103,10 +104,12 @@ function VideoItem(props: VideoItemProps) {
               <use href="#icon-placeholder"></use>
             </svg>
           </span>
-          <img
-            className={style.pic + (curFatherInx === 1 ? " " + style.live : "")}
-            src={getPicUrl(cover, "@320w_200h")}
-          />
+          <LazyLoad height={"10.575rem"}>
+            <img
+              className={style.pic + (curFatherInx === 1 ? " " + style.live : "")}
+              src={getPicUrl(cover, "@320w_200h")}
+            />
+          </LazyLoad>
           {curFatherInx === 0 && <div className={style.progressWrapper}>
             <div className={style.curProgress} style={{ width: `${curProgress}%` }}></div>
           </div>

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { match } from "react-router-dom";
 import { Link } from "react-router-dom";
+import LazyLoad from "react-lazyload";
 
 import { getFavListCreated, getFavListCollected, getFavInfo } from "../../../../../../../api/space";
 import { getPicSuffix } from "../../../../../../../customed-methods/image";
@@ -78,7 +79,7 @@ function Video(props: VideoProps) {
                       <use href="#icon-placeholder"></use>
                     </svg>
                   </span>
-                  <img src={getPicUrl(cover, "@320w_200h")} />
+                  <LazyLoad height={"10.575rem"}><img className={style.cover} src={getPicUrl(cover, "@320w_200h")} /></LazyLoad>
                 </div>
                 <div className={style.infoWrapper}>
                   <div className={style.title}>{title}</div>
@@ -102,16 +103,16 @@ function Video(props: VideoProps) {
       return (
         <>
           {favCollectedData.list.map((fav, i) => {
-            const { cover, media_count, title, upper } = fav;
+            const { cover, id, media_count, title, upper } = fav;
             return (
-              <div className={style.favItem} key={i}>
+              <Link className={style.favItem} key={i} to={`/space/fav/${id}`}>
                 <div className={style.imageContainer}>
                   <span className={style.placeholder}>
                     <svg className="icon" aria-hidden="true">
                       <use href="#icon-placeholder"></use>
                     </svg>
                   </span>
-                  <img src={getPicUrl(cover, "@320w_200h")} />
+                  <LazyLoad height={"10.575rem"}><img className={style.cover} src={getPicUrl(cover, "@320w_200h")} /></LazyLoad>
                 </div>
                 <div className={style.infoWrapper}>
                   <div className={style.title}>{title}</div>
@@ -120,7 +121,7 @@ function Video(props: VideoProps) {
                     <span>&nbsp;&nbsp;&nbsp;·&nbsp;{upper.name}</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             )
           })}
         </>

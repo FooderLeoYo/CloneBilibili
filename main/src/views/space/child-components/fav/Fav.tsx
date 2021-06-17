@@ -17,7 +17,7 @@ interface FavProps {
   match: match<{ mlid }>;
 }
 
-const { useContext, useState, useEffect } = React;
+const { useContext, useState, useRef, useEffect } = React;
 
 function Fav(props: FavProps) {
   const { match } = props;
@@ -25,6 +25,9 @@ function Fav(props: FavProps) {
 
   const [infoData, setInfoData] = useState(null);
   const [listData, setListData] = useState(null);
+  const headerRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
+  const staRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
+  const listRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
   function getPicUrl(url, format) {
     const { picURL } = context;
@@ -40,6 +43,11 @@ function Fav(props: FavProps) {
         const { info, medias } = data.data;
         setInfoData(info);
         setListData(medias);
+
+        // 在list不够长时，保证上拉时statistic也能贴着header
+        const heightWithoutTop = screen.height - headerRef.current.offsetHeight - staRef.current.offsetHeight;
+        const listDOM = listRef.current;
+        if (listDOM.offsetHeight < heightWithoutTop) { listDOM.style.height = `${heightWithoutTop}px` }
       }
     })
   }, []);
@@ -47,24 +55,27 @@ function Fav(props: FavProps) {
   return (
     <>
       <Helmet><title>{infoData ? infoData.title : ""}</title></Helmet>
-      <div className={style.header}><Header /></div>
+      <div className={style.header} ref={headerRef}><Header /></div>
       <div className={style.info}>
         <div className={style.imageContainer}>
-          <span className={style.placeholder}>
-            <svg className="icon" aria-hidden="true">
-              <use href="#icon-placeholder"></use>
-            </svg>
-          </span>
-          <img src={getPicUrl(infoData?.cover, "@320w_200h")} />
+          {infoData ? <img className={style.cover} src={getPicUrl(infoData?.cover, "@320w_200h")} /> :
+            <span className={style.placeholder}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-placeholder"></use>
+              </svg>
+            </span>
+          }
         </div>
-        <div className={style.infoWrapper}>
-          <div className={style.title}>{infoData?.title}</div>
-          <div className={style.intro}>{infoData?.intro}</div>
-          <div className={style.description}>{`创建者：${infoData?.upper.name}`}
+        {infoData &&
+          <div className={style.infoWrapper}>
+            <div className={style.title}>{infoData?.title}</div>
+            <div className={style.intro}>{infoData?.intro}</div>
+            <div className={style.description}>{`创建者：${infoData?.upper.name}`}
+            </div>
           </div>
-        </div>
+        }
       </div>
-      <div className={style.statistic}>
+      <div className={style.statistic} ref={staRef}>
         <div className={style.mediaCount}>{infoData?.media_count}个内容</div>
         {infoData?.attr != 0 && // 默认收藏夹无此项
           <div className={style.likeStatistic}>
@@ -95,14 +106,14 @@ function Fav(props: FavProps) {
           </div>
         }
       </div>
-      <div className={style.list}>
+      <div className={style.list} ref={listRef}>
         {listData && listData.map((video, i) => {
           const { cnt_info, cover, duration, id, title, upper } = video;
           const { play, danmaku } = cnt_info;
           const tempData = {
             aId: id, title: title, pic: "", desc: "", playCount: play,
             barrageCount: danmaku, publicDate: 0, duration: duration, cId: 0,
-            url: "", owner: upper.name, twoLevel: null, oneLevel: null
+            url: "", owner: upper, twoLevel: null, oneLevel: null
           };
           const tempParams = { imgHeight: "10.575rem", imgSrc: cover, imgFormat: "@320w_200h" }
 
@@ -111,6 +122,7 @@ function Fav(props: FavProps) {
           )
         })}
       </div>
+      <ScrollToTop />
     </>
   )
 }

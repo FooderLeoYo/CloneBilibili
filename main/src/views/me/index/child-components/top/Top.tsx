@@ -18,8 +18,14 @@ function Top(props) {
     <div className={style.top}>
       <div className={style.basicInfo}>
         <div className={style.portrait}>
-          <img src={navData?.face} alt="" />
-          {navData?.pendant?.image != "" && <span><img src={navData?.pendant?.image} alt="" /></span>}
+          {navData ? <img className={style.face} src={navData?.face} alt="" /> :
+            <span className={style.icon}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-avatar"></use>
+              </svg>
+            </span>
+          }
+          {navData?.pendant?.image != "" && <span className={style.pendant}><img src={navData?.pendant?.image} alt="" /></span>}
         </div>
         <div className={style.descriptions}>
           <div className={style.nameAndLv}>

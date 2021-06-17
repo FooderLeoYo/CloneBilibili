@@ -28,9 +28,7 @@
     .placeholder
       font-size: px2rem(60)
       color: rgb(204, 204, 204)
-      svg
-        height: 100%
-    img
+    .cover
       position: absolute
       left: 0
       top: 0
@@ -74,7 +72,7 @@
   height: px2rem(48)
   background-color: #ffffff
   font-size: px2rem(10)
-  border-bottom: px2rem(2) solid #e7e7e7
+  border-bottom: px2rem(0.2) solid #E6E6FA
   display: flex
   align-items: center
   .media-count
@@ -100,11 +98,11 @@
         transform:translateX(-50%)
         color: #888888
 .list
+  position: relative
+  z-index: 2
+  background-color: #ffffff  
   .video-wrapper
-    position: relative
-    z-index: 2
-    background-color: #ffffff
-    height: px2rem(73.08)
-    margin-top: px2rem(14)
+    height: px2rem(90)
+    padding-top: px2rem(15)
     &:last-child
       margin-bottom: px2rem(14)

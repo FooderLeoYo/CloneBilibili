@@ -1,5 +1,6 @@
 import * as React from "react";
 import { match } from "react-router-dom";
+import LazyLoad from "react-lazyload";
 
 import { getSeriesFollowed } from "../../../../../../../api/space";
 import Context from "../../../../../../../context";
@@ -91,7 +92,7 @@ function Show(props: ShowProps) {
                       <use href="#icon-placeholder"></use>
                     </svg>
                   </span>
-                  <img src={getPicUrl(cover, "@150w_200h")} />
+                  <LazyLoad height={"10.575rem"}><img className={style.cover} src={getPicUrl(cover, "@150w_200h")} /></LazyLoad>
                 </div>
                 <div className={style.infoWrapper}>
                   <span className={style.title}>{title}</span>
@@ -122,7 +123,7 @@ function Show(props: ShowProps) {
                       <use href="#icon-placeholder"></use>
                     </svg>
                   </span>
-                  <img src={getPicUrl(cover, "@150w_200h")} />
+                  <LazyLoad height={"10.575rem"}><img className={style.cover} src={getPicUrl(cover, "@150w_200h")} /></LazyLoad>
                 </div>
                 <div className={style.infoWrapper}>
                   <span className={style.title}>{title}</span>
