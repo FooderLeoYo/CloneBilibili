@@ -26,6 +26,7 @@ function Fav(props: FavProps) {
   const [infoData, setInfoData] = useState(null);
   const [listData, setListData] = useState(null);
   const headerRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
+  const overlayRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
   const staRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
   const listRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
@@ -49,7 +50,16 @@ function Fav(props: FavProps) {
         const listDOM = listRef.current;
         if (listDOM.offsetHeight < heightWithoutTop) { listDOM.style.height = `${heightWithoutTop}px` }
       }
-    })
+    });
+
+    const headerHeight = headerRef.current.offsetHeight;
+    const infoHeight = overlayRef.current.offsetHeight;
+    const staDOM = staRef.current;
+    staDOM.addEventListener("scroll", () => {
+      console.log(111)
+      const toHeader = staDOM.getBoundingClientRect()["top"] - headerHeight;
+      overlayRef.current.style.opacity = `${1 - toHeader / infoHeight}`;
+    });
   }, []);
 
   return (
@@ -67,13 +77,14 @@ function Fav(props: FavProps) {
           }
         </div>
         {infoData &&
-          <div className={style.infoWrapper}>
+          <div className={style.description}>
             <div className={style.title}>{infoData?.title}</div>
             <div className={style.intro}>{infoData?.intro}</div>
-            <div className={style.description}>{`创建者：${infoData?.upper.name}`}
+            <div className={style.creator}>{`创建者：${infoData?.upper.name}`}
             </div>
           </div>
         }
+        <div className={style.overlay} ref={overlayRef} />
       </div>
       <div className={style.statistic} ref={staRef}>
         <div className={style.mediaCount}>{infoData?.media_count}个内容</div>

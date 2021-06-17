@@ -7,13 +7,14 @@ interface FoldableListProps {
   stickyPosition: string;
   content: JSX.Element;
   count?: number;
+  shouldOpen?: boolean;
 }
 
 const { useState, useRef, useEffect } = React;
 
 function FoldableList(props: FoldableListProps) {
-  const { swichTitle, stickyPosition, content, count } = props;
-  const [isShow, setIsShow] = useState(true);
+  const { swichTitle, stickyPosition, content, count, shouldOpen } = props;
+  const [isClose, setIsClese] = useState(true);
   const [contentHeight, setContentHeight] = useState("");
   const contentRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
   const switchRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
@@ -22,16 +23,14 @@ function FoldableList(props: FoldableListProps) {
   const handleClick = () => {
     const contentStyle = contentRef.current.style;
     const iconDOM = iconRef.current;
-    if (isShow) {
-      // contentStyle.height = "0";
-      contentRef.current.classList.add(style.hide);
-      setTimeout(() => { iconDOM.classList.remove(style.show) }, 200);
-    } else {
-      // contentStyle.height = contentHeight;
-      contentRef.current.classList.remove(style.hide);
+    if (isClose) {
+      contentStyle.height = contentHeight;
       setTimeout(() => { iconDOM.classList.add(style.show) }, 200);
+    } else {
+      contentStyle.height = "0";
+      setTimeout(() => { iconDOM.classList.remove(style.show) }, 200);
     }
-    setIsShow(!isShow);
+    setIsClese(!isClose);
   }
 
   useEffect(() => {
@@ -39,7 +38,16 @@ function FoldableList(props: FoldableListProps) {
   }, []);
 
   useEffect(() => {
-    content && setContentHeight(getComputedStyle(contentRef.current)["height"]);
+    if (content) {
+      const heightAfterGettingData = getComputedStyle(contentRef.current)["height"];
+      setContentHeight(heightAfterGettingData);
+      if (shouldOpen) {
+        contentRef.current.style.height = heightAfterGettingData; // content要设置height，第一次点击switch时transition才能起效
+        setIsClese(false);
+      } else {
+        contentRef.current.style.height = "0"; // content要设置height，第一次点击switch时transition才能起效
+      }
+    }
   }, [content]);
 
   return (

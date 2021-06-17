@@ -79,7 +79,8 @@ function Video(props: VideoProps) {
                       <use href="#icon-placeholder"></use>
                     </svg>
                   </span>
-                  <LazyLoad height={"10.575rem"}><img className={style.cover} src={getPicUrl(cover, "@320w_200h")} /></LazyLoad>
+                  {/* <LazyLoad height={"10.575rem"}><img className={style.cover} src={getPicUrl(cover, "@320w_200h")} /></LazyLoad> */}
+                  <img className={style.cover} src={getPicUrl(cover, "@320w_200h")} />
                 </div>
                 <div className={style.infoWrapper}>
                   <div className={style.title}>{title}</div>
@@ -112,7 +113,8 @@ function Video(props: VideoProps) {
                       <use href="#icon-placeholder"></use>
                     </svg>
                   </span>
-                  <LazyLoad height={"10.575rem"}><img className={style.cover} src={getPicUrl(cover, "@320w_200h")} /></LazyLoad>
+                  {/* <LazyLoad height={"5rem"}><img className={style.cover} src={getPicUrl(cover, "@320w_200h")} /></LazyLoad> */}
+                  <img className={style.cover} src={getPicUrl(cover, "@320w_200h")} />
                 </div>
                 <div className={style.infoWrapper}>
                   <div className={style.title}>{title}</div>
@@ -132,7 +134,7 @@ function Video(props: VideoProps) {
 
   return (
     <>
-      <FoldableList swichTitle={"我的收藏与订阅"} stickyPosition={"4.25rem"} content={favListCollected} count={favCollectedData?.count} />
+      <FoldableList swichTitle={"我的收藏与订阅"} stickyPosition={"4.25rem"} content={favListCollected} count={favCollectedData?.count} shouldOpen={true} />
       <FoldableList swichTitle={"我创建的收藏夹"} stickyPosition={"4.25rem"} content={favListCreated} count={favCreatedData?.count} />
     </>
   )
