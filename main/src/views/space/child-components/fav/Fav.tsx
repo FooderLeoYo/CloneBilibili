@@ -55,10 +55,15 @@ function Fav(props: FavProps) {
     const headerHeight = headerRef.current.offsetHeight;
     const infoHeight = overlayRef.current.offsetHeight;
     const staDOM = staRef.current;
-    staDOM.addEventListener("scroll", () => {
-      console.log(111)
+    staDOM.addEventListener("touchmove", () => {
       const toHeader = staDOM.getBoundingClientRect()["top"] - headerHeight;
-      overlayRef.current.style.opacity = `${1 - toHeader / infoHeight}`;
+      const ratio = 1 - toHeader / infoHeight
+      if (ratio < 1) { overlayRef.current.style.opacity = `${ratio}` }
+    });
+    listRef.current.addEventListener("touchmove", () => {
+      const toHeader = staDOM.getBoundingClientRect()["top"] - headerHeight;
+      const ratio = 1 - toHeader / infoHeight
+      if (ratio < 1) { overlayRef.current.style.opacity = `${ratio}` }
     });
   }, []);
 
