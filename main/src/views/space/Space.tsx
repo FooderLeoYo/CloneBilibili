@@ -1,12 +1,12 @@
 import * as React from "react";
 import { Helmet } from "react-helmet";
 
-import { setShouldLoad } from "../../redux/action-creators";
-import getUser from "../../redux/async-action-creators/space";
+import { setShouldLoad } from "@redux/action-creators";
+import getUser from "@redux/async-action-creators/space";
 
-import BigHeaderWithBack from "../../components/big-header-with-back/BigHeaderWithBack";
+import BigHeaderWithBack from "@components/big-header-with-back/BigHeaderWithBack";
 
-import banner from "../../assets/images/banner-top.png";
+import banner from "@assets/images/banner-top.png";
 import style from "./space.styl?css-modules";
 
 const { useEffect } = React;

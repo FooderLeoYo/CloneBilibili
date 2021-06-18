@@ -1,8 +1,8 @@
 import * as React from "react";
 import LazyLoad from "react-lazyload";
 
-import { Live } from "../../../../class-object-creators";
-import { formatTenThousand } from "../../../../customed-methods/string";
+import { Live } from "@class-object-creators/index";
+import { formatTenThousand } from "@customed-methods/string";
 
 import style from "./live-info.styl?css-modules";
 

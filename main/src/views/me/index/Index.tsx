@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Helmet } from "react-helmet";
 
-import { getNavUserInfo } from "../../../api/login";
-import { exitLogin } from "../../../api/me";
+import { getNavUserInfo } from "@api/login";
+import { exitLogin } from "@api/me";
 
-import BigHeaderWithBack from "../../../components/big-header-with-back/BigHeaderWithBack";
+import BigHeaderWithBack from "@components/big-header-with-back/BigHeaderWithBack";
 import Top from "./child-components/top/Top";
 import VideoLinks from "./child-components/link/Videos";
 

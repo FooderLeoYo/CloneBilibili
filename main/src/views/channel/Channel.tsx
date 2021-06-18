@@ -4,11 +4,11 @@ import { match } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { History } from "history";
 
-import myContext from "../../context";
-import { setShouldLoad } from "../../redux/action-creators";
-import getPartitionList from "../../redux/async-action-creators/channel";
-import { getRankingRegion } from "../../api/ranking";
-import { getRankingPartitions } from "../../api/partitions";
+import myContext from "@context/index";
+import { setShouldLoad } from "@redux/action-creators";
+import getPartitionList from "@redux/async-action-creators/channel";
+import { getRankingRegion } from "@api/ranking";
+import { getRankingPartitions } from "@api/partitions";
 
 import Head from "./child-components/head/Head"
 import Hot from "./child-components/hot/Hot"
@@ -16,8 +16,8 @@ import Partition from "./child-components/partition/Partition";
 import VideoLatest from "./child-components/video-latest/VideoLatest";
 import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
 
-import { PartitionType, createPartitionTypes, createVideoByRanking } from "../../class-object-creators";
-import { getPicSuffix } from "../../customed-methods/image";
+import { PartitionType, createPartitionTypes, createVideoByRanking } from "@class-object-creators/index";
+import { getPicSuffix } from "@customed-methods/image";
 import style from "./channel.styl?css-modules";
 
 interface ChannelProps {

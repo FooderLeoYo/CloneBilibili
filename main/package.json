@@ -1,7 +1,7 @@
 {
   "name": "react-bilibili",
-  "version": "2.0.0",
-  "description": "高仿哔哩哔哩移动端",
+  "version": "",
+  "description": "",
   "author": "",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,9 @@
   "dependencies": {
     "@loadable/component": "^5.2.1",
     "@loadable/server": "^5.2.0",
+    "@typescript-eslint/parser": "^1.13.0",
     "cross-fetch": "^2.2.3",
+    "eslint-plugin-import": "^2.23.4",
     "express": "^4.16.4",
     "hls.js": "^0.12.4",
     "jsencrypt": "^3.1.0",

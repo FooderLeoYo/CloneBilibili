@@ -23,7 +23,16 @@ const baseWebpackConfig = {
     publicPath: "/dist/"
   },
   resolve: {
-    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"]
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
+    alias: {
+      '@api': path.resolve(__dirname, '../src/api/'),
+      '@assets': path.resolve(__dirname, '../src/assets/'),
+      '@class-object-creators': path.resolve(__dirname, '../src/class-object-creators/'),
+      '@components': path.resolve(__dirname, '../src/components/'),
+      '@context': path.resolve(__dirname, '../src/context/'),
+      '@customed-methods': path.resolve(__dirname, '../src/customed-methods/'),
+      '@redux': path.resolve(__dirname, '../src/redux/'),
+    }
   },
   module: {
     rules: [

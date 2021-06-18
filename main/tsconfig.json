@@ -13,6 +13,30 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react",
+    "baseUrl": "./",
+    "paths": {
+      "@src/*": [
+        "src/*"
+      ],
+      "@api/*": [
+        "src/api/*"
+      ],
+      "@class-object-creators/*": [
+        "src/class-object-creators/*"
+      ],
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@context/*": [
+        "src/context/*"
+      ],
+      "@customed-methods/*": [
+        "src/customed-methods/*"
+      ],
+      "@redux/*": [
+        "src/redux/*"
+      ],
+    }
   },
   "include": [
     "src",

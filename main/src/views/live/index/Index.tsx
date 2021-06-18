@@ -3,11 +3,11 @@ import { History } from "history";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
-import Context from "../../../context";
-import getLiveData from "../../../redux/async-action-creators/live/index";
-import { setShouldLoad } from "../../../redux/action-creators";
+import Context from "@context/index";
+import getLiveData from "@redux/async-action-creators/live/index";
+import { setShouldLoad } from "@redux/action-creators";
 
-import { PartitionType, Live, LiveSecQueryParType } from "../../../class-object-creators";
+import { PartitionType, Live, LiveSecQueryParType } from "@class-object-creators/index";
 
 import Nav from "../child-components/nav/Nav"
 import LiveInfo from "../child-components/liveinfo/LiveInfo";

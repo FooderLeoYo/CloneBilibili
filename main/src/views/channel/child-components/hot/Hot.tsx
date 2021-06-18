@@ -1,8 +1,8 @@
 import * as React from "react";
 import { History } from "history";
 
-import { PartitionType } from "../../../../class-object-creators";
-import VideoItem from "../../../../components/video-item-portrait/VideoItemPortrait";
+import { PartitionType } from "@class-object-creators/index";
+import VideoItem from "@components/video-item-portrait/VideoItemPortrait";
 
 import style from "./hot.styl?css-modules";
 

@@ -2,11 +2,11 @@ import * as React from "react";
 import { match } from "react-router-dom";
 import { History } from "history";
 
-import { PartitionType } from "../../../../class-object-creators";
+import { PartitionType } from "@class-object-creators/index";
 
-import BigHeader from "../../../../components/big-header/BigHeader";
-import TabBar from "../../../../components/tab-bar/TabBar";
-import Drawer from "../../../../components/drawer/Drawer";
+import BigHeader from "@components/big-header/BigHeader";
+import TabBar from "@components/tab-bar/TabBar";
+import Drawer from "@components/drawer/Drawer";
 
 import style from "./head.styl?css-modules";
 

@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Video } from "../../../../class-object-creators";
+import { Video } from "@class-object-creators/index";
 import { Link } from "react-router-dom";
 
-import VideoItem from "../../../../components/video-item-portrait/VideoItemPortrait";
+import VideoItem from "@components/video-item-portrait/VideoItemPortrait";
 import style from "./partition.styl?css-modules";
 
 interface PartitionProps {

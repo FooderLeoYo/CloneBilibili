@@ -3,18 +3,18 @@ import { Link } from "react-router-dom"
 import { Helmet } from "react-helmet";
 import { match } from "react-router-dom";
 
-import getRoomData from "../../../redux/async-action-creators/live/room";
-import { setShouldLoad } from "../../../redux/action-creators";
-import { getUserInfo } from "../../../api/space";
-import { getDanMuConfig } from "../../../api/live";
+import getRoomData from "@redux/async-action-creators/live/room";
+import { setShouldLoad } from "@redux/action-creators";
+import { getUserInfo } from "@api/space";
+import { getDanMuConfig } from "@api/live";
 
-import Context from "../../../context";
-import { Live, UpUser } from "../../../class-object-creators";
-import { formatTenThousand } from "../../../customed-methods/string";
+import Context from "@context/index";
+import { Live, UpUser } from "@class-object-creators/index";
+import { formatTenThousand } from "@customed-methods/string";
 
-import LoadingCutscene from "../../../components/loading-cutscene/LoadingCutscene";
-import BigHeaderWithBack from "../../../components/big-header-with-back/BigHeaderWithBack";
-import Player from "../../../components/player/Player";
+import LoadingCutscene from "@components/loading-cutscene/LoadingCutscene";
+import BigHeaderWithBack from "@components/big-header-with-back/BigHeaderWithBack";
+import Player from "@components/player/Player";
 import BottomArea from "./child-components/bottom-area/BottomArea";
 import ChatWebSocket, { Events } from "./child-components/ChatWS";
 

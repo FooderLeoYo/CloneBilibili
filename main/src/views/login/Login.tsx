@@ -3,8 +3,8 @@ import { Helmet } from "react-helmet";
 
 
 import Head from "./child-components/head/Head";
-import openEyesPic from "../../assets/images/login-open-eyes.png";
-import closeEyesPic from "../../assets/images/login-close-eyes.png";
+import openEyesPic from "@assets/images/login-open-eyes.png";
+import closeEyesPic from "@assets/images/login-close-eyes.png";
 
 import SMS from "./child-components/sms/SMS";
 import Password from "./child-components/password/Password";

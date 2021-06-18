@@ -4,24 +4,24 @@ import { Helmet } from "react-helmet";
 import LazyLoad from "react-lazyload";
 import { History } from "history";
 
-import Context from "../../context";
-import { getRecommendVides, getComments, postViewedReport } from "../../api/video";
-import { getNavUserInfo } from "../../api/login";
-import storage from "../../customed-methods/storage";
-import getVideoDetail from "../../redux/async-action-creators/video";
-import { setShouldLoad } from "../../redux/action-creators";
+import Context from "@context/index";
+import { getRecommendVides, getComments, postViewedReport } from "@api/video";
+import { getNavUserInfo } from "@api/login";
+import storage from "@customed-methods/storage";
+import getVideoDetail from "@redux/async-action-creators/video";
+import { setShouldLoad } from "@redux/action-creators";
 
-import BigHeaderWithBack from "../../components/big-header-with-back/BigHeaderWithBack";
-import LoadingCutscene from "../../components/loading-cutscene/LoadingCutscene";
-import Player from "../../components/player/Player";
-import { Switcher } from "../../components/switcher/Switcher";
-import VideoItemLandscape from "../../components/video-item-landscape/VideoItemLandscape";
-import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
+import BigHeaderWithBack from "@components/big-header-with-back/BigHeaderWithBack";
+import LoadingCutscene from "@components/loading-cutscene/LoadingCutscene";
+import Player from "@components/player/Player";
+import { Switcher } from "@components/switcher/Switcher";
+import VideoItemLandscape from "@components/video-item-landscape/VideoItemLandscape";
+import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 
-import { Video, createVideo, UpUser } from "../../class-object-creators";
-import { getPicSuffix } from "../../customed-methods/image";
-import { formatDate } from "../../customed-methods/datetime";
-import { formatTenThousand } from "../../customed-methods/string";
+import { Video, createVideo, UpUser } from "@class-object-creators/index";
+import { getPicSuffix } from "@customed-methods/image";
+import { formatDate } from "@customed-methods/datetime";
+import { formatTenThousand } from "@customed-methods/string";
 
 import style from "./video-page.styl?css-modules";
 

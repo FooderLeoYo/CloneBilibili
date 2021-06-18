@@ -1,11 +1,11 @@
 import * as React from "react";
 import { History } from "history";
 
-import { PartitionType, LiveSecQueryParType } from "../../../../class-object-creators";
+import { PartitionType, LiveSecQueryParType } from "@class-object-creators/index";
 
-import BigHeader from "../../../../components/big-header/BigHeader";
-import TabBar from "../../../../components/tab-bar/TabBar";
-import Drawer from "../../../../components/drawer/Drawer";
+import BigHeader from "@components/big-header/BigHeader";
+import TabBar from "@components/tab-bar/TabBar";
+import Drawer from "@components/drawer/Drawer";
 
 import style from "./nav.styl?css-modules";
 

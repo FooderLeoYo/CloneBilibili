@@ -5,14 +5,14 @@ import { parse } from "query-string";
 import { History } from "history";
 import { Link } from "react-router-dom";
 
-import Context from "../../../context";
-import { getLiveListData } from "../../../api/live";
-import { setShouldLoad } from "../../../redux/action-creators";
+import Context from "@context/index";
+import { getLiveListData } from "@api/live";
+import { setShouldLoad } from "@redux/action-creators";
 
-import { Live, UpUser, PartitionType, LiveSecQueryParType } from "../../../class-object-creators";
+import { Live, UpUser, PartitionType, LiveSecQueryParType } from "@class-object-creators/index";
 import Nav from "../child-components/nav/Nav"
 import LiveInfo from "../child-components/liveinfo/LiveInfo";
-import ScrollToTop from "../../../components/scroll-to-top/ScrollToTop";
+import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 
 import style from "./list.styl?css-modules";
 

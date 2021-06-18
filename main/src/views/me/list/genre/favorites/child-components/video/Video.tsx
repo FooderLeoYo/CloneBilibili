@@ -3,11 +3,11 @@ import { match } from "react-router-dom";
 import { Link } from "react-router-dom";
 import LazyLoad from "react-lazyload";
 
-import { getFavListCreated, getFavListCollected, getFavInfo } from "../../../../../../../api/space";
-import { getPicSuffix } from "../../../../../../../customed-methods/image";
-import Context from "../../../../../../../context";
+import { getFavListCreated, getFavListCollected, getFavInfo } from "@api/space";
+import { getPicSuffix } from "@customed-methods/image";
+import Context from "@context/index";
 
-import FoldableList from "../../../../../../../components/foldable-list/FoldableList";
+import FoldableList from "@components/foldable-list/FoldableList";
 
 import style from "./video.styl?css-modules";
 

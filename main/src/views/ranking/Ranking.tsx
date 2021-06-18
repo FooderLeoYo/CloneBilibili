@@ -5,14 +5,14 @@ import { match } from "react-router-dom";
 import { forceCheck } from "react-lazyload";
 
 import Header from "./child-components/header/Header";
-import TabBar from "../../components/tab-bar/TabBar";
+import TabBar from "@components/tab-bar/TabBar";
 import RankingList from "./child-components/ranking-list/RankingList";
-import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
+import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 
-import { setShouldLoad } from "../../redux/action-creators";
-import { getRankingVideoList, getVideoList } from "../../redux/async-action-creators/ranking";
+import { setShouldLoad } from "@redux/action-creators";
+import { getRankingVideoList, getVideoList } from "@redux/async-action-creators/ranking";
 
-import { PartitionType, Video } from "../../class-object-creators";
+import { PartitionType, Video } from "@class-object-creators/index";
 import style from "./ranking.styl?css-modules";
 
 interface RankingProps {

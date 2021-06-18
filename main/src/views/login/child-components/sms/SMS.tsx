@@ -1,10 +1,10 @@
 import * as React from "react";
 
-import { getAreaCode, getGTCaptcha, getCaptcha, getSMSVerifyInfo } from "../../../../api/login";
+import { getAreaCode, getGTCaptcha, getCaptcha, getSMSVerifyInfo } from "@api/login";
 
-import CleanText from "../../../../components/clean/CleanText"
+import CleanText from "@components/clean/CleanText"
 import Overlay from "./child-components/overlay/Overlay";
-import Toast from "../../../../components/toast/index";
+import Toast from "@components/toast/index";
 
 import style from "./sms.styl?css-modules";
 

@@ -1,18 +1,18 @@
 import * as React from "react";
 import { match } from "react-router-dom";
 
-import { getUserVideos } from "../../../../api/space";
-import Context from "../../../../context";
-import { getPicSuffix } from "../../../../customed-methods/image";
+import { getUserVideos } from "@api/space";
+import Context from "@context/index";
+import { getPicSuffix } from "@customed-methods/image";
 
-import { Video, createVideoByUser } from "../../../../class-object-creators";
-import { UpUser as Model } from "../../../../class-object-creators";
-import ScrollToTop from "../../../../components/scroll-to-top/ScrollToTop";
-import VideoItemLandscape from "../../../../components/video-item-landscape/VideoItemLandscape";
+import { Video, createVideoByUser } from "@class-object-creators/index";
+import { UpUser as Model } from "@class-object-creators/index";
+import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
+import VideoItemLandscape from "@components/video-item-landscape/VideoItemLandscape";
 
-import tips from "../../../../assets/images/nocontent.png";
+import tips from "@assets/images/nocontent.png";
 import style from "./up-space.styl?css-modules";
-import { formatTenThousand } from "../../../../customed-methods/string";
+import { formatTenThousand } from "@customed-methods/string";
 
 interface UpUserProps {
   shouldLoad: boolean;

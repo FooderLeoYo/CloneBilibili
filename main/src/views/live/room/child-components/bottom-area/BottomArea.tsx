@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { getRoomGifts } from "../../../../../api/live";
+import { getRoomGifts } from "@api/live";
 
 import style from "./bottom-area.styl?css-modules";
 

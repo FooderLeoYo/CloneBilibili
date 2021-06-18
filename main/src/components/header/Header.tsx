@@ -4,14 +4,14 @@ import { Link } from "react-router-dom";
 import style from "./header.styl?css-modules";
 
 interface HeaderProps {
+  mode: number; // heder最右边显示：0：无；1：省略号；2：编辑；3：加号；4：自定义
   title?: string;
-  needEdit?: boolean;
   doSthWhenSwitch?: Function;
   editting?: boolean;
 }
 
 function Header(props: HeaderProps) {
-  const { title, needEdit, editting, doSthWhenSwitch } = props;
+  const { mode, title, editting, doSthWhenSwitch } = props;
 
   return (
     <div className={style.header}>
@@ -29,8 +29,14 @@ function Header(props: HeaderProps) {
             <use href="#icon-search"></use>
           </svg>
         </Link>
-        {needEdit && <div className={style.edit} onClick={() => doSthWhenSwitch()}>
-          {editting ? "取消" : "编辑"}</div>
+        {mode != 0 && <div className={style.manipulation}>
+          {mode === 1 ? <div className={style.multiple}>…</div> :
+            mode === 2 ? <div className={style.edit} onClick={() => doSthWhenSwitch()}>
+              {editting ? "取消" : "编辑"}</div> :
+              mode === 3 ? <div className={style.add}>+</div> :
+                mode === 4 ? <div className={style.custom}></div> : null
+          }
+        </div>
         }
       </div>
     </div>

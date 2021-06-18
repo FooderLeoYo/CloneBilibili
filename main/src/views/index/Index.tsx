@@ -3,19 +3,19 @@ import { forceCheck } from "react-lazyload";
 import "swiper/dist/css/swiper.css";
 import { History } from "history";
 
-import Context from "../../context";
-import { setShouldLoad } from "../../redux/action-creators";
-import getIndexContent from "../../redux/async-action-creators/index";
+import Context from "@context/index";
+import { setShouldLoad } from "@redux/action-creators";
+import getIndexContent from "@redux/async-action-creators/index";
 
-import { PartitionType, Video } from "../../class-object-creators";
-import LoadingCutscene from "../../components/loading-cutscene/LoadingCutscene";
-import BigHeader from "../../components/big-header/BigHeader";
-import TabBar from "../../components/tab-bar/TabBar";
-import Drawer from "../../components/drawer/Drawer";
-import VideoItem from "../../components/video-item-portrait/VideoItemPortrait";
-import ScrollToTop from "../../components/scroll-to-top/ScrollToTop";
+import { PartitionType, Video } from "@class-object-creators/index";
+import LoadingCutscene from "@components/loading-cutscene/LoadingCutscene";
+import BigHeader from "@components/big-header/BigHeader";
+import TabBar from "@components/tab-bar/TabBar";
+import Drawer from "@components/drawer/Drawer";
+import VideoItem from "@components/video-item-portrait/VideoItemPortrait";
+import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 
-import { getPicSuffix } from "../../customed-methods/image";
+import { getPicSuffix } from "@customed-methods/image";
 
 // 这里用到css-modules，目的是实现类名不重复，防止css样式冲突
 // style是xx?css-modules在styles.d.ts中被declare后，导出的的StyleModule类型的常量

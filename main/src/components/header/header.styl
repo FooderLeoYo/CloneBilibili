@@ -34,11 +34,16 @@
       height: @width
       line-height: @height
       font-size: px2rem(20)
-    .edit
+    .manipulation
       position: absolute
       top: 50%
       transform:translateY(-50%)
       right: px2rem(18)
       height: px2rem(25)
       line-height: @height
-      font-size: px2rem(12)
+      .multiple
+        transform: rotateZ(90deg)
+      .edit
+        font-size: px2rem(12)
+      .add
+        font-size: px2rem(24)

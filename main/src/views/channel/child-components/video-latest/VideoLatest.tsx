@@ -1,14 +1,14 @@
 import * as React from "react";
 import { match } from "react-router-dom";
 
-import { getRankingArchive } from "../../../../api/ranking";
+import { getRankingArchive } from "@api/ranking";
 
-import VideoItem from "../../../../components/video-item-portrait/VideoItemPortrait";
+import VideoItem from "@components/video-item-portrait/VideoItemPortrait";
 
-import { Video, createVideoByLatest } from "../../../../class-object-creators";
+import { Video, createVideoByLatest } from "@class-object-creators/index";
 
 import style from "./video-latest.styl?css-modules";
-import tips from "../../../../assets/images/tips.png";
+import tips from "@assets/images/tips.png";
 
 interface VideoLatestProps {
   getPicUrl: (url: string, format: string) => string;

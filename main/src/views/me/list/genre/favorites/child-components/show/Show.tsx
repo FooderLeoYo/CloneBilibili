@@ -2,9 +2,9 @@ import * as React from "react";
 import { match } from "react-router-dom";
 import LazyLoad from "react-lazyload";
 
-import { getSeriesFollowed } from "../../../../../../../api/space";
-import Context from "../../../../../../../context";
-import { getPicSuffix } from "../../../../../../../customed-methods/image";
+import { getSeriesFollowed } from "@api/space";
+import Context from "@context/index";
+import { getPicSuffix } from "@customed-methods/image";
 
 import style from "./show.styl?css-modules";
 

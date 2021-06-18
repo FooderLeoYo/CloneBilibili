@@ -1,10 +1,10 @@
 import * as React from "react";
 import JSEncrypt from 'jsencrypt'
 
-import { getGTCaptcha, getPWKeyAndHash, getPWVerifyInfo } from "../../../../api/login";
+import { getGTCaptcha, getPWKeyAndHash, getPWVerifyInfo } from "@api/login";
 
-import CleanText from "../../../../components/clean/CleanText"
-import Toast from "../../../../components/toast/index";
+import CleanText from "@components/clean/CleanText"
+import Toast from "@components/toast/index";
 
 import style from "./password.styl?css-modules";
 

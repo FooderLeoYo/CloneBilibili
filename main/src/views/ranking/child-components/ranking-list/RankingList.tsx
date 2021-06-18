@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import { Video } from "../../../../class-object-creators";
-import VideoItemLandscape from "../../../../components/video-item-landscape/VideoItemLandscape";
+import { Video } from "@class-object-creators/index";
+import VideoItemLandscape from "@components/video-item-landscape/VideoItemLandscape";
 import style from "./ranking-list.styl?css-modules";
 
 interface RankingListProps {

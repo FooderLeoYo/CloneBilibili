@@ -2,9 +2,9 @@ import * as React from "react";
 import { Helmet } from "react-helmet";
 
 import Result from "../result/Result";
-import { getHotwords, getSuggests } from "../../../api/search";
-import storage, { SearcHistory } from "../../../customed-methods/storage";
-import Clean from "../../../components/clean/CleanText"
+import { getHotwords, getSuggests } from "@api/search";
+import storage, { SearcHistory } from "@customed-methods/storage";
+import Clean from "@components/clean/CleanText"
 
 import style from "./search.styl?css-modules";
 
