@@ -22,7 +22,7 @@ import style from "./channel.styl?css-modules";
 
 interface ChannelProps {
   shouldLoad: boolean,
-  partitions: PartitionType[],
+  lvOneTabs: PartitionType[],
   match: match<{ rId }>,
   history: History,
   staticContext?: { picSuffix: string },
@@ -32,7 +32,7 @@ interface ChannelProps {
 const { useState, useContext, useEffect, useRef } = React;
 
 function Channel(props: ChannelProps) {
-  const { history, shouldLoad, dispatch, staticContext, match, partitions } = props;
+  const { history, shouldLoad, dispatch, staticContext, match, lvOneTabs } = props;
   const context = useContext(myContext);
 
   const [hotVideos, setHotVideos] = useState([]);
@@ -64,8 +64,9 @@ function Channel(props: ChannelProps) {
   }
 
   function setLvTwoTabData() {
-    lvOnePartition && setTwoTabData([{ id: lvOnePartition.id, name: "推荐" } as PartitionType]
-      .concat(lvOnePartition.children));
+    const lvOneChildren = lvOnePartition?.children;
+    lvOneChildren?.length > 0 && setTwoTabData([{ id: lvOnePartition.id, name: "推荐" } as PartitionType]
+      .concat(lvOneChildren));
   }
 
   function loadHotVideos() {
@@ -171,7 +172,7 @@ function Channel(props: ChannelProps) {
         {/* 顶部 */}
         <div className={style.topWrapper}>
           <Head match={match} history={history} twoTabData={twoTabData}
-            partitions={partitions} lvOnePartition={lvOnePartition}
+            lvOneTabs={lvOneTabs} lvOnePartition={lvOnePartition}
             setLvOnePartition={setLvOnePartition} setLvTwoPartition={setLvTwoPartition}
             curLvTwoTabIndex={curLvTwoTabIndex} setCurLvTwoTabIndex={setCurLvTwoTabIndex}
             loadHotVideos={loadHotVideos} loadAllSecRecVideos={loadAllSecRecVideos}

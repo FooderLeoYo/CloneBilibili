@@ -1,11 +1,11 @@
 import { AnyAction, Dispatch } from "redux";
 
-import { getBanner } from "../../api/index";
-import { getPartitions } from "../../api/partitions"
-import { getRankings } from "../../api/ranking";
+import { getBanner } from "@api/index";
+import { getPartitions } from "@api/partitions"
+import { getRankings } from "@api/ranking";
 
-import { createPartitionTypes, createVideoByRanking } from "../../class-object-creators";
-import { setOneLevelPartitions, setBanners, setRankingVideos, setShouldLoad } from "../action-creators";
+import { createPartitionTypes, createVideoByRanking, PartitionType } from "@class-object-creators/index";
+import { setLvOneTabs, setBanners, setRankingVideos, setShouldLoad } from "../action-creators";
 
 export default function getIndexContent() {
   return (dispatch: Dispatch<AnyAction>) => {
@@ -14,14 +14,14 @@ export default function getIndexContent() {
       getBanner(),
       getRankings(0),
     ];
-    return Promise.all(promises).then(([result1, result2, result3]) => {
-      if (result1.code === "1") {
-        const partitions = result1.data["0"];
-        let oneLevels = createPartitionTypes(partitions);
+    return Promise.all(promises).then(([partiRes, result2, result3]) => {
+      if (partiRes.code === "1") {
+        let oneLevels = createPartitionTypes(partiRes.data["0"]);
         // 过滤掉 番剧，电影，电视剧，纪录片
         oneLevels = oneLevels.filter(partition => [13, 23, 11, 177].indexOf(partition.id) === -1);
-
-        dispatch(setOneLevelPartitions(oneLevels));
+        const temp: PartitionType[] = [{ id: 0, name: "首页" } as PartitionType].concat(oneLevels);
+        temp.push(new PartitionType(-1, "直播"));
+        dispatch(setLvOneTabs(temp));
       }
 
       if (result2.code === "1") {

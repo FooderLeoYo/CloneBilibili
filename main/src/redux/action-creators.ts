@@ -15,12 +15,12 @@ export function setShouldLoad(shouldLoad: boolean): AnyAction {
   return { type: ActionTypes.SET_SHOULD_LOAD, shouldLoad };
 }
 
-export function setOneLevelPartitions(oneLevelPartitions: Array<any>): AnyAction {
-  return { type: ActionTypes.SET_ONE_LEVEL_PARTITIONS, oneLevelPartitions };
+export function setLvOneTabs(lvOneTabs: Array<any>): AnyAction {
+  return { type: ActionTypes.SET_LV_ONE_TABS, lvOneTabs };
 }
 
-export function setBanners(banners: Array<any>): AnyAction {
-  return { type: ActionTypes.SET_BANNERS, banners };
+export function setBanners(indexBanners: Array<any>): AnyAction {
+  return { type: ActionTypes.SET_INDEX_BANNERS, indexBanners };
 }
 
 export function setAdditionalVideos(additionalVideos: Array<any>): AnyAction {
@@ -29,10 +29,6 @@ export function setAdditionalVideos(additionalVideos: Array<any>): AnyAction {
 
 export function setRankingVideos(rankingVideos: Array<any>): AnyAction {
   return { type: ActionTypes.SET_RANKING_VIDEOS, rankingVideos };
-}
-
-export function setPartitions(partitions: Array<any>): AnyAction {
-  return { type: ActionTypes.SET_PARTITIONS, partitions };
 }
 
 export function setRankingPartitions(rankingPartitions: Array<any>): AnyAction {
@@ -47,9 +43,20 @@ export function setUpUserInfo(upUser: any): AnyAction {
   return { type: ActionTypes.SET_UP_USER, upUser };
 }
 
+export function setliveBanners(liveBanners: any): AnyAction {
+  return { type: ActionTypes.SET_LIVE_BANNERS, liveBanners };
+}
 
-export function setLiveData(liveData: any): AnyAction {
-  return { type: ActionTypes.SET_LIVE_DATA, liveData };
+export function setLiveLvTwoTabs(liveLvTwoTabs: any): AnyAction {
+  return { type: ActionTypes.SET_LIVE_LV_TWO_TABS, liveLvTwoTabs };
+}
+
+export function setLiveLvTwoQuery(liveLvTwoQueries: any): AnyAction {
+  return { type: ActionTypes.SET_LIVE_LV_TWO_QUERIES, liveLvTwoQueries };
+}
+
+export function setLivePartitionRecList(partitionRecList: any): AnyAction {
+  return { type: ActionTypes.SET_LIVE_PARTITION_REC_LIST, partitionRecList };
 }
 
 export function setLiveList(liveListData: any): AnyAction {

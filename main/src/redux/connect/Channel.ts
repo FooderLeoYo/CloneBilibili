@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import Channel from "../../views/channel/Channel";
 
 const mapStateToProps = state => ({
-  partitions: state.partitions,
+  lvOneTabs: state.lvOneTabs,
   shouldLoad: state.shouldLoad
 });
 

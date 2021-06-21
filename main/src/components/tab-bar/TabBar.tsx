@@ -138,9 +138,11 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
 
   public render() {
     const { data, needUnderline } = this.props;
+    const index = this.state.curInx === -1 ? data.length : this.state.curInx; // tabbar最后一个的id为-1而不是序号
+
     const tabs = data.map((tab, i) => (
       <a
-        className={style.tab + (i === this.state.curInx ? " " + style.highlight : "")}
+        className={style.tab + (i === index ? " " + style.highlight : "")}
         onClick={() => { this.handleClick(tab, i); }} key={tab.id}
       >
         <span>{tab.name}</span>

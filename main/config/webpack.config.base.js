@@ -25,6 +25,8 @@ const baseWebpackConfig = {
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
     alias: {
+      '@root': path.resolve(__dirname, '../'),
+      '@src': path.resolve(__dirname, '../src/'),
       '@api': path.resolve(__dirname, '../src/api/'),
       '@assets': path.resolve(__dirname, '../src/assets/'),
       '@class-object-creators': path.resolve(__dirname, '../src/class-object-creators/'),
@@ -32,6 +34,7 @@ const baseWebpackConfig = {
       '@context': path.resolve(__dirname, '../src/context/'),
       '@customed-methods': path.resolve(__dirname, '../src/customed-methods/'),
       '@redux': path.resolve(__dirname, '../src/redux/'),
+      '@views': path.resolve(__dirname, '../src/views/')
     }
   },
   module: {

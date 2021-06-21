@@ -33,8 +33,8 @@ import style from "./index.styl?css-modules";
 
 interface IndexProps {
   shouldLoad: boolean;
-  oneLevelPartitions: PartitionType[];
-  banners: Array<{ id: number, name: string, pic: string, url: string }>;
+  lvOneTabs: PartitionType[];
+  indexBanners: Array<{ id: number, name: string, pic: string, url: string }>;
   additionalVideos: Video[];
   rankingVideos: Video[];
   staticContext?: { picSuffix: string };
@@ -116,7 +116,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       });
     } else {
       // 如果不放到定时器里，LoadingCutscene会没来得及加载显示不出来
-      setTimeout(() => { this.setState({ isDataOk: true }); });
+      setTimeout(() => this.setState({ isDataOk: true }));
       this.props.dispatch(setShouldLoad(true));
     }
 
@@ -129,18 +129,12 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   /* 以下为渲染部分 */
   public render() {
-    const { oneLevelPartitions, additionalVideos, rankingVideos } = this.props;
-    const tabBarData = [{ id: 0, name: "首页" } as PartitionType]
-      .concat(oneLevelPartitions);
-    tabBarData.push(new PartitionType(-1, "直播"));
+    const { lvOneTabs, additionalVideos, rankingVideos, indexBanners } = this.props;
 
-    const bannerElements = this.props.banners.map(banner => (
+    const bannerElements = indexBanners?.map(banner => (
       <div className="swiper-slide" key={banner.id}>
         <a href={banner.url}>
-          <img
-            src={this.getPicUrl(banner.pic, "@480w_300h")}
-            width="100%" height="100%"
-          />
+          <img src={this.getPicUrl(banner.pic, "@480w_300h")} width="100%" height="100%" />
         </a>
       </div>
     ));
@@ -160,9 +154,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       });
     }
     // 总视频数量多于100，截取掉
-    if (videos.length > 100) {
-      videos.splice(100);
-    }
+    videos.length > 100 && videos.splice(100);
 
     let videoElements = videos.map(video => {
       if (video.pic.indexOf("@320w_200h") === -1) {
@@ -173,7 +165,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       />
     });
     if (additionalVideos.length > 0) {
-      const additionalVideoElements = this.props.additionalVideos.map(video => {
+      const additionalVideoElements = additionalVideos.map(video => {
         if (video.pic.indexOf("@320w_200h") === -1) {
           video.pic = this.getPicUrl(video.pic, "@320w_200h");
         }
@@ -196,7 +188,7 @@ class Index extends React.Component<IndexProps, IndexState> {
                 <div className={style.partition}>
                   {/* tabbar */}
                   <div className={style.tabBar}>
-                    <TabBar data={tabBarData} clickMethod={this.handleClick} needUnderline={true} />
+                    <TabBar data={lvOneTabs} clickMethod={this.handleClick} needUnderline={true} />
                   </div>
                   {/* 打开抽屉箭头 */}
                   <div className={style.switch} onClick={this.handleSwitchClick}>
@@ -208,13 +200,12 @@ class Index extends React.Component<IndexProps, IndexState> {
                 {/* 抽屉 */}
                 <div className={style.drawerPosition}>
                   {/* data是自定义属性，会作为props传递给子组件Drawer */}
-                  <Drawer data={tabBarData} ref={this.drawerRef} onClick={this.handleClick} />
+                  <Drawer data={lvOneTabs} ref={this.drawerRef} onClick={this.handleClick} />
                 </div>
               </div>
               <div className={style.contentWrapper}>
                 {/* 轮播图 */}
-                {
-                  this.props.banners.length > 0 &&
+                {indexBanners.length > 0 &&
                   <div className={style.bannerSlider}>
                     <div className="swiper-container">
                       <div className="swiper-wrapper">

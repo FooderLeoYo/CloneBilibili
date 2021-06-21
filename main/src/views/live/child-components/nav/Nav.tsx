@@ -1,5 +1,6 @@
 import * as React from "react";
 import { History } from "history";
+import { parse } from "query-string";
 
 import { PartitionType, LiveSecQueryParType } from "@class-object-creators/index";
 
@@ -12,18 +13,17 @@ import style from "./nav.styl?css-modules";
 interface NavProps {
   history: History,
   firstTabBarData: PartitionType[],
-  secondTabBarData: PartitionType[],
-  lvTwoInx: number,
+  lvTwoTabBarData: PartitionType[],
   secondQueryPar: LiveSecQueryParType[],
   sendLvTowInx?: any,
 }
 
-const { useState, useRef } = React;
+const { useState, useRef, useEffect } = React;
 
 function Nav(props: NavProps) {
-  const { firstTabBarData, secondTabBarData, lvTwoInx } = props;
+  const { firstTabBarData, lvTwoTabBarData, secondQueryPar, history } = props;
   const drawerRef = useRef(null);
-  const [lvTwoTabIndex, setLvTwoTabIndex] = useState(lvTwoInx);
+  const [lvTwoTabIndex, setLvTwoTabIndex] = useState(0);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true); // 从别的页面初次进入channel时不要动画，避免不自然滑动
 
   const handleFirstClick = tab => {
@@ -31,10 +31,10 @@ function Nav(props: NavProps) {
       return;
     } else if (tab.id === 0) {
       // window.location.href = "/index";
-      props.history.push({ pathname: "/index" });
+      history.push({ pathname: "/index" });
     } else {
       // window.location.href = "/channel/" + tab.id;
-      props.history.push({ pathname: "/channel/" + tab.id });
+      history.push({ pathname: "/channel/" + tab.id });
     }
   }
 
@@ -46,14 +46,14 @@ function Nav(props: NavProps) {
     setLvTwoTabIndex(tab.id);
     if (tab.id === 0) {
       // window.location.href = "/live";
-      props.history.push({ pathname: "/live" });
-    } else if (tab.id === 7) {
+      history.push({ pathname: "/live" });
+    } else if (tab.id === -1) {
       // window.location.href = `/live/list` +
       //   `?parent_area_id=0` +
       //   `&parent_area_name=全部直播` +
       //   `&area_id=` +
       //   `&area_name=`
-      props.history.push({
+      history.push({
         pathname: "/live/list",
         search: `?parent_area_id=0` +
           `&parent_area_name=全部直播` +
@@ -62,16 +62,16 @@ function Nav(props: NavProps) {
       });
     } else {
       const indx = tab.id - 1;
-      const parent_area_id = props.secondQueryPar[indx].parent_area_id;
-      const parent_area_name = props.secondQueryPar[indx].parent_area_name;
-      const area_id = props.secondQueryPar[indx].area_id;
-      const area_name = props.secondQueryPar[indx].area_name;
+      const parent_area_id = secondQueryPar[indx].parent_area_id;
+      const parent_area_name = secondQueryPar[indx].parent_area_name;
+      const area_id = secondQueryPar[indx].area_id;
+      const area_name = secondQueryPar[indx].area_name;
       // window.location.href = `/live/list` +
       //   `?parent_area_id=${parent_area_id}` +
       //   `&parent_area_name=${parent_area_name}` +
       //   `&area_id=${area_id}` +
       //   `&area_name=${area_name}`;
-      props.history.push({
+      history.push({
         pathname: "/live/list",
         search: `?parent_area_id=${parent_area_id}` +
           `&parent_area_name=${parent_area_name}` +
@@ -83,18 +83,24 @@ function Nav(props: NavProps) {
     if (firstTimeLoad) { setFirstTimeLoad(false); }
   }
 
+  useEffect(() => {
+    const searchValue = location.search;
+    if (searchValue != "" && lvTwoTabBarData) {
+      const { area_name, parent_area_name } = parse(searchValue);
+      const queryName = area_name ? area_name : parent_area_name;
+      const index = lvTwoTabBarData.findIndex(parittion => parittion.name === queryName);
+      setLvTwoTabIndex(index);
+    }
+  }, [lvTwoTabBarData]);
+
   return (
     <div className={style.head}>
       <BigHeader />
       {/* 一级分类 */}
       <div className={style.partition}>
         <div className={style.tabBar}>
-          <TabBar
-            data={firstTabBarData}
-            needUnderline={true}
-            clickMethod={handleFirstClick}
-            currentIndex={15}
-            noSlideAni={true}
+          <TabBar data={firstTabBarData} needUnderline={true}
+            clickMethod={handleFirstClick} currentIndex={15} noSlideAni={true}
           />
         </div>
         {/* 点击打开抽屉 */}
@@ -106,23 +112,15 @@ function Nav(props: NavProps) {
       </div>
       {/* 抽屉 */}
       <div className={style.drawerPosition}>
-        <Drawer
-          data={firstTabBarData}
-          ref={drawerRef}
-          onClick={handleFirstClick}
-          currentIndex={14}
+        <Drawer data={firstTabBarData} ref={drawerRef}
+          onClick={handleFirstClick} currentIndex={-1}
         />
       </div>
       {/* 二级分类 */}
-      {
-        secondTabBarData &&
+      {lvTwoTabBarData &&
         <div className={style.secondTabBar}>
-          <TabBar
-            data={secondTabBarData}
-            currentIndex={lvTwoTabIndex}
-            clickMethod={handleSecondClick}
-            noSlideAni={firstTimeLoad}
-            needForcedUpdate={true}
+          <TabBar data={lvTwoTabBarData} currentIndex={lvTwoTabIndex}
+            clickMethod={handleSecondClick} noSlideAni={firstTimeLoad} needForcedUpdate={true}
           />
         </div>
       }

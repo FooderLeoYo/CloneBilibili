@@ -15,6 +15,9 @@
     "jsx": "react",
     "baseUrl": "./",
     "paths": {
+      "@root/*": [
+        "./*"
+      ],
       "@src/*": [
         "src/*"
       ],
@@ -36,6 +39,9 @@
       "@redux/*": [
         "src/redux/*"
       ],
+      "@views/*": [
+        "src/views/*"
+      ]
     }
   },
   "include": [

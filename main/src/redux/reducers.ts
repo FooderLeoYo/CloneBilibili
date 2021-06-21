@@ -3,18 +3,18 @@ import * as ActionTypes from "./action-types";
 
 const initialState = {
   shouldLoad: true,  // 客户端是否加载数据
-  oneLevelPartitions: [], // 一级分类
-  banners: [],  // 轮播图
+  lvOneTabs: [], // 一级分类
+  indexBanners: [],  // 轮播图
   additionalVideos: [],  // 首页额外的video
   partitions: [],  // 分类列表
   rankingPartitions: [], // 排行榜分类列表
   rankingVideos: [], // 排行榜视频
   video: {}, // 视频信息
   upUser: {}, // up主信息,
-  liveData: { // 直播数据
-    bannerList: [],
-    itemList: []
-  },
+  liveBanners: [],
+  liveLvTwoTabs: [],
+  liveLvTwoQueries: [],
+  partitionRecList: [],
   liveListData: {  // 直播房间列表
     total: 0,
     list: []
@@ -31,22 +31,22 @@ function combineShouldLoad(shouldLoad = initialState.shouldLoad, action: AnyActi
   }
 }
 
-function combineOneLevelPartitions(oneLevelPartitions = initialState.oneLevelPartitions,
+function combineLvOneTabs(lvOneTabs = initialState.lvOneTabs,
   action: AnyAction) {
   switch (action.type) {
-    case ActionTypes.SET_ONE_LEVEL_PARTITIONS:
-      return action.oneLevelPartitions;
+    case ActionTypes.SET_LV_ONE_TABS:
+      return action.lvOneTabs;
     default:
-      return oneLevelPartitions;
+      return lvOneTabs;
   }
 }
 
-function combineBanners(banners = initialState.banners, action: AnyAction) {
+function combineBanners(indexBanners = initialState.indexBanners, action: AnyAction) {
   switch (action.type) {
-    case ActionTypes.SET_BANNERS:
-      return action.banners;
+    case ActionTypes.SET_INDEX_BANNERS:
+      return action.indexBanners;
     default:
-      return banners;
+      return indexBanners;
   }
 }
 
@@ -57,15 +57,6 @@ function combineAdditionalVideos(additionalVideos = initialState.additionalVideo
       return action.additionalVideos;
     default:
       return additionalVideos;
-  }
-}
-
-function combinePartitions(partitions = initialState.partitions, action: AnyAction) {
-  switch (action.type) {
-    case ActionTypes.SET_PARTITIONS:
-      return action.partitions;
-    default:
-      return partitions;
   }
 }
 
@@ -106,12 +97,39 @@ function combineUpUser(upUser = initialState.upUser, action: AnyAction) {
   }
 }
 
-function combineLiveData(liveData = initialState.liveData, action: AnyAction) {
+function combineliveBanners(liveBanners = initialState.liveBanners, action: AnyAction) {
   switch (action.type) {
-    case ActionTypes.SET_LIVE_DATA:
-      return action.liveData;
+    case ActionTypes.SET_LIVE_BANNERS:
+      return action.liveBanners;
     default:
-      return liveData;
+      return liveBanners;
+  }
+}
+
+function combineLiveLvTwoTabs(liveLvTwoTabs = initialState.liveLvTwoTabs, action: AnyAction) {
+  switch (action.type) {
+    case ActionTypes.SET_LIVE_LV_TWO_TABS:
+      return action.liveLvTwoTabs;
+    default:
+      return liveLvTwoTabs;
+  }
+}
+
+function combineLiveLvTwoQueries(liveLvTwoQueries = initialState.liveLvTwoQueries, action: AnyAction) {
+  switch (action.type) {
+    case ActionTypes.SET_LIVE_LV_TWO_QUERIES:
+      return action.liveLvTwoQueries;
+    default:
+      return liveLvTwoQueries;
+  }
+}
+
+function combineLivePartitionRecList(partitionRecList = initialState.partitionRecList, action: AnyAction) {
+  switch (action.type) {
+    case ActionTypes.SET_LIVE_PARTITION_REC_LIST:
+      return action.partitionRecList;
+    default:
+      return partitionRecList;
   }
 }
 
@@ -135,15 +153,17 @@ function combineRoomData(roomData = initialState.roomData, action: AnyAction) {
 
 const reducer = combineReducers({
   shouldLoad: combineShouldLoad,
-  oneLevelPartitions: combineOneLevelPartitions,
+  lvOneTabs: combineLvOneTabs,
   banners: combineBanners,
   additionalVideos: combineAdditionalVideos,
-  partitions: combinePartitions,
   rankingPartitions: combineRankingPartitions,
   rankingVideos: combineRankingVideos,
   video: combineVideo,
   upUser: combineUpUser,
-  liveData: combineLiveData,
+  liveBanners: combineliveBanners,
+  liveLvTwoTabs: combineLiveLvTwoTabs,
+  liveLvTwoQueries: combineLiveLvTwoQueries,
+  partitionRecList: combineLivePartitionRecList,
   liveListData: combineLiveListData,
   roomData: combineRoomData,
 });

@@ -1,11 +1,12 @@
 import { connect } from "react-redux";
-import List from "../../../views/live/list/List";
+import List from "@views/live/list/List";
 
 const mapStateToProps = state => ({
   shouldLoad: state.shouldLoad,
   liveListData: state.liveListData,
-  lvOnePartitions: state.oneLevelPartitions,
-  liveData: state.liveData
+  lvOneTabs: state.lvOneTabs,
+  liveLvTwoTabs: state.liveLvTwoTabs,
+  liveLvTwoQueries: state.liveLvTwoQueries,
 });
 
 export default connect(mapStateToProps)(List);

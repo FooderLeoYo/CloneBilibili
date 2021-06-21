@@ -11,7 +11,7 @@ import Drawer from "@components/drawer/Drawer";
 import style from "./head.styl?css-modules";
 
 interface HeadProps {
-  partitions: PartitionType[],
+  lvOneTabs: PartitionType[],
   match: match<{ rId }>,
   history: History,
   loadHotVideos: () => void,
@@ -29,11 +29,10 @@ interface HeadProps {
 const { useState, useEffect, useRef } = React;
 
 function Head(props: HeadProps) {
-  const { partitions, match, history, loadHotVideos, loadAllSecRecVideos,
+  const { lvOneTabs, match, history, loadHotVideos, loadAllSecRecVideos,
     lvOnePartition, curLvTwoTabIndex, setLvOnePartition, rIdRef, twoTabData,
     setLvTwoPartition, setCurLvTwoTabIndex, setLatestId } = props;
 
-  const lvOneDataRef = useRef([]);
   const [oneInx, setOneInx] = useState(0);
   const curOneInxRef = useRef(null);
   useEffect(() => { curOneInxRef.current = oneInx }, [oneInx]);
@@ -42,22 +41,15 @@ function Head(props: HeadProps) {
   const [firstTimeLoad, setFirstTimeLoad] = useState(true); // 从别的页面初次进入Channel时tabbar不要动画，避免不自然滑动
   const drawerRef: React.RefObject<any> = useRef(null);
 
-  function setOneTabData() {
-    // 一级tab添加“首页”和“直播”
-    let tmpData = [{ id: 0, name: "首页", children: [] } as PartitionType].concat(partitions);
-    tmpData.push(new PartitionType(-1, "直播"));
-    lvOneDataRef.current = tmpData;
-  }
-
   function setInxAndPar() {
-    let tmpOneInx = lvOneDataRef.current.findIndex(partition =>
+    let tmpOneInx = lvOneTabs.findIndex(partition =>
       partition.id === parseInt(rIdRef.current, 10)
     );
 
     if (tmpOneInx === -1) { // 从Video返回Channel且二级分类非“推荐”时
       const { rId } = match.params;
       let tmpTwoInx = 0;
-      tmpOneInx = lvOneDataRef.current.findIndex(partition => {
+      tmpOneInx = lvOneTabs.findIndex(partition => {
         tmpTwoInx = partition.children.findIndex(child =>
           child.id === parseInt(rId, 10)
         );
@@ -68,11 +60,11 @@ function Head(props: HeadProps) {
       setLatestId();
     }
     setOneInx(tmpOneInx);
-    setLvOnePartition(lvOneDataRef.current[tmpOneInx]);
+    setLvOnePartition(lvOneTabs[tmpOneInx]);
   }
 
   function handleClick(tab) {
-    if (tab.id !== lvOneDataRef.current[curOneInxRef.current].id) {
+    if (tab.id !== lvOneTabs[curOneInxRef.current].id) {
       if (tab.id === -1) {
         // window.location.href = "/live";
         history.push({ pathname: "/live" });
@@ -118,11 +110,8 @@ function Head(props: HeadProps) {
 
   // 从别的页面跳转到Channel时，设置tabBar
   useEffect(() => {
-    if (partitions.length > 0) {
-      setOneTabData();
-      setInxAndPar();
-    }
-  }, [partitions.length]);
+    lvOneTabs[1]?.children.length > 0 && setInxAndPar();
+  }, [lvOneTabs[1]?.children.length]);
 
   return (
     <>
@@ -130,7 +119,7 @@ function Head(props: HeadProps) {
       <div className={style.partition}>
         {/* 一级分类Tab */}
         <div className={style.oneTabBar}>
-          <TabBar data={lvOneDataRef.current} needUnderline={true} currentIndex={oneInx}
+          <TabBar data={lvOneTabs} needUnderline={true} currentIndex={oneInx}
             clickMethod={handleClick} noSlideAni={firstTimeLoad} needForcedUpdate={true}
           />
         </div>
@@ -143,7 +132,7 @@ function Head(props: HeadProps) {
       </div>
       {/* 抽屉 */}
       <div className={style.drawerPosition}>
-        <Drawer data={lvOneDataRef.current} ref={drawerRef} currentIndex={oneInx} onClick={handleClick} />
+        <Drawer data={lvOneTabs} ref={drawerRef} currentIndex={oneInx} onClick={handleClick} />
       </div>
       {/* 二级分类Tab */}
       {lvOnePartition && lvOnePartition.children.length > 1 &&
