@@ -123,20 +123,19 @@ function Channel(props: ChannelProps) {
   }
 
   useEffect(() => {
-    if (shouldLoad) {
-      dispatch(getPartitionList()).then(() => {
-        setRankingPartitions();
-        loadHotVideos();
-      })
-    } else {
-      setRankingPartitions();
-      loadHotVideos();
-      dispatch(setShouldLoad(true));
-    }
+    if (shouldLoad) { dispatch(getPartitionList()) }
+    else { dispatch(setShouldLoad(true)) }
     // 开发环境中，样式在js加载后动态添加会导致图片被检测到未出现在屏幕上
     // 强制检查懒加载组件是否出现在屏幕上
     setTimeout(() => { forceCheck(); }, 10);
   }, []);
+
+  useEffect(() => {
+    if (lvOneTabs.length > 0) {
+      setRankingPartitions();
+      loadHotVideos();
+    }
+  }, [lvOneTabs]);
 
   // 切换一级tab后重新设置二级tab及加载所有二级推荐视频
   useEffect(() => {

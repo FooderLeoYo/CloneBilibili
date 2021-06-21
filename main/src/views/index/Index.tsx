@@ -42,12 +42,8 @@ interface IndexProps {
   dispatch: (action: any) => Promise<void>;
 }
 
-interface IndexState {
-  isDataOk: boolean
-}
-
 // 这里Index继承了IndexProps，则Index的props和state中的变量将受到interface IndexProps声明中的约束
-class Index extends React.Component<IndexProps, IndexState> {
+class Index extends React.Component<IndexProps> {
   /* 以下为初始化 */
   private drawerRef: React.RefObject<Drawer>;
   constructor(props) {
@@ -55,8 +51,6 @@ class Index extends React.Component<IndexProps, IndexState> {
     // React.createRef()相当于创建了一个空的ref
     // 在渲染部分可以将其帮顶给某个dom节点
     this.drawerRef = React.createRef();
-
-    this.state = { isDataOk: false }
   }
 
   /* 以下为自定义方法 */
@@ -99,25 +93,22 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   /* 以下为生命周期函数 */
   public componentDidMount() {
+    const { shouldLoad, dispatch } = this.props;
     // 服务端引入会抛异常
     // swiper是第三发插件
     const Swiper = require("swiper");
     // 需要使用swiper的地方，建一个div，类名为swiper-container
     new Swiper(".swiper-container", {
-      loop: true,
-      autoplay: 3000,
-      autoplayDisableOnInteraction: false,
-      pagination: ".swiper-pagination"
+      loop: true, autoplayDisableOnInteraction: false,
+      autoplay: 3000, pagination: ".swiper-pagination"
     });
 
-    if (this.props.shouldLoad) {
-      this.props.dispatch(getIndexContent()).then(() => {
-        this.setState({ isDataOk: true });
-      });
+    if (shouldLoad) {
+      dispatch(getIndexContent());
+      // .then(() => this.setState({ isDataOk: true }));
     } else {
-      // 如果不放到定时器里，LoadingCutscene会没来得及加载显示不出来
-      setTimeout(() => this.setState({ isDataOk: true }));
-      this.props.dispatch(setShouldLoad(true));
+      // setTimeout(() => this.setState({ isDataOk: true }));
+      dispatch(setShouldLoad(true));
     }
 
     setTimeout(() => {
@@ -179,52 +170,43 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <div className="index">
-        {
-          !this.state.isDataOk ? <LoadingCutscene /> :
-            <>
-              <div className={style.topWrapper}>
-                {/* 顶部工具栏 */}
-                <BigHeader />
-                <div className={style.partition}>
-                  {/* tabbar */}
-                  <div className={style.tabBar}>
-                    <TabBar data={lvOneTabs} clickMethod={this.handleClick} needUnderline={true} />
-                  </div>
-                  {/* 打开抽屉箭头 */}
-                  <div className={style.switch} onClick={this.handleSwitchClick}>
-                    <svg className="icon" aria-hidden="true">
-                      <use href="#icon-arrowDownBig"></use>
-                    </svg>
-                  </div>
-                </div>
-                {/* 抽屉 */}
-                <div className={style.drawerPosition}>
-                  {/* data是自定义属性，会作为props传递给子组件Drawer */}
-                  <Drawer data={lvOneTabs} ref={this.drawerRef} onClick={this.handleClick} />
-                </div>
-              </div>
-              <div className={style.contentWrapper}>
-                {/* 轮播图 */}
-                {indexBanners.length > 0 &&
-                  <div className={style.bannerSlider}>
-                    <div className="swiper-container">
-                      <div className="swiper-wrapper">
-                        {bannerElements}
-                      </div>
-                      <div className="swiper-pagination-wrapper">
-                        <div className="swiper-pagination clear" />
-                      </div>
-                    </div>
-                  </div>
-                }
-                {/* 视频 */}
-                <div className={style.videoList + " clear"}>
-                  {videoElements}
+        <div className={style.topWrapper}>
+          {/* 顶部工具栏 */}
+          <BigHeader />
+          <div className={style.partition}>
+            {/* tabbar */}
+            <div className={style.tabBar}>
+              <TabBar data={lvOneTabs} clickMethod={this.handleClick} needUnderline={true} />
+            </div>
+            {/* 打开抽屉箭头 */}
+            <div className={style.switch} onClick={this.handleSwitchClick}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-arrowDownBig"></use>
+              </svg>
+            </div>
+          </div>
+          {/* 抽屉 */}
+          <div className={style.drawerPosition}>
+            {/* data是自定义属性，会作为props传递给子组件Drawer */}
+            <Drawer data={lvOneTabs} ref={this.drawerRef} onClick={this.handleClick} />
+          </div>
+        </div>
+        <div className={style.contentWrapper}>
+          {/* 轮播图 */}
+          {indexBanners.length > 0 &&
+            <div className={style.bannerSlider}>
+              <div className="swiper-container">
+                <div className="swiper-wrapper">{bannerElements}</div>
+                <div className="swiper-pagination-wrapper">
+                  <div className="swiper-pagination clear" />
                 </div>
               </div>
-              <ScrollToTop />
-            </>
-        }
+            </div>
+          }
+          {/* 视频 */}
+          <div className={style.videoList + " clear"}>{videoElements}</div>
+        </div>
+        <ScrollToTop />
       </div>
     );
   }

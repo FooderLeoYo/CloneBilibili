@@ -4,12 +4,12 @@ import { parse } from "query-string";
 import { getPartitions } from "@api/partitions"
 import { getLiveListData, getLiveIndexData } from "@api/live";
 
-import { Live, UpUser, createPartitionTypes, PartitionType, LiveSecQueryParType } from "@class-object-creators/index";
+import { store } from "@src/entry-client";
+import { Live, UpUser, createPartitionTypesTree, PartitionType, LiveSecQueryParType } from "@class-object-creators/index";
 import {
   setShouldLoad, setLiveList, setLiveLvTwoTabs, setLvOneTabs,
   setLiveLvTwoQuery, setliveBanners, setLivePartitionRecList
 } from "../../action-creators";
-import { store } from "@src/entry-client";
 
 const itemTitle = ["电台", "视频唱见", "单机游戏", "手游", "网游", "娱乐", "虚拟主播"];
 
@@ -22,10 +22,10 @@ export default function getLiveListInfo(data: {
   return (dispatch: Dispatch<AnyAction>) => {
     const setLvOneTabData = partiRes => {
       if (partiRes.code === "1") {
-        let oneLevels = createPartitionTypes(partiRes.data["0"]);
-        // 过滤掉 番剧，电影，电视剧，纪录片
-        oneLevels = oneLevels.filter(partition => [13, 23, 11, 177].indexOf(partition.id) === -1);
-        const temp: PartitionType[] = [{ id: 0, name: "首页" } as PartitionType].concat(oneLevels);
+        let partitions = createPartitionTypesTree(partiRes.data);
+        // 过滤掉 番剧，电影，电视剧，纪录片（这几个页面的布局和其他不一样）
+        partitions = partitions.filter(partition => [13, 23, 11, 177].indexOf(partition.id) === -1);
+        const temp: PartitionType[] = [{ id: 0, name: "首页" } as PartitionType].concat(partitions);
         temp.push(new PartitionType(-1, "直播"));
         dispatch(setLvOneTabs(temp));
       }
