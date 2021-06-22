@@ -42,8 +42,12 @@ interface IndexProps {
   dispatch: (action: any) => Promise<void>;
 }
 
+interface IndexState {
+  isMounted: boolean;
+}
+
 // 这里Index继承了IndexProps，则Index的props和state中的变量将受到interface IndexProps声明中的约束
-class Index extends React.Component<IndexProps> {
+class Index extends React.Component<IndexProps, IndexState> {
   /* 以下为初始化 */
   private drawerRef: React.RefObject<Drawer>;
   constructor(props) {
@@ -51,6 +55,7 @@ class Index extends React.Component<IndexProps> {
     // React.createRef()相当于创建了一个空的ref
     // 在渲染部分可以将其帮顶给某个dom节点
     this.drawerRef = React.createRef();
+    this.state = { isMounted: false };
   }
 
   /* 以下为自定义方法 */
@@ -94,6 +99,12 @@ class Index extends React.Component<IndexProps> {
   /* 以下为生命周期函数 */
   public componentDidMount() {
     const { shouldLoad, dispatch } = this.props;
+
+    this.setState({ isMounted: true });
+
+    if (shouldLoad) { dispatch(getIndexContent()) }
+    else { dispatch(setShouldLoad(true)) }
+
     // 服务端引入会抛异常
     // swiper是第三发插件
     const Swiper = require("swiper");
@@ -103,24 +114,14 @@ class Index extends React.Component<IndexProps> {
       autoplay: 3000, pagination: ".swiper-pagination"
     });
 
-    if (shouldLoad) {
-      dispatch(getIndexContent());
-      // .then(() => this.setState({ isDataOk: true }));
-    } else {
-      // setTimeout(() => this.setState({ isDataOk: true }));
-      dispatch(setShouldLoad(true));
-    }
-
-    setTimeout(() => {
-      // 开发环境中，样式在js加载后动态添加会导致图片被检测到未出现在屏幕上
-      // 强制检查懒加载组件是否出现在屏幕上
-      forceCheck();
-    }, 10);
+    // 开发环境中，样式在js加载后动态添加会导致图片被检测到未出现在屏幕上
+    // 强制检查懒加载组件是否出现在屏幕上
+    setTimeout(() => forceCheck(), 10);
   }
 
   /* 以下为渲染部分 */
   public render() {
-    const { lvOneTabs, additionalVideos, rankingVideos, indexBanners } = this.props;
+    const { shouldLoad, lvOneTabs, additionalVideos, rankingVideos, indexBanners } = this.props;
 
     const bannerElements = indexBanners?.map(banner => (
       <div className="swiper-slide" key={banner.id}>
@@ -169,45 +170,49 @@ class Index extends React.Component<IndexProps> {
     }
 
     return (
-      <div className="index">
-        <div className={style.topWrapper}>
-          {/* 顶部工具栏 */}
-          <BigHeader />
-          <div className={style.partition}>
-            {/* tabbar */}
-            <div className={style.tabBar}>
-              <TabBar data={lvOneTabs} clickMethod={this.handleClick} needUnderline={true} />
-            </div>
-            {/* 打开抽屉箭头 */}
-            <div className={style.switch} onClick={this.handleSwitchClick}>
-              <svg className="icon" aria-hidden="true">
-                <use href="#icon-arrowDownBig"></use>
-              </svg>
-            </div>
-          </div>
-          {/* 抽屉 */}
-          <div className={style.drawerPosition}>
-            {/* data是自定义属性，会作为props传递给子组件Drawer */}
-            <Drawer data={lvOneTabs} ref={this.drawerRef} onClick={this.handleClick} />
-          </div>
-        </div>
-        <div className={style.contentWrapper}>
-          {/* 轮播图 */}
-          {indexBanners.length > 0 &&
-            <div className={style.bannerSlider}>
-              <div className="swiper-container">
-                <div className="swiper-wrapper">{bannerElements}</div>
-                <div className="swiper-pagination-wrapper">
-                  <div className="swiper-pagination clear" />
+      <>
+        {!shouldLoad && !this.state.isMounted ? <LoadingCutscene /> :
+          <div className="index">
+            <div className={style.topWrapper}>
+              {/* 顶部工具栏 */}
+              <BigHeader />
+              <div className={style.partition}>
+                {/* tabbar */}
+                <div className={style.tabBar}>
+                  <TabBar data={lvOneTabs} clickMethod={this.handleClick} needUnderline={true} />
+                </div>
+                {/* 打开抽屉箭头 */}
+                <div className={style.switch} onClick={this.handleSwitchClick}>
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-arrowDownBig"></use>
+                  </svg>
                 </div>
               </div>
+              {/* 抽屉 */}
+              <div className={style.drawerPosition}>
+                {/* data是自定义属性，会作为props传递给子组件Drawer */}
+                <Drawer data={lvOneTabs} ref={this.drawerRef} onClick={this.handleClick} />
+              </div>
             </div>
-          }
-          {/* 视频 */}
-          <div className={style.videoList + " clear"}>{videoElements}</div>
-        </div>
-        <ScrollToTop />
-      </div>
+            <div className={style.contentWrapper}>
+              {/* 轮播图 */}
+              {indexBanners.length > 0 &&
+                <div className={style.bannerSlider}>
+                  <div className="swiper-container">
+                    <div className="swiper-wrapper">{bannerElements}</div>
+                    <div className="swiper-pagination-wrapper">
+                      <div className="swiper-pagination clear" />
+                    </div>
+                  </div>
+                </div>
+              }
+              {/* 视频 */}
+              <div className={style.videoList + " clear"}>{videoElements}</div>
+            </div>
+            <ScrollToTop />
+          </div>
+        }
+      </>
     );
   }
 }

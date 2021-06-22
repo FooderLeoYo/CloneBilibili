@@ -25,7 +25,14 @@ export default function getPartitionList() {
       dispatch(setShouldLoad(false));
       return getPartitions().then(partiRes => setLvOneTabData(partiRes));
     } else {
-      store.getState().lvOneTabs.length === 0 && getPartitions().then(partiRes => setLvOneTabData(partiRes));
+      // 客户端渲染部分可以不用return一个promise
+      // 这里是为了让Channel能在获取到数据后的那个时机setIsDataOK
+      // 虽然可以用componentDidUpdata代替，但这样就多很多判断，因此还是包装成promise
+      return new Promise(resolve => {
+        if (store.getState().lvOneTabs.length === 0) {
+          resolve(getPartitions().then(partiRes => setLvOneTabData(partiRes)));
+        } else { resolve(null) }
+      })
     }
   }
 }

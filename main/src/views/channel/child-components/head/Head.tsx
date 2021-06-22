@@ -49,11 +49,13 @@ function Head(props: HeadProps) {
     if (tmpOneInx === -1) { // 从Video返回Channel且二级分类非“推荐”时
       const { rId } = match.params;
       let tmpTwoInx = 0;
+      console.log(lvOneTabs)
       tmpOneInx = lvOneTabs.findIndex(partition => {
-        tmpTwoInx = partition.children.findIndex(child =>
-          child.id === parseInt(rId, 10)
-        );
-        return tmpTwoInx !== -1;
+        const id = partition.id;
+        if (id > 0) { // id不为0或-1，即不检查“首页”和“直播”，因为两者没有children会报错
+          tmpTwoInx = partition.children.findIndex(child => child.id === parseInt(rId, 10));
+          return tmpTwoInx !== -1;
+        }
       });
 
       setCurLvTwoTabIndex(tmpTwoInx + 1);

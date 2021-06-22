@@ -50,7 +50,7 @@ export default function getIndexContent() {
     } else {
       store.getState().lvOneTabs.length === 0 && getPartitions().then(partiRes => setLvOneTabData(partiRes));
       const promises = [getBanner(), getRankings(0)];
-      Promise.all(promises).then(([banRes, ranRes]) => setOtherIndexData(banRes, ranRes));
+      return Promise.all(promises).then(([banRes, ranRes]) => setOtherIndexData(banRes, ranRes));
     }
   }
 }
