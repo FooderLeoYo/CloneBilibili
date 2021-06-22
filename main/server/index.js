@@ -47,9 +47,7 @@ if (isProd) {
   let clientManifest = require("../dist/client-manifest.json");
   renderer = new ServerRenderer(bundle, template, clientManifest);
 } else {
-  readyPromise = require("./dev-server")(app, (bundle, clientManifest) => {
-    renderer = new ServerRenderer(bundle, template, clientManifest);
-  });
+  readyPromise = require("./dev-server")(app, (bundle, clientManifest) => renderer = new ServerRenderer(bundle, template, clientManifest));
 }
 
 // 使用renderer渲染出服务端的纯html，然后发送给客户端
@@ -94,12 +92,10 @@ const render = (req, res) => {
 
 // 收到客户端的get请求后，生成服务端的纯html，发给客户端
 // 该html中有context、客户端webpack包manifest以及initalState
-app.get("*", isProd ? render : (req, res) => {
+app.get("*", isProd ? render : (req, res) =>
   // 开发环境下，等待客户端和服务端打包完成后才能生成html
-  readyPromise.then(() => render(req, res));
-});
+  readyPromise.then(() => render(req, res))
+);
 
 const port = 3010;
-app.listen(port, () => {
-  console.log("Main server is running at port " + port);
-});
+app.listen(port, () => console.log("Main server is running at port " + port));

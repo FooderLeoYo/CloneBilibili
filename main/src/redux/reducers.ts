@@ -6,15 +6,14 @@ const initialState = {
   lvOneTabs: [], // 一级分类
   indexBanners: [],  // 轮播图
   additionalVideos: [],  // 首页额外的video
-  partitions: [],  // 分类列表
   rankingPartitions: [], // 排行榜分类列表
   rankingVideos: [], // 排行榜视频
   video: {}, // 视频信息
   upUser: {}, // up主信息,
-  liveBanners: [],
-  liveLvTwoTabs: [],
-  liveLvTwoQueries: [],
-  partitionRecList: [],
+  liveBanners: [], // 直播首页轮播图
+  liveLvTwoTabs: [], // 直播二级tabs
+  liveLvTwoQueries: [], // 直播二级query参数
+  partitionRecList: [], // 直播首页各分区的4个推荐直播间
   liveListData: {  // 直播房间列表
     total: 0,
     list: []

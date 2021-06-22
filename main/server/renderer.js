@@ -96,13 +96,13 @@ class ServerRenderer {
           asyncData(store, Object.assign(match.params, request.query)) :
           Promise.resolve(null);
       });
-      // 所有asyncData都resolve后，store中渲染应用程序所需的的数据就齐全了
+      // 这里就是服务端渲染的数据要先存到store的原因
+      // 渲染需要的是多个异步数据，而只有全部拿到这些数据以后才能执行渲染
+      // 那么先请求到的数据就必须先保存到一个地方，store就是一个选择
+      // 再加上store使得我们可以复用某些之前请求过的、变化不频繁的数据，比如一二级tabbar，这样就可以避免重复请求
       Promise.all(promises)
-        .then(() => {
-          render();
-        }).catch(error => {
-          reject(error);
-        });
+        .then(() => render()) // 所有asyncData都resolve后，store中渲染应用程序所需的的数据就齐全了
+        .catch(error => reject(error));
     });
   }
 

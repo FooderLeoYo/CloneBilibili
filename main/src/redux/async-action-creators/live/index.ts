@@ -7,8 +7,8 @@ import { getLiveIndexData } from "@api/live";
 import { store } from "@src/entry-client";
 import { Live, UpUser, createPartitionTypesTree, PartitionType, LiveSecQueryParType } from "@class-object-creators/index";
 import {
-  setliveBanners, setLiveLvTwoTabs, setLvOneTabs, setShouldLoad,
-  setLivePartitionRecList, setLiveLvTwoQuery
+  setLiveLvTwoTabs, setLvOneTabs, setShouldLoad, setLiveLvTwoQuery,
+  setLivePartitionRecList, setliveBanners
 } from "../../action-creators";
 
 const itemTitle = ["电台", "视频唱见", "单机游戏", "手游", "网游", "娱乐", "虚拟主播"];
@@ -84,7 +84,7 @@ export default function getLiveData() {
       // 一二级tab如果store中已有数据则复用，banner和推荐由于更新频繁因此每次都重新获取
       const { lvOneTabs, liveLvTwoTabs } = store.getState();
       lvOneTabs.length === 0 && getPartitions().then(partiRes => setLvOneTabData(partiRes));
-      getLiveIndexData().then(liveIndexRes => { setOtherIndexData(liveIndexRes, liveLvTwoTabs.length === 0) });
+      getLiveIndexData().then(liveIndexRes => setOtherIndexData(liveIndexRes, liveLvTwoTabs.length === 0));
     }
   }
 }
