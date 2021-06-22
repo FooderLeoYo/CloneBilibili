@@ -15,8 +15,8 @@
 //          router并创建空的store
 //       b. 将请求路径逐一与router进行匹配，匹配成功的将调用asyncData，dispatch数据
 //          到store中
-//       c. 所有的asyncData均resolve后，调用render方法，渲染出所需的html骨架。
-//          具体过程见renderer.js第27行注释的5件事
+//       c. 所有的asyncData均resolve后，将所有数据从store中取出，调用render方法并使用上述数据，
+//          渲染出所需的html骨架。具体过程见renderer.js第27行注释的5件事
 //  5. 错误处理，然后res.send(html)
 //  6. 客户端拿到静态html后，根据其中的客户端包资源link加载entry-client.tsx及其他css、js
 //  7. 执行entry-client.tsx中的hydrate方法，生成动态DOM
@@ -59,11 +59,8 @@ const render = (req, res) => {
   let picSuffix = ".jpg";
   const userAgent = req.get("User-Agent");
   if (userAgent) {
-    if (/(iPhone|iPad|iPod|iOS)/i.test(userAgent)) { // 判断iPhone|iPad|iPod|iOS
-      picSuffix = ".jpg";
-    } else if (/(Android)/i.test(userAgent)) {  // 判断Android
-      picSuffix = ".webp";
-    }
+    if (/(iPhone|iPad|iPod|iOS)/i.test(userAgent)) { picSuffix = ".jpg" }
+    else if (/(Android)/i.test(userAgent)) { picSuffix = ".webp" }
   }
 
   // renderer调用自身的serverRender生成服务端的纯html，然后发送给客户端
@@ -71,15 +68,12 @@ const render = (req, res) => {
   renderer.serverRender(req, context)
     .then(({ error, html }) => {
       if (error) {
-        if (error.url) {
-          res.redirect(error.url);
-        } else if (error.code) {
+        if (error.url) { res.redirect(error.url) }
+        else if (error.code) {
           if (error.code === 404) {
             const html = fs.readFileSync("./templates/404.html", "utf-8");
             res.status(404).send(html);
-          } else {
-            res.status(error.code).send("error code：" + error.code);
-          }
+          } else { res.status(error.code).send("error code：" + error.code) }
         }
       }
       res.send(html);
