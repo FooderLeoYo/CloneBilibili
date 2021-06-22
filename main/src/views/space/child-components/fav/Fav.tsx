@@ -6,7 +6,7 @@ import { getFavDetail } from "@api/space";
 import Context from "@context/index";
 import { getPicSuffix } from "@customed-methods/image";
 
-import Header from "@components/header/Header"
+import HeaderWithBottom from "@components/header-with-bottom/HeaderWithBottom"
 import VideoItemLandscape from "@components/video-item-landscape/VideoItemLandscape";
 import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 
@@ -70,7 +70,7 @@ function Fav(props: FavProps) {
   return (
     <>
       <Helmet><title>{infoData ? infoData.title : ""}</title></Helmet>
-      <div className={style.header} ref={headerRef}><Header mode={0} /></div>
+      <div className={style.header} ref={headerRef}><HeaderWithBottom mode={0} /></div>
       <div className={style.info}>
         <div className={style.imageContainer}>
           {infoData ? <img className={style.cover} src={getPicUrl(infoData?.cover, "@320w_200h")} /> :

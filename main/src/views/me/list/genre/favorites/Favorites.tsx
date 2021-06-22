@@ -2,7 +2,7 @@ import * as React from "react";
 import { Helmet } from "react-helmet";
 import { match } from "react-router-dom";
 
-import Header from "@components/header/Header"
+import HeaderWithBottom from "@components/header-with-bottom/HeaderWithBottom"
 import TabBar from "../../child-components/tab-bar/TabBar";
 import Video from "./child-components/video/Video";
 import Show from "./child-components/show/Show";
@@ -23,7 +23,7 @@ function Favorites(props: FavoritesProps) {
   return (
     <div className={style.favorites}>
       <Helmet><title>我的收藏</title></Helmet>
-      <div className={style.topWrapper}><Header title={"我的收藏"} mode={3} /></div>
+      <div className={style.topWrapper}><HeaderWithBottom title={"我的收藏"} mode={3} /></div>
       <div className={style.tabWrapper}>
         <TabBar tabTitle={["视频", "追番", "追剧"]} curFatherInx={tabInx}
           setFatherCurInx={inx => setTabInx(inx)}

@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import { getNavUserInfo } from "@api/login";
 import { exitLogin } from "@api/me";
 
-import BigHeaderWithBack from "@components/big-header-with-back/BigHeaderWithBack";
+import LogoHeaderWithBack from "@root/src/components/logo-header-with-back/LogoHeaderWithBack";
 import Top from "./child-components/top/Top";
 import VideoLinks from "./child-components/link/Videos";
 
@@ -28,7 +28,7 @@ function Index(props) {
   return (
     <div className="me">
       <Helmet><title>个人中心</title></Helmet>
-      <div className={style.topWrapper}><BigHeaderWithBack /></div>
+      <div className={style.topWrapper}><LogoHeaderWithBack /></div>
       <div className={style.meWrapper}>
         <Top navData={navData} />
         <div className={style.links}>

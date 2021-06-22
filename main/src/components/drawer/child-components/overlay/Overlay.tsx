@@ -4,8 +4,7 @@ import style from "./overlay.styl?css-modules";
 
 function Overlay() {
   return (
-    <div className={style.overlay}>
-    </div>
+    <div className={style.overlay} />
   );
 }
 

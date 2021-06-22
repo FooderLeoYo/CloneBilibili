@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import { setShouldLoad } from "@redux/action-creators";
 import getUser from "@redux/async-action-creators/space";
 
-import BigHeaderWithBack from "@components/big-header-with-back/BigHeaderWithBack";
+import LogoHeaderWithBack from "@root/src/components/logo-header-with-back/LogoHeaderWithBack";
 
 import banner from "@assets/images/banner-top.png";
 import style from "./space.styl?css-modules";
@@ -54,7 +54,7 @@ function Space(props) {
   return (
     <div className="space">
       {/* {upUser && <Helmet><title>{upUser.name + "的个人空间"}</title></Helmet>} */}
-      <div className={style.header}><BigHeaderWithBack /></div>
+      <div className={style.header}><LogoHeaderWithBack /></div>
       <div className={style.banner}><img src={banner} /></div>
     </div>
   )

@@ -9,7 +9,7 @@ import getIndexContent from "@redux/async-action-creators/index";
 
 import { PartitionType, Video } from "@class-object-creators/index";
 import LoadingCutscene from "@components/loading-cutscene/LoadingCutscene";
-import BigHeader from "@components/big-header/BigHeader";
+import LogoHeader from "@root/src/components/logo-header/LogoHeader";
 import TabBar from "@components/tab-bar/TabBar";
 import Drawer from "@components/drawer/Drawer";
 import VideoItem from "@components/video-item-portrait/VideoItemPortrait";
@@ -175,7 +175,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           <div className="index">
             <div className={style.topWrapper}>
               {/* 顶部工具栏 */}
-              <BigHeader />
+              <LogoHeader />
               <div className={style.partition}>
                 {/* tabbar */}
                 <div className={style.tabBar}>

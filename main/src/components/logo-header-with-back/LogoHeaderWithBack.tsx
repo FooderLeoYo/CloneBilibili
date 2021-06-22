@@ -2,11 +2,11 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 
 import { getNavUserInfo } from "../../api/login";
-import style from "./big-header-with-back.styl?css-modules";
+import style from "./logo-header-with-back.styl?css-modules";
 
 const { useState, useEffect } = React;
 
-function BigHeaderWithBack() {
+function LogoHeaderWithBack() {
   const [isLogin, setIsLogin] = useState(false);
   const [faceUrl, setFaceUrl] = useState("");
 
@@ -59,4 +59,4 @@ function BigHeaderWithBack() {
   );
 }
 
-export default BigHeaderWithBack;
+export default LogoHeaderWithBack;

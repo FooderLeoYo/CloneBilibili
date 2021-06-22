@@ -4,7 +4,7 @@ import { parse } from "query-string";
 
 import { PartitionType, LiveSecQueryParType } from "@class-object-creators/index";
 
-import BigHeader from "@components/big-header/BigHeader";
+import LogoHeader from "@root/src/components/logo-header/LogoHeader";
 import TabBar from "@components/tab-bar/TabBar";
 import Drawer from "@components/drawer/Drawer";
 
@@ -95,7 +95,7 @@ function Nav(props: NavProps) {
 
   return (
     <div className={style.head}>
-      <BigHeader />
+      <LogoHeader />
       {/* 一级分类 */}
       <div className={style.partition}>
         <div className={style.tabBar}>

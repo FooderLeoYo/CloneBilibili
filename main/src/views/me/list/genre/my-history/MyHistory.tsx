@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { getHistory, deleteHistory } from "@api/me";
 
 import Toast from "@components/toast/index";
-import Header from "@components/header/Header"
+import HeaderWithBottom from "@components/header-with-bottom/HeaderWithBottom"
 import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 import TabBar from "../../child-components/tab-bar/TabBar";
 import VideoItem from "./child-components/item/VideoItem";
@@ -234,7 +234,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       <div className={style.myHistory}>
         <Helmet><title>历史记录</title></Helmet>
         <div className={style.topWrapper}>
-          <Header title={"历史记录"} mode={2} editting={editting}
+          <HeaderWithBottom title={"历史记录"} mode={2} editting={editting}
             doSthWhenSwitch={() => {
               this.setAllSelectedStatus(0, 0);
               this.setAllSelectedStatus(1, 0);
