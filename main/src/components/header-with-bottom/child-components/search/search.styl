@@ -1,0 +1,42 @@
+@import "~@assets/stylus/px2rem.styl"
+
+.search
+  display: grid
+  grid-template-columns: 88% 12%
+  position: fixed
+  top: 0
+  left: 0
+  width: 100%
+  height: 2.2rem
+  z-index: 10
+  background-color: #ffffff
+  .box-wrapper
+    display: grid
+    grid-template-columns: 11% 79% 10%
+    height: 1.5rem
+    margin-top: .35rem
+    margin-left: .625rem
+    border: .025rem solid #e7e7e7
+    background-color: #f4f4f4
+    border-radius: .2rem
+    .search-icon,
+    .search-box,
+      align-self: center
+    .search-icon
+      padding-left: .6rem
+      font-size: .9rem
+      color: rgb(160, 160, 160)
+    .search-box
+      width: 100%
+      height: @width
+      background: none
+      border: none
+      color: #505050
+      font-size: .65rem
+      outline: none
+      appearance: none
+  .cancel
+    align-self: center
+    margin-left: .35rem
+    color: #fb7299
+    font-size: .7rem

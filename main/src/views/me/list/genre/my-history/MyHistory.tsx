@@ -102,11 +102,9 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
 
   private setAllSelectedStatus(type: number, status: number) {   // type：0为video，1为live；status同state.selectedStatus
     const histories = type === 0 ? this.state.videoHistories : this.state.liveHistories;
-    histories.map(item => {
-      item[1].map(record => {
-        record.selected = status === 0 ? false : true;
-      })
-    });
+    histories.forEach(item =>
+      item[1].forEach(record => { record.selected = status === 0 ? false : true })
+    );
     type === 0 ? this.setState({ videoHistories: histories }) : this.setState({ liveHistories: histories });
     this.setState({ selectedStatus: status });
   }
@@ -115,16 +113,16 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     const histories = type === 0 ? this.state.videoHistories : this.state.liveHistories;
     let allSelected = true;
     let allCancled = true;
-    histories.map(item => {
-      item[1].map(record => {
-        if (record.selected) { allCancled = false; }
-        else { allSelected = false; }
+    histories.forEach(item => {
+      item[1].forEach(record => {
+        if (record.selected) { allCancled = false }
+        else { allSelected = false }
       })
     })
 
-    if (allCancled) { this.setAllSelectedStatus(type, 0); }
-    else if (allSelected) { this.setAllSelectedStatus(type, 1); }
-    else { this.setState({ selectedStatus: 2 }); }
+    if (allCancled) { this.setAllSelectedStatus(type, 0) }
+    else if (allSelected) { this.setAllSelectedStatus(type, 1) }
+    else { this.setState({ selectedStatus: 2 }) }
   }
 
   private handleDelete = async () => {
@@ -168,6 +166,15 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     this.setHistoryData();
   }
 
+  private handleEdit = () => {
+    this.setAllSelectedStatus(0, 0);
+    this.setAllSelectedStatus(1, 0);
+    this.setState({ editting: !this.state.editting, selectedStatus: 0 });
+  };
+
+  private getSearchTarget = list => list.map(item => item[1].map(record => record.title))
+
+
   public render() {
     const { history } = this.props;
     const { editting, noVideoHistory, videoHistories, noLiveHistory, liveHistories,
@@ -188,7 +195,8 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                         this.setState({ videoHistories: this.state.videoHistories });
                         this.checkAllSelectedStatus(0);
                       }}
-                      editting={editting} selectedStatus={selectedStatus} />
+                      editting={editting} selectedStatus={selectedStatus}
+                    />
                   </li>
                 )
               })}
@@ -229,16 +237,13 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
         }
       </div>
     );
-    const handleEdit = () => {
-      this.setAllSelectedStatus(0, 0);
-      this.setAllSelectedStatus(1, 0);
-      this.setState({ editting: !editting, selectedStatus: 0 });
-    };
 
     return (
       <div className={style.myHistory}>
         <Helmet><title>历史记录</title></Helmet>
-        <HeaderWithBottom title={"历史记录"} mode={2} editting={editting} handleEdit={handleEdit} />
+        <HeaderWithBottom title={"历史记录"} mode={2} editting={editting} handleEdit={this.handleEdit}
+          searchList={videoHistories} getSearchTarget={this.getSearchTarget}
+        />
         <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })}
           curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ editting: false, selectedStatus: 0 })}
         />
