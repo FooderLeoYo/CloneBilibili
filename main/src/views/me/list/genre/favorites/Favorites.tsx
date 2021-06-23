@@ -20,15 +20,16 @@ function Favorites(props: FavoritesProps) {
   const { match } = props;
   const [tabInx, setTabInx] = useState(0);
 
+  const handleEditInfo = () => console.log("编辑信息")
+  const handleCleanInvalid = () => console.log("清空无效")
+
   return (
     <div className={style.favorites}>
       <Helmet><title>我的收藏</title></Helmet>
-      <div className={style.topWrapper}><HeaderWithBottom title={"我的收藏"} mode={3} /></div>
-      <div className={style.tabWrapper}>
-        <TabBar tabTitle={["视频", "追番", "追剧"]} curFatherInx={tabInx}
-          setFatherCurInx={inx => setTabInx(inx)}
-        />
-      </div>
+      <HeaderWithBottom title={"我的收藏"} mode={1} handleEditInfo={handleEditInfo} handleCleanInvalid={handleCleanInvalid} />
+      <TabBar tabTitle={["视频", "追番", "追剧"]} curFatherInx={tabInx}
+        setFatherCurInx={inx => setTabInx(inx)}
+      />
       <div className={style.listWrapper}>
         {tabInx === 0 ? <Video match={match} /> : <Show match={match} fatherInx={tabInx} />}
       </div>

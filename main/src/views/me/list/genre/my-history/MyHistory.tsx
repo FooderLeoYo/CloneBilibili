@@ -229,30 +229,24 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
         }
       </div>
     );
+    const handleEdit = () => {
+      this.setAllSelectedStatus(0, 0);
+      this.setAllSelectedStatus(1, 0);
+      this.setState({ editting: !editting, selectedStatus: 0 });
+    };
 
     return (
       <div className={style.myHistory}>
         <Helmet><title>历史记录</title></Helmet>
-        <div className={style.topWrapper}>
-          <HeaderWithBottom title={"历史记录"} mode={2} editting={editting}
-            doSthWhenSwitch={() => {
-              this.setAllSelectedStatus(0, 0);
-              this.setAllSelectedStatus(1, 0);
-              this.setState({ editting: !editting, selectedStatus: 0 });
-            }}
-          />
-        </div>
-        <div className={style.tabWrapper}>
-          <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })}
-            curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ editting: false, selectedStatus: 0 })}
-          />
-        </div>
+        <HeaderWithBottom title={"历史记录"} mode={2} editting={editting} handleEdit={handleEdit} />
+        <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })}
+          curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ editting: false, selectedStatus: 0 })}
+        />
         <div className={style.listWrapper}>{tabInx === 0 ? videoList : liveList}</div>
         {editting && <div className={style.bottomWrapper}>
           <BottomBar
-            selectedStatus={selectedStatus}
+            selectedStatus={selectedStatus} handleDelete={this.handleDelete}
             setAllSelectedStatus={status => this.setAllSelectedStatus(tabInx, status)}
-            handleDelete={this.handleDelete}
           />
         </div>
         }

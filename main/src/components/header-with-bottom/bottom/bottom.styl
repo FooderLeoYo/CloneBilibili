@@ -1,11 +1,33 @@
 @import "~@assets/stylus/px2rem.styl"
 
 .overlay
+  position: fixed
+  top: 0
+  right: 0
+  left: 0
+  bottom: 0
   background-color: rgba(0, 0, 0, 0.3)
   transition: opacity .2s ease-in-out
   will-change: opacity
+  z-index:100
+.manipulations
   position: fixed
-  top: px2rem(45)
   bottom: 0
-  right: 0
-  left: 0
+  z-index: 101
+  width: 100%
+  background-color: #ffffff
+  .manipulation
+    margin: px2rem(18) 0 0 px2rem(18)
+    padding-bottom: px2rem(18)
+    border-bottom: px2rem(1) solid #e7e7e7
+    .icon
+      color: #fb7299
+      font-size: px2rem(23)
+    .word
+      margin-left: px2rem(20)
+      font-size: px2rem(17)
+  .cancel
+    height: px2rem(85)
+    line-height @height
+    border-top: px2rem(8) solid #e7e7e7
+    text-align: center

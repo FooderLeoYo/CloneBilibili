@@ -23,8 +23,7 @@ function BottomBar(props: BottomBarProps) {
 
   return (
     <div className={style.bottomWrapper}>
-      <span
-        className={style.circle}
+      <span className={style.circle}
         onClick={() => {
           setSelected(!selected);
           setAllSelectedStatus(selected ? 0 : 1);

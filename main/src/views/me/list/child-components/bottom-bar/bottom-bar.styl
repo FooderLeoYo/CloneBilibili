@@ -1,11 +1,17 @@
 @import "~@assets/stylus/px2rem.styl"
 
 .bottom-wrapper
+  position: fixed
+  bottom: 0
+  width: 100%
   height: px2rem(45)
+  padding-left: px2rem(12)
+  background-color: #ffffff
   display: grid
   grid-template-columns: 15% 60% 25%
   align-items: center
   .circle
+    position: relative
     display: inline-block
     width: px2rem(20)
     height: @width
