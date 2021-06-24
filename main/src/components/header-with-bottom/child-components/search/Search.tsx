@@ -1,19 +1,21 @@
 import * as React from "react";
 
-import Clean from "@components/clean/CleanText"
+import CleanText from "@root/src/components/clean-text/CleanText"
 import style from "./search.styl?css-modules";
 
 interface SearchProps {
+  setKeyword: (keyword: string) => any;
   setSerching: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const { useState, useRef } = React;
+const { useRef } = React;
 
 function Search(props: SearchProps) {
-  const { setSerching } = props;
-
-  const [searchValue, setSearchValue] = useState("");
+  const { setKeyword, setSerching } = props;
+  const cleanTextRef: React.MutableRefObject<any> = useRef(null);
   const searchInputRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
+
+  console.log(searchInputRef.current?.value)
 
   return (
     <div className={style.search}>
@@ -24,16 +26,15 @@ function Search(props: SearchProps) {
           </svg>
         </span>
         <input className={style.searchBox} type="search" autoComplete="off" maxLength={33}
-          placeholder="输入搜索关键字" onChange={e => setSearchValue(e.currentTarget.value)}
-          onKeyDown={() => console.log("回车")} ref={searchInputRef}
+          placeholder="输入搜索关键字"
+          onChange={e => cleanTextRef.current.checkIfShow(e.currentTarget.value)}
+          onKeyDown={e => e.keyCode === 13 && e.currentTarget.value && setKeyword(e.currentTarget.value)}
+          ref={searchInputRef}
         />
-        <Clean inputValue={searchValue}
-          inputDOMRef={searchInputRef} clickMethods={() => setSearchValue("")}
-        />
+        <CleanText inputDOMRef={searchInputRef} ref={cleanTextRef} />
       </div>
       {/* “取消”按钮 */}
-      <span
-        className={style.cancel} onClick={() => setSerching(false)}      >取消</span>
+      <span className={style.cancel} onClick={() => setSerching(false)}>取消</span>
     </div>
   )
 }

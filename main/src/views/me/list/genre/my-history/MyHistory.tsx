@@ -23,6 +23,8 @@ interface MyHistoryProps {
 interface MyHistoryState {
   videoHistories: Array<[string, Array<any>]>;
   liveHistories: Array<[string, Array<any>]>;
+  searchKey: string;
+  searchResult: { video: Array<any>; live: Array<any>; };
   noVideoHistory: boolean;
   noLiveHistory: boolean;
   tabInx: number;
@@ -36,6 +38,8 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     this.state = {
       videoHistories: [],
       liveHistories: [],
+      searchKey: "",
+      searchResult: { video: [], live: [] },
       noVideoHistory: false,
       noLiveHistory: false,
       tabInx: 0,
@@ -71,6 +75,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     getHistory(0, "", 30).then(res => {
       const videoMap: Map<string, []> = new Map();
       const liveMap: Map<string, []> = new Map();
+      const tempSearchRes = { video: [], live: [] };
       const updateMap = (map, view_at, record) => {
         const key = this.getDateKey(view_at);
         const tempRecord = record;
@@ -88,15 +93,26 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
 
       res.data.data.list.forEach(record => {
         const { history, view_at } = record;
-        if (history.business === "archive") { updateMap(videoMap, view_at, record); }
-        else if (history.business === "live") { updateMap(liveMap, view_at, record); }
+        if (history.business === "archive") {
+          updateMap(videoMap, view_at, record);
+          tempSearchRes.video.push(record);
+        } else if (history.business === "live") {
+          updateMap(liveMap, view_at, record);
+          tempSearchRes.live.push(record);
+        }
       });
 
       if (videoMap.size === 0) { this.setState({ noVideoHistory: true }) }
       else { this.setState({ videoHistories: [...videoMap] }); }
       if (liveMap.size === 0) { this.setState({ noLiveHistory: true }) }
       else { this.setState({ liveHistories: [...liveMap] }); }
-
+      if (videoMap.size !== 0 || liveMap.size !== 0) {
+        const { searchResult } = this.state;
+        const { video, live } = tempSearchRes;
+        videoMap.size !== 0 && (searchResult.video = video);
+        liveMap.size !== 0 && (searchResult.live = live);
+        this.setState({ searchResult: searchResult });
+      }
     });
   }
 
@@ -162,18 +178,29 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     }, 2000);
   }
 
-  public componentDidMount() {
-    this.setHistoryData();
-  }
-
   private handleEdit = () => {
     this.setAllSelectedStatus(0, 0);
     this.setAllSelectedStatus(1, 0);
     this.setState({ editting: !this.state.editting, selectedStatus: 0 });
   };
 
-  private getSearchTarget = list => list.map(item => item[1].map(record => record.title))
+  private setKeyword = (keyword: string) => this.setState({ searchKey: keyword });
 
+  private getSearchRes = () => {
+    const { searchResult, searchKey } = this.state;
+    searchResult.video = searchResult.video.map(record => { if (record.title === searchKey) { return record } });
+    searchResult.live = searchResult.live.map(record => record.title === searchKey);
+    this.setState({ searchResult: searchResult });
+  }
+
+  public componentDidMount() {
+    this.setHistoryData();
+  }
+
+  public componentDidUpdate(prevProps, prevState) {
+    // console.log(this.state.searchKey)
+    this.state.searchResult !== prevState.searchResult && this.getSearchRes();
+  }
 
   public render() {
     const { history } = this.props;
@@ -242,7 +269,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       <div className={style.myHistory}>
         <Helmet><title>历史记录</title></Helmet>
         <HeaderWithBottom title={"历史记录"} mode={2} editting={editting} handleEdit={this.handleEdit}
-          searchList={videoHistories} getSearchTarget={this.getSearchTarget}
+          setKeyword={this.setKeyword}
         />
         <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })}
           curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ editting: false, selectedStatus: 0 })}

@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { getAreaCode, getGTCaptcha, getCaptcha, getSMSVerifyInfo } from "@api/login";
 
-import CleanText from "@components/clean/CleanText"
+import CleanText from "@root/src/components/clean-text/CleanText"
 import Overlay from "./child-components/overlay/Overlay";
 import Toast from "@components/toast/index";
 
@@ -55,14 +55,9 @@ function SMS(props: SMSProps) {
     }).onSuccess(() => {
       const { geetest_validate, geetest_seccode } = captchaObj.getValidate();
       const getCapParam = {
-        tel: phoneRef.current.value,
-        cid: cid,
-        type: 21,
-        captchaType: 6,
-        key: loginKey,
-        challenge: challengeValue,
-        validate: geetest_validate,
-        seccode: geetest_seccode
+        tel: phoneRef.current.value, cid: cid, type: 21,
+        captchaType: 6, key: loginKey, challenge: challengeValue,
+        validate: geetest_validate, seccode: geetest_seccode
       }
 
       getCaptcha(getCapParam).then(res => {
@@ -71,7 +66,6 @@ function SMS(props: SMSProps) {
           Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
         } else {
           const { code, message } = data;
-
           if (code === 0) {
             Toast.success(message, false, null, 2000);
             verifyBtnRef.current.addEventListener("click", () => {
@@ -80,17 +74,14 @@ function SMS(props: SMSProps) {
                 tel: phoneRef.current.value,
                 smsCode: captchaRef.current.value
               }
-
               Toast.loading("正在登录，请稍等……");
               getSMSVerifyInfo(verifySMSParam).then(res => {
                 const { code, data } = res;
-
                 Toast.hide();
                 if (code === 0) {
                   Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
                 } else {
                   const { code, message } = data;
-
                   if (code === 0) {
                     // 登录成功后的操作
                     window.history.back();
@@ -100,7 +91,6 @@ function SMS(props: SMSProps) {
             });
           } else { Toast.error(message, false, null, 2000); }
         }
-
       })
     });
   }
@@ -240,45 +230,27 @@ function SMS(props: SMSProps) {
         {/* 手机号码 */}
         <li className={style.phoneWrapper}>
           <span className={style.areaCode}>{`+${areaCode}`}</span>
-          <input
-            className={style.phoneValue}
-            type="tel"
-            placeholder="请输入常用手机号"
-            autoComplete="on"
-            maxLength={16}
-            ref={phoneRef}
+          <input className={style.phoneValue} type="tel" ref={phoneRef}
+            placeholder="请输入常用手机号" autoComplete="on" maxLength={16}
             onChange={e => {
               ableLoginBtn();
               setPhoneValue(e.currentTarget.value);
             }}
           />
-          <CleanText
-            inputValue={phoneValue}
-            inputDOMRef={phoneRef}
-            clickMethods={() => verifyBtnRef.current.classList.remove(style.able)}
-          />
+          <CleanText inputDOMRef={phoneRef} clickMethods={() => verifyBtnRef.current.classList.remove(style.able)} />
           <span className={style.getCaptcha} ref={getCapRef}>获取验证码</span>
         </li>
         {/* 短信验证码 */}
         <li className={style.captchaWrapper}>
           <span className={style.captchaTittle}>验证码</span>
-          <input
-            className={style.captchaValue}
-            type="tel"
-            placeholder="请输入验证码"
-            autoComplete="off"
-            maxLength={6}
-            ref={captchaRef}
+          <input className={style.captchaValue} type="tel" maxLength={6}
+            placeholder="请输入验证码" autoComplete="off" ref={captchaRef}
             onChange={e => {
               ableLoginBtn();
               setCaptchaValue(e.currentTarget.value);
             }}
           />
-          <CleanText
-            inputValue={captchaValue}
-            inputDOMRef={captchaRef}
-            clickMethods={() => verifyBtnRef.current.classList.remove(style.able)}
-          />
+          <CleanText inputDOMRef={captchaRef} clickMethods={() => verifyBtnRef.current.classList.remove(style.able)} />
         </li>
       </ul>
       <div className={style.verify} ref={verifyBtnRef}>验证登录</div>

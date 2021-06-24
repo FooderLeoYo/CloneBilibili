@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import Result from "../result/Result";
 import { getHotwords, getSuggests } from "@api/search";
 import storage, { SearcHistory } from "@customed-methods/storage";
-import Clean from "@components/clean/CleanText"
+import CleanText from "@root/src/components/clean-text/CleanText"
 
 import style from "./search.styl?css-modules";
 
@@ -56,26 +56,19 @@ class Search extends React.Component<any, SearchState> {
     if (e.keyCode !== 13) {
       const content = e.currentTarget.value;
       if (content) {
-        getSuggests(content)
-          .then(result => {
-            if (result.code === "1") {
-              let suggestList = [];
-              if (result.data.tag) {
-                suggestList = result.data.tag.map(item => {
-                  return { name: item.name, value: item.value }
-                })
-              }
-              this.setState({
-                suggestList,
-                keyword: ""
+        getSuggests(content).then(result => {
+          if (result.code === "1") {
+            let suggestList = [];
+            if (result.data.tag) {
+              suggestList = result.data.tag.map(item => {
+                return { name: item.name, value: item.value }
               });
             }
-          });
-      } else { // 用户没输入内容的时候，则不显示推荐列表
-        this.setState({
-          suggestList: [],
-          keyword: ""
+            this.setState({ suggestList, keyword: "" });
+          }
         });
+      } else { // 用户没输入内容的时候，则不显示推荐列表
+        this.setState({ suggestList: [], keyword: "" });
       }
     }
   }
@@ -130,9 +123,7 @@ class Search extends React.Component<any, SearchState> {
   public render() {
     return (
       <div className="search">
-        <Helmet>
-          <title>搜索</title>
-        </Helmet>
+        <Helmet><title>搜索</title></Helmet>
         {/* 搜索框 */}
         <div className={style.searchTop}>
           <div className={style.boxWrapper}>
@@ -141,100 +132,65 @@ class Search extends React.Component<any, SearchState> {
                 <use href="#icon-search"></use>
               </svg>
             </span>
-            <input
-              type="search"
-              autoComplete="off"
-              maxLength={33}
-              placeholder="搜索视频、up主或av号"
-              className={style.searchBox}
+            <input type="search" autoComplete="off" maxLength={33} ref={this.searchInputRef}
+              placeholder="搜索视频、up主或av号" className={style.searchBox}
               onChange={e => this.setState({ searchValue: e.currentTarget.value })}
-              onKeyUp={this.getSuggests}
-              onKeyDown={this.setSearchContent}
-              ref={this.searchInputRef}
+              onKeyUp={this.getSuggests} onKeyDown={this.setSearchContent}
             />
-            <Clean
-              inputValue={this.state.searchValue}
-              inputDOMRef={this.searchInputRef}
-              clickMethods={() => this.cleanSearch()}
-            />
+            <CleanText inputDOMRef={this.searchInputRef} clickMethods={() => this.cleanSearch()} />
           </div>
           {/* “取消”按钮 */}
-          <span
-            className={style.cancel}
-            onClick={() => window.history.back()}
-          >取消</span>
+          <span className={style.cancel} onClick={() => window.history.back()}>取消</span>
         </div>
-        { // 用户已确认最终要搜索的关键词
-          this.state.keyword ? (
-            <div className={style.searchResult}>
-              <Result keyword={this.state.keyword} />
-            </div>
-          ) : ( // 用户未确认最终要搜索的关键词
-            <div>
-              {/* 大家都在搜 */}
-              <div className={style.words}>
-                <div className={style.wordTitle}>大家都在搜</div>
-                <div className={style.wordWrapper + " clear"}>
-                  {
-                    this.state.words.map((word, i) => (
-                      <div
-                        className={style.wordItem}
-                        key={"word" + i}
-                        onClick={() => { this.setKeyword(word) }}
-                      >{word}</div>
-                    ))
-                  }
-                </div>
+        {/* 用户已确认最终要搜索的关键词 */}
+        {this.state.keyword ?
+          <div className={style.searchResult}><Result keyword={this.state.keyword} /></div> :
+          // 用户未确认最终要搜索的关键词
+          <div>
+            {/* 大家都在搜 */}
+            <div className={style.words}>
+              <div className={style.wordTitle}>大家都在搜</div>
+              <div className={style.wordWrapper + " clear"}>
+                {this.state.words.map((word, i) => (
+                  <div className={style.wordItem} key={"word" + i}
+                    onClick={() => { this.setKeyword(word) }}
+                  >{word}</div>
+                ))}
               </div>
-              { // 根据用户输入内容智能推荐
-                this.state.suggestList.length > 0 ? (
-                  <div className={style.suggest}>
-                    {
-                      this.state.suggestList.map((suggest, i) => (
-                        <div className={style.suggestItem} key={"suggest" + i}>
-                          <p
-                            // 这里使用dangerouslySetInnerHTML是因为拿到的数据suggest.name就是个html元素而不是字符串
-                            dangerouslySetInnerHTML={{ __html: suggest.name }}
-                            onClick={() => { this.setKeyword(suggest.value) }}
-                          />
-                        </div>
-                      ))
-                    }
+            </div>
+            {/* 根据用户输入内容智能推荐 */}
+            {this.state.suggestList.length > 0 ?
+              <div className={style.suggest}>
+                {this.state.suggestList.map((suggest, i) => (
+                  <div className={style.suggestItem} key={"suggest" + i}>
+                    {/* 这里使用dangerouslySetInnerHTML是因为拿到的数据suggest.name就是个html元素而不是字符串 */}
+                    <p dangerouslySetInnerHTML={{ __html: suggest.name }} onClick={() => this.setKeyword(suggest.value)} />
                   </div>
-                ) : null
-              }
-              {/* 历史搜索 */}
-              <div className={style.history}>
-                <div className={style.historyTitle}>历史搜索</div>
-                <div className={style.historyList}>
-                  {
-                    this.state.searchHistories.map((history, i) => (
-                      <div
-                        className={style.historyItem}
-                        key={i}
-                        onClick={() => { this.setKeyword(history.value); }}
-                      >
-                        <span className={style.historyIcon} >
-                          <svg className="icon" aria-hidden="true">
-                            <use href="#icon-history"></use>
-                          </svg>
-                        </span>
-                        <div className={style.name}>{history.value}</div>
-                      </div>
-                    ))
-                  }
-                </div>
-                { // 清空历史记录
-                  this.state.searchHistories.length > 0 ? (
-                    <div
-                      className={style.historyClear}
-                      onClick={() => { this.clearSearchHistory(); }}
-                    >清除历史记录</div>
-                  ) : null
-                }
+                ))}
+              </div> : null
+            }
+            {/* 历史搜索 */}
+            <div className={style.history}>
+              <div className={style.historyTitle}>历史搜索</div>
+              <div className={style.historyList}>
+                {this.state.searchHistories.map((history, i) => (
+                  <div className={style.historyItem} key={i} onClick={() => this.setKeyword(history.value)}>
+                    <span className={style.historyIcon} >
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#icon-history"></use>
+                      </svg>
+                    </span>
+                    <div className={style.name}>{history.value}</div>
+                  </div>
+                ))}
               </div>
+              {/* 清空历史记录 */}
+              {this.state.searchHistories.length > 0 ?
+                <div className={style.historyClear} onClick={() => { this.clearSearchHistory(); }}
+                >清除历史记录</div> : null
+              }
             </div>
-          )
+          </div>
         }
       </div>
     );

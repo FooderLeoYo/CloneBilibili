@@ -7,7 +7,7 @@ import style from "./header.styl?css-modules";
 interface HeaderProps {
   mode: number; // heder最右边显示：0：无；1：省略号；2：编辑；3：加号；4：自定义
   title?: string;
-  searchList?: [] | {};
+  setKeyword?: (keyword: string) => any;
   handleEdit?: Function;
   editting?: boolean;
   setShowBottom?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,7 +16,7 @@ interface HeaderProps {
 const { useState, useRef, useEffect } = React;
 
 function Header(props: HeaderProps) {
-  const { mode, title, searchList, editting, handleEdit, setShowBottom } = props;
+  const { mode, title, setKeyword, editting, handleEdit, setShowBottom } = props;
 
   const [searching, setSerching] = useState(false);
   const multipleRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
@@ -29,7 +29,7 @@ function Header(props: HeaderProps) {
 
   return (
     <>
-      {searching ? <Search setSerching={setSerching} /> :
+      {searching ? <Search setKeyword={setKeyword} setSerching={setSerching} /> :
         <div className={style.header}>
           <div className={style.backWrapper}>
             <span className={style.backBtn} onClick={() => window.history.back()}>
@@ -40,7 +40,7 @@ function Header(props: HeaderProps) {
           </div>
           <div className={style.listType}>{title}</div>
           <div className={style.tools}>
-            {searchList &&
+            {setKeyword &&
               <span className={style.search} onClick={() => setSerching(true)}>
                 <svg className="icon" aria-hidden="true">
                   <use href="#icon-search"></use>

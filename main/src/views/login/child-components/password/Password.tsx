@@ -3,7 +3,7 @@ import JSEncrypt from 'jsencrypt'
 
 import { getGTCaptcha, getPWKeyAndHash, getPWVerifyInfo } from "@api/login";
 
-import CleanText from "@components/clean/CleanText"
+import CleanText from "@root/src/components/clean-text/CleanText"
 import Toast from "@components/toast/index";
 
 import style from "./password.styl?css-modules";
@@ -28,6 +28,8 @@ function Password(props: PasswordProps) {
   const passwordRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
   const loginBtnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
   const signupBtnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
+  const accountCleantRef: React.MutableRefObject<any> = useRef(null);
+  const passwordCleantRef: React.MutableRefObject<any> = useRef(null);
 
   const [accountValue, setAccountValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
@@ -66,17 +68,15 @@ function Password(props: PasswordProps) {
           Toast.loading("正在登录，请稍等……");
           getPWVerifyInfo(param).then(res => {
             const { code, data } = res;
-
             Toast.hide();
             if (code === 0) {
               Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
             } else {
               const { code, message } = data;
-
               if (code === 0) {
                 // 登录成功后的操作
                 window.history.back();
-              } else { Toast.error(message, false, null, 2000); }
+              } else { Toast.error(message, false, null, 2000) }
             }
           })
         }
@@ -139,42 +139,28 @@ function Password(props: PasswordProps) {
       <ul className={style.inputWrapper}>
         <li className={style.accountWrapper}>
           <span className={style.accountTittle}>账号</span>
-          <input
-            className={style.phoneValue}
-            type="text"
-            placeholder="请输入手机号/邮箱"
-            autoComplete="on"
-            ref={accountRef}
+          <input className={style.phoneValue} type="text"
+            placeholder="请输入手机号/邮箱" autoComplete="on" ref={accountRef}
             onChange={e => {
+              console.log(111)
               ableLoginBtn();
+              accountCleantRef.current.checkIfShow(e.currentTarget.value);
               setAccountValue(e.currentTarget.value);
             }}
           />
-          <CleanText
-            inputValue={accountValue}
-            inputDOMRef={accountRef}
-            clickMethods={() => loginBtnRef.current.classList.remove(style.able)}
-          />
+          <CleanText inputDOMRef={accountRef} ref={accountCleantRef} />
         </li>
         <li className={style.passwordWrapper}>
           <span className={style.passwordTittle}>密码</span>
-          <input
-            className={style.passwordValue}
-            type="password"
-            placeholder="请输入密码"
-            autoComplete="off"
-            maxLength={20}
-            ref={passwordRef}
+          <input className={style.passwordValue} type="password" maxLength={20}
+            placeholder="请输入密码" autoComplete="off" ref={passwordRef}
             onChange={e => {
               ableLoginBtn();
+              passwordCleantRef.current.checkIfShow(e.currentTarget.value);
               setPasswordValue(e.currentTarget.value);
             }}
           />
-          <CleanText
-            inputValue={passwordValue}
-            inputDOMRef={passwordRef}
-            clickMethods={() => loginBtnRef.current.classList.remove(style.able)}
-          />
+          <CleanText inputDOMRef={passwordRef} ref={passwordCleantRef} />
         </li>
       </ul>
       <div className={style.forget}>

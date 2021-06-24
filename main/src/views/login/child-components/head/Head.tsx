@@ -23,7 +23,7 @@ function Head(props: LoginProps) {
         <div className={style.backWrapper}>
           <div ref={backRef}>
             <svg className="icon" aria-hidden="true">
-              <use href="#icon-back"></use>
+              <use href="#icon-arrowDownBig"></use>
             </svg>
           </div>
         </div>
