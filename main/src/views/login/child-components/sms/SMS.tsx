@@ -22,8 +22,6 @@ function SMS(props: SMSProps) {
   const [cid, setCid] = useState(1);
   const [areaOpts, setAreaOpts] = useState([]);
   const [areaCode, setAreaCode] = useState("86");
-  const [phoneValue, setPhoneValue] = useState("");
-  const [captchaValue, setCaptchaValue] = useState("");
 
   const moreRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
   const areaBoxRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
@@ -33,6 +31,8 @@ function SMS(props: SMSProps) {
   const captchaRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
   const getCapRef: React.MutableRefObject<HTMLSpanElement> = useRef(null);
   const verifyBtnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
+  const phoneCleantRef: React.MutableRefObject<any> = useRef(null);
+  const smsCleantRef: React.MutableRefObject<any> = useRef(null);
 
   function checkPhoneFormat() {
     const phoneNum = phoneRef.current.value;
@@ -234,10 +234,12 @@ function SMS(props: SMSProps) {
             placeholder="请输入常用手机号" autoComplete="on" maxLength={16}
             onChange={e => {
               ableLoginBtn();
-              setPhoneValue(e.currentTarget.value);
+              phoneCleantRef.current.checkIfShow(e.currentTarget.value);
             }}
           />
-          <CleanText inputDOMRef={phoneRef} clickMethods={() => verifyBtnRef.current.classList.remove(style.able)} />
+          <CleanText inputDOMRef={phoneRef} ref={phoneCleantRef}
+            doWhenEmpty={() => verifyBtnRef.current.classList.remove(style.able)}
+          />
           <span className={style.getCaptcha} ref={getCapRef}>获取验证码</span>
         </li>
         {/* 短信验证码 */}
@@ -247,10 +249,12 @@ function SMS(props: SMSProps) {
             placeholder="请输入验证码" autoComplete="off" ref={captchaRef}
             onChange={e => {
               ableLoginBtn();
-              setCaptchaValue(e.currentTarget.value);
+              smsCleantRef.current.checkIfShow(e.currentTarget.value);
             }}
           />
-          <CleanText inputDOMRef={captchaRef} clickMethods={() => verifyBtnRef.current.classList.remove(style.able)} />
+          <CleanText inputDOMRef={captchaRef} ref={smsCleantRef}
+            doWhenEmpty={() => verifyBtnRef.current.classList.remove(style.able)}
+          />
         </li>
       </ul>
       <div className={style.verify} ref={verifyBtnRef}>验证登录</div>

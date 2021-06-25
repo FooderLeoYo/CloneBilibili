@@ -3,13 +3,13 @@ import style from "./clean-text.styl?css-modules";
 
 interface CleanTextProps {
   inputDOMRef: React.MutableRefObject<HTMLInputElement>;
-  clickMethods?: Function;
+  doWhenEmpty?: Function; // 清空是通过js的，故input的onChange无法检测到内容已变化，如果要在此时执行某个操作只能通过调用此prop
 }
 
 const { useState, useRef, useEffect, useImperativeHandle, forwardRef } = React;
 
 const CleanText = forwardRef((props: CleanTextProps, ref) => {
-  const { inputDOMRef, clickMethods } = props;
+  const { inputDOMRef, doWhenEmpty } = props;
   const [firstLetter, setFirstLetter] = useState(true);
   const btnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
@@ -18,7 +18,7 @@ const CleanText = forwardRef((props: CleanTextProps, ref) => {
     const inputDOM = inputDOMRef.current;
 
     inputDOM.value.length > 0 && cleanBtnDOM.classList.add(style.show);
-    clickMethods && cleanBtnDOM.addEventListener("click", () => { clickMethods() });
+    doWhenEmpty && cleanBtnDOM.addEventListener("click", () => { doWhenEmpty() });
     cleanBtnDOM.addEventListener("click", () => {
       inputDOM.value = "";
       cleanBtnDOM.classList.remove(style.show);

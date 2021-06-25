@@ -34,14 +34,7 @@ class Search extends React.Component<any, SearchState> {
   // 设置用户最终要搜索的关键字
   private setKeyword(keyword) {
     if (keyword) {
-      this.setState({
-        suggestList: [],
-        // 这里要把searchValue设置成keyword是因为：
-        // 如果用户是通过点击“大家都在搜”或“智能推荐”搜索的，搜索框中是没有这个关键字的
-        // 而搜索框习惯上应该显示用户当前搜索的关键字
-        searchValue: keyword,
-        keyword,
-      });
+      this.setState({ suggestList: [], keyword });
       // 记录当前搜索历史
       storage.setSearchHistory({
         value: keyword,
@@ -137,7 +130,7 @@ class Search extends React.Component<any, SearchState> {
               onChange={e => this.setState({ searchValue: e.currentTarget.value })}
               onKeyUp={this.getSuggests} onKeyDown={this.setSearchContent}
             />
-            <CleanText inputDOMRef={this.searchInputRef} clickMethods={() => this.cleanSearch()} />
+            <CleanText inputDOMRef={this.searchInputRef} doWhenEmpty={() => this.cleanSearch()} />
           </div>
           {/* “取消”按钮 */}
           <span className={style.cancel} onClick={() => window.history.back()}>取消</span>
@@ -153,7 +146,10 @@ class Search extends React.Component<any, SearchState> {
               <div className={style.wordWrapper + " clear"}>
                 {this.state.words.map((word, i) => (
                   <div className={style.wordItem} key={"word" + i}
-                    onClick={() => { this.setKeyword(word) }}
+                    onClick={() => {
+                      this.setKeyword(word);
+                      this.searchInputRef.current.value = word;
+                    }}
                   >{word}</div>
                 ))}
               </div>
@@ -164,7 +160,13 @@ class Search extends React.Component<any, SearchState> {
                 {this.state.suggestList.map((suggest, i) => (
                   <div className={style.suggestItem} key={"suggest" + i}>
                     {/* 这里使用dangerouslySetInnerHTML是因为拿到的数据suggest.name就是个html元素而不是字符串 */}
-                    <p dangerouslySetInnerHTML={{ __html: suggest.name }} onClick={() => this.setKeyword(suggest.value)} />
+                    <p dangerouslySetInnerHTML={{ __html: suggest.name }}
+                      onClick={() => {
+                        const word = suggest.value;
+                        this.setKeyword(word);
+                        this.searchInputRef.current.value = word;
+                      }}
+                    />
                   </div>
                 ))}
               </div> : null
@@ -174,7 +176,13 @@ class Search extends React.Component<any, SearchState> {
               <div className={style.historyTitle}>历史搜索</div>
               <div className={style.historyList}>
                 {this.state.searchHistories.map((history, i) => (
-                  <div className={style.historyItem} key={i} onClick={() => this.setKeyword(history.value)}>
+                  <div className={style.historyItem} key={i}
+                    onClick={() => {
+                      const word = history.value;
+                      this.setKeyword(word);
+                      this.searchInputRef.current.value = word;
+                    }}
+                  >
                     <span className={style.historyIcon} >
                       <svg className="icon" aria-hidden="true">
                         <use href="#icon-history"></use>

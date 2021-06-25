@@ -19,7 +19,7 @@ interface PasswordProps {
   setLoginType: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const { useRef, useEffect, useState } = React;
+const { useRef, useEffect } = React;
 
 function Password(props: PasswordProps) {
   const { setOpenEyes, setLoginType } = props;
@@ -30,9 +30,6 @@ function Password(props: PasswordProps) {
   const signupBtnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
   const accountCleantRef: React.MutableRefObject<any> = useRef(null);
   const passwordCleantRef: React.MutableRefObject<any> = useRef(null);
-
-  const [accountValue, setAccountValue] = useState("");
-  const [passwordValue, setPasswordValue] = useState("");
 
   let loginKey;
   let challengeValue;
@@ -142,13 +139,13 @@ function Password(props: PasswordProps) {
           <input className={style.phoneValue} type="text"
             placeholder="请输入手机号/邮箱" autoComplete="on" ref={accountRef}
             onChange={e => {
-              console.log(111)
               ableLoginBtn();
               accountCleantRef.current.checkIfShow(e.currentTarget.value);
-              setAccountValue(e.currentTarget.value);
             }}
           />
-          <CleanText inputDOMRef={accountRef} ref={accountCleantRef} />
+          <CleanText inputDOMRef={accountRef} ref={accountCleantRef}
+            doWhenEmpty={() => loginBtnRef.current.classList.remove(style.able)}
+          />
         </li>
         <li className={style.passwordWrapper}>
           <span className={style.passwordTittle}>密码</span>
@@ -157,10 +154,11 @@ function Password(props: PasswordProps) {
             onChange={e => {
               ableLoginBtn();
               passwordCleantRef.current.checkIfShow(e.currentTarget.value);
-              setPasswordValue(e.currentTarget.value);
             }}
           />
-          <CleanText inputDOMRef={passwordRef} ref={passwordCleantRef} />
+          <CleanText inputDOMRef={passwordRef} ref={passwordCleantRef}
+            doWhenEmpty={() => loginBtnRef.current.classList.remove(style.able)}
+          />
         </li>
       </ul>
       <div className={style.forget}>
