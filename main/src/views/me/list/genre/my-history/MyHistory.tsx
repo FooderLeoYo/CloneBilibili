@@ -226,12 +226,13 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
   public render() {
     const { history } = this.props;
     const { editting, noVideoHistory, videoHistories, noLiveHistory, liveHistories,
-      tabInx, selectedStatus, searching, searchResult, searched } = this.state;
+      tabInx, selectedStatus, searching, searchResult, searched, searchKey } = this.state;
     const videoList = (
       <div className={style.videoHistory}>
         {!noVideoHistory ?
           searching && searched ?
             <ul className={style.searchResult}>
+              <li className={style.total}>{`共找到关于“${searchKey}”的${searchResult.video.length}个内容`}</li>
               {searchResult.video.map((record, i) =>
                 <li className={style.itemWrapper} key={i}>
                   <VideoItem history={history} curFatherInx={tabInx} record={record} />
@@ -271,6 +272,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
         {!noLiveHistory ?
           searching && searched ?
             <ul className={style.searchResult}>
+              <li className={style.total}>{`共找到关于“${searchKey}”的${searchResult.live.length}个内容`}</li>
               {searchResult.live.map((record, i) =>
                 <li className={style.itemWrapper} key={i}>
                   <VideoItem history={history} curFatherInx={tabInx} record={record} />

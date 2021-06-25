@@ -1,7 +1,6 @@
 @import "~@assets/stylus/px2rem.styl"
 
-.ban-list,
-.show-list
+.list
   .item
     padding: px2rem(10) 0
     height: px2rem(138)
@@ -29,13 +28,8 @@
       margin-right: px2rem(12)
       height: 100%
       position: relative
-      .title,
-      .badges,
-      .subtitle,
-      .total,
-      .progress
-        position: absolute
       .title
+        position: absolute
         top: 0
         width: 100%
         font-size: px2rem(13)
@@ -47,35 +41,41 @@
         letter-spacing: 0
         word-break: break-all
       .badges
+        position: absolute
         top: 20%
         font-size: px2rem(10)
         color: #ffffff
-        .vip,
-        .sole
+        .vip
           border-radius: px2rem(3)
           padding: px2rem(1) px2rem(4)
-        .vip
           background-color: #FB7299
           margin-right: px2rem(10)
         .sole
+          border-radius: px2rem(3)
+          padding: px2rem(1) px2rem(4)
           background-color: #00C0FF
-      .subtitle,
-      .total,
-      .progress
+      .subtitle
+        position: absolute
+        bottom: 40%
         font-size: px2rem(10)
         color: #888888
-      .subtitle
-        bottom: 40%
       .total
+        position: absolute
         bottom: 20%
+        font-size: px2rem(10)
+        color: #888888
       .progress
+        position: absolute
         bottom: 0
-  .load-more,
-  .nothing
-    text-align: center
+        font-size: px2rem(10)
+        color: #888888
   .load-more
+    margin-top: px2rem(8)
+    text-align: center
     color: #FB7299
   .nothing
+    margin-top: px2rem(8)
+    text-align: center
     margin-top: px2rem(20)
     font-size: px2rem(10)
     color: #888888

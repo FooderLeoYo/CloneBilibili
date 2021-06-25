@@ -81,7 +81,7 @@ function Show(props: ShowProps) {
   return (
     <>
       {fatherInx === 1 ?
-        <ul className={style.banList}>
+        <ul className={style.list}>
           {banData.list.length > 0 && banData.list.map((bangumi, i) => {
             const { badge_infos, cover, new_ep, progress, subtitle, title } = bangumi;
             return (
@@ -112,7 +112,7 @@ function Show(props: ShowProps) {
             <li className={style.nothing}>再怎么找也没有啦</li>
           }
         </ul> :
-        <ul className={style.showList}>
+        <ul className={style.list}>
           {showData.list.length > 0 && showData.list.map((show, i) => {
             const { badge_infos, cover, new_ep, progress, subtitle, title } = show;
             return (
