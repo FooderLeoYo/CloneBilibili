@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { getHistory, deleteHistory } from "@api/me";
 
 import Toast from "@components/toast/index";
-import HeaderWithBottom from "@components/header-with-bottom/HeaderWithBottom"
+import HeaderWithTools from "@root/src/components/header-with-tools/HeaderWithTools"
 import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 import TabBar from "../../child-components/tab-bar/TabBar";
 import VideoItem from "./child-components/item/VideoItem";
@@ -24,7 +24,10 @@ interface MyHistoryState {
   videoHistories: Array<[string, Array<any>]>;
   liveHistories: Array<[string, Array<any>]>;
   searchKey: string;
+  searchList: { video: Array<any>; live: Array<any>; };
   searchResult: { video: Array<any>; live: Array<any>; };
+  searching: boolean;
+  searched: boolean;
   noVideoHistory: boolean;
   noLiveHistory: boolean;
   tabInx: number;
@@ -39,7 +42,10 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       videoHistories: [],
       liveHistories: [],
       searchKey: "",
+      searchList: { video: [], live: [] },
       searchResult: { video: [], live: [] },
+      searching: false,
+      searched: false,
       noVideoHistory: false,
       noLiveHistory: false,
       tabInx: 0,
@@ -95,7 +101,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
         const { history, view_at } = record;
         if (history.business === "archive") {
           updateMap(videoMap, view_at, record);
-          tempSearchRes.video.push(record);
+          tempSearchRes.video.push(record); // 不能直接在searchResult上改，否则setState无法触发重渲染
         } else if (history.business === "live") {
           updateMap(liveMap, view_at, record);
           tempSearchRes.live.push(record);
@@ -107,11 +113,11 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       if (liveMap.size === 0) { this.setState({ noLiveHistory: true }) }
       else { this.setState({ liveHistories: [...liveMap] }); }
       if (videoMap.size !== 0 || liveMap.size !== 0) {
-        const { searchResult } = this.state;
+        const { searchList } = this.state;
         const { video, live } = tempSearchRes;
-        videoMap.size !== 0 && (searchResult.video = video);
-        liveMap.size !== 0 && (searchResult.live = live);
-        this.setState({ searchResult: searchResult });
+        videoMap.size !== 0 && (searchList.video = video);
+        liveMap.size !== 0 && (searchList.live = live);
+        this.setState({ searchList });
       }
     });
   }
@@ -184,13 +190,27 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     this.setState({ editting: !this.state.editting, selectedStatus: 0 });
   };
 
-  private setKeyword = (keyword: string) => this.setState({ searchKey: keyword });
+  private setKeyword = (keyword: string) => this.setState({ searchKey: keyword, searched: true });
 
   private getSearchRes = () => {
-    const { searchResult, searchKey } = this.state;
-    searchResult.video = searchResult.video.map(record => { if (record.title === searchKey) { return record } });
-    searchResult.live = searchResult.live.map(record => record.title === searchKey);
-    this.setState({ searchResult: searchResult });
+    const { searchList, searchKey } = this.state;
+    const tempSearchRes = { video: [], live: [] };
+    const findAndHightlight = list =>
+      list.filter(record => {
+        const { title } = record;
+        const index = title.indexOf(searchKey);
+        if (index !== -1) {
+          const front: string = title.slice(0, index);
+          const back = title.slice(index + searchKey.length);
+          record.title = front + "<em class='keyword'>" + searchKey + "</em>" + back;
+          return record;
+        }
+      });
+
+    // 不能直接在searchResult上改，否则setState无法触发重渲染
+    tempSearchRes.video = findAndHightlight(searchList.video);
+    tempSearchRes.live = findAndHightlight(searchList.live);
+    this.setState({ searchResult: tempSearchRes });
   }
 
   public componentDidMount() {
@@ -198,37 +218,53 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
   }
 
   public componentDidUpdate(prevProps, prevState) {
-    // console.log(this.state.searchKey)
-    this.state.searchResult !== prevState.searchResult && this.getSearchRes();
+    const { searchKey, searching, searched } = this.state;
+    searchKey !== prevState.searchKey && searchKey.length > 0 && this.getSearchRes()
+    !searching! && searched && this.setState({ searched: false });
   }
 
   public render() {
     const { history } = this.props;
     const { editting, noVideoHistory, videoHistories, noLiveHistory, liveHistories,
-      tabInx, selectedStatus } = this.state;
+      tabInx, selectedStatus, searching, searchResult, searched } = this.state;
     const videoList = (
       <div className={style.videoHistory}>
         {!noVideoHistory ?
-          videoHistories.map((item, i) => (
-            <ul className={style.viewedTimeGroup} key={`video${i}`}>
-              {/* item[0]是map的键，item[1]是值 */}
-              <div className={style.groupTitle}>{item[0]}</div>
-              {item[1].map((record, j) => {
-                return (
-                  <li className={style.itemWrapper} key={j}>
-                    <VideoItem history={history} curFatherInx={tabInx} record={record}
-                      switchSelected={() => {
-                        record.selected = !record.selected;
-                        this.setState({ videoHistories: this.state.videoHistories });
-                        this.checkAllSelectedStatus(0);
-                      }}
-                      editting={editting} selectedStatus={selectedStatus}
-                    />
-                  </li>
-                )
-              })}
-            </ul>
-          )) :
+          searching && searched ?
+            <ul className={style.searchResult}>
+              {searchResult.video.map((record, i) =>
+                <li className={style.itemWrapper} key={i}>
+                  <VideoItem history={history} curFatherInx={tabInx} record={record}
+                    switchSelected={() => {
+                      record.selected = !record.selected;
+                      this.setState({ videoHistories: this.state.videoHistories });
+                      this.checkAllSelectedStatus(0);
+                    }}
+                    editting={editting} selectedStatus={selectedStatus}
+                  />
+                </li>
+              )}
+            </ul> :
+            videoHistories.map((item, i) => (
+              <ul className={style.viewedTimeGroup} key={`video${i}`}>
+                {/* item[0]是map的键，item[1]是值 */}
+                <div className={style.groupTitle}>{item[0]}</div>
+                {item[1].map((record, j) => {
+                  return (
+                    <li className={style.itemWrapper} key={j}>
+                      <VideoItem history={history} curFatherInx={tabInx} record={record}
+                        switchSelected={() => {
+                          record.selected = !record.selected;
+                          this.setState({ videoHistories: this.state.videoHistories });
+                          this.checkAllSelectedStatus(0);
+                        }}
+                        editting={editting} selectedStatus={selectedStatus}
+                      />
+                    </li>
+                  )
+                })}
+              </ul>
+            )) :
           <div className={style.tips}>
             <img src={tips} />
             <div className={style.text}>你还没有视频观看历史记录</div>
@@ -240,22 +276,37 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     const liveList = (
       <div className={style.liveHistory}>
         {!noLiveHistory ?
-          liveHistories.map((item, i) => (
-            <ul className={style.viewedTimeGroup} key={`live${i}`}>
-              <div className={style.groupTitle}>{item[0]}</div>
-              {item[1].map((record, j) => {
-                return (<li className={style.itemWrapper} key={j}>
+          searching && searched ?
+            <ul className={style.searchResult}>
+              {searchResult.live.map((record, i) =>
+                <li className={style.itemWrapper} key={i}>
                   <VideoItem history={history} curFatherInx={tabInx} record={record}
                     switchSelected={() => {
                       record.selected = !record.selected;
                       this.setState({ liveHistories: this.state.liveHistories });
-                      this.checkAllSelectedStatus(1);
+                      this.checkAllSelectedStatus(0);
                     }}
-                    editting={editting} selectedStatus={selectedStatus} />
-                </li>)
-              })}
-            </ul>
-          )) :
+                    editting={editting} selectedStatus={selectedStatus}
+                  />
+                </li>
+              )}
+            </ul> :
+            liveHistories.map((item, i) => (
+              <ul className={style.viewedTimeGroup} key={`live${i}`}>
+                <div className={style.groupTitle}>{item[0]}</div>
+                {item[1].map((record, j) => {
+                  return (<li className={style.itemWrapper} key={j}>
+                    <VideoItem history={history} curFatherInx={tabInx} record={record}
+                      switchSelected={() => {
+                        record.selected = !record.selected;
+                        this.setState({ liveHistories: this.state.liveHistories });
+                        this.checkAllSelectedStatus(1);
+                      }}
+                      editting={editting} selectedStatus={selectedStatus} />
+                  </li>)
+                })}
+              </ul>
+            )) :
           <div className={style.tips}>
             <img src={tips} />
             <div className={style.text}>你还没有视频观看历史记录</div>
@@ -268,8 +319,9 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     return (
       <div className={style.myHistory}>
         <Helmet><title>历史记录</title></Helmet>
-        <HeaderWithBottom title={"历史记录"} mode={2} editting={editting} handleEdit={this.handleEdit}
-          setKeyword={this.setKeyword}
+        <HeaderWithTools title={"历史记录"} mode={2} editting={editting} handleEdit={this.handleEdit}
+          setKeyword={this.setKeyword} searching={searching}
+          setSerching={(bool: boolean) => this.setState({ searching: bool })}
         />
         <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })}
           curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ editting: false, selectedStatus: 0 })}

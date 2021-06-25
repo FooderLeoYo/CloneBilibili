@@ -116,7 +116,7 @@ function VideoItem(props: VideoItemProps) {
           }
         </div>
         <div className={style.info}>
-          <div className={style.title}>{title}</div>
+          <p className={style.title} dangerouslySetInnerHTML={{ __html: title }} />
           <div className={style.ownerWrapper}>
             <span className={style.iconUp} >
               <svg className="icon" aria-hidden="true">

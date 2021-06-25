@@ -15,8 +15,6 @@ function Search(props: SearchProps) {
   const cleanTextRef: React.MutableRefObject<any> = useRef(null);
   const searchInputRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
 
-  console.log(searchInputRef.current?.value)
-
   return (
     <div className={style.search}>
       <div className={style.boxWrapper}>

@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
 
 import Search from "../search/Search";
 import style from "./header.styl?css-modules";
@@ -8,17 +7,19 @@ interface HeaderProps {
   mode: number; // heder最右边显示：0：无；1：省略号；2：编辑；3：加号；4：自定义
   title?: string;
   setKeyword?: (keyword: string) => any;
+  searching?: boolean;
+  setSerching?: React.Dispatch<React.SetStateAction<boolean>>;
   handleEdit?: Function;
   editting?: boolean;
   setShowBottom?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const { useState, useRef, useEffect } = React;
+const { useRef, useEffect } = React;
 
 function Header(props: HeaderProps) {
-  const { mode, title, setKeyword, editting, handleEdit, setShowBottom } = props;
+  const { mode, title, setKeyword, editting, handleEdit, setShowBottom,
+    searching, setSerching } = props;
 
-  const [searching, setSerching] = useState(false);
   const multipleRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
   useEffect(() => {
