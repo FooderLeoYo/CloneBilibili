@@ -27,9 +27,9 @@ interface VideoItemProps {
     progress?: number;
     tag_name?: string;
   };
-  switchSelected: Function
-  editting: boolean;
-  selectedStatus: number;
+  switchSelected?: Function
+  editting?: boolean;
+  selectedStatus?: number;
 }
 
 const { useContext, useRef, useEffect } = React;
@@ -89,7 +89,7 @@ function VideoItem(props: VideoItemProps) {
   }
 
   return (
-    <span onClick={() => handleClick("video", spanParam)} >
+    <span onClick={() => handleClick(curFatherInx === 0 ? "video" : "live", spanParam)} >
       {editting && <span className={style.circle}>
         {selected && <svg className="icon" aria-hidden="true">
           <use href="#icon-toast-success"></use>

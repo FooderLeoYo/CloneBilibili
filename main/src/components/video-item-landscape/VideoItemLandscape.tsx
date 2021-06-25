@@ -38,8 +38,6 @@ function VideoItemLandscape(props: VideoItemLandscapeProps) {
     return `${context.picURL}?pic=${url}${format + suffix}`;
   }
 
-  console.log(videoData.title)
-
   return (
     <>
       <Link to={"/video/av" + videoData.aId}>

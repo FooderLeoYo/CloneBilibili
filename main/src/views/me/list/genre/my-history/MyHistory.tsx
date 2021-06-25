@@ -234,14 +234,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
             <ul className={style.searchResult}>
               {searchResult.video.map((record, i) =>
                 <li className={style.itemWrapper} key={i}>
-                  <VideoItem history={history} curFatherInx={tabInx} record={record}
-                    switchSelected={() => {
-                      record.selected = !record.selected;
-                      this.setState({ videoHistories: this.state.videoHistories });
-                      this.checkAllSelectedStatus(0);
-                    }}
-                    editting={editting} selectedStatus={selectedStatus}
-                  />
+                  <VideoItem history={history} curFatherInx={tabInx} record={record} />
                 </li>
               )}
             </ul> :
@@ -280,14 +273,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
             <ul className={style.searchResult}>
               {searchResult.live.map((record, i) =>
                 <li className={style.itemWrapper} key={i}>
-                  <VideoItem history={history} curFatherInx={tabInx} record={record}
-                    switchSelected={() => {
-                      record.selected = !record.selected;
-                      this.setState({ liveHistories: this.state.liveHistories });
-                      this.checkAllSelectedStatus(0);
-                    }}
-                    editting={editting} selectedStatus={selectedStatus}
-                  />
+                  <VideoItem history={history} curFatherInx={tabInx} record={record} />
                 </li>
               )}
             </ul> :
