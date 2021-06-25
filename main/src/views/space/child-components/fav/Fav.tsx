@@ -11,7 +11,6 @@ import VideoItemLandscape from "@components/video-item-landscape/VideoItemLandsc
 import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 
 import style from "./fav.styl?css-modules";
-import tips from "@assets/images/nocontent.png";
 
 interface FavProps {
   match: match<{ mlid }>;
@@ -57,23 +56,25 @@ function Fav(props: FavProps) {
     const staDOM = staRef.current;
     staDOM.addEventListener("touchmove", () => {
       const toHeader = staDOM.getBoundingClientRect()["top"] - headerHeight;
-      const ratio = 1 - toHeader / infoHeight
+      const ratio = 1 - toHeader / infoHeight;
       if (ratio < 1) { overlayRef.current.style.opacity = `${ratio}` }
     });
     listRef.current.addEventListener("touchmove", () => {
       const toHeader = staDOM.getBoundingClientRect()["top"] - headerHeight;
-      const ratio = 1 - toHeader / infoHeight
+      const ratio = 1 - toHeader / infoHeight;
       if (ratio < 1) { overlayRef.current.style.opacity = `${ratio}` }
     });
   }, []);
 
   return (
     <>
-      <Helmet><title>{infoData ? infoData.title : ""}</title></Helmet>
-      <div className={style.header} ref={headerRef}><HeaderWithTools mode={0} /></div>
+      <Helmet><title>{infoData?.title}</title></Helmet>
+      <div className={style.header} ref={headerRef}>
+        <HeaderWithTools mode={1} title={infoData?.title} />
+      </div>
       <div className={style.info}>
         <div className={style.imageContainer}>
-          {infoData ? <img className={style.cover} src={getPicUrl(infoData?.cover, "@320w_200h")} /> :
+          {infoData ? <img className={style.cover} src={getPicUrl(infoData.cover, "@320w_200h")} /> :
             <span className={style.placeholder}>
               <svg className="icon" aria-hidden="true">
                 <use href="#icon-placeholder"></use>

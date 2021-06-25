@@ -41,13 +41,11 @@ function HeaderWithTools(props: HeaderWithToolsProps) {
   }, [showBottom]);
 
   return (
-    <div className={style.headerWithBottom}>
-      <div className={style.header}>
-        <Header mode={mode} title={title} handleEdit={handleEdit} searching={searching}
-          setSerching={setSerching} editting={editting} setShowBottom={setShowBottom}
-          setKeyword={setKeyword}
-        />
-      </div>
+    <div className={style.headerWithTools}>
+      <Header mode={mode} title={title} handleEdit={handleEdit} searching={searching}
+        setSerching={setSerching} editting={editting} setShowBottom={setShowBottom}
+        setKeyword={setKeyword}
+      />
       {mode === 1 &&
         <div className={style.bottom} ref={bottomRef}>
           <Bottom setShowBottom={setShowBottom}
