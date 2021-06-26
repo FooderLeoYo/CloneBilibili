@@ -11,14 +11,19 @@ interface HeaderWithToolsProps {
   setKeyword?: (keyword: string) => any;
   searching?: boolean;
   setSerching?: React.Dispatch<React.SetStateAction<boolean>>;
-  // 编辑相关
-  handleEdit?: Function;
-  editting?: boolean;
   // 省略号模式相关
   handleEditInfo?: Function;
   handleMultiple?: Function;
   handleCleanInvalid?: Function;
   handleDelete?: Function;
+  // 编辑模式相关
+  handleEdit?: Function;
+  editting?: boolean;
+  // 加号相关
+  handleAdd?: Function;
+  // 自定义相关
+  customBtn?: any;
+  handleCustomClick?: Function;
 }
 
 const { useState, useRef, useEffect } = React;
@@ -26,7 +31,7 @@ const { useState, useRef, useEffect } = React;
 function HeaderWithTools(props: HeaderWithToolsProps) {
   const { mode, title, setKeyword, handleEdit, editting, handleEditInfo,
     handleMultiple, handleCleanInvalid, handleDelete, searching,
-    setSerching } = props;
+    setSerching, handleAdd, customBtn, handleCustomClick } = props;
 
   const [showBottom, setShowBottom] = useState(false);
   const bottomRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
@@ -44,7 +49,8 @@ function HeaderWithTools(props: HeaderWithToolsProps) {
     <div className={style.headerWithTools}>
       <Header mode={mode} title={title} handleEdit={handleEdit} searching={searching}
         setSerching={setSerching} editting={editting} setShowBottom={setShowBottom}
-        setKeyword={setKeyword}
+        setKeyword={setKeyword} handleAdd={handleAdd} customBtn={customBtn}
+        handleCustomClick={handleCustomClick}
       />
       {mode === 1 &&
         <div className={style.bottom} ref={bottomRef}>

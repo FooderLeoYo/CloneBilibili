@@ -15,13 +15,13 @@ interface NavProps {
   firstTabBarData: PartitionType[],
   lvTwoTabBarData: PartitionType[],
   secondQueryPar: LiveSecQueryParType[],
-  sendLvTowInx?: any,
+  handleLvTwoClick?: Function;
 }
 
 const { useState, useRef, useEffect } = React;
 
 function Nav(props: NavProps) {
-  const { firstTabBarData, lvTwoTabBarData, secondQueryPar, history } = props;
+  const { firstTabBarData, lvTwoTabBarData, secondQueryPar, history, handleLvTwoClick } = props;
   const drawerRef = useRef(null);
   const [lvTwoTabIndex, setLvTwoTabIndex] = useState(0);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true); // 从别的页面初次进入channel时不要动画，避免不自然滑动
@@ -53,6 +53,7 @@ function Nav(props: NavProps) {
       //   `&parent_area_name=全部直播` +
       //   `&area_id=` +
       //   `&area_name=`
+      handleLvTwoClick && handleLvTwoClick();
       history.push({
         pathname: "/live/list",
         search: `?parent_area_id=0` +
@@ -61,6 +62,8 @@ function Nav(props: NavProps) {
           `&area_name=`
       });
     } else {
+      handleLvTwoClick && handleLvTwoClick();
+
       const indx = tab.id - 1;
       const parent_area_id = secondQueryPar[indx].parent_area_id;
       const parent_area_name = secondQueryPar[indx].parent_area_name;

@@ -107,8 +107,13 @@ const router = [
     component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/list/genre/my-history/MyHistory")),
   },
   {
-    path: "/me/favorites/:uid",
+    path: "/me/fav/:uid",
     component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/list/genre/favorites/Favorites")),
+    exact: true,
+  },
+  {
+    path: "/me/fav/edit/:action",
+    component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/list/genre/favorites/child-components/edit/Edit")),
   },
 ];
 

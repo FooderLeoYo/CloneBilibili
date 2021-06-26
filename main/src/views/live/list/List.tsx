@@ -42,29 +42,32 @@ function List(props: ListProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [lives, setLives] = useState(null);
   const [livePage, setLivePage] = useState({ pageNumber: 1, pageSize: 30, totalPage: 1 });
-  const [isLoadMore, setIsLoadMore] = useState(false);
-  const [firstTimeRender, setFirstTimeRender] = useState(true);
+  const [loading, setLoading] = useState(false);
   const roomContainerRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
+  const listDataRef = useRef(null);
+  useEffect(() => { listDataRef.current = liveListData }, [liveListData]);
+
   const getLives = () => {
-    getLiveListData({
-      parentAreaId: query.parent_area_id,
-      areaId: query.area_id,
+    // getLiveListData({
+    //   parentAreaId: query.parent_area_id,
+    //   areaId: query.area_id,
+    //   page: livePage.pageNumber,
+    //   pageSize: livePage.pageSize
+    // })
+    dispatch(getLiveListInfo({
+      parentAreaId: parseInt(query.parent_area_id as string),
+      areaId: parseInt(query.area_id as string),
       page: livePage.pageNumber,
       pageSize: livePage.pageSize
-    }).then(result => {
-      if (result.code === "1") {
-        const list = result.data.list.map(data => new Live(data.title, data.roomid, data.online, data.user_cover, 0, "", new UpUser(data.uid, data.uname, data.face)));
+    })).then(() => {
+      const temp = { ...livePage };
+      // temp.totalPage = Math.ceil(result.data.count / livePage.pageSize);
+      ++temp.pageNumber;
+      setLivePage(temp);
 
-        const temp = { ...livePage };
-        temp.totalPage = Math.ceil(result.data.count / livePage.pageSize);
-        ++temp.pageNumber;
-        setLivePage(temp);
-
-        setLives(lives.concat(list));
-        setIsLoadMore(false);
-        // setisMounted(true);
-      }
+      setLives(lives.concat(liveListData.list));
+      setLoading(false);
     });
   };
 
@@ -77,7 +80,7 @@ function List(props: ListProps) {
         areaId: parseInt(query.area_id as string),
         page: livePage.pageNumber,
         pageSize: livePage.pageSize
-      }));
+      })).then(() => setTimeout(() => setLives(listDataRef.current.list)));
     } else {
       setLives(liveListData.list)
       const temp = { ...livePage };
@@ -87,26 +90,40 @@ function List(props: ListProps) {
     }
   }, []);
 
-  useEffect(() => {
-    liveListData.total > 0 && setLives(liveListData.list)
-  }, [liveListData.total]);
-
   // 切换二级tab后重置pageNumber、清空之前的lives
-  useEffect(() => {
-    if (!firstTimeRender) {
-      const temp = { ...livePage };
-      temp.pageNumber = 1;
-      setLivePage(temp);
-      setLives([]); // 这里清空生效太慢加setTimeout都不行，所以只能再用另一个useEffect模拟setState回调
-      // setisMounted(false);
-    } else {
-      setFirstTimeRender(false);
-    }
-  }, [props.location.key]);
+  // useEffect(() => {
+  //   if (!firstTimeRender) {
+  //     const temp = { ...livePage };
+  //     temp.pageNumber = 1;
+  //     setLivePage(temp);
+  //     setLives([]); // 这里清空生效太慢加setTimeout都不行，所以只能再用另一个useEffect模拟setState回调
+  //   } else {
+  //     setFirstTimeRender(false);
+  //   }
+  // }, [location.key]);
   // 切换二级tab后获取新的lives数据
+  // useEffect(() => {
+  //   // console.log(lives)
+  //   //  判断length的作用：getLives后将继续触发该useEffect，形成死循环
+  //   !firstTimeRender && lives.length === 0 && getLives();
+  // }, [lives?.length]);
+
+  const handleLvTwoClick = () => {
+    const temp = { ...livePage };
+    temp.pageNumber = 1;
+    setLivePage(temp);
+    setLives([]); // 这里清空生效太慢加setTimeout都不行，所以只能再用另一个useEffect模拟setState回调
+  }
+
+  const [firstTimeRender, setFirstTimeRender] = useState(true);
   useEffect(() => {
+    console.log(lives)
     //  判断length的作用：getLives后将继续触发该useEffect，形成死循环
-    !firstTimeRender && lives.length === 0 && getLives();
+    if (firstTimeRender) {
+      setFirstTimeRender(false);
+    } else {
+      lives.length === 0 && getLives();
+    }
   }, [lives?.length]);
 
   return (
@@ -115,7 +132,7 @@ function List(props: ListProps) {
         < >
           <Helmet><title>直播-{query.area_name ? query.area_name : query.parent_area_name}</title></Helmet>
           <div className={style.head}>
-            <Nav history={history} firstTabBarData={lvOneTabs}
+            <Nav history={history} firstTabBarData={lvOneTabs} handleLvTwoClick={handleLvTwoClick}
               lvTwoTabBarData={liveLvTwoTabs} secondQueryPar={liveLvTwoQueries}
             />
           </div>
@@ -144,12 +161,12 @@ function List(props: ListProps) {
                   <div className={style.loadMore}>
                     <div className={style.loadBtn} onClick={() => {
                       if (livePage.pageNumber <= livePage.totalPage) {
-                        setIsLoadMore(true);
+                        setLoading(true);
                         getLives();
                       }
                     }}>
-                      {!isLoadMore ? (livePage.pageNumber <= livePage.totalPage ?
-                        "请给我更多！" : "没有更多了") : "加载中..."
+                      {loading ? "加载中..." : livePage.pageNumber <= livePage.totalPage ?
+                        "请给我更多！" : "没有更多了"
                       }
                     </div>
                   </div>

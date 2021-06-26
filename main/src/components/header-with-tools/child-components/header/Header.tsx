@@ -12,13 +12,16 @@ interface HeaderProps {
   handleEdit?: Function;
   editting?: boolean;
   setShowBottom?: React.Dispatch<React.SetStateAction<boolean>>;
+  handleAdd?: Function;
+  customBtn?: any;
+  handleCustomClick?: Function;
 }
 
 const { useRef, useEffect } = React;
 
 function Header(props: HeaderProps) {
   const { mode, title, setKeyword, editting, handleEdit, setShowBottom,
-    searching, setSerching } = props;
+    searching, setSerching, handleAdd, customBtn, handleCustomClick } = props;
 
   const multipleRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
@@ -52,8 +55,8 @@ function Header(props: HeaderProps) {
               {mode === 1 ? <div className={style.multiple} ref={multipleRef}>…</div> :
                 mode === 2 ? <div className={style.edit} onClick={() => handleEdit()}>
                   {editting ? "取消" : "编辑"}</div> :
-                  mode === 3 ? <div className={style.add}>+</div> :
-                    mode === 4 ? <div className={style.custom}></div> : null
+                  mode === 3 ? <div className={style.add} onClick={() => handleAdd()}>+</div> :
+                    mode === 4 ? <div className={style.custom} onClick={() => handleCustomClick()}>{customBtn}</div> : null
               }
             </div>
             }
