@@ -30,15 +30,16 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
 
 
   private resetScroll() {
+    const { curInx } = this.state;
     const tabBarDOM = this.tabBarRef.current;
     const children = tabBarDOM.getElementsByTagName("a");
 
     if (children.length > 0) {
-      const tarTabDOM = children[this.state.curInx];
+      const tarTabDOM = children[curInx];
 
       if (tarTabDOM) {
         const disBetwTarTabAndWrap = tarTabDOM.getBoundingClientRect().left - this.wrapperOffsetLeft;
-        const leftDOMWidth = this.state.curInx !== 0 ? children[this.state.curInx - 1].offsetWidth : 0;
+        const leftDOMWidth = curInx !== 0 ? children[curInx - 1].offsetWidth : 0;
 
         // 保证curTab始终处于第二个位置
         if (disBetwTarTabAndWrap > leftDOMWidth || disBetwTarTabAndWrap < leftDOMWidth) {
@@ -117,7 +118,7 @@ class TabBar extends React.Component<TabBarProps, TabBarState> {
     setTimeout(() => {
       this.resetScroll();
       if (this.props.needUnderline) { this.moveUnderline(this.state.curInx) }
-    });
+    }, 100);
   }
 
   public static getDerivedStateFromProps(nextProps, prevState) {
