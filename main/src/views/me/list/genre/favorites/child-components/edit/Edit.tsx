@@ -19,15 +19,18 @@ function Edit(props: EditProps) {
       <Helmet><title>{editType}</title></Helmet>
       <HeaderWithTools title={editType} mode={4} customBtn={"完成"} />
       <div className={style.content}>
-        <div className={style.name}>
-          <span>名称</span>
-          <input type="text" placeholder="名称" required />
+        <div className={style.title}>
+          <label className={style.word}>名称</label>
+          <input className={style.input} type="text" maxLength={20} placeholder="名称" required />
         </div>
-        <div className={style.description}>
-          <span>简介</span>
-          <input type="text" placeholder="可填写简介" />
+        <div className={style.intro} >
+          <label className={style.word}>简介</label>
+          <textarea className={style.input} maxLength={200} placeholder="可填写简介" />
         </div>
-        <div className={style.privacy}><SlideBtn model={"model-1"} /></div>
+        <div className={style.open}>
+          <label className={style.word}>公开</label>
+          <span className={style.btn}><SlideBtn model={"model-1"} checked={true} /></span>
+        </div>
       </div>
     </div>
   )

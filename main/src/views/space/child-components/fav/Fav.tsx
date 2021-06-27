@@ -40,6 +40,7 @@ function Fav(props: FavProps) {
     getFavDetail(match.params.mlid, 15).then(result => {
       const { code, data } = result;
       if (code === "1") {
+        console.log(data.data)
         const { info, medias } = data.data;
         setInfoData(info);
         setListData(medias);

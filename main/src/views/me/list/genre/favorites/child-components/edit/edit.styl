@@ -1,5 +1,47 @@
 @import "~@assets/stylus/px2rem.styl"
+@import "~@assets/stylus/colors.styl"
 
 .edit
   .content
-    margin-top: px2rem(45)
+    height: 100vh
+    padding-top: px2rem(45)
+    background-color: background-gray
+    font-size: px2rem(15)
+    .title,
+    .intro,
+    .open
+      margin-top: px2rem(15)
+      padding: 0 px2rem(20)
+      background-color #ffffff
+      .word
+        display: inline-block
+        width: px2rem(40)
+      .input
+        margin-left: px2rem(50)
+    .title
+      height: px2rem(45)
+      line-height: @height
+      .word
+        &::before
+          content: "*"
+          color: red
+    .intro
+      height: px2rem(250)
+      display: flex
+      padding-top: px2rem(20)
+      padding-bottom: @padding-top
+      .input
+        flex: 1
+        height: 100%
+    .open
+      display: grid
+      grid-auto-flow: column
+      height: px2rem(45)
+      .word
+        align-self: center
+      .btn
+        justify-self: end
+        align-self: center
+        display: inline-block
+        width: px2rem(58.33)
+        height: px2rem(29.56)
