@@ -6,7 +6,6 @@ import { History } from "history";
 import { Link } from "react-router-dom";
 
 import Context from "@context/index";
-import { getLiveListData } from "@api/live";
 import getLiveListInfo from "@redux/async-action-creators/live/list";
 import { setShouldLoad } from "@redux/action-creators";
 
@@ -15,7 +14,7 @@ import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 import Nav from "../child-components/nav/Nav"
 import LiveInfo from "../child-components/liveinfo/LiveInfo";
 
-import { Live, UpUser, PartitionType, LiveSecQueryParType } from "@class-object-creators/index";
+import { Live, PartitionType, LiveSecQueryParType } from "@class-object-creators/index";
 import style from "./list.styl?css-modules";
 
 interface ListProps {
@@ -41,7 +40,7 @@ function List(props: ListProps) {
 
   const [isMounted, setIsMounted] = useState(false);
   const [lives, setLives] = useState(null);
-  const [livePage, setLivePage] = useState({ pageNumber: 1, pageSize: 30, totalPage: 1 });
+  const [livePage, setLivePage] = useState({ pageNumber: 2, pageSize: 30, totalPage: 1 });
   const [loading, setLoading] = useState(false);
   const roomContainerRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
@@ -49,64 +48,24 @@ function List(props: ListProps) {
   useEffect(() => { listDataRef.current = liveListData }, [liveListData]);
 
   const getLives = () => {
-    // getLiveListData({
-    //   parentAreaId: query.parent_area_id,
-    //   areaId: query.area_id,
-    //   page: livePage.pageNumber,
-    //   pageSize: livePage.pageSize
-    // })
     dispatch(getLiveListInfo({
       parentAreaId: parseInt(query.parent_area_id as string),
       areaId: parseInt(query.area_id as string),
       page: livePage.pageNumber,
       pageSize: livePage.pageSize
     })).then(() => {
-      const temp = { ...livePage };
-      // temp.totalPage = Math.ceil(result.data.count / livePage.pageSize);
-      ++temp.pageNumber;
-      setLivePage(temp);
+      setTimeout(() => {
+        const data = listDataRef.current;
+        const temp = { ...livePage };
+        temp.totalPage = Math.ceil(data.total / livePage.pageSize);
+        ++temp.pageNumber;
+        setLivePage(temp);
 
-      setLives(lives.concat(liveListData.list));
-      setLoading(false);
+        setLives(lives.concat(data.list));
+        setLoading(false);
+      });
     });
   };
-
-  useEffect(() => {
-    setIsMounted(true);
-
-    if (shouldLoad) {
-      dispatch(getLiveListInfo({
-        parentAreaId: parseInt(query.parent_area_id as string),
-        areaId: parseInt(query.area_id as string),
-        page: livePage.pageNumber,
-        pageSize: livePage.pageSize
-      })).then(() => setTimeout(() => setLives(listDataRef.current.list)));
-    } else {
-      setLives(liveListData.list)
-      const temp = { ...livePage };
-      temp.pageNumber = 2; // 服务端渲染时已加载第一页数据
-      setLivePage(temp);
-      dispatch(setShouldLoad(true));
-    }
-  }, []);
-
-  // 切换二级tab后重置pageNumber、清空之前的lives
-  // useEffect(() => {
-  //   if (!firstTimeRender) {
-  //     const temp = { ...livePage };
-  //     temp.pageNumber = 1;
-  //     setLivePage(temp);
-  //     setLives([]); // 这里清空生效太慢加setTimeout都不行，所以只能再用另一个useEffect模拟setState回调
-  //   } else {
-  //     setFirstTimeRender(false);
-  //   }
-  // }, [location.key]);
-  // 切换二级tab后获取新的lives数据
-  // useEffect(() => {
-  //   // console.log(lives)
-  //   //  判断length的作用：getLives后将继续触发该useEffect，形成死循环
-  //   !firstTimeRender && lives.length === 0 && getLives();
-  // }, [lives?.length]);
 
   const handleLvTwoClick = () => {
     const temp = { ...livePage };
@@ -115,9 +74,33 @@ function List(props: ListProps) {
     setLives([]); // 这里清空生效太慢加setTimeout都不行，所以只能再用另一个useEffect模拟setState回调
   }
 
+  useEffect(() => {
+    setIsMounted(true);
+
+    if (shouldLoad) {
+      dispatch(getLiveListInfo({
+        parentAreaId: parseInt(query.parent_area_id as string),
+        areaId: parseInt(query.area_id as string),
+        page: 1,
+        pageSize: livePage.pageSize
+      })).then(() => setTimeout(() => {
+        const data = listDataRef.current;
+        setLives(data.list);
+        const temp = { ...livePage };
+        temp.totalPage = Math.ceil(data.total / livePage.pageSize);
+        setLivePage(temp);
+      }));
+    } else {
+      setLives(liveListData.list)
+      const temp = { ...livePage };
+      temp.totalPage = Math.ceil(liveListData.total / livePage.pageSize);
+      setLivePage(temp);
+      dispatch(setShouldLoad(true));
+    }
+  }, []);
+
   const [firstTimeRender, setFirstTimeRender] = useState(true);
   useEffect(() => {
-    console.log(lives)
     //  判断length的作用：getLives后将继续触发该useEffect，形成死循环
     if (firstTimeRender) {
       setFirstTimeRender(false);

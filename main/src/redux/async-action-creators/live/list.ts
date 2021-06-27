@@ -77,25 +77,9 @@ export default function getLiveListInfo(data: {
       });
     } else {
       const { lvOneTabs, liveLvTwoTabs } = store.getState();
-      const onePromise = new Promise(resolve => {
-        if (lvOneTabs.length === 0) {
-          resolve(getPartitions().then(partiRes => setLvOneTabData(partiRes)));
-        } else {
-          resolve(null);
-        }
-      });
-
-      const twoPromise = new Promise(resolve => {
-        if (liveLvTwoTabs.length === 0) {
-          resolve(getLiveIndexData().then(liveIndexRes => setLvTwoTabData(liveIndexRes)));
-        } else {
-          resolve(null);
-        }
-      });
-      const promises = [onePromise, twoPromise, getLiveListData(data)];
-      return Promise.all(promises).then(([oneRes, twoRes, liveListRes]) => {
-        setListData(liveListRes);
-      });
+      lvOneTabs.length === 0 && getPartitions().then(partiRes => setLvOneTabData(partiRes));
+      liveLvTwoTabs.length === 0 && getLiveIndexData().then(liveIndexRes => setLvTwoTabData(liveIndexRes));
+      return getLiveListData(data).then(liveListRes => setListData(liveListRes));
     }
   }
 }

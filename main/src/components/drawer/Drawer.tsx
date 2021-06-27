@@ -39,7 +39,7 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
 
   private handleClick(item, index) {
     this.setState({ currentIndex: index });
-    if (this.props.onClick) { this.props.onClick(item); }
+    this.props.onClick && this.props.onClick(item)
   }
 
   private setTranslateY(y) {
@@ -71,17 +71,17 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
     this.hide();
     drawerWrapperDOM.addEventListener(transitionEndName, () => {
       const { onPush, onPullDown } = this.props;
-      if (this.pull === false) {
+      if (!this.pull) {
         drawerWrapperDOM.style.display = "none";
-        if (onPush) { onPush(); }
-      } else { if (onPullDown) { onPullDown(); } }
+        onPush && onPush()
+      } else { onPullDown && onPullDown() }
     });
     this.switchRef.current.addEventListener("click", () => this.hide());
     this.overlayRef.current.addEventListener("touchmove", e => e.preventDefault());
   }
 
   public static getDerivedStateFromProps(props, state) {
-    if (props.currentIndex !== undefined) {
+    if (props.currentIndex) {
       if (props.currentIndex !== state.currentIndex) {
         return { currentIndex: props.currentIndex }
       }
@@ -89,16 +89,17 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
     return state;
   }
 
-
   /* 以下为渲染部分 */
   public render() {
     /* 供渲染的数据 */
     const { data } = this.props;
+    const { currentIndex } = this.state;
+    const index = currentIndex === -1 ? data.length - 1 : currentIndex; // tabbar最后一个的id为-1而不是序号
+
     const items = data.map((item, i) => (
       <div
-        className={style.drawerItem + (i === this.state.currentIndex ? " " + style.current : "")}
-        key={item.id}
-        onClick={() => { this.handleClick(item, i); }}
+        className={style.drawerItem + (i === index ? " " + style.current : "")}
+        key={item.id} onClick={() => { this.handleClick(item, i); }}
       >
         <span>{item.name}</span>
       </div>
@@ -107,18 +108,14 @@ class Drawer extends React.Component<DrawerProps, DrawerState> {
     return (
       <div className={style.drawer}>
         <div className={style.drawerWrapper} ref={this.drawerWrapperRef}>
-          <div className={style.drawerItemContainer}>
-            {items}
-          </div>
+          <div className={style.drawerItemContainer}>{items}</div>
           <div className={style.drawerSwitch} ref={this.switchRef}>
             <svg className="icon" aria-hidden="true">
               <use href="#icon-arrowDownBig"></use>
             </svg>
           </div>
         </div>
-        <div className={style.overlayWrapper} ref={this.overlayRef}>
-          <Overlay />
-        </div>
+        <div className={style.overlayWrapper} ref={this.overlayRef}><Overlay /></div>
       </div>
     );
   }
