@@ -1,0 +1,119 @@
+@import "~@assets/stylus/px2rem.styl"
+
+.fav-detail
+  .header
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: px2rem(45)
+    z-index: 5
+  .info
+    position: fixed
+    top: px2rem(45)
+    width: 100%
+    height: px2rem(95)
+    padding: px2rem(10) px2rem(10)  0
+    .image-container,
+    .description
+      position: relative
+      z-index: 1
+    .image-container
+      float: left
+      width: px2rem(117.5)
+      height: 100%
+      border-radius: px2rem(6)
+      overflow: hidden
+      background-color: #e7e7e7
+      text-align: center
+      .placeholder
+        font-size: px2rem(60)
+        color: rgb(204, 204, 204)
+      .cover
+        position: absolute
+        left: 0
+        top: 0
+        width: 100%
+        height: 100%
+    .description
+      margin-left: px2rem(130)
+      margin-right: px2rem(12)
+      height: 100%
+      font-size: px2rem(12)
+      .title,
+      .intro,
+      .creator
+        position: absolute
+        height: 33.33%
+        display: flex
+        align-items: center
+      .title
+        top: 0
+        font-weight: bold
+        overflow hidden
+        white-space: nowrap
+        text-overflow: ellipsis
+        color: #212121
+        letter-spacing: 0
+        word-break: break-all
+      .intro,
+      .creator
+        font-size: px2rem(10)
+        color: #888888
+      .intro
+        top: 33.33%
+      .creator
+        top: 66.66%
+    .overlay
+      position: absolute
+      top:0
+      right: px2rem(10)
+      bottom: 0
+      left: px2rem(10)
+      z-index: 2
+      background-color: #ffffff
+      opacity: 0
+  .statistic
+    position: sticky
+    top: px2rem(45)
+    margin-top: px2rem(140)
+    padding: 0 px2rem(10)
+    z-index: 4
+    height: px2rem(48)
+    background-color: #ffffff
+    font-size: px2rem(10)
+    border-bottom: px2rem(2) solid #e7e7e7
+    display: flex
+    align-items: center
+    .media-count
+      flex: 60%
+      color: #888888
+    .like-statistic
+      flex: 40%
+      display: flex
+      .item
+        flex: 33.33%
+        position: relative
+        .icon
+          position: absolute
+          top: px2rem(-22)
+          left: 50%
+          transform:translateX(-50%)
+          font-size: px2rem(25)
+          color: #333333
+        .count
+          position: absolute
+          top: px2rem(5)
+          left: 50%
+          transform:translateX(-50%)
+          color: #888888
+  .list
+    position: relative
+    z-index: 3
+    background-color: #ffffff  
+    padding: 0 px2rem(10) 
+    .video-wrapper
+      height: px2rem(90)
+      padding-top: px2rem(15)
+      &:last-child
+        margin-bottom: px2rem(14)

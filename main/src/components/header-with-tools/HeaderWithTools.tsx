@@ -13,24 +13,25 @@ interface HeaderWithToolsProps {
   setSerching?: React.Dispatch<React.SetStateAction<boolean>>;
   // 省略号模式相关
   handleEditInfo?: Function;
-  handleMultiple?: Function;
+  handleMulManage?: Function;
   handleCleanInvalid?: Function;
   handleDelete?: Function;
-  // 编辑模式相关
-  handleEdit?: Function;
-  editting?: boolean;
+  // 批量删除模式相关
+  handleMulDelete?: Function;
+  mulDeleting?: boolean;
   // 加号相关
   handleAdd?: Function;
   // 自定义相关
   customBtn?: any;
   handleCustomClick?: Function;
+  customHandleBack?: Function;
 }
 
 const { useState, useRef, useEffect } = React;
 
 function HeaderWithTools(props: HeaderWithToolsProps) {
-  const { mode, title, setKeyword, handleEdit, editting, handleEditInfo,
-    handleMultiple, handleCleanInvalid, handleDelete, searching,
+  const { mode, title, setKeyword, handleMulDelete, mulDeleting, handleEditInfo,
+    handleMulManage, handleCleanInvalid, handleDelete, searching, customHandleBack,
     setSerching, handleAdd, customBtn, handleCustomClick } = props;
 
   const [showBottom, setShowBottom] = useState(false);
@@ -47,15 +48,15 @@ function HeaderWithTools(props: HeaderWithToolsProps) {
 
   return (
     <div className={style.headerWithTools}>
-      <Header mode={mode} title={title} handleEdit={handleEdit} searching={searching}
-        setSerching={setSerching} editting={editting} setShowBottom={setShowBottom}
+      <Header mode={mode} title={title} searching={searching} handleMulDelete={handleMulDelete}
+        setSerching={setSerching} mulDeleting={mulDeleting} setShowBottom={setShowBottom}
         setKeyword={setKeyword} handleAdd={handleAdd} customBtn={customBtn}
-        handleCustomClick={handleCustomClick}
+        handleCustomClick={handleCustomClick} customHandleBack={customHandleBack}
       />
       {mode === 1 &&
         <div className={style.bottom} ref={bottomRef}>
           <Bottom setShowBottom={setShowBottom}
-            handleEditInfo={handleEditInfo} handleMultiple={handleMultiple}
+            handleEditInfo={handleEditInfo} handleMulManage={handleMulManage}
             handleCleanInvalid={handleCleanInvalid} handleDelete={handleDelete}
           />
         </div>

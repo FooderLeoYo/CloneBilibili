@@ -84,10 +84,3 @@ export function setLiveList(liveListData: any): AnyAction {
 export function setRoomData(roomData: any): AnyAction {
   return { type: ActionTypes.SET_ROOM_DATA, roomData };
 }
-
-
-/* 个人中心相关 */
-
-export function setMyName(myName: any): AnyAction {
-  return { type: ActionTypes.SET_MY_NAME, myName };
-}

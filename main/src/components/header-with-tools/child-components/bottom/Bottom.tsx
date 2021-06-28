@@ -7,13 +7,13 @@ const { useRef, useEffect } = React;
 interface BottomProps {
   setShowBottom: React.Dispatch<React.SetStateAction<boolean>>;
   handleEditInfo?: Function;
-  handleMultiple?: Function;
+  handleMulManage?: Function;
   handleCleanInvalid?: Function;
   handleDelete?: Function;
 }
 
 function Bottom(props: BottomProps) {
-  const { setShowBottom, handleEditInfo, handleMultiple, handleCleanInvalid,
+  const { setShowBottom, handleEditInfo, handleMulManage, handleCleanInvalid,
     handleDelete } = props;
   const overlayRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
@@ -36,11 +36,11 @@ function Bottom(props: BottomProps) {
             <span className={style.word}>编辑信息</span>
           </div>
         }
-        {handleMultiple &&
-          <div className={style.manipulation} onClick={() => handleMultiple()}>
+        {handleMulManage &&
+          <div className={style.manipulation} onClick={() => handleMulManage()}>
             <span className={style.icon}>
               <svg className="icon" aria-hidden="true">
-                <use href="#icon-mutipleOperation"></use>
+                <use href="#icon-mutipleManage"></use>
               </svg>
             </span>
             <span className={style.word}>批量管理</span>

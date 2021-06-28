@@ -31,7 +31,7 @@ interface MyHistoryState {
   noVideoHistory: boolean;
   noLiveHistory: boolean;
   tabInx: number;
-  editting: boolean;
+  mulDeleting: boolean;
   selectedStatus: number; // 0为全不选，1为全选，2为选部分
 }
 
@@ -49,7 +49,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       noVideoHistory: false,
       noLiveHistory: false,
       tabInx: 0,
-      editting: false,
+      mulDeleting: false,
       selectedStatus: 0
     }
   }
@@ -180,14 +180,14 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     !hasProblem && Toast.success("删除成功！", false, null, 2000);
     setTimeout(() => {
       this.setHistoryData();
-      this.setState({ editting: false });
+      this.setState({ mulDeleting: false });
     }, 2000);
   }
 
-  private handleEdit = () => {
+  private handleMulDelete = () => {
     this.setAllSelectedStatus(0, 0);
     this.setAllSelectedStatus(1, 0);
-    this.setState({ editting: !this.state.editting, selectedStatus: 0 });
+    this.setState({ mulDeleting: !this.state.mulDeleting, selectedStatus: 0 });
   };
 
   private setKeyword = (keyword: string) => this.setState({ searchKey: keyword, searched: true });
@@ -225,7 +225,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
 
   public render() {
     const { history } = this.props;
-    const { editting, noVideoHistory, videoHistories, noLiveHistory, liveHistories,
+    const { mulDeleting, noVideoHistory, videoHistories, noLiveHistory, liveHistories,
       tabInx, selectedStatus, searching, searchResult, searched, searchKey } = this.state;
     const videoList = (
       <div className={style.videoHistory}>
@@ -252,7 +252,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                           this.setState({ videoHistories: this.state.videoHistories });
                           this.checkAllSelectedStatus(0);
                         }}
-                        editting={editting} selectedStatus={selectedStatus}
+                        mulDeleting={mulDeleting} selectedStatus={selectedStatus}
                       />
                     </li>
                   )
@@ -290,7 +290,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                         this.setState({ liveHistories: this.state.liveHistories });
                         this.checkAllSelectedStatus(1);
                       }}
-                      editting={editting} selectedStatus={selectedStatus} />
+                      mulDeleting={mulDeleting} selectedStatus={selectedStatus} />
                   </li>)
                 })}
               </ul>
@@ -307,15 +307,15 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     return (
       <div className={style.myHistory}>
         <Helmet><title>历史记录</title></Helmet>
-        <HeaderWithTools title={"历史记录"} mode={2} editting={editting} handleEdit={this.handleEdit}
-          setKeyword={this.setKeyword} searching={searching}
-          setSerching={(bool: boolean) => this.setState({ searching: bool })}
+        <HeaderWithTools title={"历史记录"} mode={2} mulDeleting={mulDeleting}
+          handleMulDelete={this.handleMulDelete} setKeyword={this.setKeyword}
+          searching={searching} setSerching={(bool: boolean) => this.setState({ searching: bool })}
         />
         <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })}
-          curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ editting: false, selectedStatus: 0 })}
+          curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ mulDeleting: false, selectedStatus: 0 })}
         />
         <div className={style.listWrapper}>{tabInx === 0 ? videoList : liveList}</div>
-        {editting && <div className={style.bottomWrapper}>
+        {mulDeleting && <div className={style.bottomWrapper}>
           <BottomBar
             selectedStatus={selectedStatus} handleDelete={this.handleDelete}
             setAllSelectedStatus={status => this.setAllSelectedStatus(tabInx, status)}

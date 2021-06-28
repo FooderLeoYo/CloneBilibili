@@ -28,27 +28,27 @@ interface VideoItemProps {
     tag_name?: string;
   };
   switchSelected?: Function
-  editting?: boolean;
+  mulDeleting?: boolean;
   selectedStatus?: number;
 }
 
 const { useContext, useRef, useEffect } = React;
 
 function VideoItem(props: VideoItemProps) {
-  const { record, curFatherInx, switchSelected, editting } = props;
+  const { record, curFatherInx, switchSelected, mulDeleting } = props;
   const { author_name, cover, history, selected, title, view_at,
     badge, duration, kid, progress, tag_name } = record;
   const { oid, dt } = history;
   const spanParam = oid ? oid : kid;
   const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "mobile";
-  const edit = editting ? "edit" : "";
+  const edit = mulDeleting ? "edit" : "";
   const curProgress = progress && progress === -1 ? 100 : progress / duration * 100;
   const liveStatus = badge && badge === "未开播" ? "offline" : "live";
 
   const context = useContext(Context);
 
-  const edittingRef = useRef(editting);
-  useEffect(() => { edittingRef.current = editting; }, [editting]);
+  const edittingRef = useRef(mulDeleting);
+  useEffect(() => { edittingRef.current = mulDeleting; }, [mulDeleting]);
 
   function handleClick(type: string, param: number) {
     if (edittingRef.current) {
@@ -90,7 +90,7 @@ function VideoItem(props: VideoItemProps) {
 
   return (
     <span onClick={() => handleClick(curFatherInx === 0 ? "video" : "live", spanParam)} >
-      {editting && <span className={style.circle}>
+      {mulDeleting && <span className={style.circle}>
         {selected && <svg className="icon" aria-hidden="true">
           <use href="#icon-toast-success"></use>
         </svg>

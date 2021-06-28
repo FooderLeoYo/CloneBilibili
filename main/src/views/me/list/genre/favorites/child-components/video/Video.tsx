@@ -13,13 +13,13 @@ import FoldableList from "@components/foldable-list/FoldableList";
 import style from "./video.styl?css-modules";
 
 interface VideoProps {
-  match: match<{ uid }>;
+  uid: number;
 }
 
 const { useState, useEffect, useContext, useMemo } = React;
 
 function Video(props: VideoProps) {
-  const { match } = props;
+  const { uid } = props;
 
   const [favCreatedData, setFavCreatedData] = useState(null);
   const [favCollectedData, setFavCollectedData] = useState(null);
@@ -33,8 +33,6 @@ function Video(props: VideoProps) {
   }
 
   useEffect(() => {
-    const { uid } = match.params;
-
     getFavListCreated(uid).then(result => {
       const { code, data } = result;
       if (code === "1") {
@@ -74,7 +72,7 @@ function Video(props: VideoProps) {
           {favCreatedData.list.map((fav, i) => {
             const { attr, cover, id, intro, media_count, title } = fav;
             return (
-              <Link className={style.favItem} key={i} to={`/space/fav/${id}`}>
+              <Link className={style.favItem} key={i} to={`/me/favdetail?favid=${id}&uid=${uid}`}>
                 <div className={style.imageContainer}>
                   <span className={style.placeholder}>
                     <svg className="icon" aria-hidden="true">
@@ -108,7 +106,7 @@ function Video(props: VideoProps) {
           {favCollectedData.list.map((fav, i) => {
             const { cover, id, media_count, title, upper } = fav;
             return (
-              <Link className={style.favItem} key={i} to={`/space/fav/${id}`}>
+              <Link className={style.favItem} key={i} to={`/me/favdetail?favid=${id}`}>
                 <div className={style.imageContainer}>
                   <span className={style.placeholder}>
                     <svg className="icon" aria-hidden="true">

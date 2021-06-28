@@ -53,14 +53,9 @@ const router = [
   {
     path: "/space/:mId",
     component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../redux/connect/Sapce")),
-    exact: true,
     asyncData: (store, param) => {
       return store.dispatch(getUpUserInfo(param.mId));
     },
-  },
-  {
-    path: "/space/fav/:mlid",
-    component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../views/space/child-components/fav/Fav")),
   },
   {
     path: "/search",
@@ -107,13 +102,13 @@ const router = [
     component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/list/genre/my-history/MyHistory")),
   },
   {
-    path: "/me/fav/:uid",
+    path: "/me/favlist/:uid",
     component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/list/genre/favorites/Favorites")),
-    exact: true,
   },
   {
-    path: "/me/fav/edit/:action",
-    component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/list/genre/favorites/child-components/edit/Edit")),
+    path: "/me/favdetail",
+    search: "?favid=favid&uid=uid",
+    component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../views/me/list/genre/favorites/child-components/fav-detail/FavDetail")),
   },
 ];
 

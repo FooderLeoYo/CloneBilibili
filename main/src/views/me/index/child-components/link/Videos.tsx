@@ -20,7 +20,7 @@ function Videos(props: VideosProps) {
         </span>
         <span className={style.word}>历史记录</span>
       </Link>
-      <Link className={style.link} to={`me/fav/${uid}`}>
+      <Link className={style.link} to={`me/favlist/${uid}`}>
         <span className={style.icon}>
           <svg className="icon" aria-hidden="true">
             <use href="#icon-favorites"></use>

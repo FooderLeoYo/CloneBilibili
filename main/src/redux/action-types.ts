@@ -39,6 +39,3 @@ export const SET_LIVE_LIST = "SET_LIVE_LIST";
 
 // 设置直播间数据
 export const SET_ROOM_DATA = "SET_ROOM_DATA";
-
-// 设置我的用户昵称
-export const SET_MY_NAME = "SET_MY_NAME";

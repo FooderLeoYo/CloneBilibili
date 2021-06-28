@@ -9,14 +9,14 @@ import { getPicSuffix } from "@customed-methods/image";
 import style from "./show.styl?css-modules";
 
 interface ShowProps {
-  match: match<{ uid }>;
+  uid: number;
   fatherInx: number;
 }
 
 const { useState, useEffect, useContext } = React;
 
 function Show(props: ShowProps) {
-  const { match, fatherInx } = props
+  const { uid, fatherInx } = props
   const context = useContext(Context);
   const [banData, setBanData] = useState({ list: [], pn: 1, ps: 15, total: 0 });
   const [showData, setShowData] = useState({ list: [], pn: 1, ps: 15, total: 0 });
@@ -29,8 +29,6 @@ function Show(props: ShowProps) {
   }
 
   function getDataByTabInx(index: number) {
-    const { uid } = match.params;
-
     if (index === 0) {
       return;
     } else if (index === 1) {
