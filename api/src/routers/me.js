@@ -1,5 +1,7 @@
 const express = require("express");
-const { fetchMyRelation, fetchHistory, deleteHistory, exitLogin } = require("../api");
+const { fetchMyRelation, fetchHistory, deleteHistory, exitLogin,
+  editFav, createFav, delInvalidFavContent
+} = require("../api");
 const router = express.Router();
 
 router.get("/me/getmyrelation", (req, res, next) => {
@@ -36,6 +38,54 @@ router.get("/me/gethistory", (req, res, next) => {
 
 router.post("/me/deletehistory", (req, res, next) => {
   deleteHistory(req.body, req.headers.cookie).then(data => {
+    let resData = {
+      code: "1",
+      msg: "success",
+    }
+    if (data.code != 0) {
+      resData.code = "0";
+      resData.msg = "fail";
+    }
+    resData.data = data;
+
+    res.send(resData);
+  }).catch(next);
+});
+
+router.post("/me/editfav", (req, res, next) => {
+  editFav(req.body, req.headers.cookie).then(data => {
+    let resData = {
+      code: "1",
+      msg: "success",
+    }
+    if (data.code != 0) {
+      resData.code = "0";
+      resData.msg = "fail";
+    }
+    resData.data = data;
+
+    res.send(resData);
+  }).catch(next);
+});
+
+router.post("/me/createfav", (req, res, next) => {
+  createFav(req.body, req.headers.cookie).then(data => {
+    let resData = {
+      code: "1",
+      msg: "success",
+    }
+    if (data.code != 0) {
+      resData.code = "0";
+      resData.msg = "fail";
+    }
+    resData.data = data;
+
+    res.send(resData);
+  }).catch(next);
+});
+
+router.post("/me/delinvalidfavcontent", (req, res, next) => {
+  delInvalidFavContent(req.body, req.headers.cookie).then(data => {
     let resData = {
       code: "1",
       msg: "success",

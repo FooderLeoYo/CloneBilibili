@@ -1,8 +1,8 @@
 import * as React from "react";
 import * as Hls from "hls.js";
 
-import myContext from "../../context";
-import { getBarrages } from "../../api/video";
+import myContext from "@context/index";
+import { getBarrages } from "@api/video";
 
 import Speed from "./child-components/speed/Speed"
 import LastPosition from "./child-components/last-position/LastPosition"
@@ -11,7 +11,7 @@ import Replay from "./child-components/replay/Replay"
 import ControlBar from "./child-components/control-bar/ControlBar"
 import Barrage, { BarrageType } from "./child-components/barrage/Barrage";
 import Loading from "./child-components/loading/Loading"
-import { formatDuration } from "../../customed-methods/string";
+import { formatDuration } from "@customed-methods/string";
 
 import style from "./player.styl?css-modules";
 
@@ -240,9 +240,11 @@ function Player(props: PlayerProps, ref) {
   /* 弹幕相关 */
   function setBarrages() {
     getBarrages(video.cId).then(result => {
+      const { code, data } = result;
       let temp = [];
-      if (result.code === "1") {
-        result.data.forEach(data => {
+      if (code === "1") {
+        // console.log(data)
+        data.forEach(data => {
           temp.push({
             type: data.type === "1" ? BarrageType.RANDOM : BarrageType.FIXED,
             color: "#" + Number(data.decimalColor).toString(16),

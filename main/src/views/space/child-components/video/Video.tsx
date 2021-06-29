@@ -1,5 +1,4 @@
 import * as React from "react";
-import { match } from "react-router-dom";
 import { Link } from "react-router-dom";
 import LazyLoad from "react-lazyload";
 
@@ -14,12 +13,13 @@ import style from "./video.styl?css-modules";
 
 interface VideoProps {
   uid: number;
+  pageStatus?: number;
 }
 
 const { useState, useEffect, useContext, useMemo } = React;
 
 function Video(props: VideoProps) {
-  const { uid } = props;
+  const { uid, pageStatus } = props;
 
   const [favCreatedData, setFavCreatedData] = useState(null);
   const [favCollectedData, setFavCollectedData] = useState(null);
@@ -32,7 +32,7 @@ function Video(props: VideoProps) {
     return `${picURL}?pic=${url}${format + suffix}`;
   }
 
-  useEffect(() => {
+  const setCreFav = () => {
     getFavListCreated(uid).then(result => {
       const { code, data } = result;
       if (code === "1") {
@@ -59,11 +59,22 @@ function Video(props: VideoProps) {
         }).catch(error => console.log(error));
       }
     });
+  }
+
+  useEffect(() => {
     getFavListCollected(10, 1, uid).then(result => {
       const { code, data } = result.data;
       code === 0 && setFavCollectedData(data);
     });
+    pageStatus === undefined && setCreFav(); // 父组件为个人空间时
   }, []);
+
+  // 父组件为个人中心的MyFav
+  useEffect(() => {
+    if (pageStatus === 0) {
+      setCreFav();
+    }
+  }, [pageStatus]);
 
   const favListCreated = useMemo(() => {
     if (favCreatedData) {
@@ -72,7 +83,7 @@ function Video(props: VideoProps) {
           {favCreatedData.list.map((fav, i) => {
             const { attr, cover, id, intro, media_count, title } = fav;
             return (
-              <Link className={style.favItem} key={i} to={`/me/favdetail?favid=${id}&uid=${uid}`}>
+              <Link className={style.favItem} key={i} to={`/space/favdetail/?favid=${id}&uid=${uid}`}>
                 <div className={style.imageContainer}>
                   <span className={style.placeholder}>
                     <svg className="icon" aria-hidden="true">
@@ -80,7 +91,7 @@ function Video(props: VideoProps) {
                     </svg>
                   </span>
                   {/* <LazyLoad height={"10.575rem"}><img className={style.cover} src={getPicUrl(cover, "@320w_200h")} /></LazyLoad> */}
-                  <img className={style.cover} src={getPicUrl(cover, "@320w_200h")} />
+                  {cover.length > 0 && <img className={style.cover} src={getPicUrl(cover, "@320w_200h")} />}
                 </div>
                 <div className={style.infoWrapper}>
                   <div className={style.title}>{title}</div>
@@ -106,7 +117,7 @@ function Video(props: VideoProps) {
           {favCollectedData.list.map((fav, i) => {
             const { cover, id, media_count, title, upper } = fav;
             return (
-              <Link className={style.favItem} key={i} to={`/me/favdetail?favid=${id}`}>
+              <Link className={style.favItem} key={i} to={`/space/favdetail/?favid=${id}`}>
                 <div className={style.imageContainer}>
                   <span className={style.placeholder}>
                     <svg className="icon" aria-hidden="true">
@@ -114,7 +125,7 @@ function Video(props: VideoProps) {
                     </svg>
                   </span>
                   {/* <LazyLoad height={"5rem"}><img className={style.cover} src={getPicUrl(cover, "@320w_200h")} /></LazyLoad> */}
-                  <img className={style.cover} src={getPicUrl(cover, "@320w_200h")} />
+                  {cover.length > 0 && <img className={style.cover} src={getPicUrl(cover, "@320w_200h")} />}
                 </div>
                 <div className={style.infoWrapper}>
                   <div className={style.title}>{title}</div>

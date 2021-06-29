@@ -47,7 +47,12 @@ function Bottom(props: BottomProps) {
           </div>
         }
         {handleCleanInvalid &&
-          <div className={style.manipulation} onClick={() => handleCleanInvalid()}>
+          <div className={style.manipulation}
+            onClick={() => {
+              handleCleanInvalid();
+              setShowBottom(false);
+            }}
+          >
             <span className={style.icon}>
               <svg className="icon" aria-hidden="true">
                 <use href="#icon-cleanInvalid"></use>

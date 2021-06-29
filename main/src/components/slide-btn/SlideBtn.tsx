@@ -2,16 +2,18 @@ import * as React from "react";
 import style from "./slide-btn.styl?css-modules";
 
 interface SlideBtnProps {
-  checked: boolean;
+  isChecked: boolean;
   model: string;
+  setIsChecked: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function SlideBtn(props: SlideBtnProps) {
-  const { checked, model } = props;
+  const { isChecked, model, setIsChecked } = props;
 
   return (
     <div className={style.checkbox + " " + style[model]}>
-      <input className={style.input} type="checkbox" defaultChecked={checked} />
+      <input className={style.input} type="checkbox" defaultChecked={isChecked}
+        onClick={e => setIsChecked(e.currentTarget.checked)} />
       <label className={style.label}></label>
     </div>
   )

@@ -50,12 +50,19 @@ const router = [
       return store.dispatch(getVideoInfo(param.aId))
     }
   },
+  // {
+  //   path: "/space/:mId",
+  //   component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../redux/connect/Sapce")),
+  //   exact: true,
+  //   asyncData: (store, param) => {
+  //     return store.dispatch(getUpUserInfo(param.mId));
+  //   },
+  // },
   {
-    path: "/space/:mId",
-    component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../redux/connect/Sapce")),
-    asyncData: (store, param) => {
-      return store.dispatch(getUpUserInfo(param.mId));
-    },
+    path: "/space/favdetail/",
+    search: "?favid=favid&uid=uid",
+    exact: true,
+    component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../views/space/child-components/fav-detail/FavDetail")),
   },
   {
     path: "/search",
@@ -103,12 +110,7 @@ const router = [
   },
   {
     path: "/me/favlist/:uid",
-    component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/list/genre/favorites/Favorites")),
-  },
-  {
-    path: "/me/favdetail",
-    search: "?favid=favid&uid=uid",
-    component: loadable(() => import(/* webpackChunkName: 'up-user' */ "../views/me/list/genre/favorites/child-components/fav-detail/FavDetail")),
+    component: loadable(() => import(/* webpackChunkName: 'me-list' */ "../views/me/list/genre/fav/MyFav")),
   },
 ];
 

@@ -29,8 +29,11 @@ const URL_LOGIN_SMS_VERIFY = prefix + "/login/verifysms";
 const URL_LOGIN_SMS_CAPTCHA = prefix + "/login/getsmscaptcha";
 
 /* 个人中心相关 */
+const URL_ME_CREATE_FAV = prefix + "/me/createfav";
+const URL_ME_DEL_INVALID_FAV_CONTENT = prefix + "/me/delinvalidfavcontent";
 const URL_ME_DELETE_HISTORY = prefix + "/me/deletehistory";
 const URL_ME_EXIT_LOGIN = prefix + "/me/exitlogin";
+const URL_ME_EDIT_FAV = prefix + "/me/editfav";
 const URL_ME_GET_HISTORY = prefix + "/me/gethistory";
 const URL_ME_MY_RELATION = prefix + "/me/getmyrelation";
 
@@ -74,7 +77,8 @@ export {
   URL_LOGIN_AREA_CODE, URL_LOGIN_GT_CAPTCHA, URL_LOGIN_NAV_INFO, URL_LOGIN_PW_KEYHASH,
   URL_LOGIN_PW_VERIFY, URL_LOGIN_SMS_VERIFY, URL_LOGIN_SMS_CAPTCHA,
   /* 个人中心相关 */
-  URL_ME_DELETE_HISTORY, URL_ME_EXIT_LOGIN, URL_ME_GET_HISTORY, URL_ME_MY_RELATION,
+  URL_ME_CREATE_FAV, URL_ME_DEL_INVALID_FAV_CONTENT, URL_ME_DELETE_HISTORY, URL_ME_EXIT_LOGIN,
+  URL_ME_EDIT_FAV, URL_ME_GET_HISTORY, URL_ME_MY_RELATION,
   /* 排行榜相关 */
   URL_RANKING, URL_RANKING_ARCHIVE, URL_RANKING_PARTITION, URL_RANKING_REGION,
   /* 搜索相关 */

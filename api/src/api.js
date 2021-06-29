@@ -46,8 +46,14 @@ const URL_LOGIN_SMS_VERIFY = "https://passport.bilibili.com/web/login/rapid";
 
 /* 个人中心相关 */
 
+// 新增收藏夹
+const URL_ME_CREATE_FAV = "http://api.bilibili.com/x/v3/fav/folder/add";
+// 一键清空无效内容
+const URL_ME_DEL_INVALID_FAV_CONTENT = "http://api.bilibili.com/x/v3/fav/resource/clean";
 // 删除历史记录
 const URL_ME_DELETE_HISTORY = "http://api.bilibili.com/x/v2/history/delete";
+// 编辑收藏夹
+const URL_ME_EDIT_FAV = "http://api.bilibili.com/x/v3/fav/folder/edit";
 // 退出登录
 const URL_ME_EXIT_LOGIN = "https://passport.bilibili.com/login?act=exit";
 // 获取历史记录
@@ -245,6 +251,40 @@ const fetchSMSCaptcha = param => {
 
 /* 个人中心相关 */
 
+const createFav = (param, cookie) => {
+  const rawString = cookie;
+  const bjctPos = rawString.indexOf("bili_jct");
+  const bili_jct = rawString.substring(bjctPos + 9);
+  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
+
+  return fetch(URL_ME_CREATE_FAV, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "cookie": cookie
+    },
+    body: searchParam,
+  }).then(res => res.json())
+    .then(json => json);
+}
+
+const delInvalidFavContent = (param, cookie) => {
+  const rawString = cookie;
+  const bjctPos = rawString.indexOf("bili_jct");
+  const bili_jct = rawString.substring(bjctPos + 9);
+  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
+
+  return fetch(URL_ME_DEL_INVALID_FAV_CONTENT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "cookie": cookie
+    },
+    body: searchParam,
+  }).then(res => res.json())
+    .then(json => json);
+}
+
 const deleteHistory = (params, cookie) => {
   const rawString = cookie;
   const bjctPos = rawString.indexOf("bili_jct");
@@ -252,6 +292,23 @@ const deleteHistory = (params, cookie) => {
   const searchParam = new URLSearchParams(Object.entries(params)).toString() + `&csrf=${bili_jct}`;
 
   return fetch(URL_ME_DELETE_HISTORY, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "cookie": cookie
+    },
+    body: searchParam,
+  }).then(res => res.json())
+    .then(json => json);
+}
+
+const editFav = (param, cookie) => {
+  const rawString = cookie;
+  const bjctPos = rawString.indexOf("bili_jct");
+  const bili_jct = rawString.substring(bjctPos + 9);
+  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
+
+  return fetch(URL_ME_EDIT_FAV, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -485,7 +542,8 @@ module.exports = {
   fetchAreaCode, fetchGTCaptcha, fetchNavtUserInfo, fetchPWKeyAndHash,
   fetchPWVerifyInfo, fetchSMSVerifyInfo, fetchSMSCaptcha,
   /* 个人中心相关 */
-  deleteHistory, exitLogin, fetchHistory, fetchMyRelation,
+  createFav, delInvalidFavContent, deleteHistory, editFav, exitLogin,
+  fetchHistory, fetchMyRelation,
   /* 排行榜相关 */
   fetchRankingById, fetchRankingArchiveById, fetchRankingRegionById,
   /* 搜索相关 */

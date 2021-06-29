@@ -4,13 +4,14 @@ import { parse } from "query-string";
 import { Location } from "history";
 
 import { getFavDetail } from "@api/space";
+import { delInvalidFavContent } from "@api/me";
 import Context from "@context/index";
 import { getPicSuffix } from "@customed-methods/image";
 
-import HeaderWithTools from "@root/src/components/header-with-tools/HeaderWithTools"
+import HeaderWithTools from "@components/header-with-tools/HeaderWithTools"
 import VideoItemLandscape from "@components/video-item-landscape/VideoItemLandscape";
 import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
-import Edit from "../../child-components/edit/Edit";
+import Edit from "@root/src/views/me/list/genre/fav/child-components/edit/Edit";
 
 import style from "./fav-detail.styl?css-modules";
 
@@ -34,6 +35,7 @@ function FavDetail(props: FavDetailProps) {
 
   const queries = parse(search.substring(search.indexOf("?")));
   const { favid, uid } = queries;
+  const favID = parseInt(favid as string);
   const notDefault = infoData?.attr !== 0;
   const needEllipsis = notDefault && infoData?.upper?.mid === parseInt(uid as string);
 
@@ -44,21 +46,8 @@ function FavDetail(props: FavDetailProps) {
     return `${picURL}?pic=${url}${format + suffix}`;
   }
 
-  const handleEditInfo = needEllipsis ? () => {
-    setPageStatus(1);
-  } : null;
-
-  const handleMulManage = needEllipsis ? () => {
-  } : null;
-
-  const handleCleanInvalid = needEllipsis ? () => {
-  } : null;
-
-  const handleDelete = needEllipsis ? () => {
-  } : null;
-
-  useEffect(() => {
-    getFavDetail(parseInt(favid as string), 15).then(result => {
+  const setInfoAndList = () => {
+    getFavDetail(favID, 15).then(result => {
       const { code, data } = result;
       if (code === "1") {
         const { info, medias } = data.data;
@@ -70,7 +59,23 @@ function FavDetail(props: FavDetailProps) {
         if (listDOM.offsetHeight < heightWithoutTop) { listDOM.style.height = `${heightWithoutTop}px` }
       }
     });
+  };
 
+  const handleEditInfo = needEllipsis ? () => {
+    setPageStatus(1);
+  } : null;
+
+  const handleMulManage = needEllipsis ? () => {
+  } : null;
+
+  const handleCleanInvalid = needEllipsis ? () => {
+    delInvalidFavContent(favID).then(() => setInfoAndList())
+  } : null;
+
+  const handleDelete = needEllipsis ? () => {
+  } : null;
+
+  useEffect(() => {
     const headerHeight = headerRef.current.offsetHeight;
     const infoHeight = overlayRef.current.offsetHeight;
     const staDOM = staRef.current;
@@ -86,6 +91,10 @@ function FavDetail(props: FavDetailProps) {
     });
   }, []);
 
+  useEffect(() => {
+    pageStatus === 0 && setInfoAndList();
+  }, [pageStatus]);
+
   return (
     <div className={style.favDetail}>
       <Helmet><title>{pageStatus === 0 ? infoData?.title : "编辑信息"}</title></Helmet>
@@ -99,7 +108,7 @@ function FavDetail(props: FavDetailProps) {
           </div>
           <div className={style.info}>
             <div className={style.imageContainer}>
-              {infoData ? <img className={style.cover} src={getPicUrl(infoData.cover, "@320w_200h")} /> :
+              {infoData?.cover ? <img className={style.cover} src={getPicUrl(infoData.cover, "@320w_200h")} /> :
                 <span className={style.placeholder}>
                   <svg className="icon" aria-hidden="true">
                     <use href="#icon-placeholder"></use>
@@ -166,8 +175,9 @@ function FavDetail(props: FavDetailProps) {
           </div>
           <ScrollToTop />
         </> :
-        <Edit editType={0} intro={infoData?.intro} handleBack={() => setPageStatus(0)}
-          isChecked={infoData?.attr !== 23 && infoData?.attr !== 55} title={infoData?.title}
+        <Edit editType={0} media_id={favID} intro={infoData?.intro}
+          privacy={infoData?.attr !== 23 && infoData?.attr !== 55 ? 0 : 1}
+          title={infoData?.title} handleBack={() => setPageStatus(0)}
         />
       }
     </div>

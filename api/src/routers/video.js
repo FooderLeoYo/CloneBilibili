@@ -85,7 +85,7 @@ router.get("/av/barrage", (req, res, next) => {
           data: []
         }
         if (result.i.d) {
-          result.i.d.forEach(item => {
+          result.i.d.forEach((item, i) => {
             let p = item.$.p;
             let attrs = p.split(",");
             resData.data.push({
@@ -103,7 +103,6 @@ router.get("/av/barrage", (req, res, next) => {
         next(err);
       }
     });
-
   }).catch(next);
 });
 
