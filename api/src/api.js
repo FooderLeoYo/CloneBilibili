@@ -485,6 +485,9 @@ const fetchUserVideo = param => {
 /* 视频相关 */
 
 const fetchBarrage = cId => {
+  // const searchParam = new URLSearchParams(Object.entries(param)).toString();
+  // return fetch(`${URL_VIDEO_BARRAGE}?${searchParam}`)
+  //   .then(res => res)
   return fetch(URL_VIDEO_BARRAGE.replace("{cid}", cId))
     .then(res => res.text())
     .then(body => body)

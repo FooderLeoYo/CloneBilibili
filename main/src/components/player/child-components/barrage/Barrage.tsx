@@ -1,23 +1,16 @@
 import * as React from "react";
-import { getTransitionEndName } from "../../../../customed-methods/compatible";
-import { formatDuration } from "../../../../customed-methods/string";
+
+import { getTransitionEndName } from "@customed-methods/compatible";
+import { formatDuration } from "@customed-methods/string";
+import BiliBili_midcrc from "../crc32";
 
 import style from "./barrage.styl?css-modules";
 
-/**
- * 弹幕类型
- * RANDOM: 随机位置
- * FIXED: 固定在中间
- */
-enum BarrageType {
-  RANDOM = 1,
-  FIXED
-}
-
 interface BarrageData {
-  type: BarrageType;
-  color: string;
+  type: string;
+  decimalColor: string;
   content: string;
+  uidHash?: string;
 }
 
 interface BarrageProps {
@@ -44,6 +37,7 @@ interface BarrageProps {
     showControlsTemporally: () => void,
     clearCtrTimer: () => void
   },
+  myUid: string;
   fontSize?: string,
   opacity?: number,
   barrages?: BarrageData[]
@@ -58,7 +52,8 @@ class Barrage extends React.PureComponent<BarrageProps> {
   private barrageRef: React.RefObject<HTMLDivElement>;
   private contentHeight: number; // 一条弹幕的高度
   private randomTop: number = 0; // 随机弹幕距离弹幕区域顶端的竖直距离
-  private fixedTop: number = 0; // 固定弹幕距离弹幕区域顶端的竖直距离
+  private fixedTop: number = 0; // 顶部固定弹幕距离弹幕区域顶端的竖直距离
+  private fixedBottom: number = 0; // 底部固定弹幕距离弹幕区域底端的竖直距离
   private fontSize: string;
   private opacity: number;
   private isPC: boolean;
@@ -89,15 +84,23 @@ class Barrage extends React.PureComponent<BarrageProps> {
       fontWeight: "bold",
       whiteSpace: "pre",
       textShadow: "rgb(0, 0, 0) 1px 1px 2px",
-      color: barrage.color,
+      color: "#" + Number(barrage.decimalColor).toString(16),
       opacity: this.opacity
     };
-    // 随机滚动
-    if (barrage.type !== BarrageType.FIXED) {
-      style.top = `${this.randomTop}px`,
-        style.left = `${this.viewWidth}px`,
-        // transition是过渡，transform是具体的变化
-        style.webkitTransition = "-webkit-transform 5s linear 0s";
+
+    if (barrage.type === "4") {
+      div.style.bottom = this.fixedBottom + "px"; ``
+      // 距离底端位置增加一个弹幕内容高度，防止固定弹幕重叠
+      this.fixedBottom += this.contentHeight;
+      // 最大值边界判断
+      if (this.fixedBottom > this.viewHeight - this.contentHeight) { this.fixedBottom = 0 }
+    } else if (barrage.type === "5") {
+      div.style.top = this.fixedTop + "px";
+      this.fixedTop += this.contentHeight;
+      if (this.fixedTop > this.viewHeight - this.contentHeight) { this.fixedTop = 0 }
+    } else {
+      style.top = `${this.randomTop}px`;
+      style.left = `${this.viewWidth}px`;
       style.transition = "transform 5s linear 0s";
       const transitionName = getTransitionEndName(div);
       const handleTransitionEnd = () => {
@@ -120,14 +123,6 @@ class Barrage extends React.PureComponent<BarrageProps> {
       if (this.randomTop > this.viewHeight - this.contentHeight) {
         this.randomTop = 0;
       }
-    } else {
-      div.style.top = this.fixedTop + "px";
-      // 距离顶端位置增加一个弹幕内容高度，防止固定弹幕重叠
-      this.fixedTop += this.contentHeight;
-      // 最大值边界判断
-      if (this.fixedTop > this.viewHeight - this.contentHeight) {
-        this.fixedTop = 0;
-      }
     }
 
     for (const k in style) {
@@ -135,6 +130,12 @@ class Barrage extends React.PureComponent<BarrageProps> {
       if (style[k] !== void 0) {
         div.style[k] = style[k];
       }
+    }
+
+    // 检查是否为本人所发弹幕
+    const covertUidHash = BiliBili_midcrc();
+    if (covertUidHash(barrage.uidHash) === this.props.myUid) {
+      div.style.border = "1px solid #23ade5";
     }
 
     return div;
@@ -145,31 +146,35 @@ class Barrage extends React.PureComponent<BarrageProps> {
     const barrageElem = this.createBarrageElem(barrage);
     barrageDOM.appendChild(barrageElem);
 
-    if (barrage.type !== BarrageType.FIXED) {
-      const x = - (this.viewWidth + barrageElem.offsetWidth);
-      setTimeout(() => {
-        barrageElem.style.transform = `translate3d(${x}px, 0, 0)`;
-      }, 10); // 这里的10不是动画时间，而是等待组件加载，然后才添加style
-    } else {
+    if (barrage.type === "4") {
       // 居中放置
       barrageElem.style.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
       // 移除弹幕
       setTimeout(() => {
-        // if (barrageElem.parentNode === barrageDOM) {
         barrageDOM.removeChild(barrageElem);
-        // 距顶端位置减少一个弹幕内容高度
-        this.fixedTop -= this.contentHeight;
-        if (this.fixedTop < 0) {
-          this.fixedTop = 0;
-        }
-        // }
+        // 距底端位置减少一个弹幕内容高度
+        this.fixedBottom -= this.contentHeight;
+        if (this.fixedBottom < 0) { this.fixedBottom = 0 }
       }, 5000);
+    } else if (barrage.type === "5") {
+      barrageElem.style.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
+      setTimeout(() => {
+        barrageDOM.removeChild(barrageElem);
+        this.fixedTop -= this.contentHeight;
+        if (this.fixedTop < 0) { this.fixedTop = 0 }
+      }, 5000);
+    } else {
+      const x = - (this.viewWidth + barrageElem.offsetWidth);
+      setTimeout(() => {
+        barrageElem.style.transform = `translate3d(${x}px, 0, 0)`;
+      }, 10); // 这里的10不是动画时间，而是等待组件加载，然后才添加style
     }
   }
 
   public clear() {
     this.randomTop = 0;
     this.fixedTop = 0;
+    this.fixedBottom = 0;
     const barrageDOM = this.barrageRef.current;
     const children = barrageDOM.children;
     // children是HTMLCollection类型的，因此要用Array.from()转成数组
@@ -184,7 +189,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
     // 因此要建一个临时的div并应用该fontSize
     // 然后再将div.offsetHeight赋值给this.contentHeight
     const div = document.createElement("div");
-    div.innerHTML = "tmp";
+    div.innerHTML = "temp";
     div.style.fontSize = this.fontSize;
     // 末尾加[0]的原因是：getElementsByTagName返回的是一个数组
     // 因此即使只有一个元素，也要用[0]才能取到
@@ -397,5 +402,4 @@ class Barrage extends React.PureComponent<BarrageProps> {
   }
 }
 
-export { BarrageType };
 export default Barrage;

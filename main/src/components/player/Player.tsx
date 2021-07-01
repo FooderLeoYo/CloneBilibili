@@ -9,7 +9,7 @@ import LastPosition from "./child-components/last-position/LastPosition"
 import Cover from "./child-components/cover/Cover"
 import Replay from "./child-components/replay/Replay"
 import ControlBar from "./child-components/control-bar/ControlBar"
-import Barrage, { BarrageType } from "./child-components/barrage/Barrage";
+import Barrage from "./child-components/barrage/Barrage";
 import Loading from "./child-components/loading/Loading"
 import { formatDuration } from "@customed-methods/string";
 
@@ -25,6 +25,7 @@ interface PlayerProps {
     duration: number,
     url: string
   },
+  myUid: number,
   videoRef?: React.RefObject<HTMLVideoElement>,
   isStreaming?: boolean, // 主播是否正在直播
   liveTime?: number,
@@ -35,7 +36,7 @@ const { useState, useEffect, useRef, useContext, forwardRef, useImperativeHandle
 
 function Player(props: PlayerProps, ref) {
   /* 从父组件获取的数据 */
-  const { isLive, video, liveTime, videoRef, clickCover } = props;
+  const { isLive, video, myUid, liveTime, videoRef, clickCover } = props;
   const temVideoRef = useRef(null);
   const videoDOMRef: React.RefObject<HTMLVideoElement> = videoRef ? videoRef : temVideoRef;
   const context = useContext(myContext);
@@ -241,22 +242,11 @@ function Player(props: PlayerProps, ref) {
   function setBarrages() {
     getBarrages(video.cId).then(result => {
       const { code, data } = result;
-      let temp = [];
       if (code === "1") {
-        // console.log(data)
-        data.forEach(data => {
-          temp.push({
-            type: data.type === "1" ? BarrageType.RANDOM : BarrageType.FIXED,
-            color: "#" + Number(data.decimalColor).toString(16),
-            content: data.content,
-            time: Number(data.time)
-          });
-        });
+        // 初始化弹幕列表
+        initBarrages = data;
+        barrages = initBarrages.slice();
       }
-
-      // 初始化弹幕列表
-      initBarrages = temp;
-      barrages = initBarrages.slice();
     });
   }
 
@@ -327,8 +317,8 @@ function Player(props: PlayerProps, ref) {
     sendBarrage: (data: { color: string, content: string }) => {
       if (ctrBarRef.current.showBarrage) {
         barrageRef.current.send({
-          type: BarrageType.RANDOM,
-          color: data.color,
+          type: "1",
+          decimalColor: data.color,
           content: data.content
         });
       }
@@ -347,17 +337,11 @@ function Player(props: PlayerProps, ref) {
       {/* 视频区域 */}
       <div className={style.playerWrapper} ref={playerWrapperRef}>
         <div className={style.videoArea} ref={videoAreaRef}>
-          <video
-            height="100%"
-            width="100%"
-            preload="auto"
+          <video height="100%" width="100%" preload="auto"
             // playsinline是解决ios默认打开网页的时候，会自动全屏播放
             x5-playsinline="true"
-            webkit-playsinline="true"
-            playsInline={true}
-            src={isLive ? "" : getVideoUrl(video.url)}
-            ref={videoDOMRef}
-            style={videoStyle}
+            playsInline={true} src={isLive ? "" : getVideoUrl(video.url)}
+            ref={videoDOMRef} style={videoStyle}
           />
         </div>
         {/* 弹幕 */}
@@ -365,13 +349,9 @@ function Player(props: PlayerProps, ref) {
         {/*   如果Barrage成为videoArea的子元素，那么Barrage的事件会冒泡到videoArea */}
         {/*   这样就还要阻止Barrage的事件冒泡，所以不如将其放在外面 */}
         <div className={style.barrage}>
-          <Barrage
-            isLive={isLive}
-            barrageRefs={barrageRefs}
-            barrageSetState={barrageSetState}
-            barrageMethods={barrageMethods}
-            opacity={isLive ? 1 : 0.75}
-            ref={barrageRef}
+          <Barrage isLive={isLive} barrageRefs={barrageRefs} myUid={myUid.toString()}
+            barrageSetState={barrageSetState} barrageMethods={barrageMethods}
+            opacity={isLive ? 1 : 0.75} ref={barrageRef}
           />
         </div>
         <div className={style.controlContainer}>
@@ -396,54 +376,36 @@ function Player(props: PlayerProps, ref) {
             </div>
           </div>
           {/* 速度调节及显示 */}
-          {
-            !isLive && <div className={style.speedContainer}>
-              <Speed
-                videoDOM={videoDOMRef.current}
-                paused={paused}
-                playBtnTimer={playBtnTimerRef.current}
-                isShowPlayBtn={isShowPlayBtn}
-                setIsShowPlayBtn={setIsShowPlayBtn}
-                setSpeedBtnSuffix={setSpeedBtnSuffix}
-                ref={speedRef}
-              />
-            </div>
+          {!isLive && <div className={style.speedContainer}> ref={speedRef}
+            <Speed videoDOM={videoDOMRef.current} paused={paused}
+              playBtnTimer={playBtnTimerRef.current} isShowPlayBtn={isShowPlayBtn}
+              setIsShowPlayBtn={setIsShowPlayBtn} setSpeedBtnSuffix={setSpeedBtnSuffix}
+            />
+          </div>
           }
           {/* 右边的白色播放暂停按钮 */}
-          {
-            !isLive && <div className={style.playButton} style={playBtnStyle} ref={playBtnRef}>
-              <svg className="icon" aria-hidden="true">
-                <use href={`#icon-${playBtnIconName}`}></use>
-              </svg>
-            </div>
+          {!isLive && <div className={style.playButton} style={playBtnStyle} ref={playBtnRef}>
+            <svg className="icon" aria-hidden="true">
+              <use href={`#icon-${playBtnIconName}`}></use>
+            </svg>
+          </div>
           }
           {/* 控制栏 */}
-          <ControlBar
-            ctrBarStatus={ctrBarStatus}
-            ctrBarData={ctrBarData}
-            ctrBarMethods={ctrBarMethods}
-            ctrBarRefs={ctrBarRefs}
-            ref={ctrBarRef}
+          <ControlBar ctrBarStatus={ctrBarStatus} ctrBarData={ctrBarData}
+            ctrBarMethods={ctrBarMethods} ctrBarRefs={ctrBarRefs} ref={ctrBarRef}
           />
         </div>
         {/* 封面 */}
-        <Cover
-          ref={coverRef}
-          isLive={isLive}
-          video={video}
-          playOrPause={playOrPause}
-          lastPosRef={lastPosRef}
-          setWaiting={setWaiting}
-          videoRef={videoDOMRef}
-          setPaused={setPaused}
-          clickCover={clickCover}
+        <Cover ref={coverRef} isLive={isLive} video={video}
+          playOrPause={playOrPause} lastPosRef={lastPosRef} setWaiting={setWaiting}
+          videoRef={videoDOMRef} setPaused={setPaused} clickCover={clickCover}
         />
         {/* 正在缓冲 */}
         {waiting && <Loading isLive={isLive} />}
         {/* 重新播放 */}
         {finish && <Replay video={video} playOrPause={playOrPause} />}
-        { // 直播时，主播不在
-          isLive && !isStreaming &&
+        {/* 直播时，主播不在 */}
+        {isLive && !isStreaming &&
           <div className={style.noticeCover}>
             <div className={style.noticeWrapper}>
               <i />

@@ -46,7 +46,7 @@ router.post("/login/verifypassword", (req, res, next) => {
     if (data) {
       // 登录成功则response headers中会有4个set-cookie
       if (data.headers.has('set-cookie')) {
-        const rawSetting = data.headers.get('set-cookie'); // 由于数据类型原因，set-cookie的值不能通过“.”获取，只能通过get方法
+        const rawSetting = data.headers.get('set-cookie'); // 由于数据类型为protobuf，set-cookie的值不能通过“.”获取，只能通过get方法
         const DUIdC5Pos = rawSetting.indexOf("DedeUserID__ckMd5");
         const SDataPos = rawSetting.indexOf("SESSDATA");
         const bjctPos = rawSetting.indexOf("bili_jct");

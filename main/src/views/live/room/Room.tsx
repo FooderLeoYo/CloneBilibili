@@ -7,6 +7,7 @@ import getRoomData from "@redux/async-action-creators/live/room";
 import { setShouldLoad } from "@redux/action-creators";
 import { getUserInfo } from "@api/space";
 import { getDanMuConfig } from "@api/live";
+import { getNavUserInfo } from "@api/login";
 
 import Context from "@context/index";
 import { Live, UpUser } from "@class-object-creators/index";
@@ -44,6 +45,7 @@ function Room(props: RoomProps) {
 
   const [isDataOk, setIsDataOk] = useState(false);
   const [anchor, setAnchor] = useState(new UpUser(0, "", ""));
+  const [myUid, setMyUid] = useState(-1);
   // 这里将setDanmu中new的chatWebSocket又赋给一个state变量wsForClose，
   // 而不是let声明一个变量，再在new chatWebSocket的时候将其赋给这个变量是因为:
   // let声明一个变量的话，无法在useEffect中检测到这个变量变化，
@@ -127,6 +129,10 @@ function Room(props: RoomProps) {
       setInitData();
       dispatch(setShouldLoad(true));
     }
+    getNavUserInfo().then(result => {
+      const { code, data } = result.data;
+      code === 0 && setMyUid(data.mid);
+    })
   }, []);
 
   // 这里相当于只关注wsForClose的componentWillUnmount
@@ -140,67 +146,56 @@ function Room(props: RoomProps) {
 
   // 相当于getDerivedStateFromProps
   useEffect(() => {
-    if (Object.keys(roomData).length != 0) { setInitData(); }
+    Object.keys(roomData).length !== 0 && setInitData();
   }, [roomData?.parentAreaId]);
 
   return (
     <div className="live-room">
-      <Helmet>
-        <title>{isDataOk ? roomData.live.title : ""}</title>
-      </Helmet>
-      {
-        !isDataOk ? <LoadingCutscene /> :
-          <>
-            <header className={style.header}>
-              <LogoHeaderWithBack />
-            </header>
-            <Context.Consumer>
-              {
-                context => (
-                  <section className={style.main}>
-                    <div className={style.playerContainer}>
-                      <Player
-                        isLive={true}
-                        isStreaming={live.isLive === 1}
-                        // getTime()返回liveTime距 1970 年 1 月 1 日之间的毫秒数
-                        liveTime={new Date(roomData.liveTime.replace(/-/g, "/")).getTime()}
-                        video={{
-                          aId: 0,
-                          cId: 0,
-                          title: live.title,
-                          cover: context.picURL + "?pic=" + live.cover,
-                          duration: 0,
-                          url: live.playUrl
-                        }}
-                        ref={playerRef}
-                      />
-                    </div>
-                    {/* up主信息 */}
-                    <div className={style.upContainer}>
-                      {/* up主头像 */}
-                      <div className={style.face}>
-                        <Link to={"/space/" + roomData.uId}>
-                          {anchor.face && <img src={context.picURL + "?pic=" + anchor.face} alt={anchor.name} />}
-                        </Link>
-                      </div>
-                      {/* up主文字信息 */}
-                      <div className={style.infoWrapper}>
-                        <p className={style.anchor}>主播：<span>{anchor.name}</span></p>
-                        <p className={style.count}>
-                          <span className={style.online} ref={onlineNumRef}>
-                            人气：{formatTenThousand(live.onlineNum)}
-                          </span>
-                          <span className={style.fans}>粉丝：{formatTenThousand(anchor.follower)}</span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className={style.bottomContainer}>
-                      <BottomArea description={roomData.description} ref={bottomRef} />
-                    </div>
-                  </section>
-                )}
-            </Context.Consumer>
-          </>
+      <Helmet><title>{isDataOk ? roomData.live.title : ""}</title></Helmet>
+      {!isDataOk ? <LoadingCutscene /> :
+        <>
+          <header className={style.header}><LogoHeaderWithBack /></header>
+          <Context.Consumer>
+            {context => (
+              <section className={style.main}>
+                <div className={style.playerContainer}>
+                  <Player isLive={true} isStreaming={live.isLive === 1}
+                    // getTime()返回liveTime距 1970 年 1 月 1 日之间的毫秒数
+                    liveTime={new Date(roomData.liveTime.replace(/-/g, "/")).getTime()}
+                    video={{
+                      aId: 0, cId: 0, title: live.title,
+                      cover: context.picURL + "?pic=" + live.cover,
+                      duration: 0, url: live.playUrl
+                    }}
+                    myUid={myUid} ref={playerRef}
+                  />
+                </div>
+                {/* up主信息 */}
+                <div className={style.upContainer}>
+                  {/* up主头像 */}
+                  <div className={style.face}>
+                    <Link to={"/space/" + roomData.uId}>
+                      {anchor.face && <img src={context.picURL + "?pic=" + anchor.face} alt={anchor.name} />}
+                    </Link>
+                  </div>
+                  {/* up主文字信息 */}
+                  <div className={style.infoWrapper}>
+                    <p className={style.anchor}>主播：<span>{anchor.name}</span></p>
+                    <p className={style.count}>
+                      <span className={style.online} ref={onlineNumRef}>
+                        人气：{formatTenThousand(live.onlineNum)}
+                      </span>
+                      <span className={style.fans}>粉丝：{formatTenThousand(anchor.follower)}</span>
+                    </p>
+                  </div>
+                </div>
+                <div className={style.bottomContainer}>
+                  <BottomArea description={roomData.description} ref={bottomRef} />
+                </div>
+              </section>
+            )}
+          </Context.Consumer>
+        </>
       }
     </div>
   );

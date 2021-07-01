@@ -44,7 +44,7 @@ interface VideoPageState {
   isSwitcherFixed: boolean;
   prevId: number;
   isViewed: boolean;
-  isLogin: boolean;
+  myUid: number;
 }
 
 class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
@@ -84,7 +84,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
       isSwitcherFixed: false,
       prevId: -999,
       isViewed: false,
-      isLogin: false
+      myUid: -1
     }
   }
 
@@ -123,49 +123,42 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
   }
 
   private generateBottomTSX = () => {
-    const { recommendVideos, comments } = this.state;
+    const { recommendVideos, comments, myUid, isViewed, loading, showLoadMore } = this.state;
+    const { aId, cId } = this.props.video;
+
     if (recommendVideos && comments) {
       this.bottomContent = [
         // 推荐列表
         <div className={style.recommendList} key={"recommendList"}>
-          {this.state.recommendVideos.map(video => (
-            <div
-              className={style.videoWrapper}
-              key={video.aId}
+          {recommendVideos.map(video => (
+            <div className={style.videoWrapper} key={video.aId}
               onClick={() => {
-                if (this.state.isLogin && this.state.isViewed) {
+                if (myUid !== - 1 && isViewed) {
                   postViewedReport({
-                    aid: this.props.video.aId,
-                    cid: this.props.video.cId,
+                    aid: aId,
+                    cid: cId,
                     progress: Math.floor(this.videoRef.current.currentTime) // 后台API要求取整
                   })
                 }
               }}
             >
-              <VideoItemLandscape
-                videoData={video}
-                imgParams={{
-                  imgHeight: "10.575rem",
-                  imgSrc: video.pic,
-                  imgFormat: "@320w_200h"
-                }}
+              <VideoItemLandscape videoData={video}
+                imgParams={{ imgHeight: "10.575rem", imgSrc: video.pic, imgFormat: "@320w_200h" }}
               />
             </div>
           ))
           }
-          {this.state.loading && <div className={style.loading}>加载中...</div>}
+          {loading && <div className={style.loading}>加载中...</div>}
         </div>,
         // 评论区
         <div className={style.comment} key={"comment"}>
           <div className={style.commentList}>
-            {this.state.comments.map((comment, i) => (
+            {comments.map((comment, i) => (
               <div className={style.commentWrapper} key={i}>
                 <Link to={"/space/" + comment.user.mId}>
                   <LazyLoad height="2rem">
-                    <img
-                      className={style.commentUpPic}
+                    <img className={style.commentUpPic} alt={comment.user.name}
                       src={this.getPicUrl(comment.user.face, "@60w_60h")}
-                      alt={comment.user.name}
                     />
                   </LazyLoad>
                 </Link>
@@ -179,7 +172,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
             }
           </div>
           <div className={style.commentsBottom}>
-            {this.state.showLoadMore ?
+            {showLoadMore ?
               <div className={style.loadMore} onClick={() => { this.loadMoreComment() }}>
                 点击加载更多评论</div> :
               <div className={style.noMore}>没有更多了 ~</div>
@@ -191,52 +184,50 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
   }
 
   private getRecommentVideos() {
-    getRecommendVides(this.props.match.params.aId)
-      .then(result => {
-        if (result.code === "1") {
-          const recommendVideos = result.data.map(item => createVideo(item));
-          this.setState({
-            loading: false,
-            recommendVideos
-          }, () => this.generateBottomTSX());
-        }
-      });
+    getRecommendVides(this.props.match.params.aId).then(result => {
+      if (result.code === "1") {
+        const recommendVideos = result.data.map(item => createVideo(item));
+        this.setState({
+          loading: false,
+          recommendVideos
+        }, () => this.generateBottomTSX());
+      }
+    });
   }
 
   private getComments() {
-    getComments(this.props.match.params.aId, this.commentPage.pageNumber)
-      .then(result => {
-        if (result.code === "1") {
-          const page = result.data.page;
-          // page.count：总评论数
-          // page.size：每页显示评论数
-          const maxPage = Math.ceil(page.count / page.size);
-          const showLoadMore = this.commentPage.pageNumber < maxPage;
-          // 保存当前页码、每页评论数、总评论数
-          this.commentPage = {
-            pageNumber: this.commentPage.pageNumber,
-            pageSize: page.size,
-            count: page.count
-          }
-          // 生成每一条评论并保存到this.state.comments中
-          let comments = [];
-          if (result.data.replies) {
-            comments = result.data.replies.map((item) => {
-              let date: any = new Date(item.ctime * 1000); // unix时间转换成本地时间戳
-              date = formatDate(date, "yyyy-MM-dd hh:mm");
-              return {
-                content: item.content.message,
-                date,
-                user: { ...new UpUser(item.member.mid, item.member.uname, item.member.avatar) }
-              }
-            });
-          }
-          this.setState({
-            showLoadMore,
-            comments: this.state.comments.concat(comments)
-          }, () => this.generateBottomTSX());
+    getComments(this.props.match.params.aId, this.commentPage.pageNumber).then(result => {
+      if (result.code === "1") {
+        const page = result.data.page;
+        // page.count：总评论数
+        // page.size：每页显示评论数
+        const maxPage = Math.ceil(page.count / page.size);
+        const showLoadMore = this.commentPage.pageNumber < maxPage;
+        // 保存当前页码、每页评论数、总评论数
+        this.commentPage = {
+          pageNumber: this.commentPage.pageNumber,
+          pageSize: page.size,
+          count: page.count
         }
-      });
+        // 生成每一条评论并保存到this.state.comments中
+        let comments = [];
+        if (result.data.replies) {
+          comments = result.data.replies.map((item) => {
+            let date: any = new Date(item.ctime * 1000); // unix时间转换成本地时间戳
+            date = formatDate(date, "yyyy-MM-dd hh:mm");
+            return {
+              content: item.content.message,
+              date,
+              user: { ...new UpUser(item.member.mid, item.member.uname, item.member.avatar) }
+            }
+          });
+        }
+        this.setState({
+          showLoadMore,
+          comments: this.state.comments.concat(comments)
+        }, () => this.generateBottomTSX());
+      }
+    });
   }
 
   private loadMoreComment() {
@@ -301,9 +292,8 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     this.saveHistory(vData);
 
     getNavUserInfo().then(result => {
-      if (result.data.code === 0) {
-        this.setState({ isLogin: true });
-      }
+      const { code, data } = result.data;
+      code === 0 && this.setState({ myUid: data.mid });
     })
 
     // 设置底部切换区域的位置，首次切换时都跳到这个位置
@@ -346,7 +336,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
 
   /* 以下为渲染部分 */
   public render() {
-    const { isDataOk, videoData } = this.state
+    const { isDataOk, videoData, myUid } = this.state
     const { title, desc, owner, aId, cId, pic, duration, url, playCount, barrageCount,
       publicDate, twoLevel } = videoData;
 
@@ -365,19 +355,19 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
         {!isDataOk ? <LoadingCutscene /> :
           <>
             <div className={style.topWrapper} ref={this.topWrapperRef}
-              onClick={() => { if (this.state.isLogin && this.state.isViewed) { postViewedReport({ aid: aId, cid: cId, progress: Math.floor(this.videoRef.current.currentTime) }) } }}
-            ><LogoHeaderWithBack /></div>
+              onClick={() => { if (this.state.myUid !== -1 && this.state.isViewed) { postViewedReport({ aid: aId, cid: cId, progress: Math.floor(this.videoRef.current.currentTime) }) } }}
+            >
+              <LogoHeaderWithBack />
+            </div>
             {/* 内容 */}
             <div className={style.contentWrapper}>
               {/* 播放器 */}
               <div className={style.videoContainer}>
-                <Player
+                <Player isLive={false} videoRef={this.videoRef} myUid={myUid}
                   video={{ aId: aId, cId: cId, title: title, cover: videoData.pic, duration: duration, url: url, }}
-                  isLive={false}
-                  videoRef={this.videoRef}
                   clickCover={() => {
                     this.setState({ isViewed: true });
-                    if (this.state.isLogin) { postViewedReport({ aid: this.props.video.aId, cid: this.props.video.cId }); }
+                    if (this.state.myUid) { postViewedReport({ aid: this.props.video.aId, cid: this.props.video.cId }); }
                   }}
                 />
               </div>
@@ -416,8 +406,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
               <div className={style.bottomArea} ref={this.bottomAreaRef}>
                 <Switcher
                   tabTitle={["相关推荐", `评论 (${this.commentPage.count})`]}
-                  sliderData={this.bottomContent}
-                  switchRatio={0.15}
+                  sliderData={this.bottomContent} switchRatio={0.15}
                   scrollToAtFirstSwitch={this.bottomPos}
                 />
               </div>
