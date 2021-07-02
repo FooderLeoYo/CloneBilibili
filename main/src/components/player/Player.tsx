@@ -25,7 +25,7 @@ interface PlayerProps {
     duration: number,
     url: string
   },
-  myUid: number,
+  myUid?: number,
   videoRef?: React.RefObject<HTMLVideoElement>,
   isStreaming?: boolean, // 主播是否正在直播
   liveTime?: number,
@@ -59,11 +59,11 @@ function Player(props: PlayerProps, ref) {
   // 暂停/播放
   const [paused, setPaused] = useState(true);
   const pausedRef = useRef(paused);
-  if (pausedRef.current !== paused) { pausedRef.current = paused; }
+  if (pausedRef.current !== paused) { pausedRef.current = paused }
   // 手势类型
   const [gestureType, setGestureType] = useState(0); // 手势类型：0：无手势；1：左右滑动；2：右边的上下滑动；3：左边的上下滑动
   const gestureTypeRef = useRef(gestureType);
-  if (gestureTypeRef.current !== gestureType) { gestureTypeRef.current = gestureType; }
+  if (gestureTypeRef.current !== gestureType) { gestureTypeRef.current = gestureType }
 
   /* Refs */
   const playerRef: React.RefObject<HTMLDivElement> = useRef(null);
@@ -314,12 +314,14 @@ function Player(props: PlayerProps, ref) {
   }
 
   useImperativeHandle(ref, () => ({
-    sendBarrage: (data: { color: string, content: string }) => {
+    sendBarrage: data => {
       if (ctrBarRef.current.showBarrage) {
         barrageRef.current.send({
           type: "1",
           decimalColor: data.color,
-          content: data.content
+          content: data.content,
+          uidHash: data.uidHash,
+          sendTime: data.sendTime
         });
       }
     }
@@ -349,9 +351,9 @@ function Player(props: PlayerProps, ref) {
         {/*   如果Barrage成为videoArea的子元素，那么Barrage的事件会冒泡到videoArea */}
         {/*   这样就还要阻止Barrage的事件冒泡，所以不如将其放在外面 */}
         <div className={style.barrage}>
-          <Barrage isLive={isLive} barrageRefs={barrageRefs} myUid={myUid.toString()}
+          <Barrage isLive={isLive} barrageRefs={barrageRefs} myUid={myUid?.toString()}
             barrageSetState={barrageSetState} barrageMethods={barrageMethods}
-            opacity={isLive ? 1 : 0.75} ref={barrageRef}
+            opacity={isLive ? 1 : 0.75} ref={barrageRef} paused={paused}
           />
         </div>
         <div className={style.controlContainer}>
@@ -376,19 +378,21 @@ function Player(props: PlayerProps, ref) {
             </div>
           </div>
           {/* 速度调节及显示 */}
-          {!isLive && <div className={style.speedContainer}> ref={speedRef}
-            <Speed videoDOM={videoDOMRef.current} paused={paused}
-              playBtnTimer={playBtnTimerRef.current} isShowPlayBtn={isShowPlayBtn}
-              setIsShowPlayBtn={setIsShowPlayBtn} setSpeedBtnSuffix={setSpeedBtnSuffix}
-            />
-          </div>
+          {!isLive &&
+            <div className={style.speedContainer} >
+              <Speed videoDOM={videoDOMRef.current} paused={paused} ref={speedRef}
+                playBtnTimer={playBtnTimerRef.current} isShowPlayBtn={isShowPlayBtn}
+                setIsShowPlayBtn={setIsShowPlayBtn} setSpeedBtnSuffix={setSpeedBtnSuffix}
+              />
+            </div>
           }
           {/* 右边的白色播放暂停按钮 */}
-          {!isLive && <div className={style.playButton} style={playBtnStyle} ref={playBtnRef}>
-            <svg className="icon" aria-hidden="true">
-              <use href={`#icon-${playBtnIconName}`}></use>
-            </svg>
-          </div>
+          {!isLive &&
+            <div className={style.playButton} style={playBtnStyle} ref={playBtnRef}>
+              <svg className="icon" aria-hidden="true">
+                <use href={`#icon-${playBtnIconName}`}></use>
+              </svg>
+            </div>
           }
           {/* 控制栏 */}
           <ControlBar ctrBarStatus={ctrBarStatus} ctrBarData={ctrBarData}

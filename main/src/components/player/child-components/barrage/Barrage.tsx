@@ -10,11 +10,13 @@ interface BarrageData {
   type: string;
   decimalColor: string;
   content: string;
-  uidHash?: string;
+  uidHash: string;
+  sendTime: string;
 }
 
 interface BarrageProps {
-  isLive: boolean,
+  isLive: boolean;
+  paused: boolean;
   barrageRefs: {
     videoRef: React.RefObject<HTMLVideoElement>,
     curBrightnessRef: React.RefObject<HTMLDivElement>,
@@ -24,23 +26,47 @@ interface BarrageProps {
     currentTimeRef: React.RefObject<HTMLSpanElement>,
     showCtrBarRef: React.MutableRefObject<boolean>,
     controlBarRef: React.RefObject<HTMLDivElement>
-  },
+  };
   barrageSetState: {
     setGestureType: React.Dispatch<React.SetStateAction<number>>,
     setIsShowCenterVolume: React.Dispatch<React.SetStateAction<boolean>>,
     setIsShowCenterBri: React.Dispatch<React.SetStateAction<boolean>>,
     setIsShowControlBar: React.Dispatch<React.SetStateAction<boolean>>,
-  },
+  };
   barrageMethods: {
     setTimeupdateListener: () => void,
     showControls: () => void,
     showControlsTemporally: () => void,
     clearCtrTimer: () => void
-  },
-  myUid: string;
-  fontSize?: string,
-  opacity?: number,
-  barrages?: BarrageData[]
+  };
+  myUid?: string;
+  fontSize?: string;
+  opacity?: number;
+  barrages?: BarrageData[];
+}
+
+class fixedBarrTimers {
+  private timerId: number;
+  private start: number;
+  private remaining: number;
+  private callback: Function;
+  constructor(callback: Function, delay: number) {
+    this.timerId = delay;
+    this.start = delay;
+    this.remaining = delay;
+    this.callback = callback;
+  }
+
+  public pause = () => {
+    clearTimeout(this.timerId);
+    this.remaining -= Date.now() - this.start;
+  };
+
+  public resume = () => {
+    this.start = Date.now();
+    clearTimeout(this.timerId);
+    this.timerId = setTimeout(this.callback, this.remaining);
+  };
 }
 
 /**
@@ -57,6 +83,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
   private fontSize: string;
   private opacity: number;
   private isPC: boolean;
+  private fixedBarrTimers: fixedBarrTimers[];
 
   constructor(props) {
     super(props);
@@ -64,6 +91,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
     this.fontSize = props.fontSize || "0.8rem";
     this.opacity = props.opacity || 1;
     this.isPC = !(/(Safari|iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
+    this.fixedBarrTimers = [];
   }
 
   public initBarrAreaSize = () => {
@@ -75,8 +103,12 @@ class Barrage extends React.PureComponent<BarrageProps> {
   }
 
   private createBarrageElem(barrage: BarrageData) {
-    const div = document.createElement("div");
-    div.innerHTML = barrage.content;
+    const { content, type, decimalColor, uidHash } = barrage;
+
+    const tempHex = Number(decimalColor).toString(16);
+    // tempHex不够6位时前面需要补0
+    const divColor = "#" + "00000000".substr(0, 6 - tempHex.length) + tempHex;
+
     const style: any = {
       position: "absolute",
       fontFamily: "黑体",
@@ -84,11 +116,14 @@ class Barrage extends React.PureComponent<BarrageProps> {
       fontWeight: "bold",
       whiteSpace: "pre",
       textShadow: "rgb(0, 0, 0) 1px 1px 2px",
-      color: "#" + Number(barrage.decimalColor).toString(16),
+      color: divColor,
       opacity: this.opacity
     };
+    const div = document.createElement("div");
 
-    if (barrage.type === "4") {
+    div.innerHTML = content;
+
+    if (type === "4") {
       div.style.bottom = this.fixedBottom + "px"; ``
       // 距离底端位置增加一个弹幕内容高度，防止固定弹幕重叠
       this.fixedBottom += this.contentHeight;
@@ -133,41 +168,58 @@ class Barrage extends React.PureComponent<BarrageProps> {
     }
 
     // 检查是否为本人所发弹幕
-    const covertUidHash = BiliBili_midcrc();
-    if (covertUidHash(barrage.uidHash) === this.props.myUid) {
-      div.style.border = "1px solid #23ade5";
+    const { myUid } = this.props;
+    if (myUid) {
+      const covertUidHash = BiliBili_midcrc();
+      if (covertUidHash(uidHash) === myUid) {
+        div.style.border = `2px solid ${divColor}`;
+      }
     }
 
     return div;
   }
 
   public send(barrage: BarrageData) {
+    const { type, uidHash, sendTime } = barrage;
+    console.log(barrage)
     const barrageDOM = this.barrageRef.current;
     const barrageElem = this.createBarrageElem(barrage);
+    let tempTimer: fixedBarrTimers;
+
     barrageDOM.appendChild(barrageElem);
 
-    if (barrage.type === "4") {
+    if (type === "4") {
       // 居中放置
       barrageElem.style.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
       // 移除弹幕
-      setTimeout(() => {
+      tempTimer = new fixedBarrTimers(() => {
         barrageDOM.removeChild(barrageElem);
         // 距底端位置减少一个弹幕内容高度
         this.fixedBottom -= this.contentHeight;
         if (this.fixedBottom < 0) { this.fixedBottom = 0 }
+
+        this.fixedBarrTimers.shift();
       }, 5000);
-    } else if (barrage.type === "5") {
+    } else if (type === "5") {
       barrageElem.style.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
-      setTimeout(() => {
+      tempTimer = new fixedBarrTimers(() => {
         barrageDOM.removeChild(barrageElem);
         this.fixedTop -= this.contentHeight;
         if (this.fixedTop < 0) { this.fixedTop = 0 }
+        this.fixedBarrTimers.shift();
       }, 5000);
     } else {
       const x = - (this.viewWidth + barrageElem.offsetWidth);
       setTimeout(() => {
         barrageElem.style.transform = `translate3d(${x}px, 0, 0)`;
+        document.styleSheets[0].insertRule(`@keyframes ${uidHash}${sendTime}`)
+        // barrageElem.style.animationPlayState
       }, 10); // 这里的10不是动画时间，而是等待组件加载，然后才添加style
+    }
+
+    if (tempTimer) {
+      tempTimer.resume();
+      this.fixedBarrTimers.push(tempTimer);
     }
   }
 
@@ -388,6 +440,16 @@ class Barrage extends React.PureComponent<BarrageProps> {
     this.init();
     if (this.isPC) { this.setMouseListener(); }
     else { setTimeout(() => { this.setFingerListener(); }, 1); }
+  }
+
+  public componentDidUpdate(prevProps) {
+    const { paused } = this.props;
+    if (this.fixedBarrTimers.length > 0 && paused !== prevProps.paused) {
+      if (paused) {
+        this.fixedBarrTimers.forEach(timer => timer.pause())
+      }
+      else { this.fixedBarrTimers.forEach(timer => timer.resume()) }
+    }
   }
 
   public componentWillUnmount() {

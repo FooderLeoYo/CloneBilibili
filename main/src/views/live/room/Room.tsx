@@ -7,7 +7,6 @@ import getRoomData from "@redux/async-action-creators/live/room";
 import { setShouldLoad } from "@redux/action-creators";
 import { getUserInfo } from "@api/space";
 import { getDanMuConfig } from "@api/live";
-import { getNavUserInfo } from "@api/login";
 
 import Context from "@context/index";
 import { Live, UpUser } from "@class-object-creators/index";
@@ -45,7 +44,6 @@ function Room(props: RoomProps) {
 
   const [isDataOk, setIsDataOk] = useState(false);
   const [anchor, setAnchor] = useState(new UpUser(0, "", ""));
-  const [myUid, setMyUid] = useState(-1);
   // 这里将setDanmu中new的chatWebSocket又赋给一个state变量wsForClose，
   // 而不是let声明一个变量，再在new chatWebSocket的时候将其赋给这个变量是因为:
   // let声明一个变量的话，无法在useEffect中检测到这个变量变化，
@@ -102,7 +100,7 @@ function Room(props: RoomProps) {
             // 播放器中发送弹幕
             if (item.cmd === "DANMU_MSG") {
               const barragData = {
-                color: "#" + Number(item.info[0][3]).toString(16),
+                color: item.info[0][3],
                 content: item.info[1]
               };
               playerRef.current.sendBarrage(barragData);
@@ -129,10 +127,6 @@ function Room(props: RoomProps) {
       setInitData();
       dispatch(setShouldLoad(true));
     }
-    getNavUserInfo().then(result => {
-      const { code, data } = result.data;
-      code === 0 && setMyUid(data.mid);
-    })
   }, []);
 
   // 这里相当于只关注wsForClose的componentWillUnmount
@@ -167,7 +161,7 @@ function Room(props: RoomProps) {
                       cover: context.picURL + "?pic=" + live.cover,
                       duration: 0, url: live.playUrl
                     }}
-                    myUid={myUid} ref={playerRef}
+                    ref={playerRef}
                   />
                 </div>
                 {/* up主信息 */}
