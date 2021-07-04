@@ -1,6 +1,5 @@
 import * as React from "react";
 
-import { getTransitionEndName } from "@customed-methods/compatible";
 import { formatDuration } from "@customed-methods/string";
 import BiliBili_midcrc from "../crc32";
 
@@ -84,6 +83,8 @@ class Barrage extends React.PureComponent<BarrageProps> {
   private opacity: number;
   private isPC: boolean;
   private fixedBarrTimers: fixedBarrTimers[];
+  private rollBarrStyles: CSSStyleDeclaration[];
+  private rollBarCSSStySheet: CSSStyleSheet;
 
   constructor(props) {
     super(props);
@@ -92,6 +93,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
     this.opacity = props.opacity || 1;
     this.isPC = !(/(Safari|iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
     this.fixedBarrTimers = [];
+    this.rollBarrStyles = [];
   }
 
   public initBarrAreaSize = () => {
@@ -129,19 +131,16 @@ class Barrage extends React.PureComponent<BarrageProps> {
       this.fixedBottom += this.contentHeight;
       // 最大值边界判断
       if (this.fixedBottom > this.viewHeight - this.contentHeight) { this.fixedBottom = 0 }
-    } else if (barrage.type === "5") {
+    } else if (type === "5") {
       div.style.top = this.fixedTop + "px";
       this.fixedTop += this.contentHeight;
       if (this.fixedTop > this.viewHeight - this.contentHeight) { this.fixedTop = 0 }
     } else {
       style.top = `${this.randomTop}px`;
       style.left = `${this.viewWidth}px`;
-      style.transition = "transform 5s linear 0s";
-      const transitionName = getTransitionEndName(div);
-      const handleTransitionEnd = () => {
+      const handleAnimationEnd = () => {
         // 弹幕运动完成后移除监听，清除弹幕
-        // 这里是移除handleTransitionEnd，不涉及递归
-        div.removeEventListener(transitionName, handleTransitionEnd);
+        div.removeEventListener("animationend", handleAnimationEnd);
         this.barrageRef.current.removeChild(div);
         // 距顶端位置减少一个弹幕内容高度
         this.randomTop -= this.contentHeight;
@@ -149,9 +148,11 @@ class Barrage extends React.PureComponent<BarrageProps> {
         if (this.randomTop < 0) {
           this.randomTop = 0;
         }
+        this.rollBarrStyles.shift();
+        this.rollBarCSSStySheet.deleteRule(this.rollBarCSSStySheet.cssRules.length - 1);
       };
 
-      div.addEventListener(transitionName, handleTransitionEnd);
+      div.addEventListener("animationend", handleAnimationEnd);
       // 距离顶端位置增加一个弹幕内容高度，防止滚动弹幕重叠
       this.randomTop += this.contentHeight;
       // 最大值边界判断
@@ -181,16 +182,16 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
   public send(barrage: BarrageData) {
     const { type, uidHash, sendTime } = barrage;
-    console.log(barrage)
     const barrageDOM = this.barrageRef.current;
     const barrageElem = this.createBarrageElem(barrage);
+    const { style, offsetWidth } = barrageElem;
     let tempTimer: fixedBarrTimers;
 
     barrageDOM.appendChild(barrageElem);
 
     if (type === "4") {
       // 居中放置
-      barrageElem.style.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
+      style.left = (this.viewWidth - offsetWidth) / 2 + "px";
       // 移除弹幕
       tempTimer = new fixedBarrTimers(() => {
         barrageDOM.removeChild(barrageElem);
@@ -201,7 +202,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
         this.fixedBarrTimers.shift();
       }, 5000);
     } else if (type === "5") {
-      barrageElem.style.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
+      style.left = (this.viewWidth - offsetWidth) / 2 + "px";
       tempTimer = new fixedBarrTimers(() => {
         barrageDOM.removeChild(barrageElem);
         this.fixedTop -= this.contentHeight;
@@ -209,11 +210,11 @@ class Barrage extends React.PureComponent<BarrageProps> {
         this.fixedBarrTimers.shift();
       }, 5000);
     } else {
-      const x = - (this.viewWidth + barrageElem.offsetWidth);
+      const x = - (this.viewWidth + offsetWidth);
       setTimeout(() => {
-        barrageElem.style.transform = `translate3d(${x}px, 0, 0)`;
-        document.styleSheets[0].insertRule(`@keyframes ${uidHash}${sendTime}`)
-        // barrageElem.style.animationPlayState
+        this.rollBarCSSStySheet.insertRule(`@keyframes barr${uidHash}${sendTime}{from {transform: translate3d(0, 0, 0);}to {transform: translate3d(${x}px, 0, 0)};}`);
+        style.animation = `barr${uidHash}${sendTime} 5s linear`;
+        this.rollBarrStyles.push(style);
       }, 10); // 这里的10不是动画时间，而是等待组件加载，然后才添加style
     }
 
@@ -257,9 +258,14 @@ class Barrage extends React.PureComponent<BarrageProps> {
     // 那么触发orientationchange时，initBarrAreaSize中的this也将是window，但应该是Barrage
     addEventListener("orientationchange", this.initBarrAreaSize);
 
+    // 为滚动弹幕单独创建一个CssStyleSheet，防止insertRule的时候污染其他sheet
+    const styleSheet = document.createElement("style");
+    document.head.appendChild(styleSheet);
+    this.rollBarCSSStySheet = styleSheet.sheet;
+
     /* 如果父组件有弹幕传递过来，则显示这些弹幕（一般没有） */
     const { barrages } = this.props;
-    if (barrages) { for (const barrage of barrages) { this.send(barrage); } }
+    if (barrages) { for (const barrage of barrages) { this.send(barrage) } }
   }
 
   public setFingerListener() {
@@ -438,17 +444,20 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
   public componentDidMount() {
     this.init();
-    if (this.isPC) { this.setMouseListener(); }
-    else { setTimeout(() => { this.setFingerListener(); }, 1); }
+    if (this.isPC) { this.setMouseListener() }
+    else { setTimeout(() => { this.setFingerListener() }, 1) }
   }
 
   public componentDidUpdate(prevProps) {
     const { paused } = this.props;
-    if (this.fixedBarrTimers.length > 0 && paused !== prevProps.paused) {
+    if (paused !== prevProps.paused) {
       if (paused) {
-        this.fixedBarrTimers.forEach(timer => timer.pause())
+        this.fixedBarrTimers.forEach(timer => timer.pause());
+        this.rollBarrStyles.forEach(style => style.animationPlayState = "paused");
+      } else {
+        this.fixedBarrTimers.forEach(timer => timer.resume());
+        this.rollBarrStyles.forEach(style => style.animationPlayState = "running");
       }
-      else { this.fixedBarrTimers.forEach(timer => timer.resume()) }
     }
   }
 
