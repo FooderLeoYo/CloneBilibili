@@ -115,20 +115,23 @@ router.get("/av/barrage", (req, res, next) => {
           msg: "success",
           data: []
         }
-        if (result.i.d) {
-          result.i.d.forEach((item, i) => {
-            let p = item.$.p;
-            const attrs = p.split(",");
-            resData.data.push({
-              time: attrs[0],  // 时间
-              type: attrs[1],  // 类型
-              decimalColor: attrs[3],  // 十进制颜色
-              sendTime: attrs[4],   // 发送时间
-              uidHash: attrs[6],
-              content: item._,  // 内容
-              p
-            });
+        const barrData = result.i.d;
+        const convertFormat = item => {
+          let p = item.$.p;
+          const attrs = p.split(",");
+          resData.data.push({
+            time: attrs[0],  // 时间
+            type: attrs[1],  // 类型
+            decimalColor: attrs[3],  // 十进制颜色
+            sendTime: attrs[4],   // 发送时间
+            uidHash: attrs[6],
+            content: item._,  // 内容
+            p
           });
+        };
+        if (barrData) {
+          if (barrData.length) { barrData.forEach(item => convertFormat(item)) }
+          else { convertFormat(barrData) }
         }
         res.send(resData);
       } else {
