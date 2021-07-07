@@ -294,23 +294,13 @@ function Player(props: PlayerProps, ref) {
     const progressDOM = progressRef.current;
     const curTime = videoDOM.currentTime;
     // 初始化时设置duration
-    if (duration === 0) { duration = videoDur; }
-
+    if (duration === 0) { duration = videoDur }
     // 更新进度条
     currentTimeDOM.innerHTML = formatDuration(curTime, "0#:##");
-    const progress = curTime / videoDur * 100;
-    progressDOM.style.width = `${progress}%`;
-
-    // 加载当前时点的弹幕
-    if (ctrBarRef.current.showBarrage) {
-      const barrages = findBarrages(curTime);
-      // 如果当前正在播放，则发送弹幕
-      if (!pausedRef.current) {
-        barrages.forEach(barrage => {
-          barrageComponent.send(barrage);
-        });
-      }
-    }
+    progressDOM.style.width = `${curTime / videoDur * 100}%`;
+    // 如果显示弹幕已开，且正在播放
+    ctrBarRef.current.showBarrage && !pausedRef.current &&
+      findBarrages(curTime).forEach(barrage => barrageComponent.send(barrage));
   }
 
   useImperativeHandle(ref, () => ({

@@ -223,6 +223,14 @@ class Barrage extends React.PureComponent<BarrageProps> {
     for (const child of Array.from(children)) {
       barrageDOM.removeChild(child);
     }
+    // 这里不需要将原fixedBarrTimers中的timer清除，只需要将fixedBarrTimers指向一个新的空数组
+    // 因为barrageDOM.removeChild后弹幕DOM都没了，那么弹幕DOM上所绑定的定时器、倒计时动画自然也没了
+    this.fixedBarrTimers = [];
+    // 样式表不会随着DOM消失，而清除回调又随着DOM一并销毁了，因此要手动删除
+    // console.log("sheet: " + this.rollBarCSSStySheet)
+    // console.log("len: " + this.rollBarrStyles.length)
+    for (let i = 0; i < this.rollBarrStyles.length; i++) { this.rollBarCSSStySheet.deleteRule(i) }
+    this.rollBarrStyles = [];
   }
 
   private init() {
