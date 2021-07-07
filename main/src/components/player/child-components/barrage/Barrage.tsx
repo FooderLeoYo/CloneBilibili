@@ -169,13 +169,14 @@ class Barrage extends React.PureComponent<BarrageProps> {
     const { type, uidHash, sendTime } = barrage;
     const barrageDOM = this.barrageRef.current;
     const barrageElem = this.createBarrageElem(barrage);
+    const barrEleStyle = barrageElem.style;
     let tempTimer: fixedBarrTimer;
 
     barrageDOM.appendChild(barrageElem);
 
     if (type === "4") {
       // 居中放置
-      barrageElem.style.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
+      barrEleStyle.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
       // 移除弹幕
       tempTimer = new fixedBarrTimer(() => {
         barrageDOM.removeChild(barrageElem);
@@ -185,7 +186,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
         this.fixedBarrTimers.splice(this.fixedBarrTimers.indexOf(tempTimer), 1);
       }, 5000);
     } else if (type === "5") {
-      barrageElem.style.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
+      barrEleStyle.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
       tempTimer = new fixedBarrTimer(() => {
         barrageDOM.removeChild(barrageElem);
         this.fixedTop -= this.contentHeight;
@@ -194,27 +195,32 @@ class Barrage extends React.PureComponent<BarrageProps> {
       }, 5000);
     } else {
       const x = - (this.viewWidth + barrageElem.offsetWidth);
-      setTimeout(() => {
-        this.rollBarCSSStySheet.insertRule(`@keyframes barr${uidHash}${sendTime}{from {transform: translate3d(0, 0, 0);}to {transform: translate3d(${x}px, 0, 0)};}`);
-        barrageElem.style.animation = `barr${uidHash}${sendTime} 5s linear`;
-        this.rollBarrStyles.push(barrageElem.style);
+      this.rollBarCSSStySheet.insertRule(`@keyframes barr${uidHash}${sendTime}{from {transform: translate3d(0, 0, 0);}to {transform: translate3d(${x}px, 0, 0)};}`);
+      barrEleStyle.animation = `barr${uidHash}${sendTime} 5s linear`;
+      this.rollBarrStyles.push(barrEleStyle);
 
-        const handleAnimationEnd = () => {
-          // 弹幕运动完成后移除监听，清除弹幕
-          barrageElem.removeEventListener("animationend", handleAnimationEnd);
-          this.barrageRef.current.removeChild(barrageElem);
-          // 距顶端位置减少一个弹幕内容高度
-          this.randomTop -= this.contentHeight;
-          // 最小值边界判断
-          if (this.randomTop < 0) {
-            this.randomTop = 0;
-          }
-          this.rollBarrStyles.splice(this.rollBarrStyles.indexOf(barrageElem.style), 1);
-          this.rollBarCSSStySheet.deleteRule(this.rollBarCSSStySheet.cssRules.length - 1);
-        };
-        barrageElem.addEventListener("animationend", handleAnimationEnd);
-      }, 10); // 这里的10不是动画时间，而是等待组件加载，然后才添加style
+      const handleAnimationEnd = () => {
+        // 弹幕运动完成后移除监听，清除弹幕
+        barrageElem.removeEventListener("animationend", handleAnimationEnd);
+        barrageDOM.removeChild(barrageElem);
+        // 距顶端位置减少一个弹幕内容高度
+        this.randomTop -= this.contentHeight;
+        // 最小值边界判断
+        if (this.randomTop < 0) { this.randomTop = 0 }
+        // 清除已消失弹幕的样式缓存
+        const inx = this.rollBarrStyles.indexOf(barrEleStyle);
+        this.rollBarCSSStySheet.deleteRule(inx);
+        this.rollBarrStyles.splice(inx, 1);
+      };
+      barrageElem.addEventListener("animationend", handleAnimationEnd);
     }
+
+    barrageElem.addEventListener("click", () => {
+      tempTimer ? tempTimer.pause() : barrEleStyle.animationPlayState = "paused";
+      setTimeout(() => {
+        tempTimer ? tempTimer.resume() : barrEleStyle.animationPlayState = "running";
+      }, 3500);
+    });
 
     if (tempTimer) {
       tempTimer.resume();
@@ -449,7 +455,6 @@ class Barrage extends React.PureComponent<BarrageProps> {
   public componentDidUpdate(prevProps) {
     const { paused } = this.props;
     if (paused !== prevProps.paused) {
-      console.log(this.rollBarrStyles)
       if (paused) {
         this.fixedBarrTimers.forEach(timer => timer.pause());
         this.rollBarrStyles.forEach(style => style.animationPlayState = "paused");
