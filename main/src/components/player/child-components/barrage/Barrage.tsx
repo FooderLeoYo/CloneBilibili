@@ -102,14 +102,13 @@ class Barrage extends React.PureComponent<BarrageProps> {
     }, 1000);
   }
 
-  private createBarrageElem(barrage: BarrageData) {
-    const { content, type, decimalColor, uidHash } = barrage;
 
+  public send(barrage: BarrageData) {
+    const { content, type, decimalColor, uidHash, sendTime } = barrage;
+    const barrageDOM = this.barrageRef.current;
     const tempHex = Number(decimalColor).toString(16);
-    // tempHex不够6位时前面需要补0
-    const divColor = "#" + "00000000".substr(0, 6 - tempHex.length) + tempHex;
-
-    const style: any = {
+    const divColor = "#" + "00000000".substr(0, 6 - tempHex.length) + tempHex; // tempHex不够6位时前面需要补0
+    const tempStyle: any = {
       position: "absolute",
       fontFamily: "黑体",
       fontSize: "0.8rem",
@@ -120,72 +119,48 @@ class Barrage extends React.PureComponent<BarrageProps> {
       opacity: this.opacity,
       zIndex: "99"
     };
-    const div = document.createElement("div");
-
-    div.innerHTML = content;
-
-    if (type === "4") {
-      div.style.bottom = this.fixedBottom + "px"; ``
-      // 距离底端位置增加一个弹幕内容高度，防止固定弹幕重叠
-      this.fixedBottom += this.contentHeight;
-      // 最大值边界判断
-      if (this.fixedBottom > this.viewHeight - this.contentHeight) { this.fixedBottom = 0 }
-    } else if (type === "5") {
-      div.style.top = this.fixedTop + "px";
-      this.fixedTop += this.contentHeight;
-      if (this.fixedTop > this.viewHeight - this.contentHeight) { this.fixedTop = 0 }
-    } else {
-      style.top = `${this.randomTop}px`;
-      style.left = `${this.viewWidth}px`;
-
-      // 距离顶端位置增加一个弹幕内容高度，防止滚动弹幕重叠
-      this.randomTop += this.contentHeight;
-      // 最大值边界判断
-      if (this.randomTop > this.viewHeight - this.contentHeight) {
-        this.randomTop = 0;
-      }
-    }
-
-    for (const k in style) {
+    let tempTimer: fixedBarrTimer;
+    /* 初始化一条弹幕的div */
+    const barrageElem = document.createElement("div");
+    const barrEleStyle = barrageElem.style;
+    barrageElem.innerHTML = content;
+    barrageDOM.appendChild(barrageElem);
+    for (const k in tempStyle) {
       //  void 0等价于undefined，而且不能被重写且能节省字节
-      if (style[k] !== void 0) {
-        div.style[k] = style[k];
+      if (tempStyle[k] !== void 0) {
+        barrageElem.style[k] = tempStyle[k];
       }
     }
-
     // 检查是否为本人所发弹幕
     const { myUid } = this.props;
     if (myUid) {
       const covertUidHash = BiliBili_midcrc();
       if (covertUidHash(uidHash) === myUid) {
-        div.style.border = `2px solid ${divColor}`;
+        barrageElem.style.border = `2px solid ${divColor}`;
       }
     }
 
-    return div;
-  }
-
-  public send(barrage: BarrageData) {
-    const { type, uidHash, sendTime } = barrage;
-    const barrageDOM = this.barrageRef.current;
-    const barrageElem = this.createBarrageElem(barrage);
-    const barrEleStyle = barrageElem.style;
-    let tempTimer: fixedBarrTimer;
-
-    barrageDOM.appendChild(barrageElem);
-
+    /* 根据弹幕类型设置具体属性 */
     if (type === "4") {
+      barrEleStyle.bottom = this.fixedBottom + "px"; ``
+      // 距离底端位置增加一个弹幕内容高度，防止固定弹幕重叠
+      this.fixedBottom += this.contentHeight;
+      // 最大值边界判断
+      if (this.fixedBottom > this.viewHeight - this.contentHeight) { this.fixedBottom = 0 }
       // 居中放置
       barrEleStyle.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
-      // 移除弹幕
+      // 新建一个可暂停的定时器，倒计时结束时移除弹幕并清除该定时器
       tempTimer = new fixedBarrTimer(() => {
         barrageDOM.removeChild(barrageElem);
-        // 距底端位置减少一个弹幕内容高度
+        // 减少距底端的位置，减少值为一个弹幕内容的高度
         this.fixedBottom -= this.contentHeight;
         if (this.fixedBottom < 0) { this.fixedBottom = 0 }
         this.fixedBarrTimers.splice(this.fixedBarrTimers.indexOf(tempTimer), 1);
       }, 5000);
     } else if (type === "5") {
+      barrEleStyle.top = this.fixedTop + "px";
+      this.fixedTop += this.contentHeight;
+      if (this.fixedTop > this.viewHeight - this.contentHeight) { this.fixedTop = 0 }
       barrEleStyle.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
       tempTimer = new fixedBarrTimer(() => {
         barrageDOM.removeChild(barrageElem);
@@ -194,11 +169,20 @@ class Barrage extends React.PureComponent<BarrageProps> {
         this.fixedBarrTimers.splice(this.fixedBarrTimers.indexOf(tempTimer), 1);
       }, 5000);
     } else {
+      barrEleStyle.top = `${this.randomTop}px`;
+      // 使弹幕最左端位于视口右边界
+      barrEleStyle.left = `${this.viewWidth}px`;
+      // 距离顶端位置增加一个弹幕内容高度，防止滚动弹幕重叠
+      this.randomTop += this.contentHeight;
+      // 最大值边界判断
+      if (this.randomTop > this.viewHeight - this.contentHeight) { this.randomTop = 0 }
+      // 添加滚动动画及结束时的回调
       const x = - (this.viewWidth + barrageElem.offsetWidth);
+      // uidHash + sendTime命名keyframes，以保证不重复；barr是因为不能以数字开头
       this.rollBarCSSStySheet.insertRule(`@keyframes barr${uidHash}${sendTime}{from {transform: translate3d(0, 0, 0);}to {transform: translate3d(${x}px, 0, 0)};}`);
       barrEleStyle.animation = `barr${uidHash}${sendTime} 5s linear`;
       this.rollBarrStyles.push(barrEleStyle);
-
+      // 结束时的回调
       const handleAnimationEnd = () => {
         // 弹幕运动完成后移除监听，清除弹幕
         barrageElem.removeEventListener("animationend", handleAnimationEnd);
@@ -214,18 +198,19 @@ class Barrage extends React.PureComponent<BarrageProps> {
       };
       barrageElem.addEventListener("animationend", handleAnimationEnd);
     }
+    // 如果是固定弹幕则启动它的定时器并将该定时器存入fixedBarrTimers
+    if (tempTimer) {
+      tempTimer.resume();
+      this.fixedBarrTimers.push(tempTimer);
+    }
 
+    /* 单独点击这条弹幕时的事件监听 */
     barrageElem.addEventListener("click", () => {
       tempTimer ? tempTimer.pause() : barrEleStyle.animationPlayState = "paused";
       setTimeout(() => {
         tempTimer ? tempTimer.resume() : barrEleStyle.animationPlayState = "running";
       }, 3500);
     });
-
-    if (tempTimer) {
-      tempTimer.resume();
-      this.fixedBarrTimers.push(tempTimer);
-    }
   }
 
   public clear() {
