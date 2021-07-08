@@ -117,7 +117,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
       textShadow: "rgb(0, 0, 0) 1px 1px 2px",
       color: divColor,
       opacity: this.opacity,
-      zIndex: "99"
+      zIndex: "2"
     };
     let tempTimer: fixedBarrTimer;
     /* 初始化一条弹幕的div */
@@ -299,7 +299,6 @@ class Barrage extends React.PureComponent<BarrageProps> {
     curVolumeRef.current.style.width = `100%`;
 
     barrageContainerDOM.addEventListener("touchstart", e => {
-
       // 设置触摸事件的初始值
       setGestureType(0);
       startPos = {
@@ -375,20 +374,19 @@ class Barrage extends React.PureComponent<BarrageProps> {
     });
 
     barrageContainerDOM.addEventListener("touchend", e => {
-      e.stopPropagation();
-
+      e.preventDefault(); // 防止ControlBar隐藏时点击该区域也触发ControlBar的功能
       if (gesRef.current === 0) {
-        if (!showCtrBarRef.current) { showControlsTemporally(); }
-        else { setIsShowControlBar(false); }
+        if (!showCtrBarRef.current) { showControlsTemporally() }
+        else { setIsShowControlBar(false) }
       } else if (gesRef.current === 1) {
         videoDOM.currentTime = timeAfterChange;
         videoDOM.addEventListener("timeupdate", setTimeupdateListener);
         showControlsTemporally();
       } else if (gesRef.current === 2) {
-        setTimeout(() => { setIsShowCenterVolume(false); }, 200);
+        setTimeout(() => { setIsShowCenterVolume(false) }, 200);
       } else {
         initBrightness = briAfterChange;
-        setTimeout(() => { setIsShowCenterBri(false); }, 200);
+        setTimeout(() => { setIsShowCenterBri(false) }, 200);
       }
     });
   }

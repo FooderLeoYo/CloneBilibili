@@ -21,7 +21,7 @@ gradually-hide-style(hideTime)
   width: 100%
   height: px2rem(48)
   background: linear-gradient(rgba(0,0,0,0),rgba(0,0,0,1))
-  z-index: 2
+  z-index: 3
   &.gradually-hide
     gradually-hide-style(500)
   &.live-control
@@ -91,17 +91,13 @@ gradually-hide-style(hideTime)
       position: absolute
       left: px2rem(90)
       right: px2rem(90)
-      bottom: px2rem(15)
+      bottom: px2rem(10)
       height: px2rem(20)
-      .text-box
-        display: inline-block
-        width: 100%
-        height: px2rem(20)
-        line-height: @height
-        padding-left: px2rem(10)
-        font-size: px2rem(10)
-        color: tab-gray
-        background-color: #e7e7e7
+      line-height: @height
+      padding-left: px2rem(10)
+      font-size: px2rem(10)
+      color: tab-gray
+      background-color: #e7e7e7
     .speed-btn
       position: absolute
       right: px2rem(45)

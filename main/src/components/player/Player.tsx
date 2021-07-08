@@ -11,8 +11,9 @@ import Replay from "./child-components/replay/Replay"
 import ControlBar from "./child-components/control-bar/ControlBar"
 import Barrage from "./child-components/barrage/Barrage";
 import Loading from "./child-components/loading/Loading"
-import { formatDuration } from "@customed-methods/string";
+import EditBarr from "./child-components/edit-barr/EditBarr";
 
+import { formatDuration } from "@customed-methods/string";
 import style from "./player.styl?css-modules";
 
 interface PlayerProps {
@@ -50,6 +51,7 @@ function Player(props: PlayerProps, ref) {
   const [isShowCenterVolume, setIsShowCenterVolume] = useState(false);
   const [isShowCenterBri, setIsShowCenterBri] = useState(false);
   const [speedBtnSuffix, setSpeedBtnSuffix] = useState("1");
+  const [showEditBarr, setShowEditBarr] = useState(false);
 
   /* 需要关联ref的state */
   // 是否显示控制栏
@@ -82,6 +84,7 @@ function Player(props: PlayerProps, ref) {
   const speedRef: React.MutableRefObject<JSX.Element> = useRef(null);
   const ctrBarRef: React.MutableRefObject<any> = useRef(null);
   const coverRef: React.MutableRefObject<any> = useRef(null);
+
 
   /* 样式控制 */
   const centerVolumeStyle: React.CSSProperties = { visibility: isShowCenterVolume ? "visible" : "hidden" };
@@ -141,6 +144,7 @@ function Player(props: PlayerProps, ref) {
     setTimeupdateListener: setTimeupdateListener,
     setIsShowControlBar: setIsShowControlBar,
     setIsShowPlayBtn: setIsShowPlayBtn,
+    setShowEditBarr: setShowEditBarr
   };
   const ctrBarRefs = {
     controlBarRef: controlBarRef,
@@ -162,6 +166,37 @@ function Player(props: PlayerProps, ref) {
   // isPC = !isIos && !isAndroid;
   // isPC = !(navigator.userAgent.match(/(iPhone|iPad|iPod|iOS|Android)/i) !== null);
 
+  /* 控制栏相关 */
+  function showControls() {
+    clearCtrTimer();
+    ctrBarRef.current.clearEaseTimer();
+    controlBarRef.current.classList.remove(style.graduallyHide);
+    setIsShowControlBar(true);
+  }
+
+  function showControlsTemporally() {
+    const controlBarDOM = controlBarRef.current;
+    showControls();
+    ctrBarRef.current.setGraduallyHide(controlBarDOM, 2000);
+    ctrBarTimer = setTimeout(() => { setIsShowControlBar(false) }, 2500);
+  }
+
+  function setTimeupdateListener() {
+    const videoDOM = videoDOMRef.current;
+    const videoDur = videoDOM.duration
+    const barrageComponent = barrageRef.current;
+    const currentTimeDOM = currentTimeRef.current;
+    const progressDOM = progressRef.current;
+    const curTime = videoDOM.currentTime;
+    // 初始化时设置duration
+    if (duration === 0) { duration = videoDur }
+    // 更新进度条
+    currentTimeDOM.innerHTML = formatDuration(curTime, "0#:##");
+    progressDOM.style.width = `${curTime / videoDur * 100}%`;
+    // 如果显示弹幕已开，且正在播放
+    ctrBarRef.current.showBarrage && !pausedRef.current &&
+      findBarrages(curTime).forEach(barrage => barrageComponent.send(barrage));
+  }
 
   /* videoDOM相关 */
   function getVideoUrl(url) {
@@ -271,38 +306,6 @@ function Player(props: PlayerProps, ref) {
     return temp;
   }
 
-  /* 控制栏相关 */
-  function showControls() {
-    clearCtrTimer();
-    ctrBarRef.current.clearEaseTimer();
-    controlBarRef.current.classList.remove(style.graduallyHide);
-    setIsShowControlBar(true);
-  }
-
-  function showControlsTemporally() {
-    const controlBarDOM = controlBarRef.current;
-    showControls();
-    ctrBarRef.current.setGraduallyHide(controlBarDOM, 2000);
-    ctrBarTimer = setTimeout(() => { setIsShowControlBar(false); }, 2500);
-  }
-
-  function setTimeupdateListener() {
-    const videoDOM = videoDOMRef.current;
-    const videoDur = videoDOM.duration
-    const barrageComponent = barrageRef.current;
-    const currentTimeDOM = currentTimeRef.current;
-    const progressDOM = progressRef.current;
-    const curTime = videoDOM.currentTime;
-    // 初始化时设置duration
-    if (duration === 0) { duration = videoDur }
-    // 更新进度条
-    currentTimeDOM.innerHTML = formatDuration(curTime, "0#:##");
-    progressDOM.style.width = `${curTime / videoDur * 100}%`;
-    // 如果显示弹幕已开，且正在播放
-    ctrBarRef.current.showBarrage && !pausedRef.current &&
-      findBarrages(curTime).forEach(barrage => barrageComponent.send(barrage));
-  }
-
   useImperativeHandle(ref, () => ({
     sendBarrage: data => {
       if (ctrBarRef.current.showBarrage) {
@@ -385,9 +388,11 @@ function Player(props: PlayerProps, ref) {
             </div>
           }
           {/* 控制栏 */}
-          <ControlBar ctrBarStatus={ctrBarStatus} ctrBarData={ctrBarData}
-            ctrBarMethods={ctrBarMethods} ctrBarRefs={ctrBarRefs} ref={ctrBarRef}
+          <ControlBar ctrBarStatus={ctrBarStatus} ctrBarData={ctrBarData} ref={ctrBarRef}
+            ctrBarMethods={ctrBarMethods} ctrBarRefs={ctrBarRefs}
           />
+          {/* 编辑待发送弹幕 */}
+          <EditBarr showEditBarr={showEditBarr} setShowEditBarr={setShowEditBarr} />
         </div>
         {/* 封面 */}
         <Cover ref={coverRef} isLive={isLive} video={video}

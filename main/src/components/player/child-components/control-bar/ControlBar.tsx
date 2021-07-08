@@ -10,8 +10,8 @@ interface ControlBarProps {
     isLive: boolean,
     isShowControlBar: boolean,
     speedBtnSuffix: string,
-    paused: boolean
-  },
+    paused: boolean,
+  };
   ctrBarData: {
     video: {
       aId: number,
@@ -20,11 +20,11 @@ interface ControlBarProps {
       cover: string,
       duration: number,
       url: string
-    },
+    };
     initBarrages: any[],
     ctrBarTimer: number,
     liveTime: number
-  },
+  };
   ctrBarMethods: {
     setIsShowControlBar: React.Dispatch<React.SetStateAction<boolean>>,
     setIsShowPlayBtn: React.Dispatch<React.SetStateAction<boolean>>,
@@ -33,7 +33,8 @@ interface ControlBarProps {
     showControlsTemporally: Function,
     clearCtrTimer: () => void,
     setTimeupdateListener: () => void,
-  },
+    setShowEditBarr: React.Dispatch<React.SetStateAction<boolean>>
+  };
   ctrBarRefs: {
     controlBarRef: React.RefObject<HTMLDivElement>,
     ctrPlayBtnRef: React.RefObject<HTMLDivElement>,
@@ -43,7 +44,7 @@ interface ControlBarProps {
     barrageRef: React.RefObject<Barrage>,
     playerRef: React.RefObject<HTMLDivElement>,
     speedRef: React.MutableRefObject<any>,
-  },
+  };
 }
 
 const { useState, useEffect, useRef, forwardRef, useImperativeHandle } = React;
@@ -53,7 +54,7 @@ function ControlBar(props: ControlBarProps, ref) {
   const { isLive, isShowControlBar, speedBtnSuffix, paused } = ctrBarStatus;
   const { video, initBarrages, ctrBarTimer, liveTime } = ctrBarData;
   const { setIsShowControlBar, setIsShowPlayBtn, playOrPause, changeBar, showControlsTemporally, clearCtrTimer,
-    setTimeupdateListener } = ctrBarMethods;
+    setTimeupdateListener, setShowEditBarr } = ctrBarMethods;
   const { controlBarRef, ctrPlayBtnRef, currentTimeRef, progressRef,
     videoRef, barrageRef, playerRef, speedRef } = ctrBarRefs;
 
@@ -282,9 +283,7 @@ function ControlBar(props: ControlBarProps, ref) {
             <use href={`#icon-barrage${barrageBtnIconName}`}></use>
           </svg>
         </div>
-        <div className={style.sendBarr}>
-          <span className={style.textBox}>发个弹幕见证当下</span>
-        </div>
+        <div className={style.sendBarr} onClick={() => setShowEditBarr(true)}>发个弹幕见证当下</div>
         {/* 调节播放速度 */}
         {!isLive &&
           <div className={style.speedBtn} ref={speedBtnRef} >

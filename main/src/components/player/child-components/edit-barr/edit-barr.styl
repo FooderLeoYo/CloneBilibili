@@ -1,0 +1,83 @@
+@import "~@assets/stylus/px2rem.styl"
+@import "~@assets/stylus/colors.styl"
+
+.edit-barr
+  position: fixed
+  // bottom: 0
+  top: 0
+  left: 0
+  right: 0
+  z-index: 4
+  height: px2rem(300)
+  background-color: background-gray
+  visibility: hidden
+  &.show
+    visibility: visible
+  .send-box
+    height: px2rem(45)
+    display: flex
+    align-items: center
+    background-color: #fff
+    .cancel-btn
+      width: px2rem(50)
+      height: px2rem(45)
+      line-height: @height
+      text-align: center
+    .input-wrapper
+      flex: 1
+      height: px2rem(30)
+      display: grid
+      grid-template-columns: 90% 10%
+      background-color: background-gray
+      border-radius: px2rem(15)
+      overflow: hidden
+      .barr-input
+        background-color: background-gray
+        padding: 0 px2rem(15)
+        font-size: px2rem(10)
+        color: #505050
+    .send-btn
+      width: px2rem(50)
+      height: px2rem(45)
+      line-height: @height
+      text-align: center
+      svg
+        color: theme-pink
+        font-size: px2rem(22)
+  .edit-area
+    padding: px2rem(25) px2rem(5) px2rem(25) px2rem(15)
+    .opt-categery
+      display: flex
+      .name
+        width: px2rem(100)
+        height: px2rem(50)
+        text-align: center
+        color: tab-gray
+        font-size: px2rem(10)
+      .options
+        flex: 1
+        .word-opt
+          display: inline-block
+          vertical-align: top
+          margin-right: px2rem(10)
+          color: theme-pink
+          font-size: px2rem(10)
+    .edit-color
+      display: flex
+      .color-name
+        width: px2rem(100)
+        text-align: center
+        color: tab-gray
+        font-size: px2rem(10)
+      .color-opts
+        flex: 1
+        .color
+          display: inline-block
+          width: px2rem(30)
+          height: px2rem(25)
+          border-radius: px2rem(4)
+          margin: 0 px2rem(20) px2rem(25) 0
+          padding: px2rem(2)
+          background-clip: content-box
+          &.current
+            border: 1px solid

@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import Result from "../result/Result";
 import { getHotwords, getSuggests } from "@api/search";
 import storage, { SearcHistory } from "@customed-methods/storage";
-import CleanText from "@root/src/components/clean-text/CleanText"
+import CleanText from "@components/clean-text/CleanText"
 
 import style from "./search.styl?css-modules";
 
@@ -18,9 +18,11 @@ interface SearchState {
 
 class Search extends React.Component<any, SearchState> {
   private searchInputRef: React.RefObject<HTMLInputElement>;
+  private accountCleantRef: React.RefObject<any>
   constructor(props) {
     super(props);
     this.searchInputRef = React.createRef();
+    this.accountCleantRef = React.createRef();
     this.state = {
       searchValue: "",
       keyword: "",
@@ -125,12 +127,17 @@ class Search extends React.Component<any, SearchState> {
                 <use href="#icon-search"></use>
               </svg>
             </span>
-            <input type="search" autoComplete="off" maxLength={33} ref={this.searchInputRef}
-              placeholder="搜索视频、up主或av号" className={style.searchBox}
-              onChange={e => this.setState({ searchValue: e.currentTarget.value })}
+            <input className={style.searchBox} type="search" autoComplete="off"
+              placeholder="搜索视频、up主或av号" maxLength={33} ref={this.searchInputRef}
               onKeyUp={this.getSuggests} onKeyDown={this.setSearchContent}
+              onChange={e => {
+                this.accountCleantRef.current.checkIfShow(e.currentTarget.value);
+                this.setState({ searchValue: e.currentTarget.value });
+              }}
             />
-            <CleanText inputDOMRef={this.searchInputRef} doWhenEmpty={() => this.cleanSearch()} />
+            <CleanText inputDOMRef={this.searchInputRef} ref={this.accountCleantRef}
+              doWhenEmpty={() => this.cleanSearch()}
+            />
           </div>
           {/* “取消”按钮 */}
           <span className={style.cancel} onClick={() => window.history.back()}>取消</span>

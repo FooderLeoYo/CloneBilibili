@@ -26,6 +26,7 @@ const CleanText = forwardRef((props: CleanTextProps, ref) => {
     });
   }, []);
 
+  // useEffect无法监听到inputDOMRef.current.value的变化，故只能由父组件在值变化时调用checkIfShow
   useImperativeHandle(ref, () => ({
     checkIfShow: value => {
       if (value.length > 0 && firstLetter) {
