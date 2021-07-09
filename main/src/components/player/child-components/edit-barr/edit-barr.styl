@@ -59,9 +59,14 @@
         .word-opt
           display: inline-block
           vertical-align: top
-          margin-right: px2rem(10)
-          color: theme-pink
+          text-align: center
+          width: px2rem(26)
+          height: px2rem(22)
+          margin-right: px2rem(20)
+          color: tab-gray
           font-size: px2rem(10)
+          &.current
+           color: theme-pink
     .edit-color
       display: flex
       .color-name
@@ -71,13 +76,55 @@
         font-size: px2rem(10)
       .color-opts
         flex: 1
-        .color
+        li
           display: inline-block
-          width: px2rem(30)
-          height: px2rem(25)
+          width: px2rem(26)
+          height: px2rem(22)
           border-radius: px2rem(4)
           margin: 0 px2rem(20) px2rem(25) 0
           padding: px2rem(2)
           background-clip: content-box
           &.current
             border: 1px solid
+        .white
+          background-color: #fff
+          border-color: @background-color !important
+        .red
+          background-color: #FE0302
+          border-color: @background-color !important
+        .orange
+          background-color: #FF7204
+          border-color: @background-color !important
+        .light-ora
+          background-color: #FFAA02
+          border-color: @background-color !important
+        .yellow
+          background-color: #FFD302
+          border-color: @background-color !important
+        .lemon
+          background-color: #FFFF00
+          border-color: @background-color !important
+        .grass
+          background-color: #A0EE00
+          border-color: @background-color !important
+        .leaf
+          background-color: #00CD00
+          border-color: @background-color !important
+        .lake
+          background-color: #019899
+          border-color: @background-color !important
+        .blue
+          background-color: #4266BE
+          border-color: @background-color !important
+        .sky
+          background-color: #89D5FF
+          border-color: @background-color !important
+        .purple
+          background-color: #CC0273
+          border-color: @background-color !important
+        .black
+          background-color: #222222
+          border-color: @background-color !important
+        .gray
+          background-color: #9B9B9B
+          border-color: @background-color !important

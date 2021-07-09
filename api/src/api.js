@@ -104,16 +104,18 @@ const URL_SPACE_VIDEO = "https://api.bilibili.com/x/space/arc/search?pn={p}&ps={
 
 /* 视频相关 */
 
-// 详情弹幕
-const URL_VIDEO_BARRAGE = "https://api.bilibili.com/x/v1/dm/list.so?oid={cid}";
 // 视频详情
 const URL_VIDEO_DETAIL = "https://api.bilibili.com/x/web-interface/view?aid={aid}&bvid=";
+// 详情弹幕
+const URL_VIDEO_GET_BARR = "https://api.bilibili.com/x/v1/dm/list.so?oid={cid}";
 // 视频播放地址
 const URL_VIDEO_PLAY_URL = "https://api.bilibili.com/x/player/playurl?cid={cid}&avid={aid}&platform=html5&otype=json&qn=16&type=mp4&html5=1";
 // 详情推荐
 const URL_VIDEO_RECOMMEND = "https://api.bilibili.com/x/web-interface/archive/related?aid={aid}&context=";
 // 详情回复
 const URL_VIDEO_REPLAY = "https://api.bilibili.com/x/v2/reply?type=1&sort=2&oid={oid}&pn={p}&nohot=1";
+// 发送弹幕
+const URL_VIDEO_SEND_BARR = "http://api.bilibili.com/x/v2/dm/post";
 // 上报观看记录
 const URL_VIDEO_VIEWED_REPORT = "https://api.bilibili.com/x/v2/history/report";
 
@@ -488,7 +490,7 @@ const fetchBarrage = cId => {
   // const searchParam = new URLSearchParams(Object.entries(param)).toString();
   // return fetch(`${URL_VIDEO_BARRAGE}?${searchParam}`)
   //   .then(res => res)
-  return fetch(URL_VIDEO_BARRAGE.replace("{cid}", cId))
+  return fetch(URL_VIDEO_GET_BARR.replace("{cid}", cId))
     .then(res => res.text())
     .then(body => body)
 }
@@ -514,6 +516,23 @@ const fetchRecommendById = aId => {
 const fetchReplay = (aId, p) => {
   return fetch(URL_VIDEO_REPLAY.replace("{oid}", aId).replace("{p}", p))
     .then(res => res.json())
+    .then(json => json);
+}
+
+const sendBarr = (param, cookie) => {
+  const rawString = cookie;
+  const bjctPos = rawString.indexOf("bili_jct");
+  const bili_jct = rawString.substring(bjctPos + 9);
+  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
+
+  return fetch(URL_VIDEO_SEND_BARR, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "cookie": cookie
+    },
+    body: searchParam,
+  }).then(res => res.json())
     .then(json => json);
 }
 
@@ -556,5 +575,5 @@ module.exports = {
   fetchUserData, fetchRelation, fetchSeriesFollowed, fetchUserVideo,
   /* 视频相关 */
   fetchBarrage, fetchVideoDetail, fetchPlayUrl, fetchRecommendById,
-  fetchReplay, postViewedReport
+  fetchReplay, sendBarr, postViewedReport
 }

@@ -254,11 +254,10 @@ function ControlBar(props: ControlBarProps, ref) {
 
   return (
     <div
-      className={style.controlBar + (isLive ? " " + style.liveControl : "")}
+      className={style.controlBar}
       style={controlBarStyle} ref={controlBarRef}
     >
-      {isLive ?
-        <div className={style.liveDuration} ref={liveDurationRef}></div> :
+      {isLive ? <div className={style.liveDuration} ref={liveDurationRef} /> :
         <div className={style.progressBar}>
           {/* 视频当前时间、总时长 */}
           <span className={style.curTime} ref={currentTimeRef}>00:00</span>

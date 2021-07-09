@@ -1,7 +1,8 @@
 import { getJSON, postJSON } from "./fetch";
 import {
   URL_VIDEO_DETAIL, URL_VIDEO_PLAY_URL, URL_VIDEO_RECOMMEND,
-  URL_VIDEO_REPLAY, URL_VIDEO_BARRAG, URL_VIDEO_REPORT
+  URL_VIDEO_REPLAY, URL_VIDEO_GET_BARR, URL_VIDEO_REPORT,
+  URL_VIDEO_SEND_BARR
 } from "./url";
 
 /**
@@ -36,7 +37,7 @@ export function getComments(aId: number, p: number) {
  * 获取弹幕
  */
 export function getBarrages(cId: number) {
-  return getJSON(URL_VIDEO_BARRAG, { cId })
+  return getJSON(URL_VIDEO_GET_BARR, { cId });
 }
 
 /* 
@@ -44,4 +45,10 @@ export function getBarrages(cId: number) {
  */
 export function postViewedReport(param) {
   return postJSON(URL_VIDEO_REPORT, param);
+}
+
+/* 发送弹幕 */
+export function sendBarrage(aid: number, mode: number, msg: string, oid: number,
+  rnd: number, type: number, color: number = 16777215, fontsize: number = 25) {
+  return postJSON(URL_VIDEO_SEND_BARR, { aid, mode, msg, oid, rnd, type, color, fontsize });
 }

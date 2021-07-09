@@ -59,12 +59,13 @@ const URL_SPACE_USER = prefix + "/space/userinfo";
 const URL_SPACE_VIDEO = prefix + "/space/video";
 
 /* 视频相关 */
-const URL_VIDEO_BARRAG = prefix + "/av/barrage";
 const URL_VIDEO_DETAIL = prefix + "/av/info";
+const URL_VIDEO_GET_BARR = prefix + "/av/getbarr";
 const URL_VIDEO_PLAY_URL = prefix + "/av/play_url";
 const URL_VIDEO_RECOMMEND = prefix + "/av/recommend";
 const URL_VIDEO_REPLAY = prefix + "/av/replay";
 const URL_VIDEO_REPORT = prefix + "/av/report";
+const URL_VIDEO_SEND_BARR = prefix + "/av/sendbarr";
 
 
 export {
@@ -88,6 +89,6 @@ export {
   URL_SPACE_FAV_LIST_CREATED, URL_SPACE_RELATION, URL_SPACE_SERIES_FOLLOWED,
   URL_SPACE_USER, URL_SPACE_VIDEO,
   /* 视频相关 */
-  URL_VIDEO_BARRAG, URL_VIDEO_DETAIL, URL_VIDEO_PLAY_URL, URL_VIDEO_RECOMMEND,
-  URL_VIDEO_REPLAY, URL_VIDEO_REPORT,
+  URL_VIDEO_DETAIL, URL_VIDEO_GET_BARR, URL_VIDEO_PLAY_URL, URL_VIDEO_RECOMMEND,
+  URL_VIDEO_REPLAY, URL_VIDEO_REPORT, URL_VIDEO_SEND_BARR
 }

@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { formatDuration } from "@customed-methods/string";
-import BiliBili_midcrc from "../crc32";
+import BiliBili_midcrc from "@customed-methods/crc32";
 
 import style from "./barrage.styl?css-modules";
 
@@ -9,8 +9,9 @@ interface BarrageData {
   type: string;
   decimalColor: string;
   content: string;
-  uidHash: string;
   sendTime: string;
+  isMineBarr?: boolean;
+  uidHash?: string;
 }
 
 interface BarrageProps {
@@ -64,6 +65,9 @@ class fixedBarrTimer {
     this.start = Date.now();
     this.timerId = setTimeout(this.callback, this.remaining);
   };
+
+  public destroy = () => clearTimeout(this.timerId)
+
 }
 
 /**
@@ -104,7 +108,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
 
   public send(barrage: BarrageData) {
-    const { content, type, decimalColor, uidHash, sendTime } = barrage;
+    const { content, type, decimalColor, sendTime, isMineBarr, uidHash } = barrage;
     const barrageDOM = this.barrageRef.current;
     const tempHex = Number(decimalColor).toString(16);
     const divColor = "#" + "00000000".substr(0, 6 - tempHex.length) + tempHex; // tempHex不够6位时前面需要补0
@@ -132,11 +136,13 @@ class Barrage extends React.PureComponent<BarrageProps> {
       }
     }
     // 检查是否为本人所发弹幕
-    const { myUid } = this.props;
-    if (myUid) {
-      const covertUidHash = BiliBili_midcrc();
-      if (covertUidHash(uidHash) === myUid) {
-        barrageElem.style.border = `2px solid ${divColor}`;
+    if (isMineBarr) {
+      barrageElem.style.border = `2px solid ${divColor}`;
+    } else if (isMineBarr === undefined) {
+      const { myUid } = this.props;
+      if (myUid) {
+        const covertUidHash = BiliBili_midcrc();
+        if (covertUidHash(uidHash) === myUid) { barrageElem.style.border = `2px solid ${divColor}` }
       }
     }
 
@@ -181,7 +187,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
       // uidHash + sendTime命名keyframes，以保证不重复；barr是因为不能以数字开头
       this.rollBarCSSStySheet.insertRule(`@keyframes barr${uidHash}${sendTime}{from {transform: translate3d(0, 0, 0);}to {transform: translate3d(${x}px, 0, 0)};}`);
       barrEleStyle.animation = `barr${uidHash}${sendTime} 5s linear`;
-      this.rollBarrStyles.push(barrEleStyle);
+      this.rollBarrStyles.unshift(barrEleStyle);
       // 结束时的回调
       const handleAnimationEnd = () => {
         // 弹幕运动完成后移除监听，清除弹幕
@@ -205,7 +211,8 @@ class Barrage extends React.PureComponent<BarrageProps> {
     }
 
     /* 单独点击这条弹幕时的事件监听 */
-    barrageElem.addEventListener("click", () => {
+    barrageElem.addEventListener("click", e => {
+      e.stopPropagation();
       tempTimer ? tempTimer.pause() : barrEleStyle.animationPlayState = "paused";
       setTimeout(() => {
         tempTimer ? tempTimer.resume() : barrEleStyle.animationPlayState = "running";
@@ -223,13 +230,12 @@ class Barrage extends React.PureComponent<BarrageProps> {
     for (const child of Array.from(children)) {
       barrageDOM.removeChild(child);
     }
-    // 这里不需要将原fixedBarrTimers中的timer清除，只需要将fixedBarrTimers指向一个新的空数组
-    // 因为barrageDOM.removeChild后弹幕DOM都没了，那么弹幕DOM上所绑定的定时器、倒计时动画自然也没了
+
+    // 清除样式相关的缓存
+    this.fixedBarrTimers.forEach(timer => timer.destroy());
     this.fixedBarrTimers = [];
-    // 样式表不会随着DOM消失，而清除回调又随着DOM一并销毁了，因此要手动删除
-    // console.log("sheet: " + this.rollBarCSSStySheet)
-    // console.log("len: " + this.rollBarrStyles.length)
-    for (let i = 0; i < this.rollBarrStyles.length; i++) { this.rollBarCSSStySheet.deleteRule(i) }
+    for (let i = 0; i < this.rollBarCSSStySheet.cssRules.length; i++) { this.rollBarCSSStySheet.deleteRule(i) }
+    // rollBarrStyles不需要逐个清除动画，因为不同于timer，动画及其animationend会随着DOM一并被销毁
     this.rollBarrStyles = [];
   }
 
@@ -374,7 +380,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
     });
 
     barrageContainerDOM.addEventListener("touchend", e => {
-      e.preventDefault(); // 防止ControlBar隐藏时点击该区域也触发ControlBar的功能
+      // e.preventDefault(); // 防止ControlBar隐藏时点击该区域也触发ControlBar的功能
       if (gesRef.current === 0) {
         if (!showCtrBarRef.current) { showControlsTemporally() }
         else { setIsShowControlBar(false) }

@@ -42,7 +42,6 @@ function Player(props: PlayerProps, ref) {
   const videoDOMRef: React.RefObject<HTMLVideoElement> = videoRef ? videoRef : temVideoRef;
   const context = useContext(myContext);
 
-
   /* 不需要关联ref的state */
   const [waiting, setWaiting] = useState(false);
   const [finish, setFinish] = useState(false);
@@ -52,20 +51,29 @@ function Player(props: PlayerProps, ref) {
   const [isShowCenterBri, setIsShowCenterBri] = useState(false);
   const [speedBtnSuffix, setSpeedBtnSuffix] = useState("1");
   const [showEditBarr, setShowEditBarr] = useState(false);
+  let ctrBarTimer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
 
   /* 需要关联ref的state */
   // 是否显示控制栏
   const [isShowControlBar, setIsShowControlBar] = useState(true);
   const showCtrBarRef = useRef(isShowControlBar);
-  if (showCtrBarRef.current !== isShowControlBar) { showCtrBarRef.current = isShowControlBar; }
+  useEffect(() => { showCtrBarRef.current = isShowControlBar }, [isShowControlBar]);
   // 暂停/播放
   const [paused, setPaused] = useState(true);
   const pausedRef = useRef(paused);
-  if (pausedRef.current !== paused) { pausedRef.current = paused }
+  useEffect(() => { pausedRef.current = paused }, [paused]);
   // 手势类型
   const [gestureType, setGestureType] = useState(0); // 手势类型：0：无手势；1：左右滑动；2：右边的上下滑动；3：左边的上下滑动
   const gestureTypeRef = useRef(gestureType);
-  if (gestureTypeRef.current !== gestureType) { gestureTypeRef.current = gestureType }
+  useEffect(() => { gestureTypeRef.current = gestureType }, [gestureType]);
+  // 拿到数据时的初始格式，供slice后生成barrages
+  const [initBarrages, setInitBarrages] = useState([]);
+  const initBarragesRef = useRef([]);
+  useEffect(() => { initBarragesRef.current = initBarrages }, [initBarrages]);
+  // 真正发送到播放器中的弹幕
+  const [barrages, setBarrages] = useState([]);
+  const barragesRef = useRef([]);
+  useEffect(() => { barragesRef.current = barrages }, [barrages]);
 
   /* Refs */
   const playerRef: React.RefObject<HTMLDivElement> = useRef(null);
@@ -84,7 +92,6 @@ function Player(props: PlayerProps, ref) {
   const speedRef: React.MutableRefObject<JSX.Element> = useRef(null);
   const ctrBarRef: React.MutableRefObject<any> = useRef(null);
   const coverRef: React.MutableRefObject<any> = useRef(null);
-
 
   /* 样式控制 */
   const centerVolumeStyle: React.CSSProperties = { visibility: isShowCenterVolume ? "visible" : "hidden" };
@@ -117,10 +124,7 @@ function Player(props: PlayerProps, ref) {
     showControlsTemporally: showControlsTemporally,
     clearCtrTimer: clearCtrTimer
   };
-  // 将传递给控制栏
-  let initBarrages: Array<any>; // 拿到数据时的初始格式，供slice后生成barrages
-  let barrages: Array<any>; // 真正发送到播放器中的弹幕
-  let ctrBarTimer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
+
   function clearCtrTimer() {
     clearTimeout(ctrBarTimer);
   }
@@ -132,13 +136,13 @@ function Player(props: PlayerProps, ref) {
   };
   const ctrBarData = {
     video: video,
-    initBarrages: initBarrages,
+    initBarrages: initBarragesRef.current,
     ctrBarTimer: ctrBarTimer,
     liveTime: liveTime
   };
   const ctrBarMethods = {
     playOrPause: playOrPause,
-    changeBar: barr => { barrages = barr; },
+    changeBar: barr => { setBarrages(barr) },
     showControlsTemporally: showControlsTemporally,
     clearCtrTimer: clearCtrTimer,
     setTimeupdateListener: setTimeupdateListener,
@@ -237,7 +241,7 @@ function Player(props: PlayerProps, ref) {
       setPaused(true);
       setFinish(true);
       // 重新赋值弹幕列表
-      barrages = initBarrages.slice();
+      setBarrages(initBarragesRef.current.slice());
       // 清除弹幕
       barrageRef.current.clear();
     });
@@ -261,26 +265,22 @@ function Player(props: PlayerProps, ref) {
       const hls = new Hls();
       hls.loadSource(video.url);
       hls.attachMedia(videoDOM);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        videoDOM.play();
-      });
-      hls.on(Hls.Events.ERROR, (event, data) => {
-        if (data.fatal) {
-          if (data.type === Hls.ErrorTypes.NETWORK_ERROR ||
-            data.response.code === 404) { setIsStreaming(false); }
-        }
-      });
+      hls.on(Hls.Events.MANIFEST_PARSED, () => videoDOM.play());
+      hls.on(Hls.Events.ERROR, (event, data) => (data.fatal &&
+        data.type === Hls.ErrorTypes.NETWORK_ERROR || data.response.code === 404)
+        && setIsStreaming(false)
+      );
     }
   }
 
   /* 弹幕相关 */
-  function setBarrages() {
+  function setBarr() {
     getBarrages(video.cId).then(result => {
       const { code, data } = result;
       if (code === "1") {
         // 初始化弹幕列表
-        initBarrages = data;
-        barrages = initBarrages.slice();
+        setInitBarrages(data);
+        setBarrages(data.slice());
       }
     });
   }
@@ -291,7 +291,7 @@ function Player(props: PlayerProps, ref) {
     const temp = [];
     // 查找到的弹幕索引
     const indexs = [];
-    barrages.forEach((barrage, index) => {
+    barragesRef.current.forEach((barrage, index) => {
       // 换成整数秒
       if (parseInt(barrage.time, 10) === parseInt(time, 10)) {
         temp.push(barrage);
@@ -302,7 +302,7 @@ function Player(props: PlayerProps, ref) {
     // 这样视频继续播放或移动播放位置触发findBarrages时，barrages.forEach的范围
     // 会缩小，搜索速度会加快
     // 从前往后删除，删掉前面的以后，后面的索引就变小了，因此要index - i
-    indexs.forEach((index, i) => { barrages.splice(index - i, 1); });
+    indexs.forEach((index, i) => { barragesRef.current.splice(index - i, 1); });
     return temp;
   }
 
@@ -313,18 +313,22 @@ function Player(props: PlayerProps, ref) {
           type: "1",
           decimalColor: data.color,
           content: data.content,
+          sendTime: data.sendTime,
+          isMineBarr: data.isMineBarr,
           uidHash: data.uidHash,
-          sendTime: data.sendTime
         });
       }
     }
   }), []);
 
   useEffect(() => {
-    if (!isLive) { // 非直播时处理
+    if (isLive) {
+      setLiveVideoDOM();
+      videoDOMRef.current.autoplay = true;
+    } else {
       setListeners();
-      setBarrages();
-    } else { setLiveVideoDOM(); } // 直播时处理
+      setBarr();
+    }
   }, []);
 
   return (
@@ -392,7 +396,9 @@ function Player(props: PlayerProps, ref) {
             ctrBarMethods={ctrBarMethods} ctrBarRefs={ctrBarRefs}
           />
           {/* 编辑待发送弹幕 */}
-          <EditBarr showEditBarr={showEditBarr} setShowEditBarr={setShowEditBarr} />
+          <EditBarr showEditBarr={showEditBarr} setShowEditBarr={setShowEditBarr}
+            videoData={video} barrageRef={barrageRef}
+          />
         </div>
         {/* 封面 */}
         <Cover ref={coverRef} isLive={isLive} video={video}
