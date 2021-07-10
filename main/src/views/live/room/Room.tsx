@@ -53,6 +53,7 @@ function Room(props: RoomProps) {
   const onlineNumRef: React.RefObject<HTMLSpanElement> = useRef(null);
   const playerRef: React.RefObject<any> = useRef(null);
   const bottomRef: React.RefObject<any> = useRef(null);
+  const videoRef: React.RefObject<HTMLVideoElement> = useRef(null);
 
   // 获取up主数据，然后保存到state中
   function setUpInfo() {
@@ -154,6 +155,7 @@ function Room(props: RoomProps) {
               <section className={style.main}>
                 <div className={style.playerContainer}>
                   <Player isLive={true} isStreaming={live.isLive === 1}
+                    ref={playerRef} videoRef={videoRef}
                     // getTime()返回liveTime距 1970 年 1 月 1 日之间的毫秒数
                     liveTime={new Date(roomData.liveTime.replace(/-/g, "/")).getTime()}
                     video={{
@@ -161,7 +163,6 @@ function Room(props: RoomProps) {
                       cover: context.picURL + "?pic=" + live.cover,
                       duration: 0, url: live.playUrl
                     }}
-                    ref={playerRef}
                   />
                 </div>
                 {/* up主信息 */}

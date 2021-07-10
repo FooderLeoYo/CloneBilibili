@@ -1,8 +1,9 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 
-import { formatDuration } from "../../../../customed-methods/string";
+import { getNavUserInfo } from "@api/login";
+import { formatDuration } from "@customed-methods/string";
 import Barrage from "../../child-components/barrage/Barrage";
-
 import style from "./control-bar.styl?css-modules";
 
 interface ControlBarProps {
@@ -11,6 +12,7 @@ interface ControlBarProps {
     isShowControlBar: boolean,
     speedBtnSuffix: string,
     paused: boolean,
+    showEditBarr: boolean
   };
   ctrBarData: {
     video: {
@@ -21,7 +23,7 @@ interface ControlBarProps {
       duration: number,
       url: string
     };
-    initBarrages: any[],
+    initBarrDataRef: React.MutableRefObject<any[]>,
     ctrBarTimer: number,
     liveTime: number
   };
@@ -51,12 +53,17 @@ const { useState, useEffect, useRef, forwardRef, useImperativeHandle } = React;
 
 function ControlBar(props: ControlBarProps, ref) {
   const { ctrBarStatus, ctrBarData, ctrBarMethods, ctrBarRefs } = props;
-  const { isLive, isShowControlBar, speedBtnSuffix, paused } = ctrBarStatus;
-  const { video, initBarrages, ctrBarTimer, liveTime } = ctrBarData;
+  const { isLive, isShowControlBar, speedBtnSuffix, paused, showEditBarr } = ctrBarStatus;
+  const { video, initBarrDataRef, ctrBarTimer, liveTime } = ctrBarData;
   const { setIsShowControlBar, setIsShowPlayBtn, playOrPause, changeBar, showControlsTemporally, clearCtrTimer,
     setTimeupdateListener, setShowEditBarr } = ctrBarMethods;
   const { controlBarRef, ctrPlayBtnRef, currentTimeRef, progressRef,
     videoRef, barrageRef, playerRef, speedRef } = ctrBarRefs;
+
+  const [isLogin, setIsLogin] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const isFullRef = useRef(isFullscreen);
+  useEffect(() => { isFullRef.current = isFullscreen }, [isFullscreen]);
 
   const progressWrapperRef: React.RefObject<HTMLDivElement> = useRef(null);
   const progressBtnRef: React.RefObject<HTMLDivElement> = useRef(null);
@@ -64,10 +71,6 @@ function ControlBar(props: ControlBarProps, ref) {
   const fullscreenBtnRef: React.RefObject<HTMLDivElement> = useRef(null);
   const speedBtnRef: React.RefObject<HTMLDivElement> = useRef(null);
   const liveDurationRef: React.RefObject<HTMLDivElement> = useRef(null);
-
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const isFullRef = useRef(isFullscreen);
-  if (isFullRef.current !== isFullscreen) { isFullRef.current = isFullscreen; }
 
   const controlBarStyle: React.CSSProperties = { visibility: isShowControlBar ? "visible" : "hidden" };
   const ctrPlayBtnIconName = paused ? "Play" : "Pause";
@@ -81,7 +84,7 @@ function ControlBar(props: ControlBarProps, ref) {
     // 调整时间
     videoDOM.currentTime = videoDOM.duration * progress;
     // 重新赋值弹幕列表
-    // changeBar(initBarrages.slice());
+    changeBar(initBarrDataRef.current.slice());
     // 清除跳转前的弹幕
     barrageRef.current.clear();
     // 清除定时器
@@ -97,29 +100,22 @@ function ControlBar(props: ControlBarProps, ref) {
   useEffect(() => { showBarrRef.current = showBarr; }, [showBarr]);
   const barrageBtnIconName = showBarr ? "On" : "Off";
   function onOrOff() {
-    if (showBarrRef.current) { barrageRef.current.clear() }
+    showBarrRef.current && barrageRef.current.clear();
     setShowBarr(!showBarrRef.current);
   }
 
   function entryOrExitFullscreen() {
     const playerDOM: any = playerRef.current;
-    // const videoDOM: any = videoRef.current;
     // const videoAreaWrapperDOM = videoAreaWrapperRef.current;
 
     if (isFullRef.current) {
       const doc: any = document;
-
       setIsFullscreen(false);
       // videoAreaWrapperDOM.classList.remove(style.fullScreen);
-      if (doc.exitFullscreen) {
-        doc.exitFullscreen();
-      } else if (doc.mozCancelFullScreen) {
-        doc.mozCancelFullScreen();
-      } else if (doc.webkitCancelFullScreen) {
-        doc.webkitCancelFullScreen();
-      } else if (doc.msExitFullscreen) {
-        doc.msExitFullscreen();
-      }
+      if (doc.exitFullscreen) { doc.exitFullscreen() }
+      else if (doc.mozCancelFullScreen) { doc.mozCancelFullScreen() }
+      else if (doc.webkitCancelFullScreen) { doc.webkitCancelFullScreen() }
+      else if (doc.msExitFullscreen) { doc.msExitFullscreen() }
     } else {
       setIsFullscreen(true);
       // 这里调用全屏的是包裹<video>的外层div
@@ -167,7 +163,7 @@ function ControlBar(props: ControlBarProps, ref) {
       e.preventDefault(); // 阻止屏幕被拖动
       // 计算拖拽进度比例
       rate = (e.targetTouches[0].pageX - progressLeft) / progressWidth;
-      if (rate > 1 || rate < 0) { return; } // 滑动到了进度条以外
+      if (rate > 1 || rate < 0) { return } // 滑动到了进度条以外
       else { // 进度条以内
         progressDOM.style.width = `${rate * 100}%`;
         currentTimeDOM.innerHTML = formatDuration(videoDOM.duration * rate, "0#:##");
@@ -183,8 +179,8 @@ function ControlBar(props: ControlBarProps, ref) {
   }
 
   function setActivedColor(DOM) {
-    DOM.addEventListener("touchstart", () => { DOM.style.color = "#de698c"; })
-    DOM.addEventListener("touchend", () => { DOM.style.color = "#ffffff"; })
+    DOM.addEventListener("touchstart", () => DOM.style.color = "#de698c")
+    DOM.addEventListener("touchend", () => DOM.style.color = "#ffffff")
   }
 
   function setElesActivedColor() {
@@ -229,6 +225,7 @@ function ControlBar(props: ControlBarProps, ref) {
   }
 
   useImperativeHandle(ref, () => ({
+    showBarrage: showBarr,
     setGraduallyHide: (DOM, startTime) => {
       easeTimer = setTimeout(() => {
         DOM.classList.add(style.graduallyHide);
@@ -237,26 +234,21 @@ function ControlBar(props: ControlBarProps, ref) {
         DOM.classList.remove(style.graduallyHide);
       }, startTime + 500);
     },
-    showBarrage: showBarr,
-    clearEaseTimer: () => {
-      clearTimeout(easeTimer);
-    }
+    clearEaseTimer: () => clearTimeout(easeTimer)
   }), [showBarr])
 
   useEffect(() => {
+    getNavUserInfo().then(result => result.data.data.isLogin && setIsLogin(true));
     setElesActivedColor();
     setBtnsListener();
     if (!isLive) {
       setProgressDOM();
       setSpeedBtnListener();
-    } else { if (liveTime) { setLiveDurationDOM(); } }
+    } else { liveTime && setLiveDurationDOM() }
   }, []);
 
   return (
-    <div
-      className={style.controlBar}
-      style={controlBarStyle} ref={controlBarRef}
-    >
+    <div className={style.controlBar} style={controlBarStyle} ref={controlBarRef}>
       {isLive ? <div className={style.liveDuration} ref={liveDurationRef} /> :
         <div className={style.progressBar}>
           {/* 视频当前时间、总时长 */}
@@ -282,7 +274,12 @@ function ControlBar(props: ControlBarProps, ref) {
             <use href={`#icon-barrage${barrageBtnIconName}`}></use>
           </svg>
         </div>
-        <div className={style.sendBarr} onClick={() => setShowEditBarr(true)}>发个弹幕见证当下</div>
+        <div className={style.sendBarr}>
+          {isLogin ?
+            <span onClick={() => setShowEditBarr(true)}>{showEditBarr ? "弹幕编辑中……" : "发个友好的弹幕见证当下"}</span> :
+            <span className={style.login}>想弹幕吐槽一下？快去&nbsp;<Link to="/login">登录/注册</Link>&nbsp;吧！</span>
+          }
+        </div>
         {/* 调节播放速度 */}
         {!isLive &&
           <div className={style.speedBtn} ref={speedBtnRef} >

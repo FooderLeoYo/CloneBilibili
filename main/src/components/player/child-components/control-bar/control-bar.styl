@@ -86,15 +86,24 @@ gradually-hide-style(hideTime)
       color: #ffffff
     .send-barr
       position: absolute
-      left: px2rem(90)
-      right: px2rem(90)
+      left: px2rem(80)
+      right: px2rem(80)
       bottom: px2rem(10)
       height: px2rem(20)
       line-height: @height
       padding-left: px2rem(10)
-      font-size: px2rem(10)
-      color: tab-gray
       background-color: #e7e7e7
+      span
+        position: absolute
+        left: px2rem(-7)
+        display: inline-block
+        width: 118%
+        font-size: px2rem(10)
+        transform:scale(0.85) // chrome规定font-size不能小于12px,故只能缩放
+        color: tab-gray
+      .login
+        a
+          color: #fb7299
     .speed-btn
       position: absolute
       right: px2rem(45)

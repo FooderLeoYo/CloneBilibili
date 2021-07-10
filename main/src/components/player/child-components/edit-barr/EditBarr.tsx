@@ -1,56 +1,72 @@
 import * as React from "react";
 
 import { sendBarrage } from "@api/video";
-import CleanText from "@root/src/components/clean-text/CleanText"
-
+import CleanText from "@components/clean-text/CleanText"
+import Toast from "@components/toast/index";
 import style from "./edit-barr.styl?css-modules";
 
 interface EditBarrProps {
   showEditBarr: boolean;
   setShowEditBarr: React.Dispatch<React.SetStateAction<boolean>>;
   videoData: any;
-  barrageRef: React.RefObject<any>;
+  videoRef: React.RefObject<HTMLVideoElement>;
+  barrsForSendRef: React.MutableRefObject<any[]>;
 }
 
-const { useState, useRef } = React;
+const { useState, useRef, useEffect } = React;
 
 function EditBarr(props: EditBarrProps) {
-  const { showEditBarr, setShowEditBarr, videoData, barrageRef } = props;
+  const { showEditBarr, setShowEditBarr, videoData, videoRef, barrsForSendRef } = props;
   const { aId, cId } = videoData;
   const [barrSize, setBarrSize] = useState(25); // 标准（25）、小（18）
   const [barrPosition, setBarrPosition] = useState(1); // 滚动（1）、底部（4）、顶部（5）
   const [barrColor, setBarrColor] = useState(16777215); // 十进制RGB888值，默认#fff
+  const editRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
   const barrInputRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
-  const accountCleantRef: React.MutableRefObject<any> = useRef(null);
+  const cleanTextRef: React.MutableRefObject<any> = useRef(null);
 
   const sendBarr = () => {
     const timestamp = Date.now();
     sendBarrage(aId, barrPosition, barrInputRef.current.value, cId, timestamp, 1,
-      barrColor, barrPosition).then(result => {
+      barrColor, barrSize).then(result => {
         if (result.code === "1") {
           // 由于发送成功后也要等5s左右才能获取到新发弹幕数据，故这里直接发一个“假”的
-          barrageRef.current.send({
+          barrsForSendRef.current.push({
             content: barrInputRef.current.value,
             type: barrPosition,
             decimalColor: barrColor,
             sendTime: timestamp,
-            isMineBarr: true
-          });
+            isMineBarr: true,
+            // +1是因为Player的timeupdate每隔1s执行一次findBarrages
+            // 当前“秒”已执行过findBarrages且执行时还没有这条新弹幕，故若time用当前时间则不能被findBarrages找到
+            time: videoRef.current.currentTime + 1,
+            size: barrSize.toString()
+          })
           setShowEditBarr(false);
-        }
+          cleanTextRef.current.clean();
+        } else { Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000) }
       });
   }
 
+  useEffect(() => {
+    const adjustHeight = () => {
+      const { angle } = screen.orientation;
+      if (angle === 90 || angle === 180) { editRef.current.classList.add(style.horizontal) }
+      else { editRef.current.classList.remove(style.horizontal) }
+    };
+    addEventListener("orientationchange", adjustHeight);
+    return (removeEventListener("orientationchange", adjustHeight));
+  }, []);
+
   return (
-    <div className={style.editBarr + (showEditBarr ? " " + style.show : "")}>
+    <div className={style.editBarr + (showEditBarr ? " " + style.show : "")} ref={editRef}>
       <div className={style.sendBox}>
         <span className={style.cancelBtn} onClick={() => setShowEditBarr(false)}>x</span>
         <div className={style.inputWrapper}>
-          <input className={style.barrInput} type="text" ref={barrInputRef}
-            placeholder="发个弹幕见证当下"
-            onChange={e => accountCleantRef.current.checkIfShow(e.currentTarget.value)}
+          <input className={style.barrInput} type="text" ref={barrInputRef} placeholder="输入弹幕内容"
+            onChange={e => cleanTextRef.current.checkIfShow(e.currentTarget.value)}
           />
-          <CleanText inputDOMRef={barrInputRef} ref={accountCleantRef} />
+          <CleanText inputDOMRef={barrInputRef} ref={cleanTextRef} />
         </div>
         <span className={style.sendBtn} onClick={sendBarr}>
           <svg className="icon" aria-hidden="true">

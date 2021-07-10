@@ -3,16 +3,17 @@
 
 .edit-barr
   position: fixed
-  // bottom: 0
-  top: 0
+  bottom: 0
   left: 0
   right: 0
   z-index: 4
-  height: px2rem(300)
+  height: px2rem(333)
   background-color: background-gray
   visibility: hidden
   &.show
     visibility: visible
+  &.horizontal
+    height: px2rem(150)
   .send-box
     height: px2rem(45)
     display: flex
@@ -45,7 +46,7 @@
         color: theme-pink
         font-size: px2rem(22)
   .edit-area
-    padding: px2rem(25) px2rem(5) px2rem(25) px2rem(15)
+    padding: px2rem(30) px2rem(5) px2rem(25) px2rem(15)
     .opt-categery
       display: flex
       .name

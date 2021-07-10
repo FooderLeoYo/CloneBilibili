@@ -120,13 +120,14 @@ router.get("/av/getbarr", (req, res, next) => {
           let p = item.$.p;
           const attrs = p.split(",");
           resData.data.push({
-            time: attrs[0],  // 时间
-            type: attrs[1],  // 类型
+            time: attrs[0],  // 视频内弹幕出现时间
+            type: attrs[1],  // 弹幕类型：位置、互动、高级等
+            size: attrs[2], // 字号
             decimalColor: attrs[3],  // 十进制颜色
             sendTime: attrs[4],   // 发送时间
-            uidHash: attrs[6],
+            uidHash: attrs[6], // 发送者UID的HASH
             content: item._,  // 内容
-            p
+            p // 格式化前原数据
           });
         };
         if (barrData) {

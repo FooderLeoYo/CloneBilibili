@@ -1,17 +1,17 @@
 import * as React from "react";
-
 import { formatDuration } from "@customed-methods/string";
 import BiliBili_midcrc from "@customed-methods/crc32";
-
 import style from "./barrage.styl?css-modules";
 
 interface BarrageData {
-  type: string;
-  decimalColor: string;
-  content: string;
-  sendTime: string;
-  isMineBarr?: boolean;
-  uidHash?: string;
+  type: string; // 弹幕类型：位置、互动、高级等
+  decimalColor: string; // 十进制颜色
+  content: string; // 内容
+  sendTime: string; // 发送时间
+  time?: string;// 视频内弹幕出现时间
+  isMineBarr?: boolean; // 手动标记为“我的弹幕”
+  uidHash?: string; // 发送者UID的HASH
+  size?: string // 字号
 }
 
 interface BarrageProps {
@@ -43,6 +43,7 @@ interface BarrageProps {
   fontSize?: string;
   opacity?: number;
   barrages?: BarrageData[];
+  time?: number;
 }
 
 class fixedBarrTimer {
@@ -67,7 +68,6 @@ class fixedBarrTimer {
   };
 
   public destroy = () => clearTimeout(this.timerId)
-
 }
 
 /**
@@ -108,14 +108,15 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
 
   public send(barrage: BarrageData) {
-    const { content, type, decimalColor, sendTime, isMineBarr, uidHash } = barrage;
+    const { content, type, decimalColor, sendTime, isMineBarr, uidHash, size } = barrage;
     const barrageDOM = this.barrageRef.current;
     const tempHex = Number(decimalColor).toString(16);
     const divColor = "#" + "00000000".substr(0, 6 - tempHex.length) + tempHex; // tempHex不够6位时前面需要补0
+    const fSize = size === "25" ? "0.8rem" : "0.5rem";
     const tempStyle: any = {
       position: "absolute",
       fontFamily: "黑体",
-      fontSize: "0.8rem",
+      fontSize: fSize,
       fontWeight: "bold",
       whiteSpace: "pre",
       textShadow: "rgb(0, 0, 0) 1px 1px 2px",
@@ -131,9 +132,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
     barrageDOM.appendChild(barrageElem);
     for (const k in tempStyle) {
       //  void 0等价于undefined，而且不能被重写且能节省字节
-      if (tempStyle[k] !== void 0) {
-        barrageElem.style[k] = tempStyle[k];
-      }
+      if (tempStyle[k] !== void 0) { barrageElem.style[k] = tempStyle[k] }
     }
     // 检查是否为本人所发弹幕
     if (isMineBarr) {
@@ -148,7 +147,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
     /* 根据弹幕类型设置具体属性 */
     if (type === "4") {
-      barrEleStyle.bottom = this.fixedBottom + "px"; ``
+      barrEleStyle.bottom = this.fixedBottom + "px";
       // 距离底端位置增加一个弹幕内容高度，防止固定弹幕重叠
       this.fixedBottom += this.contentHeight;
       // 最大值边界判断
@@ -227,9 +226,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
     const barrageDOM = this.barrageRef.current;
     const children = barrageDOM.children;
     // children是HTMLCollection类型的，因此要用Array.from()转成数组
-    for (const child of Array.from(children)) {
-      barrageDOM.removeChild(child);
-    }
+    for (const child of Array.from(children)) { barrageDOM.removeChild(child) }
 
     // 清除样式相关的缓存
     this.fixedBarrTimers.forEach(timer => timer.destroy());
@@ -273,21 +270,15 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
   public setFingerListener() {
     const { isLive } = this.props;
-    const { setGestureType, setIsShowControlBar, setIsShowCenterVolume,
-      setIsShowCenterBri } = this.props.barrageSetState;
+    const { setGestureType, setIsShowControlBar, setIsShowCenterVolume, setIsShowCenterBri } = this.props.barrageSetState;
     const { showControlsTemporally, setTimeupdateListener, showControls } = this.props.barrageMethods;
-    const { videoRef, gesRef, curBrightnessRef, curVolumeRef, progressRef,
-      currentTimeRef, showCtrBarRef } = this.props.barrageRefs;
+    const { videoRef, gesRef, curBrightnessRef, curVolumeRef, progressRef, currentTimeRef, showCtrBarRef } = this.props.barrageRefs;
     const videoDOM: HTMLVideoElement = videoRef.current;
-
     // 用barrageContainerDOM而不是videoAreaDOM的原因，见player.styl中各DOM的层级关系
     const barrageContainerDOM: HTMLDivElement = this.barrageRef.current;
-
     const isIos = ['iPad Simulator', 'iPhone Simulator', 'iPod Simulator',
       'iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) !== -1 ||
-      // iPad on iOS 13 detection
-      (navigator.userAgent.includes("Mac") && "ontouchend" in document)
-
+      (navigator.userAgent.includes("Mac") && "ontouchend" in document) // iPad on iOS 13 detection
     let barrageWidth: number = 0;
     let barrageHeight: number = 0;
     let initVolume: number;
@@ -401,7 +392,6 @@ class Barrage extends React.PureComponent<BarrageProps> {
     const { setIsShowControlBar } = this.props.barrageSetState;
     const controlBarDOM = this.props.barrageRefs.controlBarRef.current;
     const { showControlsTemporally, clearCtrTimer } = this.props.barrageMethods;
-
     const barrageContainerDOM = this.barrageRef.current;
     // click事件不能正常显示/隐藏控制器，且会影响其他控制器子组件的点击
     // barrageContainerDOM.addEventListener("click", (e) => {

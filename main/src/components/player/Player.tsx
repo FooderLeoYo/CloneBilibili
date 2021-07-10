@@ -38,8 +38,6 @@ const { useState, useEffect, useRef, useContext, forwardRef, useImperativeHandle
 function Player(props: PlayerProps, ref) {
   /* 从父组件获取的数据 */
   const { isLive, video, myUid, liveTime, videoRef, clickCover } = props;
-  const temVideoRef = useRef(null);
-  const videoDOMRef: React.RefObject<HTMLVideoElement> = videoRef ? videoRef : temVideoRef;
   const context = useContext(myContext);
 
   /* 不需要关联ref的state */
@@ -56,24 +54,25 @@ function Player(props: PlayerProps, ref) {
   /* 需要关联ref的state */
   // 是否显示控制栏
   const [isShowControlBar, setIsShowControlBar] = useState(true);
-  const showCtrBarRef = useRef(isShowControlBar);
+  const showCtrBarRef = useRef(true);
   useEffect(() => { showCtrBarRef.current = isShowControlBar }, [isShowControlBar]);
   // 暂停/播放
   const [paused, setPaused] = useState(true);
-  const pausedRef = useRef(paused);
+  const pausedRef = useRef(true);
   useEffect(() => { pausedRef.current = paused }, [paused]);
   // 手势类型
   const [gestureType, setGestureType] = useState(0); // 手势类型：0：无手势；1：左右滑动；2：右边的上下滑动；3：左边的上下滑动
-  const gestureTypeRef = useRef(gestureType);
+  const gestureTypeRef = useRef(0);
   useEffect(() => { gestureTypeRef.current = gestureType }, [gestureType]);
-  // 拿到数据时的初始格式，供slice后生成barrages
-  const [initBarrages, setInitBarrages] = useState([]);
-  const initBarragesRef = useRef([]);
-  useEffect(() => { initBarragesRef.current = initBarrages }, [initBarrages]);
-  // 真正发送到播放器中的弹幕
-  const [barrages, setBarrages] = useState([]);
-  const barragesRef = useRef([]);
-  useEffect(() => { barragesRef.current = barrages }, [barrages]);
+  // 从后端请求到的弹幕数据
+  const [initBarrData, setInitBarrData] = useState([]);
+  const initBarrDataRef = useRef([]);
+  useEffect(() => { initBarrDataRef.current = initBarrData }, [initBarrData]);
+  // findBarrages和EditBarr中会对弹幕数据进行修改操作，而原数据在改变播放位置、重新播放等情况时要被再次使用
+  // 因此不能在原数据上直接修改，barrForSend就是供修改的原数据copy
+  const [barrsForSend, setBarrsForSend] = useState([]);
+  const barrsForSendRef = useRef([]);
+  useEffect(() => { barrsForSendRef.current = barrsForSend }, [barrsForSend]);
 
   /* Refs */
   const playerRef: React.RefObject<HTMLDivElement> = useRef(null);
@@ -103,7 +102,7 @@ function Player(props: PlayerProps, ref) {
   /* 需要传递给子组件的props */
   // 将传递给Barrage
   const barrageRefs = {
-    videoRef: videoDOMRef,
+    videoRef: videoRef,
     curBrightnessRef: curBrightnessRef,
     curVolumeRef: curVolumeRef,
     gesRef: gestureTypeRef,
@@ -132,17 +131,18 @@ function Player(props: PlayerProps, ref) {
     isLive: isLive,
     isShowControlBar: isShowControlBar,
     speedBtnSuffix: speedBtnSuffix,
-    paused: paused
+    paused: paused,
+    showEditBarr: showEditBarr
   };
   const ctrBarData = {
     video: video,
-    initBarrages: initBarragesRef.current,
+    initBarrDataRef: initBarrDataRef,
     ctrBarTimer: ctrBarTimer,
     liveTime: liveTime
   };
   const ctrBarMethods = {
     playOrPause: playOrPause,
-    changeBar: barr => { setBarrages(barr) },
+    changeBar: barr => { setBarrsForSend(barr) },
     showControlsTemporally: showControlsTemporally,
     clearCtrTimer: clearCtrTimer,
     setTimeupdateListener: setTimeupdateListener,
@@ -155,14 +155,13 @@ function Player(props: PlayerProps, ref) {
     ctrPlayBtnRef: ctrPlayBtnRef,
     currentTimeRef: currentTimeRef,
     progressRef: progressRef,
-    videoRef: videoDOMRef,
+    videoRef: videoRef,
     barrageRef: barrageRef,
     playerRef: playerRef,
     speedRef: speedRef,
   }
 
   /* Player的全局变量 */
-  let duration: number = -1;
   // const isIos: boolean;
   // const isAndroid: boolean;
   // isIos = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // 只写一个!会报错
@@ -186,17 +185,14 @@ function Player(props: PlayerProps, ref) {
   }
 
   function setTimeupdateListener() {
-    const videoDOM = videoDOMRef.current;
-    const videoDur = videoDOM.duration
+    const videoDOM = videoRef.current;
     const barrageComponent = barrageRef.current;
     const currentTimeDOM = currentTimeRef.current;
     const progressDOM = progressRef.current;
     const curTime = videoDOM.currentTime;
-    // 初始化时设置duration
-    if (duration === 0) { duration = videoDur }
     // 更新进度条
     currentTimeDOM.innerHTML = formatDuration(curTime, "0#:##");
-    progressDOM.style.width = `${curTime / videoDur * 100}%`;
+    progressDOM.style.width = `${curTime / videoDOM.duration * 100}%`;
     // 如果显示弹幕已开，且正在播放
     ctrBarRef.current.showBarrage && !pausedRef.current &&
       findBarrages(curTime).forEach(barrage => barrageComponent.send(barrage));
@@ -213,7 +209,7 @@ function Player(props: PlayerProps, ref) {
   }
 
   function playOrPause() {
-    const videoDOM = videoDOMRef.current;
+    const videoDOM = videoRef.current;
 
     if (pausedRef.current) {
       setPaused(false);
@@ -231,7 +227,7 @@ function Player(props: PlayerProps, ref) {
   }
 
   function setListeners() {
-    const videoDOM = videoDOMRef.current;
+    const videoDOM = videoRef.current;
     // 当播放时间发生变动时，更新进度条并加载当前时点的弹幕
     videoDOM.addEventListener("timeupdate", setTimeupdateListener);
     // 视频结束时重置进度条和state
@@ -241,7 +237,7 @@ function Player(props: PlayerProps, ref) {
       setPaused(true);
       setFinish(true);
       // 重新赋值弹幕列表
-      setBarrages(initBarragesRef.current.slice());
+      setBarrsForSend(initBarrDataRef.current.slice());
       // 清除弹幕
       barrageRef.current.clear();
     });
@@ -253,7 +249,7 @@ function Player(props: PlayerProps, ref) {
   }
 
   function setLiveVideoDOM() {
-    const videoDOM: HTMLVideoElement = videoDOMRef.current;
+    const videoDOM: HTMLVideoElement = videoRef.current;
     const { video } = props;
 
     // 支持m3u8，直接使用video播放
@@ -279,8 +275,8 @@ function Player(props: PlayerProps, ref) {
       const { code, data } = result;
       if (code === "1") {
         // 初始化弹幕列表
-        setInitBarrages(data);
-        setBarrages(data.slice());
+        setInitBarrData(data);
+        setBarrsForSend(data);
       }
     });
   }
@@ -291,7 +287,7 @@ function Player(props: PlayerProps, ref) {
     const temp = [];
     // 查找到的弹幕索引
     const indexs = [];
-    barragesRef.current.forEach((barrage, index) => {
+    barrsForSendRef.current.forEach((barrage, index) => {
       // 换成整数秒
       if (parseInt(barrage.time, 10) === parseInt(time, 10)) {
         temp.push(barrage);
@@ -302,7 +298,7 @@ function Player(props: PlayerProps, ref) {
     // 这样视频继续播放或移动播放位置触发findBarrages时，barrages.forEach的范围
     // 会缩小，搜索速度会加快
     // 从前往后删除，删掉前面的以后，后面的索引就变小了，因此要index - i
-    indexs.forEach((index, i) => { barragesRef.current.splice(index - i, 1); });
+    indexs.forEach((index, i) => barrsForSendRef.current.splice(index - i, 1));
     return temp;
   }
 
@@ -324,7 +320,7 @@ function Player(props: PlayerProps, ref) {
   useEffect(() => {
     if (isLive) {
       setLiveVideoDOM();
-      videoDOMRef.current.autoplay = true;
+      videoRef.current.autoplay = true;
     } else {
       setListeners();
       setBarr();
@@ -340,7 +336,7 @@ function Player(props: PlayerProps, ref) {
             // playsinline是解决ios默认打开网页的时候，会自动全屏播放
             x5-playsinline="true"
             playsInline={true} src={isLive ? "" : getVideoUrl(video.url)}
-            ref={videoDOMRef} style={videoStyle}
+            ref={videoRef} style={videoStyle}
           />
         </div>
         {/* 弹幕 */}
@@ -355,7 +351,7 @@ function Player(props: PlayerProps, ref) {
         </div>
         <div className={style.controlContainer}>
           {/* 是否跳转到上次播放位置 */}
-          {!isLive && <LastPosition video={video} videoRef={videoDOMRef} ref={lastPosRef} />}
+          {!isLive && <LastPosition video={video} videoRef={videoRef} ref={lastPosRef} />}
           {/* 调节音量后显示当前音量 */}
           <div className={style.curVolumeContainer} style={centerVolumeStyle}>
             <svg className="icon" aria-hidden="true">
@@ -377,7 +373,7 @@ function Player(props: PlayerProps, ref) {
           {/* 速度调节及显示 */}
           {!isLive &&
             <div className={style.speedContainer} >
-              <Speed videoDOM={videoDOMRef.current} paused={paused} ref={speedRef}
+              <Speed videoDOM={videoRef.current} paused={paused} ref={speedRef}
                 playBtnTimer={playBtnTimerRef.current} isShowPlayBtn={isShowPlayBtn}
                 setIsShowPlayBtn={setIsShowPlayBtn} setSpeedBtnSuffix={setSpeedBtnSuffix}
               />
@@ -397,13 +393,13 @@ function Player(props: PlayerProps, ref) {
           />
           {/* 编辑待发送弹幕 */}
           <EditBarr showEditBarr={showEditBarr} setShowEditBarr={setShowEditBarr}
-            videoData={video} barrageRef={barrageRef}
+            videoData={video} videoRef={videoRef} barrsForSendRef={barrsForSendRef}
           />
         </div>
         {/* 封面 */}
         <Cover ref={coverRef} isLive={isLive} video={video}
           playOrPause={playOrPause} lastPosRef={lastPosRef} setWaiting={setWaiting}
-          videoRef={videoDOMRef} setPaused={setPaused} clickCover={clickCover}
+          videoRef={videoRef} setPaused={setPaused} clickCover={clickCover}
         />
         {/* 正在缓冲 */}
         {waiting && <Loading isLive={isLive} />}

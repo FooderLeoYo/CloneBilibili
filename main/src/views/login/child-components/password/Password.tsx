@@ -1,11 +1,8 @@
 import * as React from "react";
 import JSEncrypt from 'jsencrypt'
-
 import { getGTCaptcha, getPWKeyAndHash, getPWVerifyInfo } from "@api/login";
-
 import CleanText from "@root/src/components/clean-text/CleanText"
 import Toast from "@components/toast/index";
-
 import style from "./password.styl?css-modules";
 
 declare global {

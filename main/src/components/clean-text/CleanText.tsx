@@ -13,21 +13,22 @@ const CleanText = forwardRef((props: CleanTextProps, ref) => {
   const [firstLetter, setFirstLetter] = useState(true);
   const btnRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
+  const cleanText = () => {
+    inputDOMRef.current.value = "";
+    btnRef.current.classList.remove(style.show);
+    setFirstLetter(true);
+  };
+
   useEffect(() => {
     const cleanBtnDOM = btnRef.current;
-    const inputDOM = inputDOMRef.current;
-
-    inputDOM.value.length > 0 && cleanBtnDOM.classList.add(style.show);
+    inputDOMRef.current.value.length > 0 && cleanBtnDOM.classList.add(style.show);
     doWhenEmpty && cleanBtnDOM.addEventListener("click", () => { doWhenEmpty() });
-    cleanBtnDOM.addEventListener("click", () => {
-      inputDOM.value = "";
-      cleanBtnDOM.classList.remove(style.show);
-      setFirstLetter(true);
-    });
+    cleanBtnDOM.addEventListener("click", cleanText);
   }, []);
 
-  // useEffect无法监听到inputDOMRef.current.value的变化，故只能由父组件在值变化时调用checkIfShow
   useImperativeHandle(ref, () => ({
+    clean: () => cleanText(),
+    // useEffect无法监听到inputDOMRef.current.value的变化，故只能由父组件在值变化时调用checkIfShow
     checkIfShow: value => {
       if (value.length > 0 && firstLetter) {
         btnRef.current.classList.add(style.show);
