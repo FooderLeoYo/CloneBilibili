@@ -11,12 +11,14 @@ interface EditBarrProps {
   videoData: any;
   videoRef: React.RefObject<HTMLVideoElement>;
   barrsForSendRef: React.MutableRefObject<any[]>;
+  setbarrCoolDown: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const { useState, useRef, useEffect } = React;
 
 function EditBarr(props: EditBarrProps) {
-  const { showEditBarr, setShowEditBarr, videoData, videoRef, barrsForSendRef } = props;
+  const { showEditBarr, setShowEditBarr, videoData, videoRef, barrsForSendRef,
+    setbarrCoolDown } = props;
   const { aId, cId } = videoData;
   const [barrSize, setBarrSize] = useState(25); // 标准（25）、小（18）
   const [barrPosition, setBarrPosition] = useState(1); // 滚动（1）、底部（4）、顶部（5）
@@ -29,7 +31,8 @@ function EditBarr(props: EditBarrProps) {
     const timestamp = Date.now();
     sendBarrage(aId, barrPosition, barrInputRef.current.value, cId, timestamp, 1,
       barrColor, barrSize).then(result => {
-        if (result.code === "1") {
+        const { code, data } = result;
+        if (code === "1") {
           // 由于发送成功后也要等5s左右才能获取到新发弹幕数据，故这里直接发一个“假”的
           barrsForSendRef.current.push({
             content: barrInputRef.current.value,
@@ -43,18 +46,19 @@ function EditBarr(props: EditBarrProps) {
             size: barrSize.toString()
           })
           setShowEditBarr(false);
+          setbarrCoolDown(5);
           cleanTextRef.current.clean();
-        } else { Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000) }
+        } else { Toast.error(data.message, false, null, 2000) }
       });
   }
 
   useEffect(() => {
     const adjustHeight = () => {
       const { angle } = screen.orientation;
-      if (angle === 90 || angle === 180) { editRef.current.classList.add(style.horizontal) }
+      if (angle === 90 || angle === -90) { editRef.current.classList.add(style.horizontal) }
       else { editRef.current.classList.remove(style.horizontal) }
     };
-    addEventListener("orientationchange", adjustHeight);
+    addEventListener("orientationchange", () => adjustHeight());
     return (removeEventListener("orientationchange", adjustHeight));
   }, []);
 

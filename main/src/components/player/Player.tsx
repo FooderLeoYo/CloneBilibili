@@ -49,6 +49,7 @@ function Player(props: PlayerProps, ref) {
   const [isShowCenterBri, setIsShowCenterBri] = useState(false);
   const [speedBtnSuffix, setSpeedBtnSuffix] = useState("1");
   const [showEditBarr, setShowEditBarr] = useState(false);
+  const [barrCoolDown, setbarrCoolDown] = useState(0);
   let ctrBarTimer: number; // 控制鼠标静止一段时间后隐藏控制条的定时器
 
   /* 需要关联ref的state */
@@ -132,13 +133,14 @@ function Player(props: PlayerProps, ref) {
     isShowControlBar: isShowControlBar,
     speedBtnSuffix: speedBtnSuffix,
     paused: paused,
-    showEditBarr: showEditBarr
+    showEditBarr: showEditBarr,
+    barrCoolDown: barrCoolDown,
   };
   const ctrBarData = {
     video: video,
     initBarrDataRef: initBarrDataRef,
     ctrBarTimer: ctrBarTimer,
-    liveTime: liveTime
+    liveTime: liveTime,
   };
   const ctrBarMethods = {
     playOrPause: playOrPause,
@@ -148,7 +150,8 @@ function Player(props: PlayerProps, ref) {
     setTimeupdateListener: setTimeupdateListener,
     setIsShowControlBar: setIsShowControlBar,
     setIsShowPlayBtn: setIsShowPlayBtn,
-    setShowEditBarr: setShowEditBarr
+    setShowEditBarr: setShowEditBarr,
+    setbarrCoolDown: setbarrCoolDown
   };
   const ctrBarRefs = {
     controlBarRef: controlBarRef,
@@ -394,6 +397,7 @@ function Player(props: PlayerProps, ref) {
           {/* 编辑待发送弹幕 */}
           <EditBarr showEditBarr={showEditBarr} setShowEditBarr={setShowEditBarr}
             videoData={video} videoRef={videoRef} barrsForSendRef={barrsForSendRef}
+            setbarrCoolDown={setbarrCoolDown}
           />
         </div>
         {/* 封面 */}

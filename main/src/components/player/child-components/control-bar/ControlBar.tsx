@@ -12,7 +12,8 @@ interface ControlBarProps {
     isShowControlBar: boolean,
     speedBtnSuffix: string,
     paused: boolean,
-    showEditBarr: boolean
+    showEditBarr: boolean,
+    barrCoolDown: number,
   };
   ctrBarData: {
     video: {
@@ -25,7 +26,7 @@ interface ControlBarProps {
     };
     initBarrDataRef: React.MutableRefObject<any[]>,
     ctrBarTimer: number,
-    liveTime: number
+    liveTime: number,
   };
   ctrBarMethods: {
     setIsShowControlBar: React.Dispatch<React.SetStateAction<boolean>>,
@@ -35,7 +36,8 @@ interface ControlBarProps {
     showControlsTemporally: Function,
     clearCtrTimer: () => void,
     setTimeupdateListener: () => void,
-    setShowEditBarr: React.Dispatch<React.SetStateAction<boolean>>
+    setShowEditBarr: React.Dispatch<React.SetStateAction<boolean>>,
+    setbarrCoolDown: React.Dispatch<React.SetStateAction<number>>
   };
   ctrBarRefs: {
     controlBarRef: React.RefObject<HTMLDivElement>,
@@ -53,10 +55,11 @@ const { useState, useEffect, useRef, forwardRef, useImperativeHandle } = React;
 
 function ControlBar(props: ControlBarProps, ref) {
   const { ctrBarStatus, ctrBarData, ctrBarMethods, ctrBarRefs } = props;
-  const { isLive, isShowControlBar, speedBtnSuffix, paused, showEditBarr } = ctrBarStatus;
+  const { isLive, isShowControlBar, speedBtnSuffix, paused, showEditBarr,
+    barrCoolDown } = ctrBarStatus;
   const { video, initBarrDataRef, ctrBarTimer, liveTime } = ctrBarData;
   const { setIsShowControlBar, setIsShowPlayBtn, playOrPause, changeBar, showControlsTemporally, clearCtrTimer,
-    setTimeupdateListener, setShowEditBarr } = ctrBarMethods;
+    setTimeupdateListener, setShowEditBarr, setbarrCoolDown } = ctrBarMethods;
   const { controlBarRef, ctrPlayBtnRef, currentTimeRef, progressRef,
     videoRef, barrageRef, playerRef, speedRef } = ctrBarRefs;
 
@@ -247,6 +250,20 @@ function ControlBar(props: ControlBarProps, ref) {
     } else { liveTime && setLiveDurationDOM() }
   }, []);
 
+  const barrCoolDownRef = useRef(null);
+  useEffect(() => { barrCoolDownRef.current = barrCoolDown }, [barrCoolDown]);
+  useEffect(() => {
+    const handleInterval = () => {
+      const curCount = barrCoolDownRef.current - 1;
+      setbarrCoolDown(curCount);
+      curCount === 0 && clearInterval(coolTimer);
+    }
+    let coolTimer;
+    if (barrCoolDown === 5) {
+      coolTimer = setInterval(() => handleInterval(), 1000)
+    }
+  }, [barrCoolDown]);
+
   return (
     <div className={style.controlBar} style={controlBarStyle} ref={controlBarRef}>
       {isLive ? <div className={style.liveDuration} ref={liveDurationRef} /> :
@@ -276,7 +293,11 @@ function ControlBar(props: ControlBarProps, ref) {
         </div>
         <div className={style.sendBarr}>
           {isLogin ?
-            <span onClick={() => setShowEditBarr(true)}>{showEditBarr ? "弹幕编辑中……" : "发个友好的弹幕见证当下"}</span> :
+            <span onClick={() => !showEditBarr && barrCoolDown === 0 && setShowEditBarr(true)}>
+              {showEditBarr ? "弹幕编辑中……" : barrCoolDown === 0 ?
+                "发个友好的弹幕见证当下" : `${barrCoolDown}秒后可再次发送`
+              }
+            </span> :
             <span className={style.login}>想弹幕吐槽一下？快去&nbsp;<Link to="/login">登录/注册</Link>&nbsp;吧！</span>
           }
         </div>
