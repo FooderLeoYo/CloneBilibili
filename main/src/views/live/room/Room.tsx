@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import { match } from "react-router-dom";
 
 import getRoomData from "@redux/async-action-creators/live/room";
-import { setShouldLoad } from "@redux/action-creators";
+import { setShouldLoad, setRoomData } from "@redux/action-creators";
 import { getUserInfo } from "@api/space";
 import { getDanMuConfig } from "@api/live";
 
@@ -40,7 +40,6 @@ const { useState, useEffect, useRef } = React;
 
 function Room(props: RoomProps) {
   const { shouldLoad, dispatch, roomData } = props;
-  const { live } = roomData;
 
   const [isDataOk, setIsDataOk] = useState(false);
   const [anchor, setAnchor] = useState(new UpUser(0, "", ""));
@@ -120,29 +119,33 @@ function Room(props: RoomProps) {
 
   useEffect(() => {
     if (shouldLoad) {
-      // 这个数据非常慢，dispatch后props中仍然没有roomData
-      // 到了下面的仿getDerivedStateFromProps时才有数据
-      // 因此setInitData放到那里执行
-      dispatch(getRoomData(props.match.params.roomId));
+      // dispatch后props中仍然没有roomData，因为dispatch虽然是同步的
+      // 但通过react-redux连接器封装后的组件其实就是在组件外层包了一层高阶组件，这一个高阶组件在redux里的state更新时会调用setState
+      // 因此setInitData放到下面的useEffect中执行
+      dispatch(getRoomData(props.match.params.roomId))
     } else {
       setInitData();
       dispatch(setShouldLoad(true));
     }
+
+    // 退出Room时清空redux中的roomData，否则通过判断props.roomData是否改变来决定执行setInitData会多执行一次
+    // 因为props.roomData是由null -> 老数据 -> 新数据，因此会在null -> 老数据时多执行一次setInitData
+    return () => { dispatch(setRoomData(null)) }
   }, []);
+
+  // 相当于getDerivedStateFromProps
+  useEffect(() => {
+    roomData && Object.keys(roomData).length !== 0 && setInitData();
+  }, [roomData?.live?.roomId]);
 
   // 这里相当于只关注wsForClose的componentWillUnmount
   useEffect(() => {
     if (wsForClose) {
       // 不能把return放到模拟componentDidMount的useEffect中，因为：
       // 不给useEffect第二个参数传[wsForClose]的话，拿到的wsForClose永远是初始的“undefined”
-      return () => { wsForClose.webSocket.close(); }
+      return () => { wsForClose.webSocket.close() }
     }
   }, [wsForClose?.roomId]);
-
-  // 相当于getDerivedStateFromProps
-  useEffect(() => {
-    Object.keys(roomData).length !== 0 && setInitData();
-  }, [roomData?.parentAreaId]);
 
   return (
     <div className="live-room">
@@ -154,14 +157,14 @@ function Room(props: RoomProps) {
             {context => (
               <section className={style.main}>
                 <div className={style.playerContainer}>
-                  <Player isLive={true} isStreaming={live.isLive === 1}
+                  <Player isLive={true} isStreaming={roomData.live.isLive === 1}
                     ref={playerRef} videoRef={videoRef}
                     // getTime()返回liveTime距 1970 年 1 月 1 日之间的毫秒数
                     liveTime={new Date(roomData.liveTime.replace(/-/g, "/")).getTime()}
                     video={{
-                      aId: 0, cId: 0, title: live.title,
-                      cover: context.picURL + "?pic=" + live.cover,
-                      duration: 0, url: live.playUrl
+                      aId: 0, cId: 0, title: roomData.live.title,
+                      cover: context.picURL + "?pic=" + roomData.live.cover,
+                      duration: 0, url: roomData.live.playUrl
                     }}
                   />
                 </div>
@@ -178,7 +181,7 @@ function Room(props: RoomProps) {
                     <p className={style.anchor}>主播：<span>{anchor.name}</span></p>
                     <p className={style.count}>
                       <span className={style.online} ref={onlineNumRef}>
-                        人气：{formatTenThousand(live.onlineNum)}
+                        人气：{formatTenThousand(roomData.live.onlineNum)}
                       </span>
                       <span className={style.fans}>粉丝：{formatTenThousand(anchor.follower)}</span>
                     </p>

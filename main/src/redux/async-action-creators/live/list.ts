@@ -4,7 +4,6 @@ import { parse } from "query-string";
 import { getPartitions } from "@api/partitions"
 import { getLiveListData, getLiveIndexData } from "@api/live";
 
-import { store } from "@src/entry-client";
 import { Live, UpUser, createPartitionTypesTree, PartitionType, LiveSecQueryParType } from "@class-object-creators/index";
 import {
   setShouldLoad, setLiveList, setLiveLvTwoTabs, setLvOneTabs,
@@ -19,7 +18,7 @@ export default function getLiveListInfo(data: {
   page: number,
   pageSize: number
 }) {
-  return (dispatch: Dispatch<AnyAction>) => {
+  return (dispatch: Dispatch<AnyAction>, getState) => {
     const setLvOneTabData = partiRes => {
       if (partiRes.code === "1") {
         let partitions = createPartitionTypesTree(partiRes.data);
@@ -76,7 +75,7 @@ export default function getLiveListInfo(data: {
         setListData(liveListRes);
       });
     } else {
-      const { lvOneTabs, liveLvTwoTabs } = store.getState();
+      const { lvOneTabs, liveLvTwoTabs } = getState();
       lvOneTabs.length === 0 && getPartitions().then(partiRes => setLvOneTabData(partiRes));
       liveLvTwoTabs.length === 0 && getLiveIndexData().then(liveIndexRes => setLvTwoTabData(liveIndexRes));
       return getLiveListData(data).then(liveListRes => setListData(liveListRes));

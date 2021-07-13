@@ -4,12 +4,11 @@ import { AnyAction, Dispatch } from "redux";
 
 import { getPartitions } from "../../api/partitions";
 
-import { store } from "@src/entry-client";
 import { setLvOneTabs, setShouldLoad } from "../action-creators";
 import { createPartitionTypesTree, PartitionType } from "@class-object-creators/PartitionType";
 
 export default function getPartitionList() {
-  return (dispatch: Dispatch<AnyAction>) => {
+  return (dispatch: Dispatch<AnyAction>, getState) => {
     const setLvOneTabData = partiRes => {
       if (partiRes.code === "1") {
         let partitions = createPartitionTypesTree(partiRes.data);
@@ -29,7 +28,7 @@ export default function getPartitionList() {
       // 这里是为了让Channel能在获取到数据后的那个时机setIsDataOK
       // 虽然可以用componentDidUpdata代替，但这样就多很多判断，因此还是包装成promise
       return new Promise(resolve => {
-        if (store.getState().lvOneTabs.length === 0) {
+        if (getState().lvOneTabs.length === 0) {
           resolve(getPartitions().then(partiRes => setLvOneTabData(partiRes)));
         } else { resolve(null) }
       })

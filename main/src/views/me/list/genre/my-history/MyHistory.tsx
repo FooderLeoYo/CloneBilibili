@@ -6,14 +6,14 @@ import { Link } from "react-router-dom";
 import { getHistory, deleteHistory } from "@api/me";
 
 import Toast from "@components/toast/index";
-import HeaderWithTools from "@root/src/components/header-with-tools/HeaderWithTools"
+import HeaderWithTools from "@components/header-with-tools/HeaderWithTools"
 import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 import TabBar from "../../child-components/tab-bar/TabBar";
 import VideoItem from "./child-components/item/VideoItem";
 import BottomBar from "../../child-components/bottom-bar/BottomBar"
 
-import style from "./my-history.styl?css-modules";
 import tips from "@assets/images/nocontent.png";
+import style from "./my-history.styl?css-modules";
 
 interface MyHistoryProps {
   history: History;

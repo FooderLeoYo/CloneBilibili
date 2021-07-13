@@ -4,7 +4,6 @@ import { parse } from "query-string";
 import { getPartitions } from "@api/partitions"
 import { getLiveIndexData } from "@api/live";
 
-import { store } from "@src/entry-client";
 import { Live, UpUser, createPartitionTypesTree, PartitionType, LiveSecQueryParType } from "@class-object-creators/index";
 import {
   setLiveLvTwoTabs, setLvOneTabs, setShouldLoad, setLiveLvTwoQuery,
@@ -14,7 +13,9 @@ import {
 const itemTitle = ["电台", "视频唱见", "单机游戏", "手游", "网游", "娱乐", "虚拟主播"];
 
 export default function getLiveData() {
-  return (dispatch: Dispatch<AnyAction>) => {
+  // 这里return的函数就是一个“thunk”
+  // 这个thunk可以有两个参数dispatch和getState，都是store的成员方法
+  return (dispatch: Dispatch<AnyAction>, getState) => {
     const setLvOneTabData = partiRes => {
       if (partiRes.code === "1") {
         let partitions = createPartitionTypesTree(partiRes.data);
@@ -82,7 +83,7 @@ export default function getLiveData() {
       });
     } else {
       // 一二级tab如果store中已有数据则复用，banner和推荐由于更新频繁因此每次都重新获取
-      const { lvOneTabs, liveLvTwoTabs } = store.getState();
+      const { lvOneTabs, liveLvTwoTabs } = getState();
       lvOneTabs.length === 0 && getPartitions().then(partiRes => setLvOneTabData(partiRes));
       getLiveIndexData().then(liveIndexRes => setOtherIndexData(liveIndexRes, liveLvTwoTabs.length === 0));
     }

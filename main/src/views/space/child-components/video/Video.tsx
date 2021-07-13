@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import LazyLoad from "react-lazyload";
 
 import { getFavListCreated, getFavListCollected, getFavInfo } from "@api/space";
-import { store } from "@src/entry-client";
 import { getPicSuffix } from "@customed-methods/image";
 import Context from "@context/index";
 
@@ -37,7 +36,6 @@ function Video(props: VideoProps) {
       const { code, data } = result;
       if (code === "1") {
         const { count, list } = data.data;
-        store.getState()
         const tempData = { count: count, list: [] };
         getFavInfo(list[0].id).then(result => { // 保证“默认收藏夹”在第一位
           const { code, data } = result;

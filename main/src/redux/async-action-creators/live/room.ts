@@ -1,12 +1,14 @@
 import { AnyAction, Dispatch } from "redux";
-import { getRoomInfo, getPlayUrl } from "../../../api/live";
+import { getRoomInfo, getPlayUrl } from "@api/live";
 import { setRoomData, setShouldLoad } from "../../action-creators";
-import { Live } from "../../../class-object-creators";
+import { Live } from "@class-object-creators/Live";
 
 export default function getRoomData(roomId: number) {
   return (dispatch: Dispatch<AnyAction>) => {
     const promises = [getRoomInfo(roomId), getPlayUrl(roomId)];
     return Promise.all(promises).then(([result1, result2]) => {
+      process.env.REACT_ENV === "server" && dispatch(setShouldLoad(false));
+
       if (result1.code === "1") {
         const data = result1.data;
         const live = new Live(
@@ -33,10 +35,6 @@ export default function getRoomData(roomId: number) {
           liveTime: data.live_time,
           live,
         }));
-      }
-
-      if (process.env.REACT_ENV === "server") {
-        dispatch(setShouldLoad(false));
       }
     });
   };

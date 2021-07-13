@@ -58,6 +58,8 @@ const URL_ME_EDIT_FAV = "http://api.bilibili.com/x/v3/fav/folder/edit";
 const URL_ME_EXIT_LOGIN = "https://passport.bilibili.com/login?act=exit";
 // 获取历史记录
 const URL_ME_GET_HISTORY = "https://api.bilibili.com/x/web-interface/history/cursor";
+// 获取稍后再看列表
+const URL_ME_GET_LATER = "http://api.bilibili.com/x/v2/history/toview";
 // 获取关系状态数
 const URL_ME_MYRELATION = "http://api.bilibili.com/x/web-interface/nav/stat";
 
@@ -332,7 +334,15 @@ const fetchHistory = (param, cookie) => {
 
   return fetch(fetchUrl, {
     method: "GET",
-    headers: { "cookie": cookie },
+    headers: { "cookie": cookie }
+  }).then(res => res.json())
+    .then(json => json);
+}
+
+const fetchLater = cookie => {
+  return fetch(URL_ME_GET_LATER, {
+    method: "GET",
+    headers: { "cookie": cookie }
   }).then(res => res.json())
     .then(json => json);
 }
@@ -565,7 +575,7 @@ module.exports = {
   fetchPWVerifyInfo, fetchSMSVerifyInfo, fetchSMSCaptcha,
   /* 个人中心相关 */
   createFav, delInvalidFavContent, deleteHistory, editFav, exitLogin,
-  fetchHistory, fetchMyRelation,
+  fetchHistory, fetchLater, fetchMyRelation,
   /* 排行榜相关 */
   fetchRankingById, fetchRankingArchiveById, fetchRankingRegionById,
   /* 搜索相关 */

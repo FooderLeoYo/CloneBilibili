@@ -1,7 +1,8 @@
 import { getJSON, postJSON } from "./fetch";
 import {
   URL_ME_MY_RELATION, URL_ME_GET_HISTORY, URL_ME_DELETE_HISTORY,
-  URL_ME_EXIT_LOGIN, URL_ME_EDIT_FAV, URL_ME_CREATE_FAV, URL_ME_DEL_INVALID_FAV_CONTENT
+  URL_ME_EXIT_LOGIN, URL_ME_EDIT_FAV, URL_ME_CREATE_FAV, URL_ME_GET_LATER,
+  URL_ME_DEL_INVALID_FAV_CONTENT
 } from "./url";
 
 /* 获取我的状态数 */
@@ -32,6 +33,10 @@ export function createFav(title: string, intro: string = "", privacy: number = 0
 /* 一键清空失效内容 */
 export function delInvalidFavContent(media_id: number) {
   return postJSON(URL_ME_DEL_INVALID_FAV_CONTENT, { media_id });
+}
+
+export function getLater() {
+  return getJSON(URL_ME_GET_LATER, null);
 }
 
 /* 退出登录 */

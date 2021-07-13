@@ -42,6 +42,8 @@ function Index(props: IndexProps) {
     // 此时有服务端的预取数据，页面使用预取数据即可而无需调用getLives
     // 但是预取数据仅仅是当前页面，因此要setShouldLoad(true)
     // 因为路由跳转切换下一个页面时，下一个页面将没有对应的预取数据，需要自己获取
+
+    // dispatch之所以可以将一个函数作为参数是因为使用了redux-thunk
     if (shouldLoad) { dispatch(getLiveData()) }
     else { dispatch(setShouldLoad(true)) }
 

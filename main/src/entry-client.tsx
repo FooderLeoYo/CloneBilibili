@@ -5,19 +5,16 @@ import * as ReactDOM from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Provider } from "react-redux";
 import { loadableReady } from "@loadable/component";
-import { Store } from "redux"
 
 import createStore from "./redux/store-creator";
 import Root from "./App";
-
-let store: Store;
 
 const createApp = (Component) => {
   // 拿到/server/renderer.js中_generateHTML内注水的initialState
   // __INITIAL_STATE__是自定义的名字
   const initialState = (window as any).__INITIAL_STATE__;
   // 客户端脱水
-  store = createStore(initialState);
+  const store = createStore(initialState);
 
   const App = () => {
     return (
@@ -47,5 +44,3 @@ if (module.hot) {
     ReactDOM.hydrate(createApp(NewApp), document.getElementById("app"));
   });
 }
-
-export { store };

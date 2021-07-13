@@ -4,12 +4,11 @@ import { getBanner } from "@api/index";
 import { getPartitions } from "@api/partitions"
 import { getRankings } from "@api/ranking";
 
-import { store } from "@src/entry-client";
 import { createPartitionTypesTree, createVideoByRanking, PartitionType } from "@class-object-creators/index";
 import { setLvOneTabs, setBanners, setRankingVideos, setShouldLoad } from "../action-creators";
 
 export default function getIndexContent() {
-  return (dispatch: Dispatch<AnyAction>) => {
+  return (dispatch: Dispatch<AnyAction>, getState) => {
     const setLvOneTabData = partiRes => {
       if (partiRes.code === "1") {
         let partitions = createPartitionTypesTree(partiRes.data);
@@ -48,7 +47,7 @@ export default function getIndexContent() {
         setOtherIndexData(banRes, ranRes);
       });
     } else {
-      store.getState().lvOneTabs.length === 0 && getPartitions().then(partiRes => setLvOneTabData(partiRes));
+      getState().lvOneTabs.length === 0 && getPartitions().then(partiRes => setLvOneTabData(partiRes));
       const promises = [getBanner(), getRankings(0)];
       return Promise.all(promises).then(([banRes, ranRes]) => setOtherIndexData(banRes, ranRes));
     }
