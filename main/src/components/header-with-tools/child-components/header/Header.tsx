@@ -10,27 +10,25 @@ interface HeaderProps {
   searching?: boolean;
   setSerching?: React.Dispatch<React.SetStateAction<boolean>>;
   mulDeleting?: boolean;
-  setShowBottom?: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowBatchActionBottom?: React.Dispatch<React.SetStateAction<boolean>>;
   handleAdd?: Function;
   customBtn?: any;
   handleCustomClick?: Function;
   customHandleBack?: Function;
-  handleMulDelete?: Function;
+  switchMulDel?: Function;
 }
 
 const { useRef, useEffect } = React;
 
 function Header(props: HeaderProps) {
-  const { mode, title, setKeyword, mulDeleting, handleMulDelete, setShowBottom,
+  const { mode, title, setKeyword, mulDeleting, switchMulDel, setShowBatchActionBottom,
     searching, setSerching, handleAdd, customBtn, handleCustomClick,
     customHandleBack } = props;
 
   const multipleRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
   useEffect(() => {
-    mode === 1 && multipleRef.current.addEventListener("click", () => {
-      setShowBottom(true);
-    });
+    mode === 1 && multipleRef.current.addEventListener("click", () => setShowBatchActionBottom(true));
   }, [mode]);
 
   return (
@@ -60,7 +58,7 @@ function Header(props: HeaderProps) {
             }
             {mode != 0 && <div className={style.manipulation}>
               {mode === 1 ? <div className={style.multiple} ref={multipleRef}>…</div> :
-                mode === 2 ? <div className={style.edit} onClick={() => handleMulDelete()}>
+                mode === 2 ? <div className={style.edit} onClick={() => switchMulDel()}>
                   {mulDeleting ? "取消" : "编辑"}</div> :
                   mode === 3 ? <div className={style.add} onClick={() => handleAdd()}>+</div> :
                     mode === 4 ? <div className={style.custom} onClick={() => handleCustomClick()}>{customBtn}</div> : null

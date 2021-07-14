@@ -1,100 +1,85 @@
-@import "~@assets/stylus/px2rem.styl"
+  @import "~@assets/stylus/px2rem.styl"
 
-.circle
-  position: absolute
-  top: 50%
-  transform: translateY(-50%)
-  display: inline-block
-  width: px2rem(20)
-  height: @width
-  box-sizing: content-box
-  border: px2rem(1) solid #999999
-  border-radius: 50%
-  svg
-    position: absolute
-    left: px2rem(-2)
-    top: px2rem(-2)
-    font-size: px2rem(25)
-    color: #fb7299
-.content-wrapper
-  height: px2rem(73.194)
-  &.edit
-    position: absolute
-    left: px2rem(35)
-    top: 0
-  .img-container
-    position: relative
-    float: left
-    width: px2rem(117.312) 
-    height: 100%
-    border-radius: px2rem(4)
-    background-color: #e7e7e7
-    overflow: hidden
-    text-align: center
-    .placeholder
-      font-size: px2rem(40)
-      color: rgb(204, 204, 204)
-      svg
-        height: 100%
-    .pic
+.video-item
+  .content
+    height: px2rem(73.194)
+    &.edit
       position: absolute
-      left: 0
+      left: px2rem(35)
       top: 0
-      width: 100%
-      &.live
-        height: 100%
-    .progress-wrapper
-      position: absolute
-      bottom: 0
-      width: 100%
-      height: px2rem(4)
-      background-color:  rgb(88, 95, 99)
-      .cur-progress
-        height: 100%
-        background-color: #fb7299
-  .info
-    margin-left: px2rem(130)
-    position: relative
-    .title
-      height: px2rem(34)
-      line-height: px2rem(17)
-      font-size: px2rem(13)
-      font-weight: bold
-      color: #222
+    .img-container
+      position: relative
+      float: left
+      width: px2rem(117.312) 
+      height: 100%
+      border-radius: px2rem(4)
+      background-color: #e7e7e7
       overflow: hidden
-      text-overflow: ellipsis
-      em
-        font-weight: bolder
-        color: #fb7299
-    .owner-wrapper
-    .time
-      position: absolute
-      height: px2rem(22)
-      line-height: px2rem(22)
-      font-size: px2rem(12)
-      text-overflow: ellipsis
-      white-space: nowrap
-      color: #999999
-    .owner-wrapper
-      top: px2rem(33)
-      width: 100%
-      .icon-up
-        font-size: px2rem(16)
-      .owner
-        margin-left: px2rem(6)
-      .tag
-        margin-left: px2rem(10)
-      .offline,
-      .live
-        float: right
-        padding: 0 px2rem(2)
-        border-radius: px2rem(3)
-        color: #ffffff
-        background-color: rgb(190,190,190)
-      .live
-        background-color: #fb7299
-    .time
-      top: px2rem(52)
-      .platform
-        margin-right: px2rem(6)
-        font-size: px2rem(16)
+      text-align: center
+      .placeholder
+        font-size: px2rem(40)
+        color: rgb(204, 204, 204)
+        svg
+          height: 100%
+      .pic
+        position: absolute
+        left: 0
+        top: 0
+        width: 100%
+        &.live
+          height: 100%
+      .progress-wrapper
+        position: absolute
+        bottom: 0
+        width: 100%
+        height: px2rem(4)
+        background-color:  rgb(88, 95, 99)
+        .cur-progress
+          height: 100%
+          background-color: #fb7299
+    .info
+      margin-left: px2rem(130)
+      position: relative
+      .title
+        height: px2rem(34)
+        line-height: px2rem(17)
+        font-size: px2rem(13)
+        font-weight: bold
+        color: #222
+        overflow: hidden
+        text-overflow: ellipsis
+        em
+          font-weight: bolder
+          color: #fb7299
+      .owner-wrapper
+      .time
+        position: absolute
+        height: px2rem(22)
+        line-height: px2rem(22)
+        font-size: px2rem(12)
+        text-overflow: ellipsis
+        white-space: nowrap
+        color: #999999
+      .owner-wrapper
+        top: px2rem(33)
+        width: 100%
+        .icon-up
+          font-size: px2rem(16)
+        .owner
+          margin-left: px2rem(6)
+        .tag
+          margin-left: px2rem(10)
+        .offline,
+        .live
+          float: right
+          padding: 0 px2rem(2)
+          border-radius: px2rem(3)
+          color: #ffffff
+          background-color: rgb(190,190,190)
+        .live
+          background-color: #fb7299
+      .time
+        top: px2rem(52)
+        .platform
+          margin-right: px2rem(6)
+          font-size: px2rem(16)

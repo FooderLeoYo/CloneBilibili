@@ -1,19 +1,19 @@
 import * as React from "react";
 
-import style from "./bottom.styl?css-modules";
+import style from "./batch-action-bottom.styl?css-modules";
 
 const { useRef, useEffect } = React;
 
-interface BottomProps {
-  setShowBottom: React.Dispatch<React.SetStateAction<boolean>>;
+interface BatchActionBottomProps {
+  setShowBatchActionBottom: React.Dispatch<React.SetStateAction<boolean>>;
   handleEditInfo?: Function;
   handleMulManage?: Function;
   handleCleanInvalid?: Function;
   handleDelete?: Function;
 }
 
-function Bottom(props: BottomProps) {
-  const { setShowBottom, handleEditInfo, handleMulManage, handleCleanInvalid,
+function BatchActionBottom(props: BatchActionBottomProps) {
+  const { setShowBatchActionBottom, handleEditInfo, handleMulManage, handleCleanInvalid,
     handleDelete } = props;
   const overlayRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
@@ -50,7 +50,7 @@ function Bottom(props: BottomProps) {
           <div className={style.manipulation}
             onClick={() => {
               handleCleanInvalid();
-              setShowBottom(false);
+              setShowBatchActionBottom(false);
             }}
           >
             <span className={style.icon}>
@@ -71,10 +71,10 @@ function Bottom(props: BottomProps) {
             <span className={style.word}>删除</span>
           </div>
         }
-        <div className={style.cancel} onClick={() => setShowBottom(false)}>取消</div>
+        <div className={style.cancel} onClick={() => setShowBatchActionBottom(false)}>取消</div>
       </div>
     </>
   )
 }
 
-export default Bottom;
+export default BatchActionBottom;

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 import { getLater } from "@api/me";
 
-import HeaderWithTools from "@components/header-with-tools/HeaderWithTools"
+import HeaderWithTools, { BatchDelItem } from "@components/header-with-tools/HeaderWithTools"
 import VideoItemLandscape from "@components/video-item-landscape/VideoItemLandscape";
 import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 
@@ -53,7 +53,7 @@ function Later() {
     setSelectedStatus(status);
   }
 
-  const handleMulDelete = () => {
+  const switchMulDel = () => {
     setAllSelectedStatus(0);
     setMulDeleting(!mulDeleting);
     setSelectedStatus(0);
@@ -67,39 +67,39 @@ function Later() {
   return (
     <div className={style.later}>
       <Helmet><title>稍后再看</title></Helmet>
-      <HeaderWithTools title={"历史记录"} mode={2} mulDeleting={mulDeleting}
-        handleMulDelete={handleMulDelete} setKeyword={setKeyword}
+      <HeaderWithTools title={"稍后再看"} mode={2} mulDeleting={mulDeleting}
+        switchMulDel={switchMulDel} setKeyword={setKeyword}
         searching={searching} setSerching={(bool: boolean) => setSearching(bool)}
       />
-      <div className={style.laterList}>
-        <ul className={style.laterList}>
-          {laterData.length > 0 ?
-            searching && searched ?
-              <ul className={style.searchResult}>
-                <li className={style.total}>{`共找到关于“${searchKey}”的${searchResult.length}个内容`}</li>
-                {searchResult.map((video, i) =>
-                  <li className={style.itemWrapper} key={i}>
-                    <VideoItemLandscape videoData={video}
-                      imgParams={{ imgHeight: "5.875rem", imgSrc: video.pic, imgFormat: "@200w_125h" }}
-                    />
-                  </li>
-                )}
-              </ul> :
-              laterData?.map((video, i) => (
-                <li className={style.videoItem} key={i}>
+      <ul className={style.laterList}>
+        {laterData.length > 0 ?
+          searching && searched ?
+            <ul className={style.searchResult}>
+              <li className={style.total}>{`共找到关于“${searchKey}”的${searchResult.length}个内容`}</li>
+              {searchResult.map((video, i) =>
+                <li className={style.itemWrapper} key={i}>
                   <VideoItemLandscape videoData={video}
                     imgParams={{ imgHeight: "5.875rem", imgSrc: video.pic, imgFormat: "@200w_125h" }}
                   />
                 </li>
-              )) :
-            <div className={style.noVideo}>
-              <img src={tips} />
-              <div className={style.text}>你还没有添加稍后再看的视频</div>
-              <div className={style.text}>快去发现&nbsp;<Link to="/index">新内容</Link>&nbsp;吧！</div>
-            </div>
-          }
-        </ul>
-      </div>
+              )}
+            </ul> :
+            laterData?.map((video, i) => (
+              <li className={style.videoItem} key={i}>
+                <BatchDelItem mulDeleting={mulDeleting}
+                  itemDOM={<VideoItemLandscape videoData={video}
+                    imgParams={{ imgHeight: "5.875rem", imgSrc: video.pic, imgFormat: "@200w_125h" }}
+                  />}
+                />
+              </li>
+            )) :
+          <div className={style.noVideo}>
+            <img src={tips} />
+            <div className={style.text}>你还没有添加稍后再看的视频</div>
+            <div className={style.text}>快去发现&nbsp;<Link to="/index">新内容</Link>&nbsp;吧！</div>
+          </div>
+        }
+      </ul>
 
       {/* <div className={style.laterList}>
         {!noVideoHistory ?

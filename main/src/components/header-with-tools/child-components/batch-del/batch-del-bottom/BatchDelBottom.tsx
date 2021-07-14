@@ -1,17 +1,17 @@
 import * as React from "react";
 
-import style from "./bottom-bar.styl?css-modules";
+import style from "./batch-del-bottom.styl?css-modules";
 
-interface BottomBarProps {
+interface BatchDelBottomProps {
   selectedStatus: number;
   setAllSelectedStatus: (status) => void;
-  handleDelete: Function;
+  handleMulDel: Function;
 }
 
 const { useState, useEffect } = React;
 
-function BottomBar(props: BottomBarProps) {
-  const { selectedStatus, setAllSelectedStatus, handleDelete } = props;
+function BatchDelBottom(props: BatchDelBottomProps) {
+  const { selectedStatus, setAllSelectedStatus, handleMulDel } = props;
 
   const [selected, setSelected] = useState(false);
   const [hasSelectedItem, setHasSelectedItem] = useState(false);
@@ -37,11 +37,11 @@ function BottomBar(props: BottomBarProps) {
       <span className={style.all}>全选</span>
       <span
         className={hasSelectedItem ? style.delete + " " + style.actived : style.delete}
-        onClick={hasSelectedItem ? () => handleDelete() : null}
+        onClick={hasSelectedItem ? () => handleMulDel() : null}
       >删除
       </span>
     </div>
   )
 }
 
-export default BottomBar;
+export default BatchDelBottom;

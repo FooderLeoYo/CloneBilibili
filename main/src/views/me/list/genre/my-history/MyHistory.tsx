@@ -10,7 +10,6 @@ import HeaderWithTools from "@components/header-with-tools/HeaderWithTools"
 import ScrollToTop from "@components/scroll-to-top/ScrollToTop";
 import TabBar from "../../child-components/tab-bar/TabBar";
 import VideoItem from "./child-components/item/VideoItem";
-import BottomBar from "../../child-components/bottom-bar/BottomBar"
 
 import tips from "@assets/images/nocontent.png";
 import style from "./my-history.styl?css-modules";
@@ -147,7 +146,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     else { this.setState({ selectedStatus: 2 }) }
   }
 
-  private handleDelete = async () => {
+  private handleMulDel = async () => {
     const { tabInx, videoHistories, liveHistories } = this.state;
     const histories = tabInx === 0 ? videoHistories : liveHistories;
     let hasProblem = false;
@@ -184,7 +183,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     }, 2000);
   }
 
-  private handleMulDelete = () => {
+  private switchMulDel = () => {
     this.setAllSelectedStatus(0, 0);
     this.setAllSelectedStatus(1, 0);
     this.setState({ mulDeleting: !this.state.mulDeleting, selectedStatus: 0 });
@@ -308,20 +307,15 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       <div className={style.myHistory}>
         <Helmet><title>历史记录</title></Helmet>
         <HeaderWithTools title={"历史记录"} mode={2} mulDeleting={mulDeleting}
-          handleMulDelete={this.handleMulDelete} setKeyword={this.setKeyword}
+          switchMulDel={this.switchMulDel} setKeyword={this.setKeyword}
           searching={searching} setSerching={(bool: boolean) => this.setState({ searching: bool })}
+          selectedStatus={selectedStatus} handleMulDel={this.handleMulDel}
+          setAllSelectedStatus={status => this.setAllSelectedStatus(tabInx, status)}
         />
         <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })}
           curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ mulDeleting: false, selectedStatus: 0 })}
         />
         <div className={style.listWrapper}>{tabInx === 0 ? videoList : liveList}</div>
-        {mulDeleting && <div className={style.bottomWrapper}>
-          <BottomBar
-            selectedStatus={selectedStatus} handleDelete={this.handleDelete}
-            setAllSelectedStatus={status => this.setAllSelectedStatus(tabInx, status)}
-          />
-        </div>
-        }
         <ScrollToTop />
       </div>
     );

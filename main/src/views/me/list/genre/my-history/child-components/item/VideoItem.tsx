@@ -5,6 +5,7 @@ import { History } from "history";
 import Context from "@context/index";
 import { getPicSuffix } from "@customed-methods/image";
 import { formatDate } from "@customed-methods/datetime";
+import { BatchDelItem } from "@components/header-with-tools/HeaderWithTools"
 
 import style from "./video-item.styl?css-modules";
 
@@ -39,16 +40,15 @@ function VideoItem(props: VideoItemProps) {
   const { author_name, cover, history, selected, title, view_at,
     badge, duration, kid, progress, tag_name } = record;
   const { oid, dt } = history;
-  const spanParam = oid ? oid : kid;
+  const param = oid ? oid : kid;
   const platform = dt === 2 ? "pc" : dt === 4 || dt === 6 ? "pad" : "mobile";
-  const edit = mulDeleting ? "edit" : "";
   const curProgress = progress && progress === -1 ? 100 : progress / duration * 100;
   const liveStatus = badge && badge === "未开播" ? "offline" : "live";
 
   const context = useContext(Context);
 
   const edittingRef = useRef(mulDeleting);
-  useEffect(() => { edittingRef.current = mulDeleting; }, [mulDeleting]);
+  useEffect(() => { edittingRef.current = mulDeleting }, [mulDeleting]);
 
   function handleClick(type: string, param: number) {
     if (edittingRef.current) {
@@ -89,55 +89,53 @@ function VideoItem(props: VideoItemProps) {
   }
 
   return (
-    <span onClick={() => handleClick(curFatherInx === 0 ? "video" : "live", spanParam)} >
-      {mulDeleting && <span className={style.circle}>
-        {selected && <svg className="icon" aria-hidden="true">
-          <use href="#icon-toast-success"></use>
-        </svg>
+    <div className={style.videoItem}>
+      <BatchDelItem clickMethod={() => handleClick(curFatherInx === 0 ? "video" : "live", param)}
+        mulDeleting={mulDeleting} selected={selected}
+        itemDOM={
+          <div className={style.content}>
+            <div className={style.imgContainer}>
+              <span className={style.placeholder}>
+                <svg className="icon" aria-hidden="true">
+                  <use href="#icon-placeholder"></use>
+                </svg>
+              </span>
+              <LazyLoad height={"10.575rem"}>
+                <img
+                  className={style.pic + (curFatherInx === 1 ? " " + style.live : "")}
+                  src={getPicUrl(cover, "@320w_200h")}
+                />
+              </LazyLoad>
+              {curFatherInx === 0 && <div className={style.progressWrapper}>
+                <div className={style.curProgress} style={{ width: `${curProgress}%` }}></div>
+              </div>
+              }
+            </div>
+            <div className={style.info}>
+              <p className={style.title} dangerouslySetInnerHTML={{ __html: title }} />
+              <div className={style.ownerWrapper}>
+                <span className={style.iconUp} >
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-uper"></use>
+                  </svg>
+                </span>
+                <span className={style.owner}>{author_name}</span>
+                {curFatherInx === 1 && <span className={style.tag}>{tag_name}</span>}
+                {curFatherInx === 1 && <span className={style[liveStatus]}>{badge}</span>}
+              </div>
+              <div className={style.time}>
+                <span className={style.platform}>
+                  <svg className="icon" aria-hidden="true">
+                    <use href={`#icon-${platform}`}></use>
+                  </svg>
+                </span>
+                {getTime(view_at)}
+              </div>
+            </div>
+          </div>
         }
-      </span>
-      }
-      <div className={style.contentWrapper + " " + style[edit]}>
-        <div className={style.imgContainer}>
-          <span className={style.placeholder}>
-            <svg className="icon" aria-hidden="true">
-              <use href="#icon-placeholder"></use>
-            </svg>
-          </span>
-          <LazyLoad height={"10.575rem"}>
-            <img
-              className={style.pic + (curFatherInx === 1 ? " " + style.live : "")}
-              src={getPicUrl(cover, "@320w_200h")}
-            />
-          </LazyLoad>
-          {curFatherInx === 0 && <div className={style.progressWrapper}>
-            <div className={style.curProgress} style={{ width: `${curProgress}%` }}></div>
-          </div>
-          }
-        </div>
-        <div className={style.info}>
-          <p className={style.title} dangerouslySetInnerHTML={{ __html: title }} />
-          <div className={style.ownerWrapper}>
-            <span className={style.iconUp} >
-              <svg className="icon" aria-hidden="true">
-                <use href="#icon-uper"></use>
-              </svg>
-            </span>
-            <span className={style.owner}>{author_name}</span>
-            {curFatherInx === 1 && <span className={style.tag}>{tag_name}</span>}
-            {curFatherInx === 1 && <span className={style[liveStatus]}>{badge}</span>}
-          </div>
-          <div className={style.time}>
-            <span className={style.platform}>
-              <svg className="icon" aria-hidden="true">
-                <use href={`#icon-${platform}`}></use>
-              </svg>
-            </span>
-            {getTime(view_at)}
-          </div>
-        </div>
-      </div>
-    </span>
+      />
+    </div>
   )
 }
 
