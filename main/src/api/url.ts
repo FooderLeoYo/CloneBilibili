@@ -67,6 +67,7 @@ const URL_VIDEO_RECOMMEND = prefix + "/av/recommend";
 const URL_VIDEO_REPLAY = prefix + "/av/replay";
 const URL_VIDEO_REPORT = prefix + "/av/report";
 const URL_VIDEO_SEND_BARR = prefix + "/av/sendbarr";
+const URL_VIDEO_THUMBUP_BARR = prefix + "/av/thumbupbarr";
 
 
 export {
@@ -91,5 +92,5 @@ export {
   URL_SPACE_USER, URL_SPACE_VIDEO,
   /* 视频相关 */
   URL_VIDEO_DETAIL, URL_VIDEO_GET_BARR, URL_VIDEO_PLAY_URL, URL_VIDEO_RECOMMEND,
-  URL_VIDEO_REPLAY, URL_VIDEO_REPORT, URL_VIDEO_SEND_BARR
+  URL_VIDEO_REPLAY, URL_VIDEO_REPORT, URL_VIDEO_SEND_BARR, URL_VIDEO_THUMBUP_BARR
 }

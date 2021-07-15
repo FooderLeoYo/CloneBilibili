@@ -101,7 +101,8 @@ function Room(props: RoomProps) {
             if (item.cmd === "DANMU_MSG") {
               const barragData = {
                 color: item.info[0][3],
-                content: item.info[1]
+                content: item.info[1],
+                size: item.info[0][2].toString()
               };
               playerRef.current.sendBarrage(barragData);
             }

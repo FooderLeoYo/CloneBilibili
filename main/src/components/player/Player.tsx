@@ -315,6 +315,7 @@ function Player(props: PlayerProps, ref) {
           sendTime: data.sendTime,
           isMineBarr: data.isMineBarr,
           uidHash: data.uidHash,
+          size: data.size
         });
       }
     }
@@ -349,7 +350,7 @@ function Player(props: PlayerProps, ref) {
         <div className={style.barrage}>
           <Barrage isLive={isLive} barrageRefs={barrageRefs} myUid={myUid?.toString()}
             barrageSetState={barrageSetState} barrageMethods={barrageMethods}
-            opacity={isLive ? 1 : 0.75} ref={barrageRef} paused={paused}
+            opacity={isLive ? 1 : 0.75} ref={barrageRef} paused={paused} oid={video.cId}
           />
         </div>
         <div className={style.controlContainer}>

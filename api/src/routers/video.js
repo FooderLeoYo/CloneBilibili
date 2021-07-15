@@ -126,6 +126,7 @@ router.get("/av/getbarr", (req, res, next) => {
             decimalColor: attrs[3],  // 十进制颜色
             sendTime: attrs[4],   // 发送时间
             uidHash: attrs[6], // 发送者UID的HASH
+            dmid: attrs[7], // 弹幕dmid
             content: item._,  // 内容
             p // 格式化前原数据
           });
@@ -149,7 +150,7 @@ router.post("/av/report", (req, res, next) => {
       msg: "success",
       data
     }
-    if (data.code != 0) {
+    if (data.code !== 0) {
       resData.code = "0";
       resData.msg = "fail";
     }
@@ -164,7 +165,22 @@ router.post("/av/sendbarr", (req, res, next) => {
       msg: "success",
       data
     }
-    if (data.code != 0) {
+    if (data.code !== 0) {
+      resData.code = "0";
+      resData.msg = "fail";
+    }
+    res.send(resData);
+  }).catch(next);
+});
+
+router.post("/av/thumbupbarr", (req, res, next) => {
+  thumbupBarr(req.body, req.headers.cookie).then(data => {
+    let resData = {
+      code: "1",
+      msg: "success",
+      data
+    }
+    if (data.code !== 0) {
       resData.code = "0";
       resData.msg = "fail";
     }

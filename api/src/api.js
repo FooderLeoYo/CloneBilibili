@@ -118,6 +118,8 @@ const URL_VIDEO_RECOMMEND = "https://api.bilibili.com/x/web-interface/archive/re
 const URL_VIDEO_REPLAY = "https://api.bilibili.com/x/v2/reply?type=1&sort=2&oid={oid}&pn={p}&nohot=1";
 // 发送弹幕
 const URL_VIDEO_SEND_BARR = "http://api.bilibili.com/x/v2/dm/post";
+// 点赞弹幕
+const URL_VIDEO_THUMBUP_BARR = "http://api.bilibili.com/x/v2/dm/thumbup/add";
 // 上报观看记录
 const URL_VIDEO_VIEWED_REPORT = "https://api.bilibili.com/x/v2/history/report";
 
@@ -546,13 +548,30 @@ const sendBarr = (param, cookie) => {
     .then(json => json);
 }
 
-const postViewedReport = (param, cookie) => {
+const thumbupBarr = (param, cookie) => {
   const rawString = cookie;
   const bjctPos = rawString.indexOf("bili_jct");
   const bili_jct = rawString.substring(bjctPos + 9);
   const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
 
   return fetch(URL_VIDEO_VIEWED_REPORT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "cookie": cookie
+    },
+    body: searchParam,
+  }).then(res => res.json())
+    .then(json => json);
+}
+
+const postViewedReport = (param, cookie) => {
+  const rawString = cookie;
+  const bjctPos = rawString.indexOf("bili_jct");
+  const bili_jct = rawString.substring(bjctPos + 9);
+  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
+
+  return fetch(URL_VIDEO_THUMBUP_BARR, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -585,5 +604,5 @@ module.exports = {
   fetchUserData, fetchRelation, fetchSeriesFollowed, fetchUserVideo,
   /* 视频相关 */
   fetchBarrage, fetchVideoDetail, fetchPlayUrl, fetchRecommendById,
-  fetchReplay, sendBarr, postViewedReport
+  fetchReplay, sendBarr, thumbupBarr, postViewedReport
 }

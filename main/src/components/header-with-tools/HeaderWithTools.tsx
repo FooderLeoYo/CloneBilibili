@@ -19,6 +19,7 @@ interface HeaderWithToolsProps {
   handleCleanInvalid?: Function;
   handleDelete?: Function;
   // 批量删除模式相关
+  batchDelList?: Array<any>;
   switchMulDel?: Function;
   mulDeleting?: boolean;
   selectedStatus?: number;
@@ -38,7 +39,7 @@ function HeaderWithTools(props: HeaderWithToolsProps) {
   const { mode, title, setKeyword, switchMulDel, mulDeleting, handleEditInfo,
     handleMulManage, handleCleanInvalid, handleDelete, searching, customHandleBack,
     setSerching, handleAdd, customBtn, handleCustomClick, selectedStatus,
-    setAllSelectedStatus, handleMulDel } = props;
+    setAllSelectedStatus, handleMulDel, batchDelList } = props;
 
   const [showBatchActionBottom, setShowBatchActionBottom] = useState(false);
   const bottomRef: React.MutableRefObject<HTMLDivElement> = useRef(null);

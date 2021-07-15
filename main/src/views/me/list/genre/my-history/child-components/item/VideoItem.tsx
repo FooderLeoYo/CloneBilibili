@@ -28,6 +28,7 @@ interface VideoItemProps {
     progress?: number;
     tag_name?: string;
   };
+  selected?: boolean;
   switchSelected?: Function
   mulDeleting?: boolean;
   selectedStatus?: number;
@@ -36,8 +37,8 @@ interface VideoItemProps {
 const { useContext, useRef, useEffect } = React;
 
 function VideoItem(props: VideoItemProps) {
-  const { record, curFatherInx, switchSelected, mulDeleting } = props;
-  const { author_name, cover, history, selected, title, view_at,
+  const { record, curFatherInx, selected, switchSelected, mulDeleting } = props;
+  const { author_name, cover, history, title, view_at,
     badge, duration, kid, progress, tag_name } = record;
   const { oid, dt } = history;
   const param = oid ? oid : kid;

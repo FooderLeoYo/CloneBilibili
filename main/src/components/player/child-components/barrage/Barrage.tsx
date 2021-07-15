@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as ReactDOM from "react-dom";
 import { formatDuration } from "@customed-methods/string";
 import BiliBili_midcrc from "@customed-methods/crc32";
 import style from "./barrage.styl?css-modules";
@@ -11,7 +12,8 @@ interface BarrageData {
   time?: string;// 视频内弹幕出现时间
   isMineBarr?: boolean; // 手动标记为“我的弹幕”
   uidHash?: string; // 发送者UID的HASH
-  size?: string // 字号
+  size?: string; // 字号
+  dmid?: string;// 弹幕dmid
 }
 
 interface BarrageProps {
@@ -44,6 +46,7 @@ interface BarrageProps {
   opacity?: number;
   barrages?: BarrageData[];
   time?: number;
+  oid?: number;
 }
 
 class fixedBarrTimer {
@@ -70,9 +73,6 @@ class fixedBarrTimer {
   public destroy = () => clearTimeout(this.timerId)
 }
 
-/**
- * 使用纯组件，不发生update，发射弹幕采用DOM操作
- */
 class Barrage extends React.PureComponent<BarrageProps> {
   public viewWidth: number; // 弹幕区域的宽度
   public viewHeight: number; // 弹幕区域的高度
@@ -108,100 +108,103 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
 
   public send(barrage: BarrageData) {
-    const { content, type, decimalColor, sendTime, isMineBarr, uidHash, size } = barrage;
-    const barrageDOM = this.barrageRef.current;
+    const { content, type, decimalColor, sendTime, isMineBarr, uidHash, size, dmid } = barrage;
+    const barrageAreaDOM = this.barrageRef.current;
     const tempHex = Number(decimalColor).toString(16);
     const divColor = "#" + "00000000".substr(0, 6 - tempHex.length) + tempHex; // tempHex不够6位时前面需要补0
     const fSize = size === "25" ? "0.8rem" : "0.5rem";
     const tempStyle: any = {
-      position: "absolute",
-      fontFamily: "黑体",
       fontSize: fSize,
-      fontWeight: "bold",
-      whiteSpace: "pre",
-      textShadow: "rgb(0, 0, 0) 1px 1px 2px",
       color: divColor,
       opacity: this.opacity,
-      zIndex: "2"
     };
     let tempTimer: fixedBarrTimer;
+    let isMineBarrage = false;
+
     /* 初始化一条弹幕的div */
-    const barrageElem = document.createElement("div");
-    const barrEleStyle = barrageElem.style;
-    barrageElem.innerHTML = content;
-    barrageDOM.appendChild(barrageElem);
+    const barrageWrapper = document.createElement("div");
+    barrageWrapper.className = `${style.barrWrapper}`;
+    const textWrapper = document.createElement("div");
+    textWrapper.innerHTML = content;
+    textWrapper.className = `${style.text}`
+    barrageWrapper.appendChild(textWrapper);
+    barrageAreaDOM.appendChild(barrageWrapper);
+    const wrapperStyle = barrageWrapper.style;
+    const textStyle = textWrapper.style;
     for (const k in tempStyle) {
       //  void 0等价于undefined，而且不能被重写且能节省字节
-      if (tempStyle[k] !== void 0) { barrageElem.style[k] = tempStyle[k] }
+      if (tempStyle[k] !== void 0) { textWrapper.style[k] = tempStyle[k] }
     }
+
     // 检查是否为本人所发弹幕
     if (isMineBarr) {
-      barrageElem.style.border = `2px solid ${divColor}`;
+      isMineBarrage = true;
     } else if (isMineBarr === undefined) {
       const { myUid } = this.props;
       if (myUid) {
         const covertUidHash = BiliBili_midcrc();
-        if (covertUidHash(uidHash) === myUid) { barrageElem.style.border = `2px solid ${divColor}` }
+        if (covertUidHash(uidHash) === myUid) { isMineBarrage = true }
       }
     }
+    if (isMineBarrage) { textStyle.border = `2px solid ${divColor}` }
 
     /* 根据弹幕类型设置具体属性 */
     if (type === "4") {
-      barrEleStyle.bottom = this.fixedBottom + "px";
+      wrapperStyle.bottom = this.fixedBottom + "px";
       // 距离底端位置增加一个弹幕内容高度，防止固定弹幕重叠
       this.fixedBottom += this.contentHeight;
       // 最大值边界判断
       if (this.fixedBottom > this.viewHeight - this.contentHeight) { this.fixedBottom = 0 }
       // 居中放置
-      barrEleStyle.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
+      wrapperStyle.left = (this.viewWidth - textWrapper.offsetWidth) / 2 + "px";
       // 新建一个可暂停的定时器，倒计时结束时移除弹幕并清除该定时器
       tempTimer = new fixedBarrTimer(() => {
-        barrageDOM.removeChild(barrageElem);
+        barrageAreaDOM.removeChild(barrageWrapper);
         // 减少距底端的位置，减少值为一个弹幕内容的高度
         this.fixedBottom -= this.contentHeight;
         if (this.fixedBottom < 0) { this.fixedBottom = 0 }
         this.fixedBarrTimers.splice(this.fixedBarrTimers.indexOf(tempTimer), 1);
       }, 5000);
     } else if (type === "5") {
-      barrEleStyle.top = this.fixedTop + "px";
+      wrapperStyle.top = this.fixedTop + "px";
       this.fixedTop += this.contentHeight;
       if (this.fixedTop > this.viewHeight - this.contentHeight) { this.fixedTop = 0 }
-      barrEleStyle.left = (this.viewWidth - barrageElem.offsetWidth) / 2 + "px";
+      wrapperStyle.left = (this.viewWidth - textWrapper.offsetWidth) / 2 + "px";
       tempTimer = new fixedBarrTimer(() => {
-        barrageDOM.removeChild(barrageElem);
+        barrageAreaDOM.removeChild(barrageWrapper);
         this.fixedTop -= this.contentHeight;
         if (this.fixedTop < 0) { this.fixedTop = 0 }
         this.fixedBarrTimers.splice(this.fixedBarrTimers.indexOf(tempTimer), 1);
       }, 5000);
     } else {
-      barrEleStyle.top = `${this.randomTop}px`;
+      wrapperStyle.top = `${this.randomTop}px`;
       // 使弹幕最左端位于视口右边界
-      barrEleStyle.left = `${this.viewWidth}px`;
+      wrapperStyle.left = `${this.viewWidth}px`;
       // 距离顶端位置增加一个弹幕内容高度，防止滚动弹幕重叠
       this.randomTop += this.contentHeight;
       // 最大值边界判断
       if (this.randomTop > this.viewHeight - this.contentHeight) { this.randomTop = 0 }
       // 添加滚动动画及结束时的回调
-      const x = - (this.viewWidth + barrageElem.offsetWidth);
+      const x = - (this.viewWidth + textWrapper.offsetWidth);
       // uidHash + sendTime命名keyframes，以保证不重复；barr是因为不能以数字开头
       this.rollBarCSSStySheet.insertRule(`@keyframes barr${uidHash}${sendTime}{from {transform: translate3d(0, 0, 0);}to {transform: translate3d(${x}px, 0, 0)};}`);
-      barrEleStyle.animation = `barr${uidHash}${sendTime} 5s linear`;
-      this.rollBarrStyles.unshift(barrEleStyle);
+      wrapperStyle.animation = `barr${uidHash}${sendTime} 5s linear`;
+      this.rollBarrStyles.unshift(wrapperStyle);
       // 结束时的回调
       const handleAnimationEnd = () => {
         // 弹幕运动完成后移除监听，清除弹幕
-        barrageElem.removeEventListener("animationend", handleAnimationEnd);
-        barrageDOM.removeChild(barrageElem);
+        barrageWrapper.removeEventListener("animationend", handleAnimationEnd);
+        barrageAreaDOM.removeChild(barrageWrapper);
         // 距顶端位置减少一个弹幕内容高度
         this.randomTop -= this.contentHeight;
         // 最小值边界判断
         if (this.randomTop < 0) { this.randomTop = 0 }
         // 清除已消失弹幕的样式缓存
-        const inx = this.rollBarrStyles.indexOf(barrEleStyle);
+        const inx = this.rollBarrStyles.indexOf(wrapperStyle);
         this.rollBarCSSStySheet.deleteRule(inx);
         this.rollBarrStyles.splice(inx, 1);
       };
-      barrageElem.addEventListener("animationend", handleAnimationEnd);
+      barrageWrapper.addEventListener("animationend", handleAnimationEnd);
     }
     // 如果是固定弹幕则启动它的定时器并将该定时器存入fixedBarrTimers
     if (tempTimer) {
@@ -210,12 +213,37 @@ class Barrage extends React.PureComponent<BarrageProps> {
     }
 
     /* 单独点击这条弹幕时的事件监听 */
-    barrageElem.addEventListener("click", e => {
+    barrageWrapper.addEventListener("click", e => {
       e.stopPropagation();
-      tempTimer ? tempTimer.pause() : barrEleStyle.animationPlayState = "paused";
-      setTimeout(() => {
-        tempTimer ? tempTimer.resume() : barrEleStyle.animationPlayState = "running";
-      }, 3500);
+      barrageWrapper.classList.add(style.clicked);
+      tempTimer ? tempTimer.pause() : wrapperStyle.animationPlayState = "paused";
+      // setTimeout(() => {
+      //   tempTimer ? tempTimer.resume() : barrEleStyle.animationPlayState = "running";
+      // }, 3500);
+
+      const manipulationBox = document.createElement("div");
+      manipulationBox.className = `${style.manipulation}`
+      barrageWrapper.appendChild(manipulationBox);
+      ReactDOM.render(
+        <>
+          <span className={style.icon}>
+            <svg className="icon" aria-hidden="true">
+              <use href="#icon-thumbUp"></use>
+            </svg>
+          </span>
+          <span className={style.icon}>
+            <svg className="icon" aria-hidden="true">
+              <use href="#icon-report"></use>
+            </svg>
+          </span>
+          <span className={style.icon}>
+            <svg className="icon" aria-hidden="true">
+              <use href="#icon-withdraw"></use>
+            </svg>
+          </span>
+        </>,
+        manipulationBox
+      )
     });
   }
 
@@ -459,7 +487,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
   /* 以下为渲染部分 */
   public render() {
     return (
-      <div className={style.barrContainer} ref={this.barrageRef} />
+      <div className={style.barrArea} ref={this.barrageRef} />
     );
   }
 }

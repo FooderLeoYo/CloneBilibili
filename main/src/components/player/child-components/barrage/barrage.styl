@@ -1,7 +1,54 @@
-@import "../../../../assets/stylus/px2rem.styl"
+@import "~@assets/stylus/px2rem.styl"
 
-.barr-container
-  position: relative
+.barr-area
   width: 100%
   height: 100%
   overflow: hidden
+  .barr-wrapper
+    position: absolute
+    z-index: 2
+    &.clicked
+      z-index: 3
+    .text
+      font-family: "黑体"
+      font-weight: bold
+      white-space: pre
+      text-shadow: rgb(0, 0, 0) 1px 1px 2px
+    .manipulation
+      position: relative
+      display: inline-block
+      height: px2rem(30)
+      padding: 0 px2rem(5)
+      border: 1px solid #fff
+      border-radius: px2rem(15)
+      background-color: rgba(0,0,0,.7)
+      &::before
+        content: ""
+        width:0
+        height:0
+        line-height:0
+        position: absolute
+        left: 50%
+        top: -50%
+        transform: translate3d(-50%,px2rem(-8),0)
+        font-size:0
+        border-width: px2rem(11)
+        border-style:solid dashed dashed dashed
+        border-color:transparent transparent #fff transparent
+      &::after
+        content: ""
+        width:0
+        height:0
+        line-height:0
+        position: absolute
+        left: 50%
+        top: -50%
+        transform: translate3d(-50%,px2rem(-5),0)
+        font-size:0
+        border-width: px2rem(10)
+        border-style:solid dashed dashed dashed
+        border-color:transparent transparent #34342a transparent
+      .icon
+        margin: 0 px2rem(5)
+        svg
+          color: #fff
