@@ -20,11 +20,9 @@ interface HeaderWithToolsProps {
   handleDelete?: Function;
   // 批量删除模式相关
   batchDelList?: Array<any>;
-  setBatchDelList?: (list) => void;
-  switchMulDel?: Function;
+  setBatchDelList?: Function;
   mulDeleting?: boolean;
-  selectedStatus?: number;
-  setAllSelectedStatus?: (status) => void;
+  setMulDeleting?: Function;
   handleMulDel?: Function;
   // 加号相关
   handleAdd?: Function;
@@ -37,7 +35,7 @@ interface HeaderWithToolsProps {
 const { useState, useRef, useEffect, forwardRef, useImperativeHandle } = React;
 
 function HeaderWithTools(props: HeaderWithToolsProps, ref) {
-  const { mode, title, setKeyword, switchMulDel, mulDeleting, handleEditInfo,
+  const { mode, title, setKeyword, mulDeleting, setMulDeleting, handleEditInfo,
     handleMulManage, handleCleanInvalid, handleDelete, searching, customHandleBack,
     setSerching, handleAdd, customBtn, handleCustomClick, setBatchDelList,
     handleMulDel, batchDelList } = props;
@@ -45,30 +43,33 @@ function HeaderWithTools(props: HeaderWithToolsProps, ref) {
   const [showBatchActionBottom, setShowBatchActionBottom] = useState(false);
   const bottomRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
-  const [selectedStatus, setSelectedStatus] = useState(0); // 0为全不选，1为全选，2为选部分
+  const [bottomSelected, setBottomSelected] = useState(0); // 0为全不选，1为全选，2为选部分
 
-
-  const delListRef = useRef(null);
-  useEffect(() => { delListRef.current = batchDelList }, [batchDelList]);
-  function setAllSelectedStatus(status: number) { // status同state.selectedStatus
-    delListRef.current.forEach(record => { record.selected = status === 0 ? false : true });
-    console.log(delListRef.current)
-    setBatchDelList(delListRef.current);
-    setSelectedStatus(status);
+  const setAllSelectedStatus = (status: number) => { // 0为全不选，1为全选，2为选部分
+    batchDelList.forEach(record => { record.selected = status === 0 ? false : true });
+    setBatchDelList(batchDelList);
+    setBottomSelected(status);
   }
 
-  function checkAllSelectedStatus() {  // type：0为video，1为live
+  const checkAllSelectedStatus = () => {
     let allSelected = true;
     let allCancled = true;
-    delListRef.current.forEach(record => {
+    batchDelList.forEach(record => {
       if (record.selected) { allCancled = false }
       else { allSelected = false }
     })
 
     if (allCancled) { setAllSelectedStatus(0) }
     else if (allSelected) { setAllSelectedStatus(1) }
-    else { setSelectedStatus(2); }
+    else { setBottomSelected(2); }
   }
+
+  const turnOnBatchDel = () => {
+    setMulDeleting(!mulDeleting);
+    setAllSelectedStatus(0);
+    setBottomSelected(0);
+    setBatchDelList();
+  };
 
   useImperativeHandle(ref, () => ({
     checkAllSelectedStatus: checkAllSelectedStatus
@@ -83,9 +84,11 @@ function HeaderWithTools(props: HeaderWithToolsProps, ref) {
     }
   }, [showBatchActionBottom]);
 
+  useEffect(() => { !mulDeleting && setBottomSelected(0) }, [mulDeleting]);
+
   return (
     <div className={style.headerWithTools}>
-      <Header mode={mode} title={title} searching={searching} switchMulDel={switchMulDel}
+      <Header mode={mode} title={title} searching={searching} turnOnBatchDel={turnOnBatchDel}
         setSerching={setSerching} mulDeleting={mulDeleting} setShowBatchActionBottom={setShowBatchActionBottom}
         setKeyword={setKeyword} handleAdd={handleAdd} customBtn={customBtn}
         handleCustomClick={handleCustomClick} customHandleBack={customHandleBack}
@@ -99,7 +102,7 @@ function HeaderWithTools(props: HeaderWithToolsProps, ref) {
         </div>
       }
       {mulDeleting && <div className={style.bottomWrapper}>
-        <BatchDelBottom selectedStatus={selectedStatus} handleMulDel={handleMulDel}
+        <BatchDelBottom bottomSelected={bottomSelected} handleMulDel={handleMulDel}
           setAllSelectedStatus={setAllSelectedStatus}
         />
       </div>

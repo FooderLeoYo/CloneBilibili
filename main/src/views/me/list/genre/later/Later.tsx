@@ -68,8 +68,8 @@ function Later() {
     <div className={style.later}>
       <Helmet><title>稍后再看</title></Helmet>
       <HeaderWithTools title={"稍后再看"} mode={2} mulDeleting={mulDeleting}
-        switchMulDel={switchMulDel} setKeyword={setKeyword}
-        searching={searching} setSerching={(bool: boolean) => setSearching(bool)}
+        setKeyword={setKeyword} searching={searching}
+        setSerching={(bool: boolean) => setSearching(bool)}
       />
       <ul className={style.laterList}>
         {laterData.length > 0 ?

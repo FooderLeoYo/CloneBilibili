@@ -3,7 +3,7 @@ import * as React from "react";
 import style from "./batch-del-bottom.styl?css-modules";
 
 interface BatchDelBottomProps {
-  selectedStatus: number;
+  bottomSelected: number;
   setAllSelectedStatus: (status) => void;
   handleMulDel: Function;
 }
@@ -11,15 +11,15 @@ interface BatchDelBottomProps {
 const { useState, useEffect } = React;
 
 function BatchDelBottom(props: BatchDelBottomProps) {
-  const { selectedStatus, setAllSelectedStatus, handleMulDel } = props;
+  const { bottomSelected, setAllSelectedStatus, handleMulDel } = props;
 
   const [selected, setSelected] = useState(false);
   const [hasSelectedItem, setHasSelectedItem] = useState(false);
 
   useEffect(() => {
-    setSelected(selectedStatus === 1 ? true : false);
-    setHasSelectedItem(selectedStatus === 0 ? false : true);
-  }, [selectedStatus]);
+    setSelected(bottomSelected === 1 ? true : false);
+    setHasSelectedItem(bottomSelected === 0 ? false : true);
+  }, [bottomSelected]);
 
   return (
     <div className={style.bottomWrapper}>

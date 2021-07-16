@@ -15,13 +15,13 @@ interface HeaderProps {
   customBtn?: any;
   handleCustomClick?: Function;
   customHandleBack?: Function;
-  switchMulDel?: Function;
+  turnOnBatchDel?: Function;
 }
 
 const { useRef, useEffect } = React;
 
 function Header(props: HeaderProps) {
-  const { mode, title, setKeyword, mulDeleting, switchMulDel, setShowBatchActionBottom,
+  const { mode, title, setKeyword, mulDeleting, turnOnBatchDel, setShowBatchActionBottom,
     searching, setSerching, handleAdd, customBtn, handleCustomClick,
     customHandleBack } = props;
 
@@ -58,7 +58,7 @@ function Header(props: HeaderProps) {
             }
             {mode != 0 && <div className={style.manipulation}>
               {mode === 1 ? <div className={style.multiple} ref={multipleRef}>…</div> :
-                mode === 2 ? <div className={style.edit} onClick={() => switchMulDel()}>
+                mode === 2 ? <div className={style.edit} onClick={() => turnOnBatchDel()}>
                   {mulDeleting ? "取消" : "编辑"}</div> :
                   mode === 3 ? <div className={style.add} onClick={() => handleAdd()}>+</div> :
                     mode === 4 ? <div className={style.custom} onClick={() => handleCustomClick()}>{customBtn}</div> : null

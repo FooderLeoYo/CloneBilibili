@@ -31,7 +31,6 @@ interface MyHistoryState {
   noLiveHistory: boolean;
   tabInx: number;
   mulDeleting: boolean;
-  selectedStatus: number; // 0为全不选，1为全选，2为选部分
   batchDelList: Array<any>;
 }
 
@@ -54,7 +53,6 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       noLiveHistory: false,
       tabInx: 0,
       mulDeleting: false,
-      selectedStatus: 0,
       batchDelList: []
     }
   }
@@ -90,7 +88,6 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       const updateMap = (map, view_at, record) => {
         const key = this.getDateKey(view_at);
         const tempRecord = record;
-        tempRecord.selected = false; // 添加“是否被选中”属性，用于全选
         let tempHistory = map.get(key);
 
         if (tempHistory) {
@@ -127,59 +124,31 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     });
   }
 
-  private setAllSelectedStatus(type: number, status: number) {   // type：0为video，1为live；status同state.selectedStatus
-    const histories = type === 0 ? this.state.videoHistories : this.state.liveHistories;
-    histories.forEach(item =>
-      item[1].forEach(record => { record.selected = status === 0 ? false : true })
-    );
-    type === 0 ? this.setState({ videoHistories: histories }) : this.setState({ liveHistories: histories });
-    this.setState({ selectedStatus: status });
-  }
-
-  private checkAllSelectedStatus(type: number) {  // type：0为video，1为live
-    const histories = type === 0 ? this.state.videoHistories : this.state.liveHistories;
-    let allSelected = true;
-    let allCancled = true;
-    histories.forEach(item => {
-      item[1].forEach(record => {
-        if (record.selected) { allCancled = false }
-        else { allSelected = false }
-      })
-    })
-
-    if (allCancled) { this.setAllSelectedStatus(type, 0) }
-    else if (allSelected) { this.setAllSelectedStatus(type, 1) }
-    else { this.setState({ selectedStatus: 2 }) }
-  }
 
   private handleMulDel = async () => {
-    const { tabInx, videoHistories, liveHistories } = this.state;
-    const histories = tabInx === 0 ? videoHistories : liveHistories;
+    const { tabInx, batchDelList } = this.state;
     let hasProblem = false;
 
-    await histories.forEach(item => {
+    await batchDelList.forEach(record => {
       if (hasProblem) { return }
-      item[1].forEach(record => {
-        if (hasProblem) { return }
-        const { history, kid, selected } = record;
-        selected && deleteHistory(tabInx === 0 ? `archive_${history.oid}` : `live_${kid}`)
-          .then(result => {
-            const { code, data } = result;
-            if (code === "0") {
-              Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
+      const { history, kid, selected } = record;
+      selected && deleteHistory(tabInx === 0 ? `archive_${history.oid}` : `live_${kid}`)
+        .then(result => {
+          const { code, data } = result;
+          if (code === "0") {
+            Toast.warning('哇！服务器太忙了，您稍等片刻昂o(TヘTo)', false, null, 2000);
+            hasProblem = true;
+            return;
+          }
+          else {
+            const { code, message } = data;
+            if (code != 0) {
+              Toast.error(message, false, null, 2000);
               hasProblem = true;
               return;
             }
-            else {
-              const { code, message } = data;
-              if (code != 0) {
-                Toast.error(message, false, null, 2000);
-                hasProblem = true;
-                return;
-              }
-            }
-          });
-      })
+          }
+        });
     });
 
     !hasProblem && Toast.success("删除成功！", false, null, 2000);
@@ -188,12 +157,6 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       this.setState({ mulDeleting: false });
     }, 2000);
   }
-
-  private switchMulDel = () => {
-    this.setAllSelectedStatus(0, 0);
-    this.setAllSelectedStatus(1, 0);
-    this.setState({ mulDeleting: !this.state.mulDeleting, selectedStatus: 0 });
-  };
 
   private setKeyword = (keyword: string) => this.setState({ searchKey: keyword, searched: true });
 
@@ -231,7 +194,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
   public render() {
     const { history } = this.props;
     const { mulDeleting, noVideoHistory, videoHistories, noLiveHistory, liveHistories,
-      tabInx, selectedStatus, searching, searchResult, searched, searchKey, batchDelList } = this.state;
+      tabInx, searching, searchResult, searched, searchKey, batchDelList } = this.state;
     const headerComponent = this.headerRef.current;
     let counht = 0;
 
@@ -252,17 +215,15 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                 {/* item[0]是map的键，item[1]是值 */}
                 <div className={style.groupTitle}>{item[0]}</div>
                 {item[1].map((record, j) => {
-                  this.tempBatDelList.length < ++counht && this.tempBatDelList.push({
-                    label: record.title,
-                    selected: false
-                  });
+                  record.selected = false;
+                  this.tempBatDelList.length < ++counht && this.tempBatDelList.push(record);
                   const curInx = counht - 1;
 
                   return (
                     <li className={style.itemWrapper} key={j}>
                       <VideoItem history={history} curFatherInx={tabInx} record={record}
-                        mulDeleting={mulDeleting} selectedStatus={selectedStatus}
-                        selected={this.tempBatDelList[curInx]?.selected}
+                        mulDeleting={mulDeleting}
+                        selected={batchDelList[curInx]?.selected}
                         switchSelected={() => {
                           const temp = [...this.tempBatDelList];
                           temp[curInx].selected = !temp[curInx].selected;
@@ -305,9 +266,9 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                       switchSelected={() => {
                         record.selected = !record.selected;
                         this.setState({ liveHistories: this.state.liveHistories });
-                        this.checkAllSelectedStatus(1);
+                        // this.checkAllSelectedStatus(1);
                       }}
-                      mulDeleting={mulDeleting} selectedStatus={selectedStatus} />
+                      mulDeleting={mulDeleting} />
                   </li>)
                 })}
               </ul>
@@ -324,16 +285,16 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     return (
       <div className={style.myHistory}>
         <Helmet><title>历史记录</title></Helmet>
-        <HeaderWithTools title={"历史记录"} mode={2} mulDeleting={mulDeleting}
-          switchMulDel={this.switchMulDel} setKeyword={this.setKeyword}
-          searching={searching} setSerching={(bool: boolean) => this.setState({ searching: bool })}
-          selectedStatus={selectedStatus} handleMulDel={this.handleMulDel}
-          setAllSelectedStatus={status => this.setAllSelectedStatus(tabInx, status)}
-          batchDelList={this.tempBatDelList} setBatchDelList={list => this.tempBatDelList = list}
-          ref={this.headerRef}
+        <HeaderWithTools ref={this.headerRef} title={"历史记录"} mode={2}
+          setKeyword={this.setKeyword} searching={searching}
+          setSerching={(bool: boolean) => this.setState({ searching: bool })}
+
+          mulDeleting={mulDeleting} batchDelList={this.tempBatDelList} handleMulDel={this.handleMulDel}
+          setBatchDelList={() => this.setState({ batchDelList: this.tempBatDelList })}
+          setMulDeleting={status => this.setState({ mulDeleting: status })}
         />
         <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })}
-          curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ mulDeleting: false, selectedStatus: 0 })}
+          curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ mulDeleting: false })}
         />
         <div className={style.listWrapper}>{tabInx === 0 ? videoList : liveList}</div>
         <ScrollToTop />

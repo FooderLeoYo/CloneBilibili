@@ -217,37 +217,42 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
     /* 单独点击这条弹幕时的事件监听 */
     barrageWrapper.addEventListener("click", e => {
-      getBarrLikeCount(this.props.oid, dmid).then(result => console.log(result))
       e.stopPropagation();
+
+      getBarrLikeCount(this.props.oid, dmid).then(result => {
+        const { code, data } = result.data;
+        let liked;
+        if (code === 0) { for (let id in data) { liked = data[id].user_like === 1 } }
+
+        const manipulationBox = document.createElement("div");
+        manipulationBox.className = `${style.manipulation}`
+        barrageWrapper.appendChild(manipulationBox);
+        ReactDOM.render(
+          <>
+            <span className={style.icon}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-thumbUp"></use>
+              </svg>
+            </span>
+            <span className={style.icon}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-report"></use>
+              </svg>
+            </span>
+            <span className={style.icon}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-withdraw"></use>
+              </svg>
+            </span>
+          </>,
+          manipulationBox
+        )
+      })
       barrageWrapper.classList.add(style.clicked);
       tempTimer ? tempTimer.pause() : wrapperStyle.animationPlayState = "paused";
       // setTimeout(() => {
       //   tempTimer ? tempTimer.resume() : barrEleStyle.animationPlayState = "running";
       // }, 3500);
-
-      const manipulationBox = document.createElement("div");
-      manipulationBox.className = `${style.manipulation}`
-      barrageWrapper.appendChild(manipulationBox);
-      ReactDOM.render(
-        <>
-          <span className={style.icon}>
-            <svg className="icon" aria-hidden="true">
-              <use href="#icon-thumbUp"></use>
-            </svg>
-          </span>
-          <span className={style.icon}>
-            <svg className="icon" aria-hidden="true">
-              <use href="#icon-report"></use>
-            </svg>
-          </span>
-          <span className={style.icon}>
-            <svg className="icon" aria-hidden="true">
-              <use href="#icon-withdraw"></use>
-            </svg>
-          </span>
-        </>,
-        manipulationBox
-      )
     });
   }
 
