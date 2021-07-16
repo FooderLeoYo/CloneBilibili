@@ -1,5 +1,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+
+import { getBarrLikeCount } from "@api/video";
+
 import { formatDuration } from "@customed-methods/string";
 import BiliBili_midcrc from "@customed-methods/crc32";
 import style from "./barrage.styl?css-modules";
@@ -214,6 +217,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
     /* 单独点击这条弹幕时的事件监听 */
     barrageWrapper.addEventListener("click", e => {
+      getBarrLikeCount(this.props.oid, dmid).then(result => console.log(result))
       e.stopPropagation();
       barrageWrapper.classList.add(style.clicked);
       tempTimer ? tempTimer.pause() : wrapperStyle.animationPlayState = "paused";

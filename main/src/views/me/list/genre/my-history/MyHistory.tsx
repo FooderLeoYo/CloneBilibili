@@ -36,8 +36,12 @@ interface MyHistoryState {
 }
 
 class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
+  private tempBatDelList: Array<any>;
+  private headerRef: React.MutableRefObject<any>;
   constructor(props) {
     super(props);
+    this.tempBatDelList = [];
+    this.headerRef = React.createRef();
     this.state = {
       videoHistories: [],
       liveHistories: [],
@@ -228,7 +232,9 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     const { history } = this.props;
     const { mulDeleting, noVideoHistory, videoHistories, noLiveHistory, liveHistories,
       tabInx, selectedStatus, searching, searchResult, searched, searchKey, batchDelList } = this.state;
-    let tempBatDelList = [];
+    const headerComponent = this.headerRef.current;
+    let counht = 0;
+
     const videoList = (
       <div className={style.videoHistory}>
         {!noVideoHistory ?
@@ -246,24 +252,22 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                 {/* item[0]是map的键，item[1]是值 */}
                 <div className={style.groupTitle}>{item[0]}</div>
                 {item[1].map((record, j) => {
-                  tempBatDelList.push({
-                    title: record.title,
+                  this.tempBatDelList.length < ++counht && this.tempBatDelList.push({
+                    label: record.title,
                     selected: false
                   });
-                  // j === item[1].length - 1 && this.setState({ batchDelList: tempBatDelList });
-                  const curBatDelEle = tempBatDelList[tempBatDelList.length - 1];
+                  const curInx = counht - 1;
 
                   return (
                     <li className={style.itemWrapper} key={j}>
                       <VideoItem history={history} curFatherInx={tabInx} record={record}
                         mulDeleting={mulDeleting} selectedStatus={selectedStatus}
-                        selected={curBatDelEle.selected}
+                        selected={this.tempBatDelList[curInx]?.selected}
                         switchSelected={() => {
-                          // record.selected = !record.selected;
-                          curBatDelEle.selected = !curBatDelEle.selected;
-                          // this.setState({ videoHistories: this.state.videoHistories });
-                          this.setState({ batchDelList: tempBatDelList });
-                          this.checkAllSelectedStatus(0);
+                          const temp = [...this.tempBatDelList];
+                          temp[curInx].selected = !temp[curInx].selected;
+                          this.setState({ batchDelList: temp });
+                          headerComponent.checkAllSelectedStatus();
                         }}
                       />
                     </li>
@@ -325,7 +329,8 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
           searching={searching} setSerching={(bool: boolean) => this.setState({ searching: bool })}
           selectedStatus={selectedStatus} handleMulDel={this.handleMulDel}
           setAllSelectedStatus={status => this.setAllSelectedStatus(tabInx, status)}
-          batchDelList={batchDelList}
+          batchDelList={this.tempBatDelList} setBatchDelList={list => this.tempBatDelList = list}
+          ref={this.headerRef}
         />
         <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })}
           curFatherInx={tabInx} doSthWithNewInx={() => this.setState({ mulDeleting: false, selectedStatus: 0 })}

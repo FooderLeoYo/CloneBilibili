@@ -2,7 +2,7 @@ import { getJSON, postJSON } from "./fetch";
 import {
   URL_VIDEO_DETAIL, URL_VIDEO_PLAY_URL, URL_VIDEO_RECOMMEND,
   URL_VIDEO_REPLAY, URL_VIDEO_GET_BARR, URL_VIDEO_REPORT,
-  URL_VIDEO_SEND_BARR, URL_VIDEO_THUMBUP_BARR
+  URL_VIDEO_SEND_BARR, URL_VIDEO_THUMBUP_BARR, URL_VIDEO_GET_BARR_LIKE_COUNT
 } from "./url";
 
 /**
@@ -56,4 +56,9 @@ export function sendBarrage(aid: number, mode: number, msg: string, oid: number,
 /* 点赞弹幕 */
 export function thumbupBarr(dmid: number, oid: number, op: number) {
   return postJSON(URL_VIDEO_THUMBUP_BARR, { dmid, oid, op });
+}
+
+/* 查询弹幕点赞数 */
+export function getBarrLikeCount(oid: number, ids: string) {
+  return getJSON(URL_VIDEO_GET_BARR_LIKE_COUNT, { oid, ids });
 }

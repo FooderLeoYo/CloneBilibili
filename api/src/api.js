@@ -110,6 +110,8 @@ const URL_SPACE_VIDEO = "https://api.bilibili.com/x/space/arc/search?pn={p}&ps={
 const URL_VIDEO_DETAIL = "https://api.bilibili.com/x/web-interface/view?aid={aid}&bvid=";
 // 详情弹幕
 const URL_VIDEO_GET_BARR = "https://api.bilibili.com/x/v1/dm/list.so?oid={cid}";
+// 查询弹幕点赞数
+const URL_VIDEO_GET_BARR_LIKE_COUNT = "http://api.bilibili.com/x/v2/dm/thumbup/stats";
 // 视频播放地址
 const URL_VIDEO_PLAY_URL = "https://api.bilibili.com/x/player/playurl?cid={cid}&avid={aid}&platform=html5&otype=json&qn=16&type=mp4&html5=1";
 // 详情推荐
@@ -507,6 +509,15 @@ const fetchBarrage = cId => {
     .then(body => body)
 }
 
+const fetchBarrLikeCount = (params, cookie) => {
+  const { oid, ids } = params;
+  return fetch(`${URL_VIDEO_GET_BARR_LIKE_COUNT}?oid=${oid}&ids=${ids}`, {
+    method: "GET",
+    headers: { "cookie": cookie },
+  }).then(res => res.json())
+    .then(json => json);
+}
+
 const fetchVideoDetail = aId => {
   return fetch(URL_VIDEO_DETAIL.replace("{aid}", aId))
     .then(res => res.json())
@@ -603,6 +614,7 @@ module.exports = {
   fetchFavDetail, fetchFavInof, fetchFavListCollected, fetchFavListCreated,
   fetchUserData, fetchRelation, fetchSeriesFollowed, fetchUserVideo,
   /* 视频相关 */
-  fetchBarrage, fetchVideoDetail, fetchPlayUrl, fetchRecommendById,
-  fetchReplay, sendBarr, thumbupBarr, postViewedReport
+  fetchBarrage, fetchBarrLikeCount, fetchVideoDetail, fetchPlayUrl,
+  fetchRecommendById, fetchReplay, sendBarr, thumbupBarr,
+  postViewedReport
 }

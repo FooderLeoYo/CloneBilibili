@@ -20,6 +20,7 @@ interface HeaderWithToolsProps {
   handleDelete?: Function;
   // 批量删除模式相关
   batchDelList?: Array<any>;
+  setBatchDelList?: (list) => void;
   switchMulDel?: Function;
   mulDeleting?: boolean;
   selectedStatus?: number;
@@ -33,16 +34,45 @@ interface HeaderWithToolsProps {
   customHandleBack?: Function;
 }
 
-const { useState, useRef, useEffect } = React;
+const { useState, useRef, useEffect, forwardRef, useImperativeHandle } = React;
 
-function HeaderWithTools(props: HeaderWithToolsProps) {
+function HeaderWithTools(props: HeaderWithToolsProps, ref) {
   const { mode, title, setKeyword, switchMulDel, mulDeleting, handleEditInfo,
     handleMulManage, handleCleanInvalid, handleDelete, searching, customHandleBack,
-    setSerching, handleAdd, customBtn, handleCustomClick, selectedStatus,
-    setAllSelectedStatus, handleMulDel, batchDelList } = props;
+    setSerching, handleAdd, customBtn, handleCustomClick, setBatchDelList,
+    handleMulDel, batchDelList } = props;
 
   const [showBatchActionBottom, setShowBatchActionBottom] = useState(false);
   const bottomRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
+
+  const [selectedStatus, setSelectedStatus] = useState(0); // 0为全不选，1为全选，2为选部分
+
+
+  const delListRef = useRef(null);
+  useEffect(() => { delListRef.current = batchDelList }, [batchDelList]);
+  function setAllSelectedStatus(status: number) { // status同state.selectedStatus
+    delListRef.current.forEach(record => { record.selected = status === 0 ? false : true });
+    console.log(delListRef.current)
+    setBatchDelList(delListRef.current);
+    setSelectedStatus(status);
+  }
+
+  function checkAllSelectedStatus() {  // type：0为video，1为live
+    let allSelected = true;
+    let allCancled = true;
+    delListRef.current.forEach(record => {
+      if (record.selected) { allCancled = false }
+      else { allSelected = false }
+    })
+
+    if (allCancled) { setAllSelectedStatus(0) }
+    else if (allSelected) { setAllSelectedStatus(1) }
+    else { setSelectedStatus(2); }
+  }
+
+  useImperativeHandle(ref, () => ({
+    checkAllSelectedStatus: checkAllSelectedStatus
+  }), []);
 
   const bottomDOM = bottomRef.current;
   useEffect(() => {
@@ -78,5 +108,5 @@ function HeaderWithTools(props: HeaderWithToolsProps) {
   )
 }
 
-export default HeaderWithTools;
+export default forwardRef(HeaderWithTools);
 export { BatchDelItem };

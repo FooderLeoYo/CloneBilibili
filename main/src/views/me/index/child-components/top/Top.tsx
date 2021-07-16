@@ -1,16 +1,26 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 
+import Context from "@context/index";
 import { fetchMyRelation } from "@api/me";
+import { getPicSuffix } from "@customed-methods/image";
 // import { formatTenThousand } from "../../../../customed-methods/string";
 
 import style from "./top.styl?css-modules";
 
-const { useState, useEffect } = React;
+const { useState, useEffect, useContext } = React;
 
 function Top(props) {
   const { navData } = props;
   const [relationData, setRelationData] = useState(null);
+  const context = useContext(Context);
+
+  const getPicUrl = (url: string, format: string) => {
+    const { picURL } = context;
+    let suffix = ".webp";
+    suffix = getPicSuffix();
+    return `${picURL}?pic=${url}${format + suffix}`;
+  }
 
   useEffect(() => { fetchMyRelation().then(result => setRelationData(result.data.data)) }, []);
 
@@ -18,14 +28,14 @@ function Top(props) {
     <div className={style.top}>
       <div className={style.basicInfo}>
         <div className={style.portrait}>
-          {navData ? <img className={style.face} src={navData?.face} alt="" /> :
+          {navData ? <img className={style.face} src={getPicUrl(navData?.face, "@320w_200h")} /> :
             <span className={style.icon}>
               <svg className="icon" aria-hidden="true">
                 <use href="#icon-avatar"></use>
               </svg>
             </span>
           }
-          {navData?.pendant?.image != "" && <span className={style.pendant}><img src={navData?.pendant?.image} alt="" /></span>}
+          {navData?.pendant?.image != "" && <span className={style.pendant}><img src={navData?.pendant?.image} /></span>}
         </div>
         <div className={style.descriptions}>
           <div className={style.nameAndLv}>
