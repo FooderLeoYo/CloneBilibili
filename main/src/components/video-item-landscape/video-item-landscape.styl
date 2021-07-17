@@ -1,82 +1,88 @@
-@import "../../assets/stylus/px2rem.styl"
+@import "~@assets/stylus/px2rem.styl"
 
-.image-container
-  position: relative
-  float: left
-  width: px2rem(117.5)
+.wrapper
+  display: inline-block
+  width: 100%
   height: 100%
-  border-radius: px2rem(6)
-  overflow: hidden
-  background-color: #e7e7e7
-  text-align: center
-  .placeholder
-    font-size: px2rem(60)
-    color: rgb(204, 204, 204)
-  .cover
-    position: absolute
-    left: 0
-    top: 0
-    width: 100%
-  .duration
-    position: absolute
-    right: px2rem(4)
-    bottom: px2rem(4)
-    padding: 0 px2rem(4)
-    font-size: px2rem(11)
-    line-height: px2rem(15)
-    border-radius: px2rem(2)
-    color: #ffffff
-    background-color: rgba(0, 0, 0, 0.3)
-.info-wrapper
-  position: relative
-  margin-left: px2rem(130)
-  margin-right: px2rem(12)
-  p
-    margin: 0
-    height: px2rem(32)
-    line-height: px2rem(16)
-    font-size: px2rem(12)
-    font-weight: bold
-    overflow hidden
-    white-space: nowrap
-    text-overflow: ellipsis
-    text-align: left
-    color: #212121
-    letter-spacing: 0
-    word-break: break-all
-    // 加了:global后，括号里的类名就不会被css-modules加上hash
-    // 这么做的原因是这个类名直接来自B站后台数据video.title，而不是本地通过style.xx生成的
-    :global(.keyword)
-      color: #fb7299
-      font-weight: bold
-  .owner-wrapper
-    position: absolute
-    top: px2rem(30)
-    height: px2rem(22)
-    line-height: px2rem(22)
-    span
-      display: inline-block
-      vertical-align: middle
-      color: #999999
-    .icon-up
-      font-size: px2rem(16)
-    .owner
-      margin-left: px2rem(6)
-      font-size: px2rem(12)
-      text-overflow: ellipsis
-      white-space: nowrap
-  .count-info
-    position: absolute
-    top: px2rem(47)
-    color: #999999
-    span
-      display: inline-block
-      vertical-align: middle
-    .icon-play, .icon-barrage
-      font-size: px2rem(16) 
-    .icon-barrage
-      margin-left px2rem(15)
-    .play-count, .barrage-count
-      margin-left: px2rem(6)
-      width: px2rem(56)
+  &.disable
+    pointer-events: none
+  .image-container
+    position: relative
+    float: left
+    width: px2rem(117.5)
+    height: 100%
+    border-radius: px2rem(6)
+    overflow: hidden
+    background-color: #e7e7e7
+    text-align: center
+    .placeholder
+      font-size: px2rem(60)
+      color: rgb(204, 204, 204)
+    .cover
+      position: absolute
+      left: 0
+      top: 0
+      width: 100%
+    .duration
+      position: absolute
+      right: px2rem(4)
+      bottom: px2rem(4)
+      padding: 0 px2rem(4)
       font-size: px2rem(11)
+      line-height: px2rem(15)
+      border-radius: px2rem(2)
+      color: #ffffff
+      background-color: rgba(0, 0, 0, 0.3)
+  .info-wrapper
+    position: relative
+    margin-left: px2rem(130)
+    margin-right: px2rem(12)
+    p
+      margin: 0
+      height: px2rem(32)
+      line-height: px2rem(16)
+      font-size: px2rem(12)
+      font-weight: bold
+      overflow hidden
+      white-space: nowrap
+      text-overflow: ellipsis
+      text-align: left
+      color: #212121
+      letter-spacing: 0
+      word-break: break-all
+      // 加了:global后，括号里的类名就不会被css-modules加上hash
+      // 这么做的原因是这个类名直接来自B站后台数据video.title，而不是本地通过style.xx生成的
+      :global(.keyword)
+        color: #fb7299
+        font-weight: bold
+    .owner-wrapper
+      position: absolute
+      top: px2rem(30)
+      height: px2rem(22)
+      line-height: px2rem(22)
+      span
+        display: inline-block
+        vertical-align: middle
+        color: #999999
+      .icon-up
+        font-size: px2rem(16)
+      .owner
+        margin-left: px2rem(6)
+        font-size: px2rem(12)
+        text-overflow: ellipsis
+        white-space: nowrap
+    .count-info
+      position: absolute
+      top: px2rem(47)
+      color: #999999
+      span
+        display: inline-block
+        vertical-align: middle
+      .icon-play, .icon-barrage
+        font-size: px2rem(16) 
+      .icon-barrage
+        margin-left px2rem(15)
+      .play-count, .barrage-count
+        margin-left: px2rem(6)
+        width: px2rem(56)
+        font-size: px2rem(11)

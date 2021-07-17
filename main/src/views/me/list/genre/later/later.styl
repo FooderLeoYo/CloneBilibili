@@ -1,10 +1,25 @@
 @import "~@assets/stylus/px2rem.styl"
 
 .later
-  .later-list
+  .list-wrapper
     margin: px2rem(45) 0 px2rem(45)
-    .video-item
-      height: px2rem(73.194)
+    padding-left: px2rem(12)
+    .search-result
+      .total
+        font-size: px2rem(12)
+        font-weight: bold
+        margin-bottom: px2rem(10)
+      .item-wrapper
+        position: relative
+        height: px2rem(73.194)
+        margin-bottom: px2rem(19)
+        &:last-child
+          margin-bottom: 0
+        em
+          font-style: normal
+    .later-List
+      .video-item
+        height: px2rem(73.194)
     .no-video
       padding-top: px2rem(85.2)
       text-align: center

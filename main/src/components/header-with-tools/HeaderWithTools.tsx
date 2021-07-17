@@ -12,7 +12,8 @@ interface HeaderWithToolsProps {
   // 搜索相关
   setKeyword?: (keyword: string) => any;
   searching?: boolean;
-  setSerching?: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearching?: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearched?: React.Dispatch<React.SetStateAction<boolean>>;
   // 省略号模式相关
   handleEditInfo?: Function;
   handleMulManage?: Function;
@@ -20,7 +21,8 @@ interface HeaderWithToolsProps {
   handleDelete?: Function;
   // 批量删除模式相关
   batchDelList?: Array<any>;
-  setBatchDelList?: Function;
+  tempBatDelList?: Array<any>;
+  setBatchDelList?: (list) => void;
   mulDeleting?: boolean;
   setMulDeleting?: Function;
   handleMulDel?: Function;
@@ -37,24 +39,28 @@ const { useState, useRef, useEffect, forwardRef, useImperativeHandle } = React;
 function HeaderWithTools(props: HeaderWithToolsProps, ref) {
   const { mode, title, setKeyword, mulDeleting, setMulDeleting, handleEditInfo,
     handleMulManage, handleCleanInvalid, handleDelete, searching, customHandleBack,
-    setSerching, handleAdd, customBtn, handleCustomClick, setBatchDelList,
-    handleMulDel, batchDelList } = props;
+    setSearching, setSearched, handleAdd, customBtn, handleCustomClick, setBatchDelList,
+    handleMulDel, batchDelList, tempBatDelList } = props;
 
   const [showBatchActionBottom, setShowBatchActionBottom] = useState(false);
   const bottomRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
   const [bottomSelected, setBottomSelected] = useState(0); // 0为全不选，1为全选，2为选部分
+  const batDelListRef = useRef([]);
+  useEffect(() => { batDelListRef.current = batchDelList }, [batchDelList]);
 
-  const setAllSelectedStatus = (status: number) => { // 0为全不选，1为全选，2为选部分
-    batchDelList.forEach(record => { record.selected = status === 0 ? false : true });
-    setBatchDelList(batchDelList);
+  const setAllSelectedStatus = (status: number, initial: boolean = false) => { // 0为全不选，1为全选，2为选部分
+    const list = initial ? tempBatDelList : batDelListRef.current;
+    list.forEach(record => { record.selected = status === 0 ? false : true });
+    setBatchDelList(list);
     setBottomSelected(status);
   }
 
   const checkAllSelectedStatus = () => {
     let allSelected = true;
     let allCancled = true;
-    batchDelList.forEach(record => {
+
+    batDelListRef.current.forEach(record => {
       if (record.selected) { allCancled = false }
       else { allSelected = false }
     })
@@ -66,9 +72,8 @@ function HeaderWithTools(props: HeaderWithToolsProps, ref) {
 
   const turnOnBatchDel = () => {
     setMulDeleting(!mulDeleting);
-    setAllSelectedStatus(0);
     setBottomSelected(0);
-    setBatchDelList();
+    setAllSelectedStatus(0, true);
   };
 
   useImperativeHandle(ref, () => ({
@@ -89,9 +94,10 @@ function HeaderWithTools(props: HeaderWithToolsProps, ref) {
   return (
     <div className={style.headerWithTools}>
       <Header mode={mode} title={title} searching={searching} turnOnBatchDel={turnOnBatchDel}
-        setSerching={setSerching} mulDeleting={mulDeleting} setShowBatchActionBottom={setShowBatchActionBottom}
+        setSearching={setSearching} mulDeleting={mulDeleting} setShowBatchActionBottom={setShowBatchActionBottom}
         setKeyword={setKeyword} handleAdd={handleAdd} customBtn={customBtn}
         handleCustomClick={handleCustomClick} customHandleBack={customHandleBack}
+        setSearched={setSearched}
       />
       {mode === 1 &&
         <div className={style.batchActionBottom} ref={bottomRef}>

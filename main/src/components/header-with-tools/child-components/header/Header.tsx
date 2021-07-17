@@ -6,23 +6,28 @@ import style from "./header.styl?css-modules";
 interface HeaderProps {
   mode: number; // heder最右边显示：0：无；1：省略号；2：编辑；3：加号；4：自定义
   title?: string;
+  // 搜索相关
   setKeyword?: (keyword: string) => any;
   searching?: boolean;
-  setSerching?: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearching?: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearched?: React.Dispatch<React.SetStateAction<boolean>>;
+  // 批量删除相关
   mulDeleting?: boolean;
   setShowBatchActionBottom?: React.Dispatch<React.SetStateAction<boolean>>;
+  turnOnBatchDel?: Function;
+  // 加号相关
   handleAdd?: Function;
+  // 自定义相关
   customBtn?: any;
   handleCustomClick?: Function;
   customHandleBack?: Function;
-  turnOnBatchDel?: Function;
 }
 
 const { useRef, useEffect } = React;
 
 function Header(props: HeaderProps) {
   const { mode, title, setKeyword, mulDeleting, turnOnBatchDel, setShowBatchActionBottom,
-    searching, setSerching, handleAdd, customBtn, handleCustomClick,
+    searching, setSearching, setSearched, handleAdd, customBtn, handleCustomClick,
     customHandleBack } = props;
 
   const multipleRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
@@ -33,7 +38,7 @@ function Header(props: HeaderProps) {
 
   return (
     <>
-      {searching ? <Search setKeyword={setKeyword} setSerching={setSerching} /> :
+      {searching ? <Search setKeyword={setKeyword} setSearching={setSearching} setSearched={setSearched} /> :
         <div className={style.header}>
           <div className={style.backWrapper}>
             <span className={style.backBtn}
@@ -50,7 +55,7 @@ function Header(props: HeaderProps) {
           <div className={style.listType}>{title}</div>
           <div className={style.tools}>
             {setKeyword &&
-              <span className={style.search} onClick={() => setSerching(true)}>
+              <span className={style.search} onClick={() => setSearching(true)}>
                 <svg className="icon" aria-hidden="true">
                   <use href="#icon-search"></use>
                 </svg>

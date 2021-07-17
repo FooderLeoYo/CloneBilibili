@@ -19,7 +19,6 @@ interface VideoItemProps {
       dt: number;
       oid?: number;
     };
-    selected: boolean;
     title: string;
     view_at: number;
     badge?: string;
@@ -28,16 +27,19 @@ interface VideoItemProps {
     progress?: number;
     tag_name?: string;
   };
-  selected?: boolean;
-  switchSelected?: Function
+  batchDelList?: Array<any>;
+  batDelItemInx?: number;
+  header?: any;
   mulDeleting?: boolean;
   selectedStatus?: number;
+  setBatchDelList?: Function;
 }
 
 const { useContext, useRef, useEffect } = React;
 
 function VideoItem(props: VideoItemProps) {
-  const { record, curFatherInx, selected, switchSelected, mulDeleting } = props;
+  const { record, curFatherInx, mulDeleting, batchDelList, batDelItemInx,
+    header, setBatchDelList } = props;
   const { author_name, cover, history, title, view_at,
     badge, duration, kid, progress, tag_name } = record;
   const { oid, dt } = history;
@@ -47,17 +49,12 @@ function VideoItem(props: VideoItemProps) {
   const liveStatus = badge && badge === "未开播" ? "offline" : "live";
 
   const context = useContext(Context);
-
-  const edittingRef = useRef(mulDeleting);
+  const edittingRef: React.MutableRefObject<any> = useRef(false);
   useEffect(() => { edittingRef.current = mulDeleting }, [mulDeleting]);
 
   function handleClick(type: string, param: number) {
-    if (edittingRef.current) {
-      switchSelected();
-    } else {
-      if (type === "video") { props.history.push("/video/av" + param); }
-      else { props.history.push("/live/" + param); }
-    }
+    if (type === "video") { props.history.push("/video/av" + param); }
+    else { props.history.push("/live/" + param); }
   }
 
   function getPicUrl(url: string, format: string) {
@@ -91,8 +88,9 @@ function VideoItem(props: VideoItemProps) {
 
   return (
     <div className={style.videoItem}>
-      <BatchDelItem clickMethod={() => handleClick(curFatherInx === 0 ? "video" : "live", param)}
-        mulDeleting={mulDeleting} selected={selected}
+      <BatchDelItem handleClick={() => handleClick(curFatherInx === 0 ? "video" : "live", param)}
+        batchDelList={batchDelList} setBatchDelList={setBatchDelList}
+        batDelItemInx={batDelItemInx} header={header} mulDeleting={mulDeleting}
         itemDOM={
           <div className={style.content}>
             <div className={style.imgContainer}>

@@ -23,23 +23,27 @@ function BatchDelBottom(props: BatchDelBottomProps) {
 
   return (
     <div className={style.bottomWrapper}>
-      <span className={style.circle}
-        onClick={() => {
-          setSelected(!selected);
-          setAllSelectedStatus(selected ? 0 : 1);
-        }}
-      >
-        {selected && <svg className="icon" aria-hidden="true">
-          <use href="#icon-toast-success"></use>
-        </svg>
-        }
-      </span>
-      <span className={style.all}>全选</span>
-      <span
+      <div className={style.all} onClick={() => {
+        setSelected(!selected);
+        setAllSelectedStatus(selected ? 0 : 1);
+      }}>
+        <span className={style.circle}>
+          <span className={style.hollow} />
+          {selected &&
+            <span className={style.solid}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-toast-success"></use>
+              </svg>
+            </span>
+          }
+        </span>
+        <span className={style.word}>全选</span>
+      </div>
+      <div
         className={hasSelectedItem ? style.delete + " " + style.actived : style.delete}
         onClick={hasSelectedItem ? () => handleMulDel() : null}
       >删除
-      </span>
+      </div>
     </div>
   )
 }

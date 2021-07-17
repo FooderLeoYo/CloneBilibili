@@ -163,17 +163,18 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
   private getSearchRes = () => {
     const { searchList, searchKey } = this.state;
     const tempSearchRes = { video: [], live: [] };
-    const findAndHightlight = list =>
-      list.filter(record => {
-        const { title } = record;
+    const findAndHightlight = list => {
+      const searchResult = list.filter(item => item.title.indexOf(searchKey) !== -1);
+      const copy = JSON.parse(JSON.stringify(searchResult)); // 深拷贝
+      copy.forEach(item => {
+        const { title } = item;
         const index = title.indexOf(searchKey);
-        if (index !== -1) {
-          const front: string = title.slice(0, index);
-          const back = title.slice(index + searchKey.length);
-          record.title = front + "<em class='keyword'>" + searchKey + "</em>" + back;
-          return record;
-        }
-      });
+        const front: string = title.slice(0, index);
+        const back = title.slice(index + searchKey.length);
+        item.title = front + "<em class='keyword'>" + searchKey + "</em>" + back;
+      })
+      return copy;
+    }
 
     // 不能直接在searchResult上改，否则setState无法触发重渲染
     tempSearchRes.video = findAndHightlight(searchList.video);
@@ -187,7 +188,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
 
   public componentDidUpdate(prevProps, prevState) {
     const { searchKey, searching, searched } = this.state;
-    searchKey !== prevState.searchKey && searchKey.length > 0 && this.getSearchRes()
+    searchKey !== prevState.searchKey && searchKey.length > 0 && this.getSearchRes();
     !searching! && searched && this.setState({ searched: false });
   }
 
@@ -196,7 +197,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     const { mulDeleting, noVideoHistory, videoHistories, noLiveHistory, liveHistories,
       tabInx, searching, searchResult, searched, searchKey, batchDelList } = this.state;
     const headerComponent = this.headerRef.current;
-    let counht = 0;
+    const tempBatDelList = [];
 
     const videoList = (
       <div className={style.videoHistory}>
@@ -215,21 +216,14 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                 {/* item[0]是map的键，item[1]是值 */}
                 <div className={style.groupTitle}>{item[0]}</div>
                 {item[1].map((record, j) => {
-                  record.selected = false;
-                  this.tempBatDelList.length < ++counht && this.tempBatDelList.push(record);
-                  const curInx = counht - 1;
-
+                  tempBatDelList.push(record);
+                  const batDelItemInx = tempBatDelList.length - 1;
                   return (
                     <li className={style.itemWrapper} key={j}>
                       <VideoItem history={history} curFatherInx={tabInx} record={record}
                         mulDeleting={mulDeleting}
-                        selected={batchDelList[curInx]?.selected}
-                        switchSelected={() => {
-                          const temp = [...this.tempBatDelList];
-                          temp[curInx].selected = !temp[curInx].selected;
-                          this.setState({ batchDelList: temp });
-                          headerComponent.checkAllSelectedStatus();
-                        }}
+                        batchDelList={batchDelList} batDelItemInx={batDelItemInx} header={headerComponent}
+                        setBatchDelList={list => this.setState({ batchDelList: list })}
                       />
                     </li>
                   )
@@ -261,14 +255,14 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
               <ul className={style.viewedTimeGroup} key={`live${i}`}>
                 <div className={style.groupTitle}>{item[0]}</div>
                 {item[1].map((record, j) => {
+                  tempBatDelList.push(record);
+                  const batDelItemInx = (i + 1) * (j + 1);
                   return (<li className={style.itemWrapper} key={j}>
                     <VideoItem history={history} curFatherInx={tabInx} record={record}
-                      switchSelected={() => {
-                        record.selected = !record.selected;
-                        this.setState({ liveHistories: this.state.liveHistories });
-                        // this.checkAllSelectedStatus(1);
-                      }}
-                      mulDeleting={mulDeleting} />
+                      mulDeleting={mulDeleting}
+                      batchDelList={batchDelList} batDelItemInx={batDelItemInx} header={headerComponent}
+                      setBatchDelList={list => this.setState({ batchDelList: list })}
+                    />
                   </li>)
                 })}
               </ul>
@@ -286,11 +280,14 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       <div className={style.myHistory}>
         <Helmet><title>历史记录</title></Helmet>
         <HeaderWithTools ref={this.headerRef} title={"历史记录"} mode={2}
+          // 搜索相关
           setKeyword={this.setKeyword} searching={searching}
-          setSerching={(bool: boolean) => this.setState({ searching: bool })}
-
-          mulDeleting={mulDeleting} batchDelList={this.tempBatDelList} handleMulDel={this.handleMulDel}
-          setBatchDelList={() => this.setState({ batchDelList: this.tempBatDelList })}
+          setSearched={(bool: boolean) => this.setState({ searched: bool })}
+          setSearching={(bool: boolean) => this.setState({ searching: bool })}
+          // 批量删除相关
+          tempBatDelList={tempBatDelList} batchDelList={batchDelList}
+          mulDeleting={mulDeleting} handleMulDel={this.handleMulDel}
+          setBatchDelList={list => this.setState({ batchDelList: list })}
           setMulDeleting={status => this.setState({ mulDeleting: status })}
         />
         <TabBar tabTitle={["视频", "直播"]} setFatherCurInx={inx => this.setState({ tabInx: inx })}

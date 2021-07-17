@@ -5,13 +5,14 @@ import style from "./search.styl?css-modules";
 
 interface SearchProps {
   setKeyword: (keyword: string) => any;
-  setSerching: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearching: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearched?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const { useRef } = React;
 
 function Search(props: SearchProps) {
-  const { setKeyword, setSerching } = props;
+  const { setKeyword, setSearching, setSearched } = props;
   const cleanTextRef: React.MutableRefObject<any> = useRef(null);
   const searchInputRef: React.MutableRefObject<HTMLInputElement> = useRef(null);
 
@@ -32,7 +33,10 @@ function Search(props: SearchProps) {
         <CleanText inputDOMRef={searchInputRef} ref={cleanTextRef} />
       </div>
       {/* “取消”按钮 */}
-      <span className={style.cancel} onClick={() => setSerching(false)}>取消</span>
+      <span className={style.cancel} onClick={() => {
+        setSearching(false);
+        setSearched(false);
+      }}>取消</span>
     </div>
   )
 }

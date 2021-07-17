@@ -7,23 +7,30 @@
   height: px2rem(45)
   padding-left: px2rem(12)
   background-color: #ffffff
-  display: grid
-  grid-template-columns: 15% 60% 25%
+  display: flex
   align-items: center
-  .circle
-    position: relative
-    display: inline-block
-    width: px2rem(20)
-    height: @width
-    box-sizing: content-box
-    border: px2rem(1) solid #999999
-    border-radius: 50%
-    svg
-      position: absolute
-      left: px2rem(-2)
-      top: px2rem(-2)
-      font-size: px2rem(25)
-      color: #fb7299
+  .all
+    flex: 3
+    display: flex
+    .circle
+      flex: 1
+      position: relative
+      .hollow
+        display: inline-block
+        width: px2rem(20)
+        height: @width
+        box-sizing: content-box
+        border: px2rem(1) solid #999999
+        border-radius: 50%
+      .solid
+        position: absolute
+        left: px2rem(-1)
+        top: px2rem(-6)
+        font-size: px2rem(25)
+        color: #fb7299
+    .word
+      flex:4
   .delete
+    flex: 1
     &.actived
       color: #fb7299
