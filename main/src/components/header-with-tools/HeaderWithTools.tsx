@@ -7,13 +7,17 @@ import BatchDelBottom from "./child-components/batch-del/batch-del-bottom/BatchD
 import style from "./header-with-tools.styl?css-modules";
 
 interface HeaderWithToolsProps {
-  mode: number; // heder最右边显示：0：无；1：省略号；2：编辑；3：加号；4：自定义
+  mode: number; // heder最右边显示：0：无；1：省略号；2：批量删除；3：加号；4：自定义
   title?: string;
   // 搜索相关
-  setKeyword?: (keyword: string) => any;
   searching?: boolean;
   setSearching?: React.Dispatch<React.SetStateAction<boolean>>;
   setSearched?: React.Dispatch<React.SetStateAction<boolean>>;
+  dataForSearch?: Array<any>;
+  setSearchResult?: React.Dispatch<React.SetStateAction<Array<any>>>;
+  searchKey?: string;
+  setSearchKey?: React.Dispatch<React.SetStateAction<string>>;
+  accessArray?: Function;
   // 省略号模式相关
   handleEditInfo?: Function;
   handleMulManage?: Function;
@@ -37,10 +41,11 @@ interface HeaderWithToolsProps {
 const { useState, useRef, useEffect, forwardRef, useImperativeHandle } = React;
 
 function HeaderWithTools(props: HeaderWithToolsProps, ref) {
-  const { mode, title, setKeyword, mulDeleting, setMulDeleting, handleEditInfo,
+  const { mode, title, mulDeleting, setMulDeleting, handleEditInfo,
     handleMulManage, handleCleanInvalid, handleDelete, searching, customHandleBack,
     setSearching, setSearched, handleAdd, customBtn, handleCustomClick, setBatchDelList,
-    handleMulDel, batchDelList, tempBatDelList } = props;
+    handleMulDel, batchDelList, tempBatDelList, dataForSearch, setSearchResult
+    , searchKey, setSearchKey, accessArray } = props;
 
   const [showBatchActionBottom, setShowBatchActionBottom] = useState(false);
   const bottomRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
@@ -95,9 +100,10 @@ function HeaderWithTools(props: HeaderWithToolsProps, ref) {
     <div className={style.headerWithTools}>
       <Header mode={mode} title={title} searching={searching} turnOnBatchDel={turnOnBatchDel}
         setSearching={setSearching} mulDeleting={mulDeleting} setShowBatchActionBottom={setShowBatchActionBottom}
-        setKeyword={setKeyword} handleAdd={handleAdd} customBtn={customBtn}
+        handleAdd={handleAdd} customBtn={customBtn} searchKey={searchKey}
         handleCustomClick={handleCustomClick} customHandleBack={customHandleBack}
-        setSearched={setSearched}
+        setSearched={setSearched} dataForSearch={dataForSearch} setSearchResult={setSearchResult}
+        setSearchKey={setSearchKey} accessArray={accessArray}
       />
       {mode === 1 &&
         <div className={style.batchActionBottom} ref={bottomRef}>

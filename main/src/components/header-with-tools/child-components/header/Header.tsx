@@ -4,13 +4,17 @@ import Search from "../search/Search";
 import style from "./header.styl?css-modules";
 
 interface HeaderProps {
-  mode: number; // heder最右边显示：0：无；1：省略号；2：编辑；3：加号；4：自定义
+  mode: number; // heder最右边显示：0：无；1：省略号；2：批量删除；3：加号；4：自定义
   title?: string;
   // 搜索相关
-  setKeyword?: (keyword: string) => any;
   searching?: boolean;
   setSearching?: React.Dispatch<React.SetStateAction<boolean>>;
   setSearched?: React.Dispatch<React.SetStateAction<boolean>>;
+  dataForSearch?: Array<any>;
+  setSearchResult?: React.Dispatch<React.SetStateAction<Array<any>>>;
+  searchKey?: string;
+  setSearchKey?: React.Dispatch<React.SetStateAction<string>>;
+  accessArray?: Function;
   // 批量删除相关
   mulDeleting?: boolean;
   setShowBatchActionBottom?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -26,9 +30,10 @@ interface HeaderProps {
 const { useRef, useEffect } = React;
 
 function Header(props: HeaderProps) {
-  const { mode, title, setKeyword, mulDeleting, turnOnBatchDel, setShowBatchActionBottom,
+  const { mode, title, mulDeleting, turnOnBatchDel, setShowBatchActionBottom,
     searching, setSearching, setSearched, handleAdd, customBtn, handleCustomClick,
-    customHandleBack } = props;
+    customHandleBack, dataForSearch, setSearchResult, searchKey, setSearchKey,
+    accessArray } = props;
 
   const multipleRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
@@ -38,7 +43,11 @@ function Header(props: HeaderProps) {
 
   return (
     <>
-      {searching ? <Search setKeyword={setKeyword} setSearching={setSearching} setSearched={setSearched} /> :
+      {searching ?
+        <Search setSearching={setSearching} setSearched={setSearched} setSearchKey={setSearchKey}
+          dataForSearch={dataForSearch} setSearchResult={setSearchResult} searchKey={searchKey}
+          accessArray={accessArray}
+        /> :
         <div className={style.header}>
           <div className={style.backWrapper}>
             <span className={style.backBtn}
@@ -54,7 +63,7 @@ function Header(props: HeaderProps) {
           </div>
           <div className={style.listType}>{title}</div>
           <div className={style.tools}>
-            {setKeyword &&
+            {mode === 2 &&
               <span className={style.search} onClick={() => setSearching(true)}>
                 <svg className="icon" aria-hidden="true">
                   <use href="#icon-search"></use>

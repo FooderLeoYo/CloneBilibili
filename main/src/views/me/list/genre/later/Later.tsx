@@ -24,35 +24,11 @@ function Later() {
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
   const [searchKey, setSearchKey] = useState("");
-  const [searchList, setSearchList] = useState([]);
   const [searchResult, setSearchResult] = useState([]);
 
   const handleMulDel = () => {
     console.log("批量删除")
   };
-
-  const setKeyword = (keyword: string) => {
-    setSearchKey(keyword);
-    setSearched(true);
-  }
-
-  const getSearchRes = () => {
-    const findAndHightlight = list => {
-      const searchResult = list.filter(item => item.title.indexOf(searchKey) !== -1);
-      const copy = JSON.parse(JSON.stringify(searchResult)); // 深拷贝，否则修改title时会连laterData的一起改
-      copy.forEach(item => {
-        const { title } = item;
-        const index = title.indexOf(searchKey);
-        const front: string = title.slice(0, index);
-        const back = title.slice(index + searchKey.length);
-        item.title = front + "<em class='keyword'>" + searchKey + "</em>" + back;
-      })
-      return copy;
-    }
-
-    const tempSearchRes = findAndHightlight(laterData);
-    setSearchResult(tempSearchRes);
-  }
 
   useEffect(() => {
     getLater().then(result => {
@@ -77,21 +53,17 @@ function Later() {
           };
         })
         setLaterData(list);
-        setSearchList(list);
       }
     })
   }, []);
-
-  useEffect(() => {
-    searchKey.length > 0 && getSearchRes();
-  }, [searchKey]);
 
   return (
     <div className={style.later}>
       <Helmet><title>稍后再看</title></Helmet>
       <HeaderWithTools ref={headerRef} title={"稍后再看"} mode={2}
         // 搜索相关
-        setKeyword={setKeyword} searching={searching}
+        searching={searching} searchKey={searchKey} setSearchKey={setSearchKey}
+        dataForSearch={laterData} setSearchResult={setSearchResult}
         setSearching={(bool: boolean) => setSearching(bool)}
         setSearched={(bool: boolean) => setSearched(bool)}
         // 批量删除相关
