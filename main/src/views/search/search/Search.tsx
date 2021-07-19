@@ -48,7 +48,7 @@ class Search extends React.Component<any, SearchState> {
   // 获取搜索建议
   private getSuggests = e => {
     // 如果用户敲下的不是回车，说明没输完
-    if (e.keyCode !== 13) {
+    if (e.key !== "Enter") {
       const content = e.currentTarget.value;
       if (content) {
         getSuggests(content).then(result => {
@@ -70,7 +70,7 @@ class Search extends React.Component<any, SearchState> {
 
   //  当用户敲下回车后，清空推荐列表、设置keyword、记录搜索历史
   private setSearchContent = e => {
-    if (e.keyCode === 13) {
+    if (e.key === "Enter") {
       const content = e.currentTarget.value;
       if (content) {
         this.setState({
