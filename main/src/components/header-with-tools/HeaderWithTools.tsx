@@ -17,7 +17,7 @@ interface HeaderWithToolsProps {
   setSearchResult?: React.Dispatch<React.SetStateAction<Array<any>>>;
   searchKey?: string;
   setSearchKey?: React.Dispatch<React.SetStateAction<string>>;
-  accessArray?: Function;
+  accessTarKey?: (list: Array<any>, keyAsString: string) => any;
   // 省略号模式相关
   handleEditInfo?: Function;
   handleMulManage?: Function;
@@ -45,7 +45,7 @@ function HeaderWithTools(props: HeaderWithToolsProps, ref) {
     handleMulManage, handleCleanInvalid, handleDelete, searching, customHandleBack,
     setSearching, setSearched, handleAdd, customBtn, handleCustomClick, setBatchDelList,
     handleMulDel, batchDelList, tempBatDelList, dataForSearch, setSearchResult
-    , searchKey, setSearchKey, accessArray } = props;
+    , searchKey, setSearchKey, accessTarKey } = props;
 
   const [showBatchActionBottom, setShowBatchActionBottom] = useState(false);
   const bottomRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
@@ -103,7 +103,7 @@ function HeaderWithTools(props: HeaderWithToolsProps, ref) {
         handleAdd={handleAdd} customBtn={customBtn} searchKey={searchKey}
         handleCustomClick={handleCustomClick} customHandleBack={customHandleBack}
         setSearched={setSearched} dataForSearch={dataForSearch} setSearchResult={setSearchResult}
-        setSearchKey={setSearchKey} accessArray={accessArray}
+        setSearchKey={setSearchKey} accessTarKey={accessTarKey}
       />
       {mode === 1 &&
         <div className={style.batchActionBottom} ref={bottomRef}>

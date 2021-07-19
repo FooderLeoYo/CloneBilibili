@@ -31,6 +31,7 @@ interface MyHistoryState {
   tabInx: number;
   mulDeleting: boolean;
   batchDelList: Array<any>;
+  searchResCount: Array<number>;
 }
 
 class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
@@ -49,7 +50,8 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
       noLiveHistory: false,
       tabInx: 0,
       mulDeleting: false,
-      batchDelList: []
+      batchDelList: [],
+      searchResCount: [0, 0]
     }
   }
 
@@ -143,19 +145,24 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     }, 2000);
   }
 
-  private accessArray = (data, findAndHightlight) => {
+  private accessTarKey = (data, findAndHightlight) => {
+    let tempCount = [], inx = 0;
     const tempAll = data.map(category => {
-      let tempCategory = [];
+      let tempCategory = [], count = 0;
       category.forEach(group => {
         const searchRes = findAndHightlight(group[1], "title");
-        if (searchRes.length > 0) {
+        const len = searchRes.length;
+        if (len > 0) {
           const tempMap: Map<string, []> = new Map();
           tempMap.set(group[0], searchRes);
           tempCategory = tempCategory.concat([...tempMap]);
+          count += len;
         }
       });
+      tempCount[inx++] = count;
       return tempCategory;
     });
+    this.setState({ searchResCount: tempCount })
     return tempAll;
   }
 
@@ -175,7 +182,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
         {!noVideoHistory ?
           searching && searched ?
             <ul className={style.searchResult}>
-              <li className={style.total}>{`共找到关于“${searchKey}”的待修改个内容`}</li>
+              <li className={style.total}>{`共找到关于“${searchKey}”的${this.state.searchResCount[0]}个内容`}</li>
               {searchResult[0].map((item, i) =>
                 <ul className={style.viewedTimeGroup} key={`video${i}`}>
                   <div className={style.groupTitle}>{item[0]}</div>
@@ -203,8 +210,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
                       />
                     </li>
                   )
-                })
-                }
+                })}
               </ul>
             )) :
           <div className={style.tips}>
@@ -220,7 +226,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
         {!noLiveHistory ?
           searching && searched ?
             <ul className={style.searchResult}>
-              <li className={style.total}>{`共找到关于“${searchKey}”的待修改个内容`}</li>
+              <li className={style.total}>{`共找到关于“${searchKey}”的${this.state.searchResCount[1]}个内容`}</li>
               {searchResult[1].map((item, i) =>
                 <ul className={style.viewedTimeGroup} key={`video${i}`}>
                   <div className={style.groupTitle}>{item[0]}</div>
@@ -262,7 +268,7 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
         <Helmet><title>历史记录</title></Helmet>
         <HeaderWithTools ref={this.headerRef} title={"历史记录"} mode={2}
           // 搜索相关
-          searching={searching} accessArray={this.accessArray} searchKey={searchKey}
+          searching={searching} accessTarKey={this.accessTarKey} searchKey={searchKey}
           setSearching={(bool: boolean) => this.setState({ searching: bool })}
           setSearched={(bool: boolean) => this.setState({ searched: bool })}
           setSearchKey={(key: string) => this.setState({ searchKey: key })}
@@ -283,6 +289,5 @@ class MyHistory extends React.Component<MyHistoryProps, MyHistoryState> {
     );
   }
 }
-
 
 export default MyHistory;

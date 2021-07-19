@@ -14,7 +14,7 @@ interface HeaderProps {
   setSearchResult?: React.Dispatch<React.SetStateAction<Array<any>>>;
   searchKey?: string;
   setSearchKey?: React.Dispatch<React.SetStateAction<string>>;
-  accessArray?: Function;
+  accessTarKey?: (list: Array<any>, keyAsString: string) => any;
   // 批量删除相关
   mulDeleting?: boolean;
   setShowBatchActionBottom?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -33,7 +33,7 @@ function Header(props: HeaderProps) {
   const { mode, title, mulDeleting, turnOnBatchDel, setShowBatchActionBottom,
     searching, setSearching, setSearched, handleAdd, customBtn, handleCustomClick,
     customHandleBack, dataForSearch, setSearchResult, searchKey, setSearchKey,
-    accessArray } = props;
+    accessTarKey } = props;
 
   const multipleRef: React.MutableRefObject<HTMLDivElement> = useRef(null);
 
@@ -46,7 +46,7 @@ function Header(props: HeaderProps) {
       {searching ?
         <Search setSearching={setSearching} setSearched={setSearched} setSearchKey={setSearchKey}
           dataForSearch={dataForSearch} setSearchResult={setSearchResult} searchKey={searchKey}
-          accessArray={accessArray}
+          accessTarKey={accessTarKey}
         /> :
         <div className={style.header}>
           <div className={style.backWrapper}>

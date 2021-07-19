@@ -30,6 +30,8 @@ function Later() {
     console.log("批量删除")
   };
 
+  const accessTarKey = (data, findAndHightlight) => findAndHightlight(data, "title");
+
   useEffect(() => {
     getLater().then(result => {
       const { code, data } = result.data;
@@ -63,7 +65,7 @@ function Later() {
       <HeaderWithTools ref={headerRef} title={"稍后再看"} mode={2}
         // 搜索相关
         searching={searching} searchKey={searchKey} setSearchKey={setSearchKey}
-        dataForSearch={laterData} setSearchResult={setSearchResult}
+        dataForSearch={laterData} setSearchResult={setSearchResult} accessTarKey={accessTarKey}
         setSearching={(bool: boolean) => setSearching(bool)}
         setSearched={(bool: boolean) => setSearched(bool)}
         // 批量删除相关
