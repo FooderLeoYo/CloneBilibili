@@ -141,7 +141,7 @@ function FavDetail(props: FavDetailProps) {
                 <div className={style.item}>
                   <span className={style.icon}>
                     <svg className="icon" aria-hidden="true">
-                      <use href="#icon-thumbUp"></use>
+                      <use href="#icon-thumbup"></use>
                     </svg>
                   </span>
                   <span className={style.count}>{infoData?.cnt_info.thumb_up}</span>

@@ -565,7 +565,7 @@ const thumbupBarr = (param, cookie) => {
   const bili_jct = rawString.substring(bjctPos + 9);
   const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
 
-  return fetch(URL_VIDEO_VIEWED_REPORT, {
+  return fetch(URL_VIDEO_THUMBUP_BARR, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',

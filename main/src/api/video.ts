@@ -54,7 +54,7 @@ export function sendBarrage(aid: number, mode: number, msg: string, oid: number,
 }
 
 /* 点赞弹幕 */
-export function thumbupBarr(dmid: number, oid: number, op: number) {
+export function thumbupBarr(dmid: string, oid: number, op: number) {
   return postJSON(URL_VIDEO_THUMBUP_BARR, { dmid, oid, op });
 }
 

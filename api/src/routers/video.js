@@ -1,6 +1,7 @@
 const express = require("express");
 const { fetchVideoDetail, fetchPlayUrl, fetchRecommendById, fetchReplay,
-  fetchBarrage, postViewedReport, sendBarr, fetchBarrLikeCount } = require("../api");
+  fetchBarrage, postViewedReport, sendBarr, fetchBarrLikeCount,
+  thumbupBarr } = require("../api");
 // xml2js的作用是将后台返回的 xml 代码转换为前台可使用的 json 格式的字符串
 const { parseString } = require("xml2js");
 // const protobuf = require("protocol-buffers");
