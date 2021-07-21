@@ -98,11 +98,11 @@ class Barrage extends React.PureComponent<BarrageProps> {
   private fontSize: string;
   private opacity: number;
   private isPC: boolean;
-  private fixedBarrTimers: pausedableTimer[]; // 固定弹幕动画倒计时
   private rollBarrStyles: CSSStyleDeclaration[]; // 用于控制动画的开/关
   private rollBarCSSStySheet: CSSStyleSheet; // 指向添加到document.head中的那个style元素
-  private singleClickTimers: pausedableTimer[]; // 点击单个弹幕暂停倒计时
-  private manipulationTimer: pausedableTimer; // 弹幕操作盒倒计时，同一时间只能有一个操作盒
+  private fixedBarrTimers: pausedableTimer[]; // 固定弹幕动画结束倒计时，结束后移除这条弹幕的DOM并腾出一个位置
+  private singleClickTimer: pausedableTimer; // 点击单个弹幕后，该弹幕暂停动画的倒计时
+  private manipulationTimer: pausedableTimer; // 弹幕操作盒隐藏的倒计时，同一时间只能有一个操作盒
   private curBarrDOM: HTMLDivElement;
 
   constructor(props) {
@@ -113,7 +113,6 @@ class Barrage extends React.PureComponent<BarrageProps> {
     this.isPC = !(/(Safari|iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent));
     this.fixedBarrTimers = [];
     this.rollBarrStyles = [];
-    this.singleClickTimers = [];
   }
 
   public initBarrAreaSize = () => {
@@ -235,24 +234,30 @@ class Barrage extends React.PureComponent<BarrageProps> {
       barrageWrapper.classList.add(style.clicked);
 
       getBarrLikeCount(oid, dmid).then(result => {
-        // 如果之前已经点开了一个manipulationBox，则销毁它
-        if (this.manipulationTimer) {
-          this.manipulationTimer.executeCallback();
-          this.manipulationTimer.destroy();
-          // 将上一个打开的box的z-index还原
-          this.curBarrDOM.classList.remove(style.clicked);
-        }
-        // 暂停/启动弹幕动画
-        if (!this.props.paused) {
-          animationTimer ? animationTimer.pause() : wrapperStyle.animationPlayState = "paused";
-          const singleClickTimer = new pausedableTimer(() => animationTimer ? animationTimer.resume() : wrapperStyle.animationPlayState = "running", 3500);
-          singleClickTimer.resume();
-          this.singleClickTimers.push(singleClickTimer);
-        }
-
         const { code, data } = result.data;
         const manipulationBox = document.createElement("ul");
         let liked: boolean; // 是否已点赞该弹幕
+
+        // 如果之前已经点开了一个manipulationBox，则销毁它并还原对应弹幕的状态
+        if (this.manipulationTimer) {
+          // 销毁前一个盒子
+          this.manipulationTimer.executeCallback();
+          this.manipulationTimer.destroy();
+          // 恢复上一个打开box的弹幕的z-index
+          this.curBarrDOM.classList.remove(style.clicked);
+          // 视频播放时，恢复上一个打开box的弹幕的动画
+          if (!this.props.paused) {
+            this.singleClickTimer.executeCallback();
+            this.singleClickTimer.destroy();
+          }
+        }
+
+        // 视频播放时，暂停这条弹幕的动画、设置暂停倒计时
+        if (!this.props.paused) {
+          animationTimer ? animationTimer.pause() : wrapperStyle.animationPlayState = "paused";
+          this.singleClickTimer = new pausedableTimer(() => animationTimer ? animationTimer.resume() : wrapperStyle.animationPlayState = "running", 3500);
+          this.singleClickTimer.resume();
+        }
 
         const handleLike = () => {
           const op = liked ? 2 : 1;
@@ -309,13 +314,15 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
         if (code === 0) { for (let id in data) { liked = data[id].user_like === 1 } }
         manipulationBox.className = `${style.manipulation}`;
-        manipulationBox.addEventListener("click", () => this.manipulationTimer.reset());
+        manipulationBox.addEventListener("click", () => { // 点击某一操作后，重置动画暂停及盒子消失倒计时
+          !this.props.paused && this.singleClickTimer.reset();
+          this.manipulationTimer.reset();
+        });
         renderingBox();
         barrageWrapper.appendChild(manipulationBox);
 
-        // 设置被点击的这条弹幕的manipulationBox的倒计时
-        this.manipulationTimer = new pausedableTimer(() => {
-          // manipulationBox.style.visibility = "hidden";
+        this.manipulationTimer = new pausedableTimer(() => { // 设置这条弹幕的manipulationBox消失的倒计时
+          manipulationBox.style.visibility = "hidden";
           barrageWrapper.classList.remove(style.clicked);
         }, 3500);
         this.manipulationTimer.resume();
@@ -551,11 +558,11 @@ class Barrage extends React.PureComponent<BarrageProps> {
       if (paused) {
         this.fixedBarrTimers.forEach(timer => timer.pause());
         this.rollBarrStyles.forEach(style => style.animationPlayState = "paused");
-        this.singleClickTimers.forEach(timer => timer.pause());
+        this.singleClickTimer.pause();
       } else {
         this.fixedBarrTimers.forEach(timer => timer.resume());
         this.rollBarrStyles.forEach(style => style.animationPlayState = "running");
-        this.singleClickTimers.forEach(timer => timer.resume());
+        this.singleClickTimer?.resume();
       }
     }
   }
@@ -564,7 +571,6 @@ class Barrage extends React.PureComponent<BarrageProps> {
     removeEventListener("orientationchange", this.initBarrAreaSize);
   }
 
-  /* 以下为渲染部分 */
   public render() {
     return (
       <div className={style.barrArea} ref={this.barrageRef} />
