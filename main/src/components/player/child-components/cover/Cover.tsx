@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { formatDuration } from "../../../../customed-methods/string";
+import { formatDuration } from "@customed-methods/string";
 
 import style from "./cover.styl?css-modules";
 
@@ -47,7 +47,7 @@ function Cover(props: CoverProps, ref) {
       playBtnCoverRef.current.addEventListener("click", e => {
         e.stopPropagation();
         playOrPause();
-        lastPosRef.current.hideLastPos();
+        lastPosRef.current.hideLastPosLater();
         clickCover();
       });
     }
@@ -59,20 +59,19 @@ function Cover(props: CoverProps, ref) {
 
   return (
     <div className={style.cover} style={coverStyle}>
-      {
-        !isLive ?
-          <>
-            <div className={style.title}>av{video.aId}</div>
-            <img className={style.pic} src={video.cover} alt={video.title} />
-            <div className={style.prePlay}>
-              <div className={style.duration}>{formatDuration(video.duration, "0#:##:##")}</div>
-              <div className={style.playBtn} ref={playBtnCoverRef}>
-                <svg className="icon" aria-hidden="true">
-                  <use href="#icon-play"></use>
-                </svg>
-              </div>
+      {!isLive ?
+        <>
+          <div className={style.title}>av{video.aId}</div>
+          <img className={style.pic} src={video.cover} alt={video.title} />
+          <div className={style.prePlay}>
+            <div className={style.duration}>{formatDuration(video.duration, "0#:##:##")}</div>
+            <div className={style.playBtn} ref={playBtnCoverRef}>
+              <svg className="icon" aria-hidden="true">
+                <use href="#icon-play"></use>
+              </svg>
             </div>
-          </> : <><img className={style.pic} src={video.cover} alt={video.title} /></>
+          </div>
+        </> : <img className={style.pic} src={video.cover} alt={video.title} />
       }
     </div>
   )

@@ -229,107 +229,109 @@ class Barrage extends React.PureComponent<BarrageProps> {
     }
 
     /* 单独点击这条弹幕时的事件监听 */
-    textWrapper.addEventListener("click", e => {
-      e.stopPropagation();
-      barrageWrapper.classList.add(style.clicked);
+    if (this.props.isLive) {
+      textWrapper.addEventListener("click", e => {
+        e.stopPropagation();
+        barrageWrapper.classList.add(style.clicked);
 
-      getBarrLikeCount(oid, dmid).then(result => {
-        const { code, data } = result.data;
-        const manipulationBox = document.createElement("ul");
-        let liked: boolean; // 是否已点赞该弹幕
+        getBarrLikeCount(oid, dmid).then(result => {
+          const { code, data } = result.data;
+          const manipulationBox = document.createElement("ul");
+          let liked: boolean; // 是否已点赞该弹幕
 
-        // 如果之前已经点开了一个manipulationBox，则销毁它并还原对应弹幕的状态
-        if (this.manipulationTimer) {
-          // 销毁前一个盒子
-          this.manipulationTimer.executeCallback();
-          this.manipulationTimer.destroy();
-          // 恢复上一个打开box的弹幕的z-index
-          this.curBarrDOM.classList.remove(style.clicked);
-          // 视频播放时，恢复上一个打开box的弹幕的动画
-          if (!this.props.paused) {
-            this.singleClickTimer.executeCallback();
-            this.singleClickTimer.destroy();
-          }
-        }
-
-        // 视频播放时，暂停这条弹幕的动画、设置暂停倒计时
-        if (!this.props.paused) {
-          animationTimer ? animationTimer.pause() : wrapperStyle.animationPlayState = "paused";
-          this.singleClickTimer = new pausedableTimer(() => animationTimer ? animationTimer.resume() : wrapperStyle.animationPlayState = "running", 3500);
-          this.singleClickTimer.resume();
-        }
-
-        const handleLike = () => {
-          const op = liked ? 2 : 1;
-          thumbupBarr(dmid, oid, op).then(result => {
-            const { code, data } = result;
-            if (code === "0") {
-              Toast.warning(data.message, false, null, 2000);
-            } else {
-              liked = !liked;
-              renderingBox();
+          // 如果之前已经点开了一个manipulationBox，则销毁它并还原对应弹幕的状态
+          if (this.manipulationTimer) {
+            // 销毁前一个盒子
+            this.manipulationTimer.executeCallback();
+            this.manipulationTimer.destroy();
+            // 恢复上一个打开box的弹幕的z-index
+            this.curBarrDOM.classList.remove(style.clicked);
+            // 视频播放时，恢复上一个打开box的弹幕的动画
+            if (!this.props.paused) {
+              this.singleClickTimer.executeCallback();
+              this.singleClickTimer.destroy();
             }
+          }
+
+          // 视频播放时，暂停这条弹幕的动画、设置暂停倒计时
+          if (!this.props.paused) {
+            animationTimer ? animationTimer.pause() : wrapperStyle.animationPlayState = "paused";
+            this.singleClickTimer = new pausedableTimer(() => animationTimer ? animationTimer.resume() : wrapperStyle.animationPlayState = "running", 3500);
+            this.singleClickTimer.resume();
+          }
+
+          const handleLike = () => {
+            const op = liked ? 2 : 1;
+            thumbupBarr(dmid, oid, op).then(result => {
+              const { code, data } = result;
+              if (code === "0") {
+                Toast.warning(data.message, false, null, 2000);
+              } else {
+                liked = !liked;
+                renderingBox();
+              }
+            });
+          };
+
+          const handleReport = () => {
+
+          };
+
+          const handleWithdraw = () => {
+
+          };
+
+          const renderingBox = () => {
+            ReactDOM.render(
+              <>
+                <li className={`${style.icon} ${style.like}`} key={"like"} onClick={handleLike}>
+                  {liked ?
+                    <span>
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#icon-thumbupFilling"></use>
+                      </svg>
+                    </span> :
+                    <span className={style.like}>
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#icon-thumbup"></use>
+                      </svg>
+                    </span>
+                  }
+                </li>
+                <li className={style.icon} key={"report"} onClick={handleReport}>
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-report"></use>
+                  </svg>
+                </li>
+                <li className={style.icon} key={"withdraw"} onClick={handleWithdraw}>
+                  <svg className="icon" aria-hidden="true">
+                    <use href="#icon-withdraw"></use>
+                  </svg>
+                </li>
+              </>,
+              manipulationBox
+            )
+          };
+
+          if (code === 0) { for (let id in data) { liked = data[id].user_like === 1 } }
+          manipulationBox.className = `${style.manipulation}`;
+          manipulationBox.addEventListener("click", () => { // 点击某一操作后，重置动画暂停及盒子消失倒计时
+            !this.props.paused && this.singleClickTimer.reset();
+            this.manipulationTimer.reset();
           });
-        };
+          renderingBox();
+          barrageWrapper.appendChild(manipulationBox);
 
-        const handleReport = () => {
-
-        };
-
-        const handleWithdraw = () => {
-
-        };
-
-        const renderingBox = () => {
-          ReactDOM.render(
-            <>
-              <li className={`${style.icon} ${style.like}`} key={"like"} onClick={handleLike}>
-                {liked ?
-                  <span>
-                    <svg className="icon" aria-hidden="true">
-                      <use href="#icon-thumbupFilling"></use>
-                    </svg>
-                  </span> :
-                  <span className={style.like}>
-                    <svg className="icon" aria-hidden="true">
-                      <use href="#icon-thumbup"></use>
-                    </svg>
-                  </span>
-                }
-              </li>
-              <li className={style.icon} key={"report"} onClick={handleReport}>
-                <svg className="icon" aria-hidden="true">
-                  <use href="#icon-report"></use>
-                </svg>
-              </li>
-              <li className={style.icon} key={"withdraw"} onClick={handleWithdraw}>
-                <svg className="icon" aria-hidden="true">
-                  <use href="#icon-withdraw"></use>
-                </svg>
-              </li>
-            </>,
-            manipulationBox
-          )
-        };
-
-        if (code === 0) { for (let id in data) { liked = data[id].user_like === 1 } }
-        manipulationBox.className = `${style.manipulation}`;
-        manipulationBox.addEventListener("click", () => { // 点击某一操作后，重置动画暂停及盒子消失倒计时
-          !this.props.paused && this.singleClickTimer.reset();
-          this.manipulationTimer.reset();
+          this.manipulationTimer = new pausedableTimer(() => { // 设置这条弹幕的manipulationBox消失的倒计时
+            manipulationBox.style.visibility = "hidden";
+            barrageWrapper.classList.remove(style.clicked);
+          }, 3500);
+          this.manipulationTimer.resume();
+          // 更新curBarrDOM
+          this.curBarrDOM = barrageWrapper;
         });
-        renderingBox();
-        barrageWrapper.appendChild(manipulationBox);
-
-        this.manipulationTimer = new pausedableTimer(() => { // 设置这条弹幕的manipulationBox消失的倒计时
-          manipulationBox.style.visibility = "hidden";
-          barrageWrapper.classList.remove(style.clicked);
-        }, 3500);
-        this.manipulationTimer.resume();
-        // 更新curBarrDOM
-        this.curBarrDOM = barrageWrapper;
       });
-    });
+    }
   }
 
   public clear() {
@@ -558,7 +560,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
       if (paused) {
         this.fixedBarrTimers.forEach(timer => timer.pause());
         this.rollBarrStyles.forEach(style => style.animationPlayState = "paused");
-        this.singleClickTimer.pause();
+        this.singleClickTimer?.pause();
       } else {
         this.fixedBarrTimers.forEach(timer => timer.resume());
         this.rollBarrStyles.forEach(style => style.animationPlayState = "running");

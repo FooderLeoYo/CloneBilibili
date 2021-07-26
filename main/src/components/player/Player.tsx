@@ -265,9 +265,11 @@ function Player(props: PlayerProps, ref) {
       hls.loadSource(video.url);
       hls.attachMedia(videoDOM);
       hls.on(Hls.Events.MANIFEST_PARSED, () => videoDOM.play());
-      hls.on(Hls.Events.ERROR, (event, data) => (data.fatal &&
-        data.type === Hls.ErrorTypes.NETWORK_ERROR || data.response.code === 404)
-        && setIsStreaming(false)
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal && data.type === Hls.ErrorTypes.NETWORK_ERROR || data.response?.code === 404) {
+          setIsStreaming(false)
+        }
+      }
       );
     }
   }
@@ -329,6 +331,7 @@ function Player(props: PlayerProps, ref) {
       setListeners();
       setBarr();
     }
+    return () => videoRef.current.removeEventListener("timeupdate", setTimeupdateListener);
   }, []);
 
   return (
