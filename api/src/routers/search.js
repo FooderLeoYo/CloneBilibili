@@ -39,15 +39,9 @@ router.get("/search/suggest", (req, res, next) => {
   }).catch(next);
 });
 
-router.post("/search", (req, res, next) => {
-  const param = {
-    keyword: req.body.keyword,
-    page: req.body.page,
-    size: req.body.size,
-    searchType: req.body.searchType,
-    order: req.body.order,
-  }
-  fetchSearchContent(param).then(data => {
+router.get("/search", (req, res, next) => {
+  fetchSearchContent(req.query).then(data => {
+    console.log(data)
     let resData = {
       code: "1",
       msg: "success",

@@ -31,7 +31,7 @@ export function postJSON(url: string, data) {
     headers: { "Content-Type": "application/json; charset=utf-8", },
     credentials: "include" // fetch默认对服务端通过Set-Cookie头设置的cookie也会忽略，若想选择接受来自服务端的cookie信息，也必须要配置credentials选项
   }).then(res => {
-    if (res.ok) { return res.json(); }
+    if (res.ok) { return res.json() }
     throw new Error(res.statusText);
   })
 }

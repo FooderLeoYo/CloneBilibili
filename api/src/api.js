@@ -106,22 +106,24 @@ const URL_SPACE_VIDEO = "https://api.bilibili.com/x/space/arc/search?pn={p}&ps={
 
 /* 视频相关 */
 
-// 视频详情
-const URL_VIDEO_DETAIL = "https://api.bilibili.com/x/web-interface/view?aid={aid}&bvid=";
-// 详情弹幕
-const URL_VIDEO_GET_BARR = "https://api.bilibili.com/x/v1/dm/list.so?oid={cid}";
+// 弹幕内容
+const URL_VIDEO_BARR_CONTENT = "https://api.bilibili.com/x/v1/dm/list.so?oid={cid}";
 // 查询弹幕点赞数
-const URL_VIDEO_GET_BARR_LIKE_COUNT = "http://api.bilibili.com/x/v2/dm/thumbup/stats";
+const URL_VIDEO_BARR_LIKE_COUNT = "http://api.bilibili.com/x/v2/dm/thumbup/stats";
+// 发送弹幕
+const URL_VIDEO_BARR_SEND = "http://api.bilibili.com/x/v2/dm/post";
+// 点赞弹幕
+const URL_VIDEO_BARR_THUMBUP = "http://api.bilibili.com/x/v2/dm/thumbup/add";
+// 撤回弹幕
+const URL_VIDEO_BARR_WITHDRAW = "http://api.bilibili.com/x/dm/recall";
+// 视频详情
+const URL_VIDEO_DETAIL = "https://api.bilibili.com/x/web-interface/view?aid={aid}";
 // 视频播放地址
 const URL_VIDEO_PLAY_URL = "https://api.bilibili.com/x/player/playurl?cid={cid}&avid={aid}&platform=html5&otype=json&qn=16&type=mp4&html5=1";
 // 详情推荐
 const URL_VIDEO_RECOMMEND = "https://api.bilibili.com/x/web-interface/archive/related?aid={aid}&context=";
 // 详情回复
 const URL_VIDEO_REPLAY = "https://api.bilibili.com/x/v2/reply?type=1&sort=2&oid={oid}&pn={p}&nohot=1";
-// 发送弹幕
-const URL_VIDEO_SEND_BARR = "http://api.bilibili.com/x/v2/dm/post";
-// 点赞弹幕
-const URL_VIDEO_THUMBUP_BARR = "http://api.bilibili.com/x/v2/dm/thumbup/add";
 // 上报观看记录
 const URL_VIDEO_VIEWED_REPORT = "https://api.bilibili.com/x/v2/history/report";
 
@@ -223,10 +225,10 @@ const fetchPWKeyAndHash = () => {
     .then(json => json);
 }
 
-const fetchPWVerifyInfo = param => {
+const fetchPWVerifyInfo = params => {
   // 需要将参数转换成字符串
   // 但是不能用JSON.toString，因为它转出来的是json字符串，不符合application/x-www-form-urlencoded类型的参数要求
-  const searchParam = new URLSearchParams(Object.entries(param)).toString();
+  const searchParam = new URLSearchParams(Object.entries(params)).toString();
 
   return fetch(URL_LOGIN_PW_VERIFY, {
     method: 'POST',
@@ -235,9 +237,8 @@ const fetchPWVerifyInfo = param => {
   }).then(res => res);
 }
 
-const fetchSMSVerifyInfo = param => {
-  const searchParam = new URLSearchParams(Object.entries(param)).toString();
-
+const fetchSMSVerifyInfo = params => {
+  const searchParam = new URLSearchParams(Object.entries(params)).toString();
   return fetch(URL_LOGIN_SMS_VERIFY, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -245,9 +246,8 @@ const fetchSMSVerifyInfo = param => {
   }).then(res => res);
 }
 
-const fetchSMSCaptcha = param => {
-  const searchParam = new URLSearchParams(Object.entries(param)).toString();
-
+const fetchSMSCaptcha = params => {
+  const searchParam = new URLSearchParams(Object.entries(params)).toString();
   return fetch(URL_LOGIN_SMS_CAPTCHA, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded', },
@@ -259,11 +259,11 @@ const fetchSMSCaptcha = param => {
 
 /* 个人中心相关 */
 
-const createFav = (param, cookie) => {
+const createFav = (params, cookie) => {
   const rawString = cookie;
   const bjctPos = rawString.indexOf("bili_jct");
   const bili_jct = rawString.substring(bjctPos + 9);
-  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
+  const searchParam = new URLSearchParams(Object.entries(params)).toString() + `&csrf=${bili_jct}`;
 
   return fetch(URL_ME_CREATE_FAV, {
     method: 'POST',
@@ -276,11 +276,11 @@ const createFav = (param, cookie) => {
     .then(json => json);
 }
 
-const delInvalidFavContent = (param, cookie) => {
+const delInvalidFavContent = (params, cookie) => {
   const rawString = cookie;
   const bjctPos = rawString.indexOf("bili_jct");
   const bili_jct = rawString.substring(bjctPos + 9);
-  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
+  const searchParam = new URLSearchParams(Object.entries(params)).toString() + `&csrf=${bili_jct}`;
 
   return fetch(URL_ME_DEL_INVALID_FAV_CONTENT, {
     method: 'POST',
@@ -310,11 +310,11 @@ const deleteHistory = (params, cookie) => {
     .then(json => json);
 }
 
-const editFav = (param, cookie) => {
+const editFav = (params, cookie) => {
   const rawString = cookie;
   const bjctPos = rawString.indexOf("bili_jct");
   const bili_jct = rawString.substring(bjctPos + 9);
-  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
+  const searchParam = new URLSearchParams(Object.entries(params)).toString() + `&csrf=${bili_jct}`;
 
   return fetch(URL_ME_EDIT_FAV, {
     method: 'POST',
@@ -328,15 +328,12 @@ const editFav = (param, cookie) => {
 }
 
 const exitLogin = () => {
-  return fetch(URL_ME_EXIT_LOGIN)
-    .then(res => res);
+  return fetch(URL_ME_EXIT_LOGIN).then(res => res);
 }
 
-const fetchHistory = (param, cookie) => {
-  const searchParam = new URLSearchParams(Object.entries(param)).toString();
-  const fetchUrl = URL_ME_GET_HISTORY + "?" + searchParam;
-
-  return fetch(fetchUrl, {
+const fetchHistory = (params, cookie) => {
+  const searchParam = new URLSearchParams(Object.entries(params)).toString();
+  return fetch(`${URL_ME_GET_HISTORY}?${searchParam}`, {
     method: "GET",
     headers: { "cookie": cookie }
   }).then(res => res.json())
@@ -405,16 +402,10 @@ const fetchSuggest = w => {
     .then(json => json);
 }
 
-const fetchSearchContent = param => {
-  param = {
-    keyword: param.keyword,
-    page: param.page,
-    pagesize: param.size,
-    search_type: param.searchType, // video（综合） media_bangumi(番剧) bili_user（up主）
-    order: param.order // totalrank（默认） click（播放多） pubdate（发布日期） dm（弹幕）
-  };
-  return fetch(URL_SEARCH_SEARCH + `?${querystring.stringify(param)}`, {
-    method: "get"
+const fetchSearchContent = params => {
+  const searchParam = new URLSearchParams(Object.entries(params)).toString();
+  return fetch(`${URL_SEARCH_SEARCH}?${searchParam}`, {
+    method: "GET"
   }).then(res => res.json())
     .then(json => json);
 }
@@ -422,26 +413,25 @@ const fetchSearchContent = param => {
 
 /* 空间相关 */
 
-const fetchFavDetail = (param, cookie) => {
-  const { media_id, ps } = param;
-  return fetch(`${URL_SPACE_FAV_DETAIL}?media_id=${media_id}&ps=${ps}`, {
+const fetchFavDetail = (params, cookie) => {
+  const searchParam = new URLSearchParams(Object.entries(params)).toString();
+  return fetch(`${URL_SPACE_FAV_DETAIL}?${searchParam}`, {
     method: "GET",
     headers: { "cookie": cookie },
   }).then(res => res.json())
     .then(json => json);
 }
 
-const fetchFavInof = (param, cookie) => {
-  return fetch(`${URL_SPACE_FAV_INFO}?media_id=${param}`, {
+const fetchFavInof = (media_id, cookie) => {
+  return fetch(`${URL_SPACE_FAV_INFO}?media_id=${media_id}`, {
     method: "GET",
     headers: { "cookie": cookie },
   }).then(res => res.json())
     .then(json => json);
 }
 
-const fetchFavListCollected = (param, cookie) => {
-  const searchParam = new URLSearchParams(Object.entries(param)).toString();
-
+const fetchFavListCollected = (params, cookie) => {
+  const searchParam = new URLSearchParams(Object.entries(params)).toString();
   return fetch(`${URL_SPACE_FAV_LIST_COLLECTED}?${searchParam}`, {
     method: "GET",
     headers: { "cookie": cookie },
@@ -479,9 +469,8 @@ const fetchRelation = uid => {
     .then(body => body.data);
 }
 
-const fetchSeriesFollowed = (param, cookie) => {
-  const searchParam = new URLSearchParams(Object.entries(param)).toString();
-
+const fetchSeriesFollowed = (params, cookie) => {
+  const searchParam = new URLSearchParams(Object.entries(params)).toString();
   return fetch(`${URL_SPACE_SERIES_FOLLOWED}?${searchParam}`, {
     method: "GET",
     headers: { "cookie": cookie },
@@ -489,10 +478,10 @@ const fetchSeriesFollowed = (param, cookie) => {
     .then(json => json);
 }
 
-const fetchUserVideo = param => {
-  return fetch(URL_SPACE_VIDEO.replace("{mid}", param.uId)
-    .replace("{p}", param.p)
-    .replace("{size}", param.size)
+const fetchUserVideo = params => {
+  return fetch(URL_SPACE_VIDEO.replace("{mid}", params.uId)
+    .replace("{p}", params.p)
+    .replace("{size}", params.size)
   ).then(res => res.json())
     .then(json => json);
 }
@@ -501,19 +490,70 @@ const fetchUserVideo = param => {
 /* 视频相关 */
 
 const fetchBarrage = cId => {
-  // const searchParam = new URLSearchParams(Object.entries(param)).toString();
+  // const searchParam = new URLSearchParams(Object.entries(params)).toString();
   // return fetch(`${URL_VIDEO_BARRAGE}?${searchParam}`)
   //   .then(res => res)
-  return fetch(URL_VIDEO_GET_BARR.replace("{cid}", cId))
+  return fetch(URL_VIDEO_BARR_CONTENT.replace("{cid}", cId))
     .then(res => res.text())
     .then(body => body)
 }
 
 const fetchBarrLikeCount = (params, cookie) => {
-  const { oid, ids } = params;
-  return fetch(`${URL_VIDEO_GET_BARR_LIKE_COUNT}?oid=${oid}&ids=${ids}`, {
+  const searchParam = new URLSearchParams(Object.entries(params)).toString();
+  return fetch(`${URL_VIDEO_BARR_LIKE_COUNT}?${searchParam}`, {
     method: "GET",
     headers: { "cookie": cookie },
+  }).then(res => res.json())
+    .then(json => json);
+}
+
+const sendBarr = (params, cookie) => {
+  const rawString = cookie;
+  const bjctPos = rawString.indexOf("bili_jct");
+  const bili_jct = rawString.substring(bjctPos + 9);
+  const searchParam = new URLSearchParams(Object.entries(params)).toString() + `&csrf=${bili_jct}`;
+
+  return fetch(URL_VIDEO_BARR_SEND, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "cookie": cookie
+    },
+    body: searchParam,
+  }).then(res => res.json())
+    .then(json => json);
+}
+
+const thumbupBarr = (params, cookie) => {
+  const rawString = cookie;
+  const bjctPos = rawString.indexOf("bili_jct");
+  const bili_jct = rawString.substring(bjctPos + 9);
+  const searchParam = new URLSearchParams(Object.entries(params)).toString() + `&csrf=${bili_jct}`;
+
+  return fetch(URL_VIDEO_BARR_THUMBUP, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "cookie": cookie
+    },
+    body: searchParam,
+  }).then(res => res.json())
+    .then(json => json);
+}
+
+const withdrawBarr = (params, cookie) => {
+  const rawString = cookie;
+  const bjctPos = rawString.indexOf("bili_jct");
+  const bili_jct = rawString.substring(bjctPos + 9);
+  const searchParam = new URLSearchParams(Object.entries(params)).toString() + `&csrf=${bili_jct}`;
+
+  return fetch(URL_VIDEO_BARR_WITHDRAW, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      "cookie": cookie
+    },
+    body: searchParam,
   }).then(res => res.json())
     .then(json => json);
 }
@@ -542,47 +582,13 @@ const fetchReplay = (aId, p) => {
     .then(json => json);
 }
 
-const sendBarr = (param, cookie) => {
+const postViewedReport = (params, cookie) => {
   const rawString = cookie;
   const bjctPos = rawString.indexOf("bili_jct");
   const bili_jct = rawString.substring(bjctPos + 9);
-  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
+  const searchParam = new URLSearchParams(Object.entries(params)).toString() + `&csrf=${bili_jct}`;
 
-  return fetch(URL_VIDEO_SEND_BARR, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      "cookie": cookie
-    },
-    body: searchParam,
-  }).then(res => res.json())
-    .then(json => json);
-}
-
-const thumbupBarr = (param, cookie) => {
-  const rawString = cookie;
-  const bjctPos = rawString.indexOf("bili_jct");
-  const bili_jct = rawString.substring(bjctPos + 9);
-  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
-
-  return fetch(URL_VIDEO_THUMBUP_BARR, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      "cookie": cookie
-    },
-    body: searchParam,
-  }).then(res => res.json())
-    .then(json => json);
-}
-
-const postViewedReport = (param, cookie) => {
-  const rawString = cookie;
-  const bjctPos = rawString.indexOf("bili_jct");
-  const bili_jct = rawString.substring(bjctPos + 9);
-  const searchParam = new URLSearchParams(Object.entries(param)).toString() + `&csrf=${bili_jct}`;
-
-  return fetch(URL_VIDEO_THUMBUP_BARR, {
+  return fetch(URL_VIDEO_VIEWED_REPORT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -598,14 +604,14 @@ module.exports = {
   /* 综合相关 */
   fetchRoundSowing,
   /* 直播相关 */
-  fetchLiveArea, fetchDanMuConfig, fetchLiveGift, fetchLiveList,
-  fetchRoomList, fetchRoomInfo, fetchLiveUrl,
+  fetchLiveArea, fetchDanMuConfig, fetchLiveGift, fetchLiveList, fetchRoomList,
+  fetchRoomInfo, fetchLiveUrl,
   /* 登录相关 */
   fetchAreaCode, fetchGTCaptcha, fetchNavtUserInfo, fetchPWKeyAndHash,
   fetchPWVerifyInfo, fetchSMSVerifyInfo, fetchSMSCaptcha,
   /* 个人中心相关 */
-  createFav, delInvalidFavContent, deleteHistory, editFav, exitLogin,
-  fetchHistory, fetchLater, fetchMyRelation,
+  createFav, delInvalidFavContent, deleteHistory, editFav, exitLogin, fetchHistory,
+  fetchLater, fetchMyRelation,
   /* 排行榜相关 */
   fetchRankingById, fetchRankingArchiveById, fetchRankingRegionById,
   /* 搜索相关 */
@@ -614,7 +620,6 @@ module.exports = {
   fetchFavDetail, fetchFavInof, fetchFavListCollected, fetchFavListCreated,
   fetchUserData, fetchRelation, fetchSeriesFollowed, fetchUserVideo,
   /* 视频相关 */
-  fetchBarrage, fetchBarrLikeCount, fetchVideoDetail, fetchPlayUrl,
-  fetchRecommendById, fetchReplay, sendBarr, thumbupBarr,
-  postViewedReport
+  fetchBarrage, fetchBarrLikeCount, sendBarr, thumbupBarr, withdrawBarr,
+  fetchVideoDetail, fetchPlayUrl, fetchRecommendById, fetchReplay, postViewedReport
 }

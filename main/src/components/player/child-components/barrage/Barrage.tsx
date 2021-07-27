@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { getBarrLikeCount, thumbupBarr } from "@api/video";
+import { getBarrLikeCount, thumbupBarr, withdrawBarr } from "@api/video";
 
 import { formatDuration } from "@customed-methods/string";
 import BiliBili_midcrc from "@customed-methods/crc32";
@@ -229,7 +229,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
     }
 
     /* 单独点击这条弹幕时的事件监听 */
-    if (this.props.isLive) {
+    if (!this.props.isLive) {
       textWrapper.addEventListener("click", e => {
         e.stopPropagation();
         barrageWrapper.classList.add(style.clicked);
@@ -278,7 +278,14 @@ class Barrage extends React.PureComponent<BarrageProps> {
           };
 
           const handleWithdraw = () => {
-
+            withdrawBarr(dmid, oid).then(result => {
+              const { code, message } = result.data;
+              if (code === 0) {
+                Toast.info(message, false, null, 2000);
+              } else {
+                Toast.error(message, false, null, 2000);
+              }
+            });
           };
 
           const renderingBox = () => {
@@ -303,11 +310,13 @@ class Barrage extends React.PureComponent<BarrageProps> {
                     <use href="#icon-report"></use>
                   </svg>
                 </li>
-                <li className={style.icon} key={"withdraw"} onClick={handleWithdraw}>
-                  <svg className="icon" aria-hidden="true">
-                    <use href="#icon-withdraw"></use>
-                  </svg>
-                </li>
+                {isMineBarrage &&
+                  <li className={style.icon} key={"withdraw"} onClick={handleWithdraw}>
+                    <svg className="icon" aria-hidden="true">
+                      <use href="#icon-withdraw"></use>
+                    </svg>
+                  </li>
+                }
               </>,
               manipulationBox
             )

@@ -1,7 +1,7 @@
 const express = require("express");
 const { fetchVideoDetail, fetchPlayUrl, fetchRecommendById, fetchReplay,
   fetchBarrage, postViewedReport, sendBarr, fetchBarrLikeCount,
-  thumbupBarr } = require("../api");
+  thumbupBarr, withdrawBarr } = require("../api");
 // xml2js的作用是将后台返回的 xml 代码转换为前台可使用的 json 格式的字符串
 const { parseString } = require("xml2js");
 // const protobuf = require("protocol-buffers");
@@ -29,8 +29,8 @@ router.get("/av/info", (req, res, next) => {
 
 // 视频地址
 router.get("/av/play_url", (req, res, next) => {
-  const { aId, cId } = req.query;
-  fetchPlayUrl(aId, cId).then(data => {
+  const { avid, cid } = req.query;
+  fetchPlayUrl(avid, cid).then(data => {
     let resData = {
       code: "1",
       msg: "success"
@@ -200,6 +200,21 @@ router.get("/av/getbarrlikecount", (req, res, next) => {
       resData.code = "0";
       resData.msg = "fail";
       resData.data = data;
+    }
+    res.send(resData);
+  }).catch(next);
+});
+
+router.post("/av/withdrawbarr", (req, res, next) => {
+  withdrawBarr(req.body, req.headers.cookie).then(data => {
+    let resData = {
+      code: "1",
+      msg: "success",
+      data
+    }
+    if (data.code !== 0) {
+      resData.code = "0";
+      resData.msg = "fail";
     }
     res.send(resData);
   }).catch(next);

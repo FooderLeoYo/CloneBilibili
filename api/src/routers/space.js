@@ -112,12 +112,7 @@ router.get("/space/getrelation", (req, res, next) => {
 });
 
 router.get("/space/getseriesfollowed", (req, res, next) => {
-  const { vmid, type, pn, ps } = req.query;
-  const params = { vmid, type, pn, ps };
-
-  console.log(params)
-
-  fetchSeriesFollowed(params, req.headers.cookie).then(data => {
+  fetchSeriesFollowed(req.query, req.headers.cookie).then(data => {
     const resData = {
       code: "1",
       msg: "success",

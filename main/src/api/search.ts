@@ -18,6 +18,7 @@ export function getSuggests(keyword: string) {
 /**
  * 获取搜索结果
  */
-export function getSearchResult(param) {
-  return postJSON(URL_SEARCH, param);
+export function getSearchResult(keyword: string, page: number,
+  pagesize: number, search_type: string, order: string) {
+  return getJSON(URL_SEARCH, { keyword, page, pagesize, search_type, order });
 }
