@@ -11,7 +11,7 @@ import storage from "@customed-methods/storage";
 import getVideoDetail from "@redux/async-action-creators/video";
 import { setShouldLoad } from "@redux/action-creators";
 
-import LogoHeaderWithBack from "@root/src/components/logo-header-with-back/LogoHeaderWithBack";
+import LogoHeaderWithBack from "@components/logo-header-with-back/LogoHeaderWithBack";
 import LoadingCutscene from "@components/loading-cutscene/LoadingCutscene";
 import Player from "@components/player/Player";
 import { Switcher } from "@components/switcher/Switcher";

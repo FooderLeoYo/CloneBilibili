@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { sendBarrage } from "@api/video";
+import { sendBarrage, getBarrages } from "@api/video";
 import CleanText from "@components/clean-text/CleanText"
 import Toast from "@components/toast/index";
 import style from "./edit-barr.styl?css-modules";
@@ -33,7 +33,16 @@ function EditBarr(props: EditBarrProps) {
       barrColor, barrSize).then(result => {
         const { code, data } = result;
         if (code === "1") {
-          // 由于发送成功后也要等5s左右才能获取到新发弹幕数据，故这里直接发一个“假”的
+          setTimeout(() => {
+            getBarrages(cId).then(result => {
+              const { code, data } = result;
+              if (code === "1") {
+                console.log(data)
+              }
+            });
+          }, 6000);
+
+          // 由于发送成功后要等7s左右才能获取到这条弹幕的数据，故这里直接发一个“假”的
           barrsForSendRef.current.push({
             content: barrInputRef.current.value,
             type: barrPosition,

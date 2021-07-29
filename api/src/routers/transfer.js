@@ -8,7 +8,7 @@ router.use("/transfer", (req, res, next) => {
   // 验证Referer
   const referer = req.get("Referer");
   if (referer) {
-    let newWhiteList =  [...whiteList];
+    let newWhiteList = [...whiteList];
     // 添加当前url到白名单
     newWhiteList.push(`${req.protocol}://${req.hostname}`);
     const allowOrigin = newWhiteList.find((url) => referer.indexOf(url) !== -1);
@@ -47,9 +47,10 @@ router.get("/transfer/mp4", (req, res, next) => {
     }
     code = 206;
   }
-  const url = req.query.video;
-  fetch(url, {
+  fetch(req.query.video, {
     headers: {
+      "referer": "https://www.bilibili.com",
+      'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
       Range: `bytes=${start}-${end}`
     }
   }).then(response => {

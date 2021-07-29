@@ -119,7 +119,7 @@ const URL_VIDEO_BARR_WITHDRAW = "http://api.bilibili.com/x/dm/recall";
 // 视频详情
 const URL_VIDEO_DETAIL = "https://api.bilibili.com/x/web-interface/view?aid={aid}";
 // 视频播放地址
-const URL_VIDEO_PLAY_URL = "https://api.bilibili.com/x/player/playurl?cid={cid}&avid={aid}&platform=html5&otype=json&qn=16&type=mp4&html5=1";
+const URL_VIDEO_PLAY_URL = "https://api.bilibili.com/x/player/playurl";
 // 详情推荐
 const URL_VIDEO_RECOMMEND = "https://api.bilibili.com/x/web-interface/archive/related?aid={aid}&context=";
 // 详情回复
@@ -564,9 +564,14 @@ const fetchVideoDetail = aId => {
     .then(json => json);
 }
 
-const fetchPlayUrl = (aId, cId) => {
-  return fetch(URL_VIDEO_PLAY_URL.replace("{aid}", aId).replace("{cid}", cId))
-    .then(res => res.json())
+const fetchPlayUrl = (params, cookie) => {
+  const searchParam = new URLSearchParams(Object.entries(params)).toString();
+  return fetch(`${URL_VIDEO_PLAY_URL}?${searchParam}&platform=pc`, {
+    method: "GET",
+    headers: {
+      "cookie": cookie,
+    },
+  }).then(res => res.json())
     .then(json => json);
 }
 

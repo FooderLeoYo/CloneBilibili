@@ -176,7 +176,6 @@ class Barrage extends React.PureComponent<BarrageProps> {
         barrageAreaDOM.removeChild(barrageWrapper);
         this.fixedTop -= this.contentHeight;
         console.log("减：" + this.fixedTop)
-        // console.log(this.fixedTop)
         if (this.fixedTop < 0) { this.fixedTop = 0 }
         this.fixedBarrTimers.splice(this.fixedBarrTimers.indexOf(fixedBarrTimer), 1);
       } else {
@@ -287,6 +286,7 @@ class Barrage extends React.PureComponent<BarrageProps> {
 
           const handleWithdraw = () => {
             withdrawBarr(dmid, oid).then(result => {
+
               const { code, message } = result.data;
               if (code === 0) {
                 Toast.info(message, false, null, 2000);

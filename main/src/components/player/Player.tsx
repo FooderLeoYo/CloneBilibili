@@ -203,12 +203,18 @@ function Player(props: PlayerProps, ref) {
 
   /* videoDOM相关 */
   function getVideoUrl(url) {
-    const { videoURL } = context;
     // 对url统一编码为utf-8的格式到后台
     // 不加encodeURI的话，默认浏览器编码格式提交；浏览器不同时，传到后台的值也就不同了
     url = encodeURIComponent(url);
+    // fetch(url, {
+    //   headers: {
+    //     "referer": "https://www.bilibili.com",
+    //     'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
+    //   }
+    // }).then(res => console.log(res))
+
     // 拼接播放源地址
-    return `${videoURL}?video=${url}`;
+    return `${context.videoURL}?video=${url}`;
   }
 
   function playOrPause() {

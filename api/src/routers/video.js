@@ -29,8 +29,7 @@ router.get("/av/info", (req, res, next) => {
 
 // 视频地址
 router.get("/av/play_url", (req, res, next) => {
-  const { avid, cid } = req.query;
-  fetchPlayUrl(avid, cid).then(data => {
+  fetchPlayUrl(req.query, req.headers.cookie).then(data => {
     let resData = {
       code: "1",
       msg: "success"
