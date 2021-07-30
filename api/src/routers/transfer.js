@@ -45,8 +45,9 @@ router.get("/transfer/mp4", (req, res, next) => {
       start = result[1];
       end = result[2];
     }
-    code = 206;
+    // code = 206;
   }
+
   fetch(req.query.video, {
     headers: {
       "referer": "https://www.bilibili.com",

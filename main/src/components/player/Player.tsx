@@ -205,16 +205,7 @@ function Player(props: PlayerProps, ref) {
   function getVideoUrl(url) {
     // 对url统一编码为utf-8的格式到后台
     // 不加encodeURI的话，默认浏览器编码格式提交；浏览器不同时，传到后台的值也就不同了
-    url = encodeURIComponent(url);
-    // fetch(url, {
-    //   headers: {
-    //     "referer": "https://www.bilibili.com",
-    //     'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
-    //   }
-    // }).then(res => console.log(res))
-
-    // 拼接播放源地址
-    return `${context.videoURL}?video=${url}`;
+    return `${context.videoURL}?video=${encodeURIComponent(url)}`;
   }
 
   function playOrPause() {
@@ -264,8 +255,8 @@ function Player(props: PlayerProps, ref) {
     // 支持m3u8，直接使用video播放
     if (videoDOM.canPlayType("application/vnd.apple.mpegurl")) {
       videoDOM.src = video.url;
-      videoDOM.addEventListener("canplay", () => { videoDOM.play(); });
-      videoDOM.addEventListener("error", () => { setIsStreaming(false); });
+      videoDOM.addEventListener("canplay", () => videoDOM.play());
+      videoDOM.addEventListener("error", () => setIsStreaming(false));
     } else if (Hls.isSupported()) {
       const hls = new Hls();
       hls.loadSource(video.url);
@@ -345,11 +336,10 @@ function Player(props: PlayerProps, ref) {
       {/* 视频区域 */}
       <div className={style.playerWrapper} ref={playerWrapperRef}>
         <div className={style.videoArea} ref={videoAreaRef}>
-          <video height="100%" width="100%" preload="auto"
+          <video height="100%" width="100%" preload="auto" style={videoStyle}
+            src={isLive ? "" : getVideoUrl(video.url)} ref={videoRef}
             // playsinline是解决ios默认打开网页的时候，会自动全屏播放
-            x5-playsinline="true"
-            playsInline={true} src={isLive ? "" : getVideoUrl(video.url)}
-            ref={videoRef} style={videoStyle}
+            x5-playsinline="true" playsInline={true}
           />
         </div>
         {/* 弹幕 */}

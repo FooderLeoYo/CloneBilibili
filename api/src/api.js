@@ -566,7 +566,7 @@ const fetchVideoDetail = aId => {
 
 const fetchPlayUrl = (params, cookie) => {
   const searchParam = new URLSearchParams(Object.entries(params)).toString();
-  return fetch(`${URL_VIDEO_PLAY_URL}?${searchParam}&platform=pc`, {
+  return fetch(`${URL_VIDEO_PLAY_URL}?${searchParam}&fnval=16`, {
     method: "GET",
     headers: {
       "cookie": cookie,
