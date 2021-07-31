@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as Dash from 'dashjs';
 import * as Hls from "hls.js";
 
 import myContext from "@context/index";
@@ -202,11 +203,6 @@ function Player(props: PlayerProps, ref) {
   }
 
   /* videoDOM相关 */
-  function getVideoUrl(url) {
-    // 对url统一编码为utf-8的格式到后台
-    // 不加encodeURI的话，默认浏览器编码格式提交；浏览器不同时，传到后台的值也就不同了
-    return `${context.videoURL}?video=${encodeURIComponent(url)}`;
-  }
 
   function playOrPause() {
     const videoDOM = videoRef.current;
@@ -246,6 +242,27 @@ function Player(props: PlayerProps, ref) {
       e.stopPropagation();
       playOrPause();
     });
+  }
+
+  const getVideoUrl = url => {
+    return `${context.videoURL}?video=${encodeURIComponent(url)}`;
+  }
+
+  const setNotLiveVideoDOM = () => {
+    const videoDOM: HTMLVideoElement = videoRef.current;
+    const { video } = props;
+    // 对url统一编码为utf-8的格式到后台
+    // 不加encodeURI的话，默认浏览器编码格式提交；浏览器不同时，传到后台的值也就不同了
+    const videoUrl = `${context.videoURL}?video=${encodeURIComponent(video.url)}`;
+    // fetch(videoUrl).then(res => {
+    //   res.blob().then(res => {
+    // console.log(res.stream())
+    // .then(res => console.log(res))
+    //   })
+    // })
+
+    const dashPlayer = Dash.MediaPlayer().create();
+    dashPlayer.initialize(videoDOM, videoUrl, false);
   }
 
   function setLiveVideoDOM() {
@@ -325,6 +342,7 @@ function Player(props: PlayerProps, ref) {
       setLiveVideoDOM();
       videoRef.current.autoplay = true;
     } else {
+      setNotLiveVideoDOM();
       setListeners();
       setBarr();
     }
@@ -337,9 +355,10 @@ function Player(props: PlayerProps, ref) {
       <div className={style.playerWrapper} ref={playerWrapperRef}>
         <div className={style.videoArea} ref={videoAreaRef}>
           <video height="100%" width="100%" preload="auto" style={videoStyle}
-            src={isLive ? "" : getVideoUrl(video.url)} ref={videoRef}
+            ref={videoRef}
             // playsinline是解决ios默认打开网页的时候，会自动全屏播放
             x5-playsinline="true" playsInline={true}
+          // src={isLive ? "" : getVideoUrl(video.url)}
           />
         </div>
         {/* 弹幕 */}

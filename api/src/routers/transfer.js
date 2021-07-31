@@ -52,9 +52,11 @@ router.get("/transfer/mp4", (req, res, next) => {
     headers: {
       "referer": "https://www.bilibili.com",
       'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
+      // Range: `bytes=${start}-${end}`
       Range: `bytes=${start}-${end}`
     }
   }).then(response => {
+    // console.log(response)
     const headers = response.headers;
     res.set("Cache-Control", "public, max-age=0");
     // 支持断点传输

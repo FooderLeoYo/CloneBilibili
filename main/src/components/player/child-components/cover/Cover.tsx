@@ -40,7 +40,7 @@ function Cover(props: CoverProps, ref) {
     }
 
     videoDOM.addEventListener("playing", setPlayState);
-    videoDOM.addEventListener("waiting", () => { setWaiting(true); });
+    // videoDOM.addEventListener("waiting", () => { setWaiting(true); });
     // "play"是HTML DOM 事件onplay的事件类型，而不是一个自定义名称
     if (!isLive) {
       videoDOM.addEventListener("play", setPlayState);
