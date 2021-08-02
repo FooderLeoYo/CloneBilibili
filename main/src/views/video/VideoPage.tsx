@@ -146,8 +146,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
                 imgParams={{ imgHeight: "10.575rem", imgSrc: video.pic, imgFormat: "@320w_200h" }}
               />
             </div>
-          ))
-          }
+          ))}
           {loading && <div className={style.loading}>加载中...</div>}
         </div>,
         // 评论区
@@ -334,11 +333,10 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
     }
   }
 
-  /* 以下为渲染部分 */
   public render() {
     const { isDataOk, videoData, myUid } = this.state
     const { title, desc, owner, aId, cId, pic, duration, url, playCount, barrageCount,
-      publicDate, twoLevel } = videoData;
+      publicDate, twoLevel, Aurl } = videoData;
 
     if (isDataOk && pic.indexOf("@400w_300h") === -1) {
       videoData.pic = this.getPicUrl(pic, "@400w_300h");
@@ -364,7 +362,7 @@ class VideoPage extends React.Component<VideoPageProps, VideoPageState> {
               {/* 播放器 */}
               <div className={style.videoContainer}>
                 <Player isLive={false} videoRef={this.videoRef} myUid={myUid}
-                  video={{ aId: aId, cId: cId, title: title, cover: videoData.pic, duration: duration, url: url, }}
+                  video={{ aId: aId, cId: cId, title: title, cover: videoData.pic, duration: duration, url: url, Aurl: Aurl }}
                   clickCover={() => {
                     this.setState({ isViewed: true });
                     if (this.state.myUid) { postViewedReport({ aid: this.props.video.aId, cid: this.props.video.cId }); }

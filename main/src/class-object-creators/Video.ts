@@ -16,9 +16,10 @@ class Video {
     public duration: any,
     public cId: number,
     public url: string,
-    public owner: UpUser = null ,
+    public Aurl: string = "",
+    public owner: UpUser = null,
     public twoLevel: PartitionType = null,
-    public oneLevel: PartitionType = null) {}
+    public oneLevel: PartitionType = null) { }
 }
 
 function createVideo(data): Video {
@@ -33,6 +34,7 @@ function createVideo(data): Video {
     data.duration,
     data.cid,
     data.initUrl,
+    "",
     new UpUser(data.owner.mid, data.owner.name, data.owner.face),
     data.tid ? new PartitionType(data.tid, data.tname) : null,
     data.reid ? new PartitionType(data.reid, data.toptype) : null
@@ -50,6 +52,7 @@ function createVideoByDetail(data): Video {
     data.pubdate,
     data.duration,
     data.cid,
+    "",
     "",
     new UpUser(data.owner.mid, data.owner.name, data.owner.face),
     data.tid ? new PartitionType(data.tid, data.tname) : null,
@@ -69,6 +72,7 @@ function createVideoByRanking(data): Video {
     data.duration,
     0,
     "",
+    "",
     new UpUser(0, data.author, "")
   );
 }
@@ -84,6 +88,7 @@ function createVideoByLatest(data): Video {
     data.pubdate,
     data.duration,
     data.cid,
+    "",
     "",
     new UpUser(data.mid, data.author, data.face)
   );
@@ -101,6 +106,7 @@ function createVideoByUser(data): Video {
     data.length,
     0,
     "",
+    "",
     new UpUser(data.mid, data.author, "")
   );
 }
@@ -108,7 +114,7 @@ function createVideoByUser(data): Video {
 function createVideoBySearch(data): Video {
   const times = data.duration.split(":");
   const seconds = parseInt(times[0], 10) * 60 + parseInt(times[1], 10);
-  return new  Video(
+  return new Video(
     data.aid,
     data.title,
     data.pic,
@@ -118,6 +124,7 @@ function createVideoBySearch(data): Video {
     data.pubdata,
     seconds,
     0,
+    "",
     "",
     new UpUser(data.mid, data.author, "")
   );

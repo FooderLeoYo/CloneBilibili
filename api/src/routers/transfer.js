@@ -33,7 +33,7 @@ router.get("/transfer/image", (req, res, next) => {
     }).catch(next);
 });
 
-router.get("/transfer/mp4", (req, res, next) => {
+router.get("/transfer/video", (req, res, next) => {
   const range = req.get("Range");
   let start = 0;
   let end = "";
@@ -45,23 +45,21 @@ router.get("/transfer/mp4", (req, res, next) => {
       start = result[1];
       end = result[2];
     }
-    // code = 206;
+    code = 206; // 跳转视频进度后，下载新时刻的视频数据分段，状态要改为206播放器才能继续播放
   }
 
   fetch(req.query.video, {
     headers: {
       "referer": "https://www.bilibili.com",
       'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
-      // Range: `bytes=${start}-${end}`
       Range: `bytes=${start}-${end}`
     }
   }).then(response => {
-    // console.log(response)
     const headers = response.headers;
     res.set("Cache-Control", "public, max-age=0");
     // 支持断点传输
     res.set("Accept-Ranges", "bytes");
-    res.set("Content-Type", "video/mp4");
+    // res.set("Content-Type", "video/mp4");
     res.set("Content-Range", headers.get("Content-Range"));
     res.set("Content-Length", headers.get("Content-Length"));
     res.set("ETag", headers.get("ETag"));

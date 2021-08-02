@@ -16,7 +16,6 @@
     "@loadable/server": "^5.2.0",
     "@typescript-eslint/parser": "^1.13.0",
     "cross-fetch": "^2.2.3",
-    "dashjs": "^4.0.0-npm",
     "eslint-plugin-import": "^2.23.4",
     "express": "^4.16.4",
     "hls.js": "^0.12.4",
@@ -33,7 +32,6 @@
     "react-router-dom": "^5.2.0",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
-    "shaka-player": "^3.2.0",
     "swiper": "^3.4.2"
   },
   "devDependencies": {

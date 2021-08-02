@@ -164,7 +164,7 @@ function FavDetail(props: FavDetailProps) {
               const tempData = {
                 aId: id, title: title, pic: "", desc: "", playCount: play,
                 barrageCount: danmaku, publicDate: 0, duration: duration, cId: 0,
-                url: "", owner: upper, twoLevel: null, oneLevel: null
+                url: "", Aurl: "", owner: upper, twoLevel: null, oneLevel: null
               };
               const tempParams = { imgHeight: "10.575rem", imgSrc: cover, imgFormat: "@320w_200h" }
 

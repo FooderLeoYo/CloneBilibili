@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as Dash from 'dashjs';
+import * as dashjs from 'dashjs';
 import * as Hls from "hls.js";
 
 import myContext from "@context/index";
@@ -25,7 +25,8 @@ interface PlayerProps {
     title: string,
     cover: string,
     duration: number,
-    url: string
+    url: string,
+    Aurl?: string
   },
   myUid?: number,
   videoRef?: React.RefObject<HTMLVideoElement>,
@@ -248,23 +249,6 @@ function Player(props: PlayerProps, ref) {
     return `${context.videoURL}?video=${encodeURIComponent(url)}`;
   }
 
-  const setNotLiveVideoDOM = () => {
-    const videoDOM: HTMLVideoElement = videoRef.current;
-    const { video } = props;
-    // 对url统一编码为utf-8的格式到后台
-    // 不加encodeURI的话，默认浏览器编码格式提交；浏览器不同时，传到后台的值也就不同了
-    const videoUrl = `${context.videoURL}?video=${encodeURIComponent(video.url)}`;
-    // fetch(videoUrl).then(res => {
-    //   res.blob().then(res => {
-    // console.log(res.stream())
-    // .then(res => console.log(res))
-    //   })
-    // })
-
-    const dashPlayer = Dash.MediaPlayer().create();
-    dashPlayer.initialize(videoDOM, videoUrl, false);
-  }
-
   function setLiveVideoDOM() {
     const videoDOM: HTMLVideoElement = videoRef.current;
     const { video } = props;
@@ -342,7 +326,7 @@ function Player(props: PlayerProps, ref) {
       setLiveVideoDOM();
       videoRef.current.autoplay = true;
     } else {
-      setNotLiveVideoDOM();
+      // setNotLiveVideoDOM();
       setListeners();
       setBarr();
     }
@@ -358,8 +342,11 @@ function Player(props: PlayerProps, ref) {
             ref={videoRef}
             // playsinline是解决ios默认打开网页的时候，会自动全屏播放
             x5-playsinline="true" playsInline={true}
-          // src={isLive ? "" : getVideoUrl(video.url)}
-          />
+          // src={isLive ? "" : `${context.videoURL}?video=${encodeURIComponent(video.url)}`}
+          >
+            {/* <source src={isLive ? "" : `${context.videoURL}?video=${encodeURIComponent(video.url)}`} /> */}
+            <source src={isLive ? "" : `${context.videoURL}?video=${encodeURIComponent(video.Aurl)}`} />
+          </video>
         </div>
         {/* 弹幕 */}
         {/* 不把Barrage放进videoArea中是因为： */}

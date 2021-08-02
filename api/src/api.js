@@ -566,6 +566,8 @@ const fetchVideoDetail = aId => {
 
 const fetchPlayUrl = (params, cookie) => {
   const searchParam = new URLSearchParams(Object.entries(params)).toString();
+  const { avid, cid } = params;
+  // return fetch(`${URL_VIDEO_PLAY_URL}?${searchParam}&platform=html5`, {
   return fetch(`${URL_VIDEO_PLAY_URL}?${searchParam}&fnval=16`, {
     method: "GET",
     headers: {

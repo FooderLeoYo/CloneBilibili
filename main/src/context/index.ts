@@ -6,7 +6,7 @@ import * as React from "react";
 export const context = {
   // URL_PREFIX在front/config/dev.env.js或prod.env.js中
   picURL: process.env.URL_PREFIX + "/transfer/image",
-  videoURL: process.env.URL_PREFIX + "/transfer/mp4"
+  videoURL: process.env.URL_PREFIX + "/transfer/video"
 };
 
 export default React.createContext(context);
