@@ -104,6 +104,10 @@ function Player(props: PlayerProps, ref) {
 
   /* 需要传递给子组件的props */
   // 将传递给Barrage
+  const clearCtrTimer = () => {
+    clearTimeout(ctrBarTimer);
+  }
+
   const barrageRefs = {
     videoRef: videoRef,
     curBrightnessRef: curBrightnessRef,
@@ -127,9 +131,7 @@ function Player(props: PlayerProps, ref) {
     clearCtrTimer: clearCtrTimer
   };
 
-  function clearCtrTimer() {
-    clearTimeout(ctrBarTimer);
-  }
+
   const ctrBarStatus = {
     isLive: isLive,
     isShowControlBar: isShowControlBar,
