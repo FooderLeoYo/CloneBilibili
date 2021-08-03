@@ -249,6 +249,35 @@ function Player(props: PlayerProps, ref) {
     return `${context.videoURL}?video=${encodeURIComponent(url)}`;
   }
 
+  const createMSE = async (vUrl, aUrl) => {
+    const videoDOM: HTMLVideoElement = videoRef.current;
+    const source = new MediaSource();
+    const getFileBuffer = url => {
+      return fetch(url).then(resp => resp.arrayBuffer());
+    }
+    const waitForEvent = (target, event) => {
+      return new Promise(res => {
+        target.addEventListener(event, res, { once: true });
+      });
+    }
+
+    videoDOM.src = URL.createObjectURL(source);
+    source.addEventListener('sourceopen', () => URL.revokeObjectURL(videoDOM.src))
+
+    const vArrBuf = await getFileBuffer(vUrl);
+    const aArrBuf = await getFileBuffer(aUrl);
+    const videoBuf = source.addSourceBuffer("video/mp4;codecs=avc1.640032");
+    videoBuf.appendBuffer(vArrBuf);
+    const audioBUf = source.addSourceBuffer("audio/mp4;codecs=mp4a.40.2");
+    audioBUf.appendBuffer(aArrBuf);
+
+    await Promise.all([
+      waitForEvent(audioBUf, "updateend"),
+      waitForEvent(videoBuf, "updateend")
+    ]);
+    source.endOfStream();
+  }
+
   function setLiveVideoDOM() {
     const videoDOM: HTMLVideoElement = videoRef.current;
     const { video } = props;
@@ -326,7 +355,7 @@ function Player(props: PlayerProps, ref) {
       setLiveVideoDOM();
       videoRef.current.autoplay = true;
     } else {
-      // setNotLiveVideoDOM();
+      createMSE(`${context.videoURL}?video=${encodeURIComponent(video.url)}`, `${context.videoURL}?video=${encodeURIComponent(video.Aurl)}`);
       setListeners();
       setBarr();
     }
@@ -345,7 +374,7 @@ function Player(props: PlayerProps, ref) {
           // src={isLive ? "" : `${context.videoURL}?video=${encodeURIComponent(video.url)}`}
           >
             {/* <source src={isLive ? "" : `${context.videoURL}?video=${encodeURIComponent(video.url)}`} /> */}
-            <source src={isLive ? "" : `${context.videoURL}?video=${encodeURIComponent(video.Aurl)}`} />
+            {/* <source src={isLive ? "" : `${context.videoURL}?video=${encodeURIComponent(video.Aurl)}`} /> */}
           </video>
         </div>
         {/* 弹幕 */}
