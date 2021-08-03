@@ -207,7 +207,6 @@ function Player(props: PlayerProps, ref) {
 
   function playOrPause() {
     const videoDOM = videoRef.current;
-
     if (pausedRef.current) {
       setPaused(false);
       videoDOM.play();
