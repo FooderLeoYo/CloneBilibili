@@ -48,6 +48,7 @@ interface ControlBarProps {
     barrageRef: React.RefObject<Barrage>,
     playerRef: React.RefObject<HTMLDivElement>,
     speedRef: React.MutableRefObject<any>,
+    videoFMSERef: React.MutableRefObject<any>,
   };
 }
 
@@ -61,7 +62,7 @@ function ControlBar(props: ControlBarProps, ref) {
   const { setIsShowControlBar, setIsShowPlayBtn, playOrPause, changeBar, showControlsTemporally, clearCtrTimer,
     setTimeupdateListener, setShowEditBarr, setbarrCoolDown } = ctrBarMethods;
   const { controlBarRef, ctrPlayBtnRef, currentTimeRef, progressRef,
-    videoRef, barrageRef, playerRef, speedRef } = ctrBarRefs;
+    videoRef, barrageRef, playerRef, speedRef, videoFMSERef } = ctrBarRefs;
 
   const [isLogin, setIsLogin] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -84,8 +85,17 @@ function ControlBar(props: ControlBarProps, ref) {
     const progressWrapperDOM = progressRef.current.parentElement;
     const videoDOM = videoRef.current;
     const progress = (e.clientX - progressWrapperDOM.getBoundingClientRect().left) / progressWrapperDOM.offsetWidth;
+
     // 调整时间
     videoDOM.currentTime = videoDOM.duration * progress;
+
+
+    videoFMSERef.current.positionChanged();
+
+
+
+
+
     // 重新赋值弹幕列表
     changeBar(initBarrDataRef.current.slice());
     // 清除跳转前的弹幕

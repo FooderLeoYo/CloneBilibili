@@ -7,6 +7,7 @@ module.exports = (req, res, next) => {
     if (allowOrigin) {
       res.header("Access-Control-Allow-Origin", origin);
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization,Range");
+      res.header("Access-Control-Expose-Headers", "Content-Range");
       res.header("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
       res.header("Access-Control-Allow-Credentials", true); // 设置此项后，才能在response headers中set-cookie
     }

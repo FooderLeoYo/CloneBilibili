@@ -24,4 +24,8 @@ export {
 
 export {
   LiveSecQueryParType
-} from "./LiveSecQueryParType"
+} from "./LiveSecQueryParType";
+
+export {
+  FragmentedMSE
+} from "./FragmentedMSE";

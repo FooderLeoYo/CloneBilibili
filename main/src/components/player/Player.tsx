@@ -5,6 +5,7 @@ import * as Hls from "hls.js";
 import myContext from "@context/index";
 import { getBarrages } from "@api/video";
 
+import { FragmentedMSE } from "@class-object-creators/index";
 import Speed from "./child-components/speed/Speed"
 import LastPosition from "./child-components/last-position/LastPosition"
 import Cover from "./child-components/cover/Cover"
@@ -76,6 +77,10 @@ function Player(props: PlayerProps, ref) {
   const [barrsForSend, setBarrsForSend] = useState([]);
   const barrsForSendRef = useRef([]);
   useEffect(() => { barrsForSendRef.current = barrsForSend }, [barrsForSend]);
+  // 视频的MSE
+  const [videoFMSE, setVideoFMSE] = useState(null);
+  const videoFMSERef = useRef(null);
+  useEffect(() => { videoFMSERef.current = videoFMSE }, [videoFMSE]);
 
   /* Refs */
   const playerRef: React.RefObject<HTMLDivElement> = useRef(null);
@@ -166,6 +171,7 @@ function Player(props: PlayerProps, ref) {
     barrageRef: barrageRef,
     playerRef: playerRef,
     speedRef: speedRef,
+    videoFMSERef: videoFMSERef
   }
 
   /* Player的全局变量 */
@@ -252,31 +258,34 @@ function Player(props: PlayerProps, ref) {
 
   const createMSE = async (vUrl, aUrl) => {
     const videoDOM: HTMLVideoElement = videoRef.current;
-    const source = new MediaSource();
-    const getFileBuffer = url => {
-      return fetch(url).then(resp => resp.arrayBuffer());
-    }
-    const waitForEvent = (target, event) => {
-      return new Promise(res => {
-        target.addEventListener(event, res, { once: true });
-      });
-    }
+    // const source = new MediaSource();
+    // const getFileBuffer = url => {
+    //   return fetch(url).then(resp => resp.arrayBuffer());
+    // }
+    // const waitForEvent = (target, event) => {
+    //   return new Promise(res => {
+    //     target.addEventListener(event, res, { once: true });
+    //   });
+    // }
 
-    videoDOM.src = URL.createObjectURL(source);
-    source.addEventListener('sourceopen', () => URL.revokeObjectURL(videoDOM.src))
+    // videoDOM.src = URL.createObjectURL(source);
+    // source.addEventListener('sourceopen', () => URL.revokeObjectURL(videoDOM.src))
 
-    const vArrBuf = await getFileBuffer(vUrl);
-    const aArrBuf = await getFileBuffer(aUrl);
-    const videoBuf = source.addSourceBuffer("video/mp4;codecs=avc1.640032");
-    videoBuf.appendBuffer(vArrBuf);
-    const audioBUf = source.addSourceBuffer("audio/mp4;codecs=mp4a.40.2");
-    audioBUf.appendBuffer(aArrBuf);
+    // const vArrBuf = await getFileBuffer(vUrl);
+    // const aArrBuf = await getFileBuffer(aUrl);
+    // const videoBuf = source.addSourceBuffer("video/mp4;codecs=avc1.640032");
+    // videoBuf.appendBuffer(vArrBuf);
+    // const audioBUf = source.addSourceBuffer("audio/mp4;codecs=mp4a.40.2");
+    // audioBUf.appendBuffer(aArrBuf);
 
-    await Promise.all([
-      waitForEvent(audioBUf, "updateend"),
-      waitForEvent(videoBuf, "updateend")
-    ]);
-    source.endOfStream();
+    // await Promise.all([
+    //   waitForEvent(audioBUf, "updateend"),
+    //   waitForEvent(videoBuf, "updateend")
+    // ]);
+    // source.endOfStream();
+    const vMSE = new FragmentedMSE(videoDOM, vUrl, "video/mp4;codecs=avc1.640032");
+    vMSE.initMediaSource();
+    setVideoFMSE(vMSE);
   }
 
   function setLiveVideoDOM() {

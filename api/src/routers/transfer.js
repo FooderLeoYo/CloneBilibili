@@ -37,7 +37,7 @@ router.get("/transfer/video", (req, res, next) => {
   const range = req.get("Range");
   let start = 0;
   let end = "";
-  let code = 206;
+  let code = 200;
   if (range) {
     // 获取range start 和 end
     const result = range.match(/bytes=(\d+)-(\d*)/);
@@ -45,7 +45,7 @@ router.get("/transfer/video", (req, res, next) => {
       start = result[1];
       end = result[2];
     }
-    // code = 206; // 跳转视频进度后，下载新时刻的视频数据分段，状态要改为206播放器才能继续播放
+    code = 206; // 跳转视频进度后，下载新时刻的视频数据分段，状态要改为206播放器才能继续播放
   }
 
   fetch(req.query.video, {
@@ -68,6 +68,7 @@ router.get("/transfer/video", (req, res, next) => {
     // stream.Readable
     const readable = response.body;
     readable.pipe(res);
+    console.log(res)
   }).catch(next);
 });
 
