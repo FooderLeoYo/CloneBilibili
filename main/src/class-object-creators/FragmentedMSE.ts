@@ -4,7 +4,7 @@ class FragmentedMSE {
   private mimeCodec: string;
   private mediaSource: MediaSource;
   private sourceBuffer: SourceBuffer;
-  private cacheSeconds: number; // 当前片段播放完前提前多少s下载新的片段
+  private cacheReserveSecs: number; // 缓冲预留秒数
   private totalLength: number; // 视频总共大小
   private segmentStart: number; // rangeStart
   private segmentSize: number; // 分段大小
@@ -15,7 +15,7 @@ class FragmentedMSE {
     this.mediaSource = null;
     this.sourceBuffer = null;
 
-    this.cacheSeconds = 2;
+    this.cacheReserveSecs = 2;
     this.totalLength = 0;
     this.segmentStart = 0;
     this.segmentSize = 1024 * 1024 * 1;
@@ -44,7 +44,7 @@ class FragmentedMSE {
   }
 
   fetchVideo = range => {
-    console.log(range)
+    // console.log(range)
     return new Promise((resolve) => {
       fetch(this.baseUrl, {
         headers: {
@@ -64,7 +64,7 @@ class FragmentedMSE {
   isNeedFetch = () => {
     for (let i = 0; i < this.videoDOM.buffered.length; i++) {
       const bufferend = this.videoDOM.buffered.end(i);
-      if (this.videoDOM.currentTime < bufferend && bufferend - this.videoDOM.currentTime >= this.cacheSeconds)
+      if (this.videoDOM.currentTime < bufferend && bufferend - this.videoDOM.currentTime >= this.cacheReserveSecs)
         return false
     }
     return true;
@@ -72,32 +72,53 @@ class FragmentedMSE {
   timeupdate = async () => {
     if (this.totalLength && this.segmentStart >= this.totalLength) { // 所有数据已请求完成
       this.videoDOM.removeEventListener("timeupdate", this.timeupdate);
+      this.mediaSource.endOfStream();
     } else {
       // 如果当前视频播放时间不够则继续请求分段数据
       if (this.isNeedFetch()) {
         const range = this.calculateRange();
         this.updateSegmentStart(range);
-        const data: any = await this.fetchVideo(range);
-        await this.sourceBuffer.appendBuffer(data);
+        const chunk: any = await this.fetchVideo(range);
+        this.sourceBuffer.appendBuffer(chunk);
       }
     }
   }
-  positionChanged = async () => {
-    this.videoDOM.removeEventListener("timeupdate", this.timeupdate);
-    this.segmentStart = Math.floor(this.videoDOM.currentTime / this.videoDOM.duration * this.totalLength);
-    const range = this.calculateRange();
-    const data: any = await this.fetchVideo(range);
-    await this.sourceBuffer.appendBuffer(data);
-    console.log(data)
-    // this.sourceBuffer.addEventListener("updateend", () => console.log(this.sourceBuffer.buffered))
-    // this.videoDOM.addEventListener("timeupdate", this.timeupdate);
+  // positionChanged = async () => {
+  //   this.videoDOM.removeEventListener("timeupdate", this.timeupdate);
+  //   this.segmentStart = Math.floor(this.videoDOM.currentTime / this.videoDOM.duration * this.totalLength);
+  //   const range = this.calculateRange();
+  //   const chunk: any = await this.fetchVideo(range);
+  //   await this.sourceBuffer.appendBuffer(chunk);
+  //   // this.sourceBuffer.addEventListener("updateend", () => console.log(this.sourceBuffer.buffered))
+  //   // this.videoDOM.addEventListener("timeupdate", this.timeupdate);
+  // }
+
+
+  seek = async () => {
+    if (this.mediaSource.readyState === "open") {
+      this.videoDOM.removeEventListener("timeupdate", this.timeupdate);
+      this.sourceBuffer.updating && this.sourceBuffer.abort();
+      // this.sourceBuffer.remove(this.sourceBuffer.buffered.start(0), this.sourceBuffer.buffered.end(0));
+
+      this.segmentStart = Math.floor((this.videoDOM.currentTime) / this.videoDOM.duration * this.totalLength);
+      const range = this.calculateRange();
+      // this.updateSegmentStart(range);
+      // const chunk: any = await this.fetchVideo(`1-${this.totalLength / 4}`);
+      const chunk: any = await this.fetchVideo(range);
+      this.sourceBuffer.appendBuffer(chunk);
+      this.sourceBuffer.addEventListener("updateend", () => {
+        // this.videoDOM.addEventListener("timeupdate", this.timeupdate)
+      })
+    }
   }
+
 
   handleSBUpdated = async () => {
     if (this.videoDOM.buffered.length) {
       // 视频开始能播放后，监听视频的timeupdate来决定是否继续请求数据
       this.sourceBuffer.removeEventListener("updateend", this.handleSBUpdated);
-      this.videoDOM.addEventListener("timeupdate", this.timeupdate, false);
+      this.videoDOM.addEventListener("timeupdate", this.timeupdate);
+      this.videoDOM.addEventListener("seeking", this.seek);
     } else {
       // 继续加载初始化数据，直到视频能够播放，才触发timeupdate事件
       const initRange = this.calculateRange();
@@ -131,7 +152,7 @@ class FragmentedMSE {
       this.mediaSource = mediaSource;
       mediaSource.addEventListener('sourceopen', this.sourceOpen);
     } else {
-      console.error('不支持MediaSource');
+      console.error('Unsupported MIME type or codec: ', this.mimeCodec);
       // 不支持MediaSource，则降级普通的video
       const source = document.createElement('source');
       source.type = 'videoDOM/mp4';

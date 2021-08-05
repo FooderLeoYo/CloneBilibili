@@ -90,7 +90,7 @@ function ControlBar(props: ControlBarProps, ref) {
     videoDOM.currentTime = videoDOM.duration * progress;
 
 
-    videoFMSERef.current.positionChanged();
+    // videoFMSERef.current.positionChanged();
 
 
 
